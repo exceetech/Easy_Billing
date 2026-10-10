@@ -264,8 +264,9 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
                     val batchInvoice = round2(unitCostGross * line.returnQty)
                     val batchTaxable = round2(unitCostNet * line.returnQty)
 
-                    InventoryManager.addStock(
+                    SalesRestock.restock(
                         db        = db,
+                        billItemId = bi.id,
                         productId = bi.productId,
                         quantity  = line.returnQty,
                         costPrice = unitCostGross,
@@ -486,11 +487,21 @@ class CreditNoteRepository private constructor(private val db: AppDatabase) {
                     val product = db.productDao().getById(bi.productId) ?: continue
                     if (!product.trackInventory) continue
 
+                    val slices = mutableListOf<com.example.easy_billing.correction.FifoAllocator.Slice>()
                     InventoryManager.reduceStock(
                         db = db,
                         productId = bi.productId,
                         quantity = line.additionalQty,
-                        type = "SALE"
+                        type = "SALE",
+                        allocationSink = slices
+                    )
+                    com.example.easy_billing.db.AllocationRecorder.save(
+                        db = db,
+                        sourceType = com.example.easy_billing.db.AllocationSource.SALES_DEBIT_NOTE,
+                        sourceId = noteId,
+                        sourceLineId = bi.id,
+                        productId = bi.productId,
+                        slices = slices
                     )
                 }
 

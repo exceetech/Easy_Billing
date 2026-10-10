@@ -73,13 +73,58 @@ object CreditAdjustmentPrompt {
         kind: Kind,
         amount: Double,
         documentLocalId: Int,
-        onDone: () -> Unit
+        afterAll: () -> Unit
     ) {
         activity.lifecycleScope.launch {
+            // Payment tracking (sales side, return / cancel only): whatever part of the document is NOT
+            // on the credit account is money the customer paid, so it is refunded. The refund question is
+            // asked after the credit question, together with any "settle in cash" leftover.
+            val salesRefund = source is Source.Bill && !kind.raises
+            // Purchase side: money coming back from the supplier (return / debit note / cancel), and the
+            // extra to pay when a supplier note raises the bill of a purchase that was paid now.
+            val supplierRefund = (source is Source.Purchase || source is Source.SupplierAccount) && !kind.raises
+            val supplierPay = source is Source.Purchase && kind == Kind.PURCHASE_CREDIT_NOTE
+            val moneyBack = salesRefund || supplierRefund
+            if (salesRefund && kind == Kind.BILL_CANCEL) {
+                // An unpaid UPI link on a cancelled bill will never be received.
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    com.example.easy_billing.db.AppDatabase.getDatabase(activity).moneyEntryDao()
+                        .cancelPending(MoneySource.BILL, (source as Source.Bill).billId)
+                }
+            }
+            // Read BEFORE the credit side is committed below.
+            val creditShare = if (moneyBack)
+                CreditAdjustmentRepository.creditShareOf(activity, source, amount) else 0.0
+            // A return booked straight on a supplier account has no paid part, only a possible cash leftover.
+            val paidPart = if (moneyBack && source !is Source.SupplierAccount) maxOf(0.0, amount - creditShare) else 0.0
+            android.util.Log.d("MoneyFlow", "adjust kind=$kind source=$source amount=$amount creditShare=$creditShare paidPart=$paidPart salesRefund=$salesRefund supplierRefund=$supplierRefund supplierPay=$supplierPay")
+            val onDone: (cashExcess: Double) -> Unit = { cashExcess ->
+                if (salesRefund) {
+                    // A cash settlement can only come out of the credit part, never out of the paid part.
+                    SalesRefundPrompt.ask(
+                        activity, (source as Source.Bill).billId, kind, documentLocalId,
+                        paidPart, minOf(cashExcess, creditShare), afterAll
+                    )
+                } else if (supplierRefund) {
+                    PurchaseMoneyPrompt.askRefund(
+                        activity, source, kind, documentLocalId,
+                        paidPart, minOf(cashExcess, creditShare), afterAll
+                    )
+                } else afterAll()
+            }
+            // Nothing of this document is on credit any more (cash bill, or its credit part is already used
+            // up by earlier returns): there is no credit question, only the refund of the paid money.
+            if (moneyBack && creditShare <= 0.005) {
+                onDone(0.0)
+                return@launch
+            }
             when (val plan = CreditAdjustmentRepository.planForSource(activity, source, kind, amount)) {
 
                 // Cash bill/purchase, deleted account, or nothing to do.
-                Plan.NotLinked -> onDone()
+                Plan.NotLinked ->
+                    if (supplierPay) PurchaseMoneyPrompt.askPay(
+                        activity, (source as Source.Purchase).purchaseId, documentLocalId, amount, afterAll
+                    ) else onDone(0.0)
 
                 // A charge: always adds to the balance, no question.
                 is Plan.AddCharge -> {
@@ -87,7 +132,7 @@ object CreditAdjustmentPrompt {
                         activity, source, kind, plan.amount, documentLocalId
                     )
                     toast(activity, kind, r)
-                    onDone()
+                    afterAll()
                 }
 
                 // Return fully absorbed by the dues: reduce silently.
@@ -96,7 +141,7 @@ object CreditAdjustmentPrompt {
                         activity, source, kind, plan.reduce, documentLocalId
                     )
                     toast(activity, kind, r)
-                    onDone()
+                    onDone(0.0)
                 }
 
                 // Return overshoots the dues: ask only about the leftover.
@@ -111,7 +156,7 @@ object CreditAdjustmentPrompt {
         kind: Kind,
         documentLocalId: Int,
         plan: Plan.Choice,
-        onDone: () -> Unit
+        onDone: (cashExcess: Double) -> Unit
     ) {
         // "They" is the other party — the customer on a sale, the supplier on a
         // purchase. Direction of the leftover flips with the side.
@@ -135,15 +180,16 @@ object CreditAdjustmentPrompt {
                 d.dismiss()
                 // Only the debt-clearing part touches the account; the excess
                 // is cash and is not recorded on the ledger.
-                commitAndFinish(activity, source, kind, plan.reduce, documentLocalId, onDone)
+                // The excess is cash handed back to the customer: it goes to the refund sheet.
+                commitAndFinish(activity, source, kind, plan.reduce, documentLocalId) { onDone(plan.excess) }
             }
             .setNegativeButton(activity.getString(R.string.credit_adjustment_keep_as_advance_btn)) { d, _ ->
                 d.dismiss()
                 // The excess stays on the account, so the balance moves into
                 // advance by that much.
-                commitAndFinish(activity, source, kind, plan.reduce + plan.excess, documentLocalId, onDone)
+                commitAndFinish(activity, source, kind, plan.reduce + plan.excess, documentLocalId) { onDone(0.0) }
             }
-            .setOnCancelListener { onDone() }
+            .setOnCancelListener { onDone(0.0) }
             .show()
     }
 

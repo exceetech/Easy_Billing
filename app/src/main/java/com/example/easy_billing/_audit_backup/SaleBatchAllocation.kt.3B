@@ -1,0 +1,129 @@
+package com.example.easy_billing.db
+
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.Insert
+import com.example.easy_billing.util.appNow
+
+/**
+ * Stage 3A: which purchase bill each outgoing unit came from.
+ *
+ * One row per (outflow line × batch slice). An outflow is a sale line, a
+ * scrap/loss, a sales debit note, etc. Rows are written in the SAME
+ * transaction as the stock movement they describe.
+ *
+ * No foreign keys on purpose: reconcileDrift / clearEmptyBatches delete and
+ * recreate batch rows, and a bill can be cancelled; the allocation must
+ * survive both. [purchaseInvoiceId] is the stable reference. [batchId] is
+ * only a hint and may point at a deleted batch.
+ *
+ * [purchaseInvoiceId] == null means the units could not be tied to a bill
+ * (legacy MIGRATION / DRIFT-CORRECTION stock, or a short ledger). Those
+ * rows are kept, quantified, and simply excluded from per-bill maths.
+ */
+@Entity(
+    tableName = "sale_batch_allocation",
+    indices = [
+        Index(value = ["source_type", "source_id", "source_line_id"]),
+        Index(value = ["purchase_invoice_id", "product_id"]),
+        Index(value = ["product_id"])
+    ]
+)
+data class SaleBatchAllocation(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+
+    /** See [AllocationSource]. */
+    @ColumnInfo(name = "source_type") val sourceType: String,
+    /** bill id / note id / log id of the outflow document. */
+    @ColumnInfo(name = "source_id") val sourceId: Int,
+    /** bill_items.id for a sale line, 0 when the source has no lines. */
+    @ColumnInfo(name = "source_line_id") val sourceLineId: Int = 0,
+
+    @ColumnInfo(name = "product_id") val productId: Int,
+    @ColumnInfo(name = "purchase_invoice_id") val purchaseInvoiceId: Int? = null,
+    @ColumnInfo(name = "batch_id") val batchId: Int? = null,
+
+    val quantity: Double,
+    /** Units of [quantity] later put back on the shelf (customer return, cancelled sale). Phase 3B. */
+    @ColumnInfo(name = "quantity_restored") val quantityRestored: Double = 0.0,
+
+    @ColumnInfo(name = "unit_cost_net") val unitCostNet: Double = 0.0,
+    @ColumnInfo(name = "unit_cost_gross") val unitCostGross: Double = 0.0,
+
+    @ColumnInfo(name = "created_at") val createdAt: Long = appNow(),
+    @ColumnInfo(name = "is_synced") val isSynced: Boolean = false
+)
+
+object AllocationSource {
+    const val SALE = "SALE"
+    const val SALES_DEBIT_NOTE = "SALES_DEBIT_NOTE"
+    const val SCRAP = "SCRAP"
+    const val LOSS = "LOSS"
+    const val CLEAR = "CLEAR"
+}
+
+@Dao
+interface SaleBatchAllocationDao {
+
+    @Insert
+    suspend fun insertAll(rows: List<SaleBatchAllocation>)
+
+    /** Idempotent re-save of a source: callers delete first, then insert. */
+    @Query("DELETE FROM sale_batch_allocation WHERE source_type = :type AND source_id = :sourceId AND source_line_id = :lineId")
+    suspend fun deleteForSource(type: String, sourceId: Int, lineId: Int)
+
+    @Query("SELECT * FROM sale_batch_allocation WHERE source_type = :type AND source_id = :sourceId")
+    suspend fun getForSource(type: String, sourceId: Int): List<SaleBatchAllocation>
+
+    @Query("SELECT * FROM sale_batch_allocation WHERE purchase_invoice_id = :invoiceId AND product_id = :productId")
+    suspend fun getForInvoiceProduct(invoiceId: Int, productId: Int): List<SaleBatchAllocation>
+
+    @Query("""
+        SELECT COALESCE(SUM(quantity - quantity_restored), 0.0)
+        FROM sale_batch_allocation
+        WHERE purchase_invoice_id = :invoiceId AND product_id = :productId
+    """)
+    suspend fun netOutQty(invoiceId: Int, productId: Int): Double
+
+    @Query("SELECT COUNT(*) FROM sale_batch_allocation")
+    suspend fun count(): Int
+
+    @Query("DELETE FROM sale_batch_allocation")
+    suspend fun deleteAll()
+}
+
+/** Persists FIFO slices as allocation rows. Idempotent per source line. */
+object AllocationRecorder {
+
+    suspend fun save(
+        db: AppDatabase,
+        sourceType: String,
+        sourceId: Int,
+        sourceLineId: Int,
+        productId: Int,
+        slices: List<com.example.easy_billing.correction.FifoAllocator.Slice>
+    ) {
+        val dao = db.saleBatchAllocationDao()
+        dao.deleteForSource(sourceType, sourceId, sourceLineId)
+        if (slices.isEmpty()) return
+        dao.insertAll(
+            slices.filter { it.quantity > 0.0 }.map {
+                SaleBatchAllocation(
+                    sourceType = sourceType,
+                    sourceId = sourceId,
+                    sourceLineId = sourceLineId,
+                    productId = productId,
+                    purchaseInvoiceId = it.purchaseInvoiceId,
+                    batchId = it.batchId,
+                    quantity = it.quantity,
+                    unitCostNet = it.unitCostNet,
+                    unitCostGross = it.unitCostGross
+                )
+            }
+        )
+    }
+}

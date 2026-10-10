@@ -1,0 +1,115 @@
+package com.example.easy_billing.util
+
+import android.content.Context
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Typeface
+import android.graphics.pdf.PdfDocument
+import java.io.File
+import java.io.FileOutputStream
+
+/** One printed line of the statement. [signed] is plus for money in and minus for money out. */
+data class StatementLine(
+    val whenText: String,
+    val title: String,
+    val detail: String,
+    val signed: Double,
+    val pending: Boolean
+)
+
+/** The figures at the top of the statement. */
+data class StatementSummary(val opening: MoneyTotals, val within: MoneyTotals) {
+    val closing: MoneyTotals get() = MoneyReport.closing(opening, within)
+}
+
+/** Money statement as an A4 PDF, drawn on the phone. */
+object MoneyStatementPdf {
+
+    fun generate(
+        context: Context,
+        periodText: String,
+        summary: StatementSummary,
+        lines: List<StatementLine>,
+        labels: Labels
+    ): File {
+        val w = 595; val h = 842; val m = 32f
+        val doc = PdfDocument()
+        val p = Paint(Paint.ANTI_ALIAS_FLAG)
+        fun money(v: Double) = CurrencyHelper.format(context, v)
+
+        var pageNo = 0
+        var page: PdfDocument.Page? = null
+        var c = null as android.graphics.Canvas?
+        var y = 0f
+
+        fun newPage() {
+            page?.let { doc.finishPage(it) }
+            pageNo++
+            page = doc.startPage(PdfDocument.PageInfo.Builder(w, h, pageNo).create())
+            c = page!!.canvas
+            y = m + 8f
+        }
+        fun text(s: String, x: Float, size: Float, bold: Boolean = false, color: Int = Color.parseColor("#1A1A18"), right: Boolean = false) {
+            p.textSize = size
+            p.typeface = if (bold) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
+            p.color = color
+            p.textAlign = if (right) Paint.Align.RIGHT else Paint.Align.LEFT
+            c!!.drawText(s, x, y, p)
+        }
+        fun clip(s: String, max: Int) = if (s.length > max) s.take(max - 1) + "…" else s
+
+        newPage()
+        text(labels.title, m, 20f, true); y += 18f
+        text(periodText, m, 12f, color = Color.parseColor("#6E6A60")); y += 22f
+
+        // Summary table: label | cash | bank | total
+        val xs = floatArrayOf(m, 330f, 440f, w - m)
+        text("", xs[0], 10f)
+        text(labels.cash, xs[1], 10f, true, Color.GRAY, true)
+        text(labels.bank, xs[2], 10f, true, Color.GRAY, true)
+        text(labels.total, xs[3], 10f, true, Color.GRAY, true); y += 16f
+        fun row(label: String, cash: Double, bank: Double, bold: Boolean = false) {
+            text(label, xs[0], 11f, bold)
+            text(money(cash), xs[1], 11f, bold, right = true)
+            text(money(bank), xs[2], 11f, bold, right = true)
+            text(money(cash + bank), xs[3], 11f, bold, right = true); y += 16f
+        }
+        row(labels.opening, summary.opening.cashNet, summary.opening.bankNet)
+        row(labels.moneyIn, summary.within.inCash, summary.within.inBank)
+        row(labels.moneyOut, summary.within.outCash, summary.within.outBank)
+        row(labels.closing, summary.closing.cashNet, summary.closing.bankNet, true)
+        y += 10f
+
+        p.color = Color.parseColor("#E4DCC8"); c!!.drawLine(m, y, w - m, y, p); y += 16f
+
+        if (lines.isEmpty()) {
+            text(labels.empty, m, 12f, color = Color.GRAY)
+        }
+        for (l in lines) {
+            if (y > h - 60f) { newPage() }
+            text(l.whenText, m, 9.5f, color = Color.parseColor("#6E6A60"))
+            text(clip(l.title, 38), 130f, 10.5f, true)
+            val amt = (if (l.signed >= 0) "+" else "-") + money(kotlin.math.abs(l.signed))
+            text(amt, w - m, 10.5f, true,
+                Color.parseColor(if (l.pending) "#8C8576" else if (l.signed >= 0) "#0F6E56" else "#B23A3A"), true)
+            y += 12f
+            val d = if (l.pending) l.detail + " · " + labels.pending else l.detail
+            if (d.isNotBlank()) text(clip(d, 80), 130f, 9f, color = Color.parseColor("#8C8576"))
+            y += 14f
+        }
+        page?.let { doc.finishPage(it) }
+
+        val dir = File(context.cacheDir, "money_statements").apply { mkdirs() }
+        val file = File(dir, "Money_Statement_${System.currentTimeMillis()}.pdf")
+        FileOutputStream(file).use { doc.writeTo(it) }
+        doc.close()
+        return file
+    }
+
+    /** Text used on the page; passed in so the PDF follows the app language. */
+    data class Labels(
+        val title: String, val cash: String, val bank: String, val total: String,
+        val opening: String, val moneyIn: String, val moneyOut: String, val closing: String,
+        val empty: String, val pending: String
+    )
+}

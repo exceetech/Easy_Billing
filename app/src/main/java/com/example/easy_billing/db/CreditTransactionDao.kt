@@ -9,7 +9,7 @@ interface CreditTransactionDao {
 
     // ================= INSERT =================
     @Insert
-    suspend fun insert(txn: CreditTransaction)
+    suspend fun insert(txn: CreditTransaction): Long
 
 
     /**

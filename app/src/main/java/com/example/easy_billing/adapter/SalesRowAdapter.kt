@@ -18,7 +18,11 @@ data class SalesRow(
     val label: String,
     val revenue: Double,
     val bills: Int,
-    val isBest: Boolean = false
+    val isBest: Boolean = false,
+    /** Optional custom text for the line under the label (RankedRowAdapter). */
+    val subText: String? = null,
+    /** Optional custom text for the figure on the right (RankedRowAdapter). */
+    val valueText: String? = null
 )
 
 private val SALES_ROW_DIFF_CALLBACK = object : DiffUtil.ItemCallback<SalesRow>() {

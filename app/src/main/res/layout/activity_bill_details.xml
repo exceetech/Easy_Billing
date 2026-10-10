@@ -804,29 +804,76 @@
                 android:stateListAnimator="@null"
                 android:insetLeft="0dp"
                 android:insetRight="0dp"/>
+        </LinearLayout>
+
+        <!-- Send to Customer (blue) + Print (champagne outline) — back in
+             their own row, as in the earlier design. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnMoreActions"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_marginStart="8dp"
-                android:minWidth="0dp"
-                android:minHeight="0dp"
-                android:text=""
-                app:backgroundTint="@null"
-                android:background="@drawable/bg_cta_white_green_outline"
+                android:id="@+id/btnSendToCustomer"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="46dp"
+                android:text="@string/bill_details_share_button"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:singleLine="true"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeMaxTextSize="12.5sp"
+                android:autoSizeStepGranularity="1sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:includeFontPadding="false"
+                android:backgroundTint="#2563AB"
+                app:rippleColor="#1E3A8A"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                app:icon="@drawable/ic_more_horiz"
-                app:iconTint="#3C8C5D"
-                app:iconSize="20dp"
-                app:iconGravity="textStart"
-                app:iconPadding="0dp"
-                app:cornerRadius="14dp"
                 android:stateListAnimator="@null"
+                app:cornerRadius="14dp"
+                app:icon="@drawable/ic_lc_send"
+                app:iconTint="#FFFFFF"
+                app:iconSize="15dp"
+                app:iconGravity="textStart"
+                app:iconPadding="6dp"
+                android:gravity="center"
                 android:insetLeft="0dp"
-                android:insetRight="0dp"
-                android:contentDescription="@string/bill_details_more_options"/>
+                android:insetRight="0dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPrint"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="46dp"
+                android:layout_marginStart="10dp"
+                android:text="@string/activity_bill_details_print"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:singleLine="true"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeMaxTextSize="12.5sp"
+                android:autoSizeStepGranularity="1sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:includeFontPadding="false"
+                android:backgroundTint="#1A1A18"
+                app:rippleColor="#3A3A36"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:stateListAnimator="@null"
+                app:cornerRadius="14dp"
+                app:icon="@drawable/ic_print"
+                app:iconTint="#FFFFFF"
+                app:iconSize="15dp"
+                app:iconGravity="textStart"
+                app:iconPadding="6dp"
+                android:gravity="center"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"/>
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton

@@ -1,0 +1,896 @@
+package com.example.easy_billing.network
+
+import com.example.easy_billing.api.*
+import com.example.easy_billing.db.CreditTransaction
+import okhttp3.MultipartBody
+import retrofit2.Response
+import retrofit2.http.*
+
+data class LoginResponse(
+    val access_token: String,
+    val token_type: String,
+    val is_first_login: Boolean,
+    val shop_id: Int
+)
+
+data class FactoryResetResponse(
+    val message: String,
+    val access_token: String,
+    val new_shop_id: Int
+)
+
+
+data class SubscriptionConfigResponse(
+    val gst_enabled: Boolean,
+    val gst_percent: Float
+)
+
+interface ApiService {
+
+    // ================= AUTH =================
+
+    @FormUrlEncoded
+    @POST("auth/login")
+    suspend fun login(
+        @Field("username") username: String,
+        @Field("password") password: String,
+        @Header("device-id") deviceId: String,
+        // Set to "true" ONLY for QuickUnlockActivity's silent PIN/fingerprint
+        // replay login — never for a real interactive password submission
+        // (MainActivity omits it, defaulting to "false"). Lets the backend
+        // refuse to let a silent replay (re)bind a device whose association
+        // was just reset by an admin, forcing a real password login instead
+        // — see auth_routes.py's login() for the full reasoning.
+        @Header("quick-unlock") quickUnlock: String = "false"
+    ): LoginResponse
+
+    @POST("auth/register")
+    suspend fun register(
+        @Body request: RegisterRequest
+    ): RegisterResponse
+
+    @GET("auth/me")
+    suspend fun getProfile(
+        @Header("Authorization") token: String
+    ): ProfileResponse
+
+    @FormUrlEncoded
+    @POST("auth/change-password")
+    suspend fun changePassword(
+        @Header("Authorization") token: String,
+        @Field("new_password") newPassword: String
+    ): retrofit2.Response<Unit>
+
+    @POST("auth/verify-password")
+    suspend fun verifyPassword(
+        @Header("Authorization") token: String,
+        @Body request: VerifyPasswordRequest
+    ): retrofit2.Response<VerifyPasswordResponse>
+
+    // ================= PRODUCTS =================
+
+    @POST("products/check")
+    suspend fun checkProduct(
+        @Header("Authorization") token: String,
+        @Body request: AddProductRequest
+    ): CheckProductResponse
+
+    @GET("products/catalog")
+    suspend fun getCatalog(
+        @Header("Authorization") token: String
+    ): List<GlobalProductResponse>
+
+    @GET("products/my-products")
+    suspend fun getMyProducts(
+        @Header("Authorization") token: String
+    ): List<ShopProductResponse>
+
+    @POST("products/add-to-shop")
+    suspend fun addProductToShop(
+        @Header("Authorization") token: String,
+        @Body request: AddProductRequest
+    ): AddProductResponse
+
+    /** Push updated fields for a product that is already on the server. */
+    @PUT("products/{server_id}")
+    suspend fun updateShopProduct(
+        @Header("Authorization") token: String,
+        @Path("server_id") serverId: Int,
+        @Body request: AddProductRequest
+    ): AddProductResponse
+
+    @PUT("products/deactivate/{id}")
+    suspend fun deactivateProduct(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    )
+
+
+    // ================= BILL =================
+
+    @POST("bills/create")
+    suspend fun createBill(
+        @Header("Authorization") token: String,
+        @Body request: CreateBillRequest
+    ): CreateBillResponse
+
+    @PUT("bills/cancel")
+    suspend fun cancelBill(
+        @Header("Authorization") token: String,
+        @Body request: CancelBillRequest
+    ): MessageResponse
+
+    @PUT("purchases/cancel")
+    suspend fun cancelPurchase(
+        @Header("Authorization") token: String,
+        @Body request: CancelPurchaseRequest
+    ): MessageResponse
+
+    @GET("bills/since")
+    suspend fun getBillsSince(
+        @Header("Authorization") token: String,
+        @Query("after_id") afterId: Int = 0   // delta cursor; 0 = full pull
+    ): List<BillSyncDto>
+
+    @GET("bills/cancellations")
+    suspend fun getBillCancellations(
+        @Header("Authorization") token: String,
+        @Query("updated_since") updatedSince: Long = 0   // delta cursor; 0 = all
+    ): List<BillCancellationDto>
+
+    @GET("bills/payment-status")
+    suspend fun getBillPaymentStatusUpdates(
+        @Header("Authorization") token: String,
+        @Query("updated_since") updatedSince: Long = 0   // delta cursor; 0 = all
+    ): List<BillPaymentStatusDto>
+
+    // Keyed on bill_number, not a local id — the app's local Room Bill.id
+    // is never the server's bill id, only bill_number is a reliable
+    // cross-system key (same reason the payment-status pull matches on it).
+    @POST("pos-payments/{billNumber}/create-link")
+    suspend fun createPaymentLink(
+        @Header("Authorization") token: String,
+        @Path("billNumber") billNumber: String,
+        @Body request: CreatePaymentLinkRequest
+    ): CreatePaymentLinkResponse
+
+    @Multipart
+    @POST("pos-payments/{billNumber}/upload-pdf")
+    suspend fun uploadInvoicePdf(
+        @Header("Authorization") token: String,
+        @Path("billNumber") billNumber: String,
+        @Part file: MultipartBody.Part
+    ): UploadPdfResponse
+
+    // Scan-to-pay in-person alternative to createPaymentLink above — no
+    // SIM/phone number needed, the customer just scans this off screen.
+    @POST("pos-payments/{billNumber}/create-qr")
+    suspend fun createQrCode(
+        @Header("Authorization") token: String,
+        @Path("billNumber") billNumber: String,
+        @retrofit2.http.Query("amount") amount: Double? = null
+    ): CreateQrCodeResponse
+
+    // Manual "customer already paid, webhook hasn't caught up" override —
+    // no request body, just the shop's own auth on their own bill.
+    @POST("pos-payments/{billNumber}/mark-paid")
+    suspend fun markBillPaid(
+        @Header("Authorization") token: String,
+        @Path("billNumber") billNumber: String
+    ): MarkPaidResponse
+
+    @GET("bills/{id}")
+    suspend fun getBillDetails(
+        @Header("Authorization") token: String,
+        @Path("id") billId: Int
+    ): BillDetailResponse
+
+    @GET("bills")
+    suspend fun getBills(
+        @Header("Authorization") token: String,
+        @Query("date") date: String? = null,
+        @Query("item") item: String? = null,
+        @Query("payment") payment: String? = null,
+        @Query("sort") sort: String? = null
+    ): List<BillResponse>
+
+
+    // ================= REPORTS =================
+
+    @GET("reports/daily")
+    suspend fun getDailyReport(
+        @Header("Authorization") token: String,
+        @Query("type") type: String? = null,
+        @Query("start_date") startDate: String? = null,
+        @Query("end_date") endDate: String? = null
+    ): List<DailyReportResponse>
+
+    @GET("reports/weekly")
+    suspend fun getWeeklyReport(
+        @Header("Authorization") token: String
+    ): List<WeeklyReportResponse>
+
+    @GET("reports/monthly")
+    suspend fun getMonthlyReport(
+        @Header("Authorization") token: String
+    ): List<MonthlyReportResponse>
+
+    @GET("reports/yearly")
+    suspend fun getYearlyReport(
+        @Header("Authorization") token: String
+    ): List<YearlyReportResponse>
+
+    @GET("reports/custom")
+    suspend fun getCustomReport(
+        @Header("Authorization") token: String,
+        @Query("start_date") start: String,
+        @Query("end_date") end: String
+    ): List<SalesTrendResponse>
+
+
+    // ================= PRODUCT ANALYTICS =================
+
+    @GET("reports/top-products")
+    suspend fun getTopProducts(
+        @Header("Authorization") token: String,
+        @Query("type") type: String,
+        @Query("start") start: String?,
+        @Query("end") end: String?,
+        @Query("sort_by") sortBy: String
+    ): List<TopProductResponse>
+
+    @GET("reports/top-revenue-products")
+    suspend fun getTopRevenueProducts(
+        @Header("Authorization") token: String
+    ): List<TopRevenueProductResponse>
+
+    @GET("reports/today-hourly")
+    suspend fun getTodayHourlySales(
+        @Header("Authorization") token: String
+    ): List<PeakHourResponse>
+
+
+    // ================= TIME ANALYTICS =================
+
+    @GET("reports/peak-hours")
+    suspend fun getPeakHours(
+        @Header("Authorization") token: String,
+        @Query("type") type: String,
+        @Query("start_date") start: String? = null,
+        @Query("end_date") end: String? = null
+    ): List<PeakHourResponse>
+
+    @GET("reports/weekday-analysis")
+    suspend fun getWeekdayAnalysis(
+        @Header("Authorization") token: String
+    ): List<WeekdayAnalysisResponse>
+
+    @GET("reports/heatmap")
+    suspend fun getHeatmap(
+        @Header("Authorization") token: String
+    ): List<HeatmapResponse>
+
+
+    // ================= BUSINESS ANALYTICS =================
+
+    @GET("reports/payment-analysis")
+    suspend fun getPaymentAnalysis(
+        @Header("Authorization") token: String
+    ): List<PaymentAnalysisResponse>
+
+    @GET("reports/average-bill")
+    suspend fun getAverageBill(
+        @Header("Authorization") token: String,
+        @Query("type") type: String,
+        @Query("start_date") start: String? = null,
+        @Query("end_date") end: String? = null
+    ): AverageBillResponse
+
+    @GET("reports/overview")
+    suspend fun getOverview(
+        @Header("Authorization") token: String,
+        @Query("type") type: String,
+        @Query("start_date") start: String? = null,
+        @Query("end_date") end: String? = null
+    ): OverviewResponse
+
+    @GET("reports/trend")
+    suspend fun getSalesTrend(
+        @Header("Authorization") token: String
+    ): List<SalesTrendResponse>
+
+
+    // ================= EMAIL REPORT =================
+
+    @POST("reports/email-report")
+    suspend fun sendEmailReport(
+        @Header("Authorization") token: String,
+        @Query("type") type: String,
+        @Query("start_date") startDate: String? = null,
+        @Query("end_date") endDate: String? = null,
+        // I7 FIX: currency lives client-side only — send it so the PDF
+        // matches what the app displays instead of always showing ₹
+        @Query("currency") currency: String? = null
+    ): MessageResponse
+
+    // ================= SHOP SETTINGS =================
+
+    @GET("shop/settings")
+    suspend fun getStoreSettings(
+        @Header("Authorization") token: String
+    ): ShopSettingsResponse
+
+
+    @PUT("shop/settings")
+    suspend fun updateStoreSettings(
+        @Header("Authorization") token: String,
+        @Body request: ShopSettingsUpdateRequest
+    ): Map<String, String>
+
+    @GET("billing-settings")
+    suspend fun getBillingSettings(
+        @Header("Authorization") token: String
+    ): BillingSettingsResponse
+
+
+    @PUT("billing-settings")
+    suspend fun updateBillingSettings(
+        @Header("Authorization") token: String,
+        @Body request: BillingSettingsUpdateRequest
+    ): BillingSettingsResponse
+
+    @PUT("security/clear-bills")
+    suspend fun clearBills(
+        @Header("Authorization") token: String
+    )
+
+    @PUT("security/factory-reset")
+    suspend fun factoryReset(
+        @Header("Authorization") token: String
+    ): FactoryResetResponse
+
+    @PUT("security/change-password")
+    suspend fun changePassword(
+        @Header("Authorization") token: String,
+        @Body request: ChangePasswordRequest
+    )
+
+    @POST("auth/save-token")
+    suspend fun saveFcmToken(
+        @Header("Authorization") token: String,
+        @Body request: SaveTokenRequest
+    ): Response<Unit>
+
+    // Authorization is added automatically by AuthInterceptor — do not pass it here.
+    @GET("analytics/ai-report")
+    suspend fun getAiReport(): AiReportResponse
+
+    @POST("auth/forgot-password")
+    suspend fun forgotPassword(
+        @Body request: ForgotPasswordRequest
+    ): ForgotPasswordResponse
+
+    @POST("auth/verify-otp")
+    suspend fun verifyOtp(
+        @Query("email") email: String,
+        @Query("otp") otp: String
+    ): Response<VerifyOtpResponse>
+
+    @POST("auth/reset-password")
+    suspend fun resetPassword(
+        @Header("Authorization") token: String,
+        @Body request: ChangePasswordRequest
+    ): Response<Unit>
+
+
+// ================= USER =================
+
+    @GET("subscription/")
+    suspend fun getSubscription(
+        @Header("Authorization") token: String
+    ): SubscriptionResponse
+
+
+    // ================= ADMIN =================
+
+    @POST("subscription/admin/activate")
+    suspend fun adminActivateSubscription(
+        @Query("shop_id") shopId: Int,
+        @Query("plan") plan: String
+    ): MessageResponse
+
+    // ================= RAZORPAY SUBSCRIPTION PAYMENT =================
+    // See app/services/razorpay_service.py and subscription_payment_routes.py
+    // on the backend. Client never sends a price — the server always
+    // recomputes it from plan_code + coupon_code.
+
+    @GET("subscription/config")
+    suspend fun getSubscriptionConfig(): SubscriptionConfigResponse
+
+    @GET("subscription/plans")
+    suspend fun getPlans(
+        @Header("Authorization") token: String
+    ): List<PlanResponse>
+
+    @POST("subscription/validate-coupon")
+    suspend fun validateCoupon(
+        @Header("Authorization") token: String,
+        @Body request: ValidateCouponRequest
+    ): ValidateCouponResponse
+
+    @POST("subscription/create-order")
+    suspend fun createSubscriptionOrder(
+        @Header("Authorization") token: String,
+        @Body request: CreateOrderRequest
+    ): CreateOrderResponse
+
+    @POST("subscription/verify-payment")
+    suspend fun verifySubscriptionPayment(
+        @Header("Authorization") token: String,
+        @Body request: VerifyPaymentRequest
+    ): SubscriptionActionResponse
+
+    @POST("subscription/start-trial")
+    suspend fun startTrial(
+        @Header("Authorization") token: String
+    ): SubscriptionActionResponse
+
+    // ================= ONBOARDING =================
+
+    @POST("auth/accept-terms")
+    suspend fun acceptTerms(
+        @Header("Authorization") token: String
+    ): MessageResponse
+
+    @POST("auth/complete-onboarding")
+    suspend fun completeOnboarding(
+        @Header("Authorization") token: String
+    ): MessageResponse
+
+    // ================= CREDIT =================
+
+    @POST("credit/sync")
+    suspend fun syncCredit(
+        @Header("Authorization") token: String,
+        @Body request: CreditSyncRequest
+    ): Response<Map<String, String>>
+
+    // Returns CreateCreditAccountResponse, not CreditAccountResponse: this
+    // route sends a hand-built object without shop_id / is_active.
+    @POST("credit/account")
+    suspend fun createCreditAccount(
+        @Header("Authorization") token: String,
+        @Body request: CreateCreditAccountRequest
+    ): CreateCreditAccountResponse
+
+    @GET("credit/accounts")
+    suspend fun getCreditAccounts(
+        @Header("Authorization") token: String
+    ): List<CreditAccountResponse>
+
+    @GET("credit/transactions/{accountId}")
+    suspend fun getTransactions(
+        @Header("Authorization") token: String,
+        @Path("accountId") accountId: Int
+    ): List<CreditTransactionResponse>
+
+    @PATCH("credit/account/{id}/deactivate")
+    suspend fun deactivateCreditAccount(
+        @Header("Authorization") token: String,
+        @Path("id") id: Int
+    ): Response<Unit>
+
+    // resetCredit — REMOVED (Report 5). Called PATCH credit/reset, which
+    // deactivated every credit account for the shop with no balance check.
+    // Never actually called anywhere in the app; removed along with the
+    // backend endpoint.
+
+    // ================= INVENTORY =================
+
+    @POST("inventory/sync")
+    suspend fun syncInventory(
+        @Header("Authorization") token: String,
+        @Body logs: List<InventoryLogRequest>
+    ): Response<MessageResponse>
+
+
+    @GET("inventory/my")
+    suspend fun getInventory(
+        @Header("Authorization") token: String,
+        @Query("updated_since") updatedSince: Long = 0   // delta cursor; 0 = full pull
+    ): List<InventoryResponse>
+
+    @GET("inventory/logs")
+    suspend fun getInventoryLogs(
+        @Header("Authorization") token: String,
+        @Query("after_id") afterId: Int = 0   // delta cursor; 0 = full pull
+    ): List<InventoryLogResponse>
+
+
+    @POST("sales/create")
+    suspend fun createSale(
+        @Header("Authorization") token: String,
+        @Body request: CreateSaleRequest
+    ): GenericResponse
+
+    @GET("profit/")
+    suspend fun getProfit(
+        @Header("Authorization") token: String,
+        @Query("filter") filter: String,
+        @Query("start_date") start: String?,
+        @Query("end_date") end: String?
+    ): ProfitResponse
+
+    // Bucketed profit for the trend chart (ProfitChartActivity): same
+    // filter words as getProfit above, plus an optional product_id to
+    // scope every bucket to one product instead of the whole shop.
+    @GET("profit/trend")
+    suspend fun getProfitTrend(
+        @Header("Authorization") token: String,
+        @Query("filter") filter: String,
+        @Query("start_date") start: String?,
+        @Query("end_date") end: String?,
+        @Query("product_id") productId: Int?
+    ): ProfitTrendResponse
+
+    // ================= GST =================
+
+    @GET("gst/lookup/{gstin}")
+    suspend fun lookupGstin(
+        @Header("Authorization") token: String,
+        @Path("gstin") gstin: String
+    ): GstProfileResponse
+
+    @POST("gst/profile")
+    suspend fun upsertGstProfile(
+        @Header("Authorization") token: String,
+        @Body profile: GstProfileRequest
+    ): GstProfileResponse
+
+    @GET("gst/profile")
+    suspend fun getGstProfile(
+        @Header("Authorization") token: String
+    ): GstProfileResponse
+
+    /* ================= Product / HSN / variant verification =================
+     *
+     * Used by AddProductActivity + PurchaseActivity to validate user
+     * input against the global catalogue. The shop's backend is the
+     * authority — global product / HSN / variant data does NOT live
+     * locally and is not cached past the screen lifecycle.
+     */
+
+    @GET("products/verify-hsn/{hsn}")
+    suspend fun verifyHsn(
+        @Header("Authorization") token: String,
+        @Path("hsn") hsn: String
+    ): HsnVerificationResponse
+
+    @GET("products/{name}/variants")
+    suspend fun getProductVariants(
+        @Header("Authorization") token: String,
+        @Path("name") productName: String
+    ): VariantListResponse
+
+    @GET("products/verify-name")
+    suspend fun verifyProductName(
+        @Header("Authorization") token: String,
+        @Query("name") productName: String
+    ): ProductNameVerifyResponse
+
+    /* ================= Push-side sync endpoints =================
+     *
+     * The local DB is the source of truth while offline. These
+     * endpoints push the deltas back when the device reconnects.
+     */
+
+    /** Push unsynced shop_product rows (those with no server_id). */
+    @POST("products/sync")
+    suspend fun syncShopProducts(
+        @Header("Authorization") token: String,
+        @Body body: ShopProductSyncRequest
+    ): ShopProductSyncResponse
+
+    /** Register a product in the *global* catalogue. */
+    @POST("products/global/register")
+    suspend fun registerGlobalProduct(
+        @Header("Authorization") token: String,
+        @Body body: GlobalProductRegisterRequest
+    ): GlobalProductRegisterResponse
+
+    /* ================= Categories (v40) ================= */
+
+    @POST("categories/sync")
+    suspend fun syncCategories(
+        @Header("Authorization") token: String,
+        @Body body: CategorySyncRequest
+    ): CategorySyncResponse
+
+    @GET("categories")
+    suspend fun getCategories(
+        @Header("Authorization") token: String
+    ): CategoryListResponse
+
+    /* ================= Customers (v40) ================= */
+
+    @GET("customers/by-phone")
+    suspend fun getCustomerByPhone(
+        @Header("Authorization") token: String,
+        @Query("phone") phone: String,
+        @Query("type") type: String? = null
+    ): CustomerLookupResponse
+
+    @GET("customers")
+    suspend fun getCustomers(
+        @Header("Authorization") token: String
+    ): CustomerListResponse
+
+    @POST("customers/sync")
+    suspend fun syncCustomers(
+        @Header("Authorization") token: String,
+        @Body body: CustomerSyncRequest
+    ): CustomerSyncResponse
+
+    @POST("customers/account")
+    suspend fun upsertCustomerAccount(
+        @Header("Authorization") token: String,
+        @Body body: CustomerAccountRequest
+    ): CustomerRemote
+
+    /* ================= Suppliers (v47) ================= */
+
+    @GET("suppliers")
+    suspend fun getSuppliers(
+        @Header("Authorization") token: String
+    ): SupplierListResponse
+
+    @GET("suppliers/by-gstin")
+    suspend fun getSupplierByGstin(
+        @Header("Authorization") token: String,
+        @Query("gstin") gstin: String
+    ): SupplierLookupResponse
+
+    /** Plural by design — a name can match several suppliers. */
+    @GET("suppliers/by-name")
+    suspend fun getSuppliersByName(
+        @Header("Authorization") token: String,
+        @Query("name") name: String
+    ): SupplierMatchResponse
+
+    @POST("suppliers/sync")
+    suspend fun syncSuppliers(
+        @Header("Authorization") token: String,
+        @Body body: SupplierSyncRequest
+    ): SupplierSyncResponse
+
+    @POST("suppliers/account")
+    suspend fun upsertSupplierAccount(
+        @Header("Authorization") token: String,
+        @Body body: SupplierAccountRequest
+    ): SupplierRemote
+
+    /** Push a batch of purchase invoices + their line items. */
+    @POST("purchases/sync")
+    suspend fun syncPurchases(
+        @Header("Authorization") token: String,
+        @Body body: PurchaseSyncRequest
+    ): PurchaseSyncResponse
+
+    @GET("purchases/my")
+    suspend fun getPurchases(
+        @Header("Authorization") token: String,
+        @Query("updated_since") updatedSince: Long = 0   // delta cursor; 0 = full pull
+    ): List<PurchaseResponse>
+
+    @POST("purchase-returns/sync")
+    suspend fun syncPurchaseReturns(
+        @Header("Authorization") token: String,
+        @Body body: PurchaseReturnSyncRequest
+    ): RecordSyncResponse
+
+    @POST("purchase-import-details/sync")
+    suspend fun syncPurchaseImportDetails(
+        @Header("Authorization") token: String,
+        @Body body: PurchaseImportDetailsSyncRequest
+    ): PurchaseImportDetailsSyncResponse
+
+    @GET("purchase-batches/{shop_id}")
+    suspend fun getPurchaseBatches(
+        @Header("Authorization") token: String,
+        @Path("shop_id") shopId: Int
+    ): List<PurchaseBatchResponseDto>
+
+    @POST("purchase-batches/sync")
+    suspend fun syncPurchaseBatches(
+        @Header("Authorization") token: String,
+        @Body body: PurchaseBatchSyncRequest
+    ): PurchaseBatchSyncResponse
+
+    @POST("sale-allocations/sync")
+    suspend fun syncSaleAllocations(
+        @Header("Authorization") token: String,
+        @Body body: SaleAllocationSyncRequest
+    ): SaleAllocationSyncResponse
+
+    @GET("sale-allocations/{shop_id}")
+    suspend fun getSaleAllocations(
+        @Header("Authorization") token: String,
+        @Path("shop_id") shopId: Int,
+        @Query("after_alloc_id") afterAllocId: Int = 0,
+        @Query("after_pool_id") afterPoolId: Int = 0,
+        @Query("after_claim_id") afterClaimId: Int = 0
+    ): SaleAllocationPullResponse
+
+    // Payment & cash-flow tracking: the Money Book.
+    @POST("money-entries/sync")
+    suspend fun syncMoneyEntries(
+        @Header("Authorization") token: String,
+        @Body body: MoneyEntrySyncRequest
+    ): MoneyEntrySyncResponse
+
+    @GET("money-entries/{shop_id}")
+    suspend fun getMoneyEntries(
+        @Header("Authorization") token: String,
+        @Path("shop_id") shopId: Int,
+        @Query("after_id") afterId: Int = 0,
+        @Query("limit") limit: Int = 500
+    ): MoneyEntryPullResponse
+
+    // Support/debugging breadcrumb trail — see UserEventLogger.kt.
+    // device_id is auto-attached to every request by AuthInterceptor, so
+    // (matching every other sync call in this file) it's not passed here.
+    @POST("events/sync")
+    suspend fun syncUserEvents(
+        @Header("Authorization") token: String,
+        @Body body: UserEventSyncRequest
+    ): UserEventSyncResponse
+
+    // One-shot full local event-log upload, triggered manually by the
+    // shop owner (or support, walking them through it) — see
+    // util/DiagnosticReportUploader.kt. NOT called automatically like
+    // syncUserEvents above.
+    @POST("diagnostic-reports/upload")
+    suspend fun uploadDiagnosticReport(
+        @Header("Authorization") token: String,
+        @Body body: DiagnosticReportUploadRequest
+    ): DiagnosticReportUploadResponse
+
+
+
+    @GET("purchase-return/{shop_id}")
+    suspend fun getPurchaseReturns(
+        @Header("Authorization") token: String,
+        @Path("shop_id") shopId: Int
+    ): List<PurchaseReturnResponseDto>
+
+    @GET("purchase-import-details/{shop_id}")
+    suspend fun getPurchaseImportDetails(
+        @Header("Authorization") token: String,
+        @Path("shop_id") shopId: Int
+    ): List<PurchaseImportDetailsDto>
+
+    @GET("scrap/{shop_id}")
+    suspend fun getScrap(
+        @Header("Authorization") token: String,
+        @Path("shop_id") shopId: Int
+    ): List<ScrapOutDto>
+
+    @POST("scrap/sync")
+    suspend fun syncScrap(
+        @Header("Authorization") token: String,
+        @Body body: ScrapSyncRequest
+    ): RecordSyncResponse
+
+    /** Fetch the configurable list of units for this shop. */
+    @GET("units")
+    suspend fun getUnits(
+        @Header("Authorization") token: String
+    ): UnitListResponse
+
+    // syncGstSales (POST gst/sales/sync) REMOVED (Report 3, C3) — pushed the
+    // now-dropped legacy gst_sales_records table on both client and backend.
+
+    @GET("gst/reports/gstr1")
+    suspend fun getGstr1(
+        @Header("Authorization") token: String,
+        @Query("start_date") startDate: String,
+        @Query("end_date") endDate: String
+    ): Gstr1Response
+
+    // getGstr3b (GET gst/reports/gstr3b) REMOVED — GSTR-3B not needed for
+    // this app; endpoint and backend flow removed, this was never called.
+
+    @GET("gst/reports/hsn-summary")
+    suspend fun getHsnSummary(
+        @Header("Authorization") token: String,
+        @Query("start_date") startDate: String,
+        @Query("end_date") endDate: String
+    ): List<HsnSummaryItem>
+
+    @GET("gst/reports/gstr2")
+    suspend fun getGstr2(
+        @Header("Authorization") token: String,
+        @Query("start_date") startDate: String,
+        @Query("end_date") endDate: String
+    ): Gstr2Response
+
+
+    /* ================= GST-aware sales invoice batch sync =================
+     *
+     * Accepts a batch of GST sales invoices (header + items) created
+     * offline and persists them on the backend. Idempotent on
+     * `local_id` so retries are safe.
+     */
+    @POST("gst-sales/sync")
+    suspend fun syncGstSalesInvoices(
+        @Header("Authorization") token: String,
+        @Body body: GstSalesSyncBatchRequest
+    ): GstSalesSyncBatchResponse
+
+    /** History fetch for a given shop. */
+    @GET("gst-sales/{shop_id}")
+    suspend fun getGstSalesInvoices(
+        @Header("Authorization") token: String,
+        @Path("shop_id") shopId: Int
+    ): List<GstSalesInvoiceResponse>
+
+    /** Cancel a GST invoice (sets is_cancelled + cancelled_at). */
+    @POST("gst-sales/cancel")
+    suspend fun cancelGstSalesInvoice(
+        @Header("Authorization") token: String,
+        @Body body: GstSalesCancelRequest
+    ): GstSalesCancelResponse
+
+
+    @GET("global-catalog/products/{product_id}/variants")
+    suspend fun getVariants(
+        @Header("Authorization") token: String,
+        @Path("product_id") productId: Int
+    ): List<VariantResponse>
+
+    /** One-shot variant fetch by product name (merges duplicate rows). */
+    @GET("global-catalog/products/variants-by-name")
+    suspend fun getVariantsByName(
+        @Header("Authorization") token: String,
+        @Query("name") name: String
+    ): List<VariantResponse>
+
+
+    @GET("global-catalog/products/{product_id}/hsn")
+    suspend fun getHsn(
+        @Header("Authorization") token: String,
+        @Path("product_id") productId: Int
+    ): HsnResponse
+
+    // ── Sales Return (Credit Notes) ──────────────────────────────────────────
+
+    /** Push a batch of credit notes with their line items. */
+    @POST("credit-notes/sync")
+    suspend fun syncCreditNotes(
+        @Header("Authorization") token: String,
+        @Body body: CreditNoteSyncRequest
+    ): CreditNoteSyncResponse
+
+    /** Fetch all credit notes for this shop (pull). */
+    @GET("credit-notes")
+    suspend fun getCreditNotes(
+        @Header("Authorization") token: String,
+        @Query("after_id") afterId: Int = 0   // delta cursor (M3); 0 = full pull
+    ): List<CreditNoteResponseDto>
+
+    // ── Import Services ──────────────────────────────────────────
+
+    // The shop is taken from the bearer token, not the path. It used to be a
+    // path parameter, which left both routes unauthenticated server-side —
+    // any shop id in the URL returned that shop's records.
+    @POST("import_services/sync")
+    suspend fun syncImportServices(
+        @Header("Authorization") token: String,
+        @Body records: List<ImportServiceDto>
+    ): Response<ImportServiceSyncResponse>
+
+    @GET("import_services")
+    suspend fun getImportServices(
+        @Header("Authorization") token: String
+    ): List<ImportServiceResponseDto>
+}

@@ -53,6 +53,12 @@ android {
         buildConfig = true
     }
 
+    // Room migration tests read the exported schema JSONs (schemas/) as
+    // instrumented-test assets.
+    sourceSets {
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
+
     buildTypes {
         getByName("debug") {
             // Override here if you test on a physical device instead of the emulator.
@@ -123,6 +129,8 @@ dependencies {
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.room.testing)
+    androidTestImplementation(libs.androidx.room.ktx)
     androidTestImplementation(libs.androidx.espresso.core)
 
     implementation("com.sun.mail:android-mail:1.6.7")

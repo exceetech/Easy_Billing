@@ -2,7 +2,9 @@ package com.example.easy_billing
 
 import androidx.room.withTransaction
 import com.example.easy_billing.db.AppDatabase
+import com.example.easy_billing.correction.FifoAllocator
 import com.example.easy_billing.db.PurchaseBatch
+import com.example.easy_billing.db.grossUnitCost
 
 /**
  * Pure-Kotlin utility behind the hybrid inventory model.
@@ -61,30 +63,49 @@ object InventoryValuation {
     suspend fun consumeFifo(
         db: AppDatabase,
         productId: Int,
-        quantity: Double
+        quantity: Double,
+        /**
+         * Stage 3A: when non-null, receives exactly which batch / purchase
+         * bill every consumed unit came from (plus one UNALLOCATED slice
+         * for any shortfall). Purely additive — batch quantities change
+         * exactly as before whether or not a sink is passed.
+         */
+        slices: MutableList<FifoAllocator.Slice>? = null
     ): Double {
         if (quantity <= 0.0) return 0.0
         require(productId > 0) { "Invalid productId" }
 
         return db.withTransaction {
             val batches = db.purchaseBatchDao().getRemainingBatches(productId)
-            var remaining = quantity
+            val avg = db.inventoryDao().getInventory(productId)?.averageCost ?: 0.0
+            val plan = FifoAllocator.plan(
+                batches = batches.map { b ->
+                    FifoAllocator.BatchView(
+                        batchId = b.id,
+                        purchaseInvoiceId = b.purchaseInvoiceId,
+                        remaining = b.quantityRemaining,
+                        unitCostNet = b.unitCostExcludingTax,
+                        unitCostGross = b.grossUnitCost()
+                    )
+                },
+                quantity = quantity,
+                shortfallCostNet = avg,
+                shortfallCostGross = avg
+            )
+            slices?.addAll(plan.slices)
+
+            val byId = batches.associateBy { it.id }
             var consumed = 0.0
-
-            for (b in batches) {
-                if (remaining <= 0.0) break
-                if (b.quantityRemaining <= 0.0) continue
-
-                val take = minOf(b.quantityRemaining, remaining)
+            for (sl in plan.slices) {
+                val bid = sl.batchId ?: continue
+                val b = byId.getValue(bid)
                 db.purchaseBatchDao().updateBatch(
                     b.copy(
-                        quantityRemaining = b.quantityRemaining - take,
+                        quantityRemaining = b.quantityRemaining - sl.quantity,
                         isSynced = false
                     )
                 )
-
-                remaining -= take
-                consumed += take
+                consumed += sl.quantity
             }
 
             // Drop zero-qty batches so future FIFO walks stay tight.

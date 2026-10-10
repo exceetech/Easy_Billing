@@ -75,7 +75,8 @@ class BillDetailsActivity : AppCompatActivity() {
     private lateinit var btnDebitNote: MaterialButton
     private lateinit var btnMarkAsPaid: MaterialButton
     private lateinit var btnCancelBill: MaterialButton
-    private lateinit var btnMoreActions: MaterialButton
+    private lateinit var btnSendToCustomer: MaterialButton
+    private lateinit var btnPrint: MaterialButton
     private lateinit var cardBillNotes: View
     private lateinit var llBillNotes: LinearLayout
     private lateinit var rowNetBillNotes: View
@@ -128,7 +129,8 @@ class BillDetailsActivity : AppCompatActivity() {
         btnDebitNote     = findViewById(R.id.btnDebitNote)
         btnMarkAsPaid    = findViewById(R.id.btnMarkAsPaid)
         btnCancelBill    = findViewById(R.id.btnCancelBill)
-        btnMoreActions   = findViewById(R.id.btnMoreActions)
+        btnSendToCustomer = findViewById(R.id.btnSendToCustomer)
+        btnPrint         = findViewById(R.id.btnPrint)
         cardBillNotes    = findViewById(R.id.cardBillNotes)
         llBillNotes      = findViewById(R.id.llBillNotes)
         rowNetBillNotes  = findViewById(R.id.rowNetBillNotes)
@@ -174,7 +176,8 @@ class BillDetailsActivity : AppCompatActivity() {
         // "More options" opens a bottom sheet with Send to Customer and
         // Print, since Add return/refund and Add extra charge are now
         // the two big buttons in the main row instead.
-        btnMoreActions.setOnClickListener { showMoreActionsSheet() }
+        btnSendToCustomer.setOnClickListener { showSendToCustomerOptions() }
+        btnPrint.setOnClickListener { generatePdfAndPrint() }
         layoutOwed.setOnClickListener {
             startActivity(Intent(this, CreditAccountsActivity::class.java))
         }
@@ -275,12 +278,18 @@ class BillDetailsActivity : AppCompatActivity() {
                 tvBillDate.text = cleanDate
                 resolvedBillNumber = bill.bill_number
 
-                tvPaidThrough.text = "Paid via ${bill.payment_method}"
+                tvPaidThrough.text = "Paid via ${com.example.easy_billing.util.PaymentMethodText.label(bill.payment_method)}"
 
                 // Check if this bill is already cancelled in the local DB.
                 val db = AppDatabase.getDatabase(this@BillDetailsActivity)
                 val localBill = withContext(Dispatchers.IO) {
                     db.billDao().getByBillNumber(bill.bill_number)
+                }
+                // Split bill: show the amounts ("Cash ₹300 + UPI ₹200"), not just the modes.
+                localBill?.let { lb ->
+                    withContext(Dispatchers.IO) {
+                        com.example.easy_billing.util.BillPaymentText.breakdown(this@BillDetailsActivity, lb)
+                    }?.let { tvPaidThrough.text = "Paid via $it" }
                 }
                 // Customer — the GSTR-1 invoice snapshot (gst_sales_invoice)
                 // carries the name/phone/type entered at checkout for EVERY
@@ -326,7 +335,7 @@ class BillDetailsActivity : AppCompatActivity() {
                     bill.is_cancelled || localBill?.isCancelled == true
                 localBillId = localBill?.id ?: -1
 
-                val isUpiBill = bill.payment_method.equals("UPI", ignoreCase = true)
+                val isUpiBill = com.example.easy_billing.util.PaymentMethodText.hasUpi(bill.payment_method)
                 // Server is the source of truth for payment_status (it's
                 // set only by the Razorpay webhook); localBill's synced
                 // copy is the fallback for an offline reopen.
@@ -378,7 +387,14 @@ class BillDetailsActivity : AppCompatActivity() {
                 val isCreditSale = bill.payment_method.contains("credit", ignoreCase = true)
                 if (isCreditSale && !alreadyCancelled) {
                     layoutOwed.visibility = View.VISIBLE
-                    tvOwed.text = CurrencyHelper.format(this@BillDetailsActivity, bill.total_amount)
+                    // Part-credit bill: only the credit part is owed, not the whole bill.
+                    val owed = if (com.example.easy_billing.util.PaymentMethodText.isSplit(bill.payment_method) && localBill != null) {
+                        withContext(Dispatchers.IO) {
+                            db.creditTransactionDao().getByBill(localBill.id, shopId)
+                                .filter { it.type == "ADD" }.sumOf { it.amount }
+                        }
+                    } else bill.total_amount
+                    tvOwed.text = CurrencyHelper.format(this@BillDetailsActivity, owed)
                 } else {
                     layoutOwed.visibility = View.GONE
                 }
@@ -507,49 +523,6 @@ class BillDetailsActivity : AppCompatActivity() {
         btnCancelBill.visibility    = if (cancelled) View.GONE   else View.VISIBLE
         btnCreditNote.isEnabled     = !cancelled
         btnDebitNote.isEnabled      = !cancelled
-    }
-
-    /**
-     * "More options" dropdown — Send to Customer and Print used to be
-     * their own big buttons in the main action row; now that Add
-     * return/refund and Add extra charge are the two big buttons there
-     * instead, Send and Print live in this icon-badged dropdown card,
-     * anchored below-right of btnMoreActions (same card language as
-     * ThemedDropdown's bg_pos_dropdown elsewhere in the app).
-     */
-    private fun showMoreActionsSheet() {
-        val view = layoutInflater.inflate(R.layout.dropdown_bill_more_actions, null)
-        val rowSend = view.findViewById<LinearLayout>(R.id.rowDropdownSend)
-        val rowPrint = view.findViewById<LinearLayout>(R.id.rowDropdownPrint)
-
-        val density = resources.displayMetrics.density
-        val popup = android.widget.PopupWindow(
-            view,
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            true
-        ).apply {
-            elevation = 10f * density
-            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
-        }
-
-        rowSend.setOnClickListener {
-            popup.dismiss()
-            showSendToCustomerOptions()
-        }
-        rowPrint.setOnClickListener {
-            popup.dismiss()
-            generatePdfAndPrint()
-        }
-
-        // Right-aligned, and opens upward above btnMoreActions instead of
-        // below it — this button sits right above the bottom edge of the
-        // screen, so a downward dropdown would have nowhere to go.
-        view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-        val xOff = btnMoreActions.width - view.measuredWidth
-        val gap = (6 * density).toInt()
-        val yOff = -(btnMoreActions.height + view.measuredHeight + gap)
-        popup.showAsDropDown(btnMoreActions, xOff, yOff)
     }
 
     /**
@@ -690,8 +663,9 @@ class BillDetailsActivity : AppCompatActivity() {
                             val batchInvoice = Math.round(unitCostGross * qtyToRestore * 100.0) / 100.0
                             val batchTaxable = Math.round(unitCostNet * qtyToRestore * 100.0) / 100.0
 
-                            InventoryManager.addStock(
+                            com.example.easy_billing.repository.SalesRestock.restock(
                                 db        = db,
+                                billItemId = bi.id,
                                 productId = bi.productId,
                                 quantity  = qtyToRestore,
                                 costPrice = unitCostGross,
@@ -986,8 +960,10 @@ class BillDetailsActivity : AppCompatActivity() {
                     localItems else billItems
                 val printerLayout = db.billingSettingsDao().get()?.printerLayout ?: "80mm"
 
+                val payBreakdown = com.example.easy_billing.util.BillPaymentText.breakdown(this@BillDetailsActivity, printBill)
                 InvoicePdfGenerator.generatePdfFromBill(
                     context = this@BillDetailsActivity,
+                    payBreakdown = payBreakdown,
                     bill = printBill,
                     billItems = printItems,
                     storeInfo = storeInfo,
@@ -1172,6 +1148,12 @@ class BillDetailsActivity : AppCompatActivity() {
                 withContext(Dispatchers.IO) {
                     val db = AppDatabase.getDatabase(this@BillDetailsActivity)
                     db.billDao().markPaymentStatus(billNumber, "paid", null)
+                    // Payment tracking: the UPI money for this bill is now received.
+                    db.billDao().getByBillNumber(billNumber)?.let { b ->
+                        db.moneyEntryDao().markReceived(
+                            com.example.easy_billing.util.MoneySource.BILL, b.id, com.example.easy_billing.util.MoneyMode.UPI
+                        )
+                    }
                 }
                 Toast.makeText(this@BillDetailsActivity, getString(R.string.mark_as_paid_success), Toast.LENGTH_SHORT).show()
                 loadBillDetails()

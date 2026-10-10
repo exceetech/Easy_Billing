@@ -53,5 +53,8 @@ data class PurchaseReturnResponseDto(
     val availed_itc_cess: Double?,
     val invoice_type: String?,
     val place_of_supply_code: String?,
-    val inventory_valuation_variance: Double? = 0.0
+    val inventory_valuation_variance: Double? = 0.0,
+    val note_kind: String? = null,
+    val rate_delta_net: Double? = 0.0,
+    val shelf_value_delta: Double? = 0.0
 )

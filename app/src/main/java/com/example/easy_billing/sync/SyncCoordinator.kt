@@ -140,6 +140,12 @@ class SyncCoordinator private constructor(
                             runCatching { sm.pullBills() }
                             // Propagate voids made on other terminals.
                             runCatching { sm.pullBillCancellations() }
+                            // Stage 3D: allocations / PDN pools / claims need bills, purchases
+                            // and products to be present first, so they come last.
+                            runCatching { sm.pullSaleAllocations() }
+                            // Payment tracking: the Money Book. Bills are re-linked by bill number,
+                            // so it comes after pullBills.
+                            runCatching { sm.pullMoneyEntries() }
                             // Propagate UPI payment-link confirmations (webhook-driven).
                             runCatching { sm.pullPaymentStatus() }
                             lastFullPullAt = now

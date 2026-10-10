@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.widget.Toast
 import com.example.easy_billing.R
+import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.Bill
 import com.example.easy_billing.db.BillItem
 import com.example.easy_billing.db.GstSalesInvoice
@@ -67,9 +68,11 @@ object CustomerShareHelper {
 
         val pdfFile = try {
             withContext(Dispatchers.IO) {
+                val payBreakdown = BillPaymentText.breakdown(context, bill)
                 InvoicePdfGenerator.generatePdfFromBill(
                     context, bill, billItems, storeInfo, gstScheme, gstInvoice,
-                    printerLayout, printAfterSave = false, totalCess = totalCess
+                    printerLayout, printAfterSave = false, totalCess = totalCess,
+                    payBreakdown = payBreakdown
                 )
             }
         } catch (e: Exception) {
@@ -84,12 +87,18 @@ object CustomerShareHelper {
         // paid (webhook/mark-as-paid landed after the invoice was
         // generated) has nothing left to collect either. Either way
         // "send to customer" then is just the invoice, no pay-now link.
-        val isUpi = bill.paymentMethod.equals("UPI", ignoreCase = true)
+        val isUpi = PaymentMethodText.hasUpi(bill.paymentMethod)
         val alreadyPaid = bill.paymentStatus.equals("paid", ignoreCase = true)
         val needsPaymentLink = isUpi && !alreadyPaid
 
+        var linkAmount: Double? = null
         val payLinkUrl: String? = if (needsPaymentLink) {
-            val link = PosPaymentRepository.createPaymentLink(context, bill.billNumber, customerName, customerPhone)
+            // Split bill: the link asks for the UPI part only; pure UPI asks for the whole bill.
+            val upiPart: Double? = if (PaymentMethodText.isPureUpi(bill.paymentMethod)) null
+                else AppDatabase.getDatabase(context).moneyEntryDao()
+                    .upiAmountForSource(MoneySource.BILL, bill.id).takeIf { it > 0.0 }
+            linkAmount = upiPart
+            val link = PosPaymentRepository.createPaymentLink(context, bill.billNumber, customerName, customerPhone, upiPart)
             if (link == null) {
                 Toast.makeText(context, context.getString(R.string.send_to_customer_link_failed), Toast.LENGTH_LONG).show()
                 return false
@@ -97,12 +106,12 @@ object CustomerShareHelper {
             link.payment_link_url
         } else null
 
-        val amountText = CurrencyHelper.format(context, bill.total)
+        val amountText = CurrencyHelper.format(context, linkAmount ?: bill.total)
         // Still uploaded for the backend's own record/view-invoice link,
         // even though the WhatsApp message itself only needs payLinkUrl.
-        PosPaymentRepository.uploadInvoicePdf(context, bill.billNumber, pdfFile)
+        val pdfUrl = PosPaymentRepository.uploadInvoicePdf(context, bill.billNumber, pdfFile)
 
-        return openWhatsAppChat(context, customerPhone, amountText, bill.billNumber, payLinkUrl)
+        return openWhatsAppChat(context, customerPhone, amountText, bill.billNumber, payLinkUrl, pdfUrl)
     }
 
     /**
@@ -113,7 +122,7 @@ object CustomerShareHelper {
      * country code automatically); anything already carrying a country
      * code (11+ digits) is passed through as-is.
      */
-    private fun openWhatsAppChat(context: Context, phone: String?, amountText: String, billNumber: String, payLinkUrl: String?): Boolean {
+    private fun openWhatsAppChat(context: Context, phone: String?, amountText: String, billNumber: String, payLinkUrl: String?, pdfUrl: String?): Boolean {
         if (phone.isNullOrBlank()) {
             Toast.makeText(context, context.getString(R.string.send_to_customer_sms_no_phone), Toast.LENGTH_LONG).show()
             return false
@@ -124,10 +133,17 @@ object CustomerShareHelper {
             return false
         }
 
-        val message = if (payLinkUrl != null)
-            context.getString(R.string.send_to_customer_whatsapp_message, billNumber, amountText, payLinkUrl)
-        else
-            context.getString(R.string.send_to_customer_whatsapp_message_no_pay, billNumber, amountText)
+        // The invoice (PDF) link goes in every message; the pay link is added when money is still due.
+        val message = when {
+            payLinkUrl != null && pdfUrl != null ->
+                context.getString(R.string.send_to_customer_whatsapp_message_pdf_pay, billNumber, amountText, pdfUrl, payLinkUrl)
+            payLinkUrl != null ->
+                context.getString(R.string.send_to_customer_whatsapp_message, billNumber, amountText, payLinkUrl)
+            pdfUrl != null ->
+                context.getString(R.string.send_to_customer_whatsapp_message_pdf, billNumber, amountText, pdfUrl)
+            else ->
+                context.getString(R.string.send_to_customer_whatsapp_message_no_pay, billNumber, amountText)
+        }
 
         val digitsOnly = phone.filter { it.isDigit() }
         val internationalPhone = if (digitsOnly.length == 10) "91$digitsOnly" else digitsOnly

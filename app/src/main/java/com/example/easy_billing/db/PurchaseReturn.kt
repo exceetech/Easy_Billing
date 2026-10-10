@@ -133,5 +133,49 @@ data class PurchaseReturn(
      * that predates this field.
      */
     @ColumnInfo(name = "inventory_valuation_variance", defaultValue = "0.0")
-    val inventoryValuationVariance: Double = 0.0
-)
+    val inventoryValuationVariance: Double = 0.0,
+
+    // ── Purchase correction notes (QDN / PDN), Phase 2 (v68) ─────────
+    /**
+     * What this note IS, independent of its direction ([noteType] D/C):
+     * see [PurchaseNoteKind]. NULL on every row created before v68 and
+     * means RETURN (noteType D) or ADDITION (noteType C) — always read it
+     * through [effectiveKind], never compare the raw column to null.
+     */
+    @ColumnInfo(name = "note_kind")
+    val noteKind: String? = null,
+
+    /**
+     * PRICE_CORRECTION only: per-pen NET (taxable) rate change, signed
+     * new − old (negative when the bill is lowered). 0 for every other kind.
+     */
+    @ColumnInfo(name = "rate_delta_net", defaultValue = "0.0")
+    val rateDeltaNet: Double = 0.0,
+
+    /**
+     * PRICE_CORRECTION only: the part of this note's value that went into
+     * the average cost (pens still on the shelf), signed like the note.
+     * The rest (pens already sold / returned) is in
+     * [inventoryValuationVariance]. 0 for every other kind.
+     */
+    @ColumnInfo(name = "shelf_value_delta", defaultValue = "0.0")
+    val shelfValueDelta: Double = 0.0
+) {
+    /** The note's kind with legacy NULL resolved by direction. */
+    fun effectiveKind(): String = PurchaseNoteKind.effective(noteKind, noteType)
+}
+
+/** Allowed values of [PurchaseReturn.noteKind]. Must match the backend NOTE_KINDS. */
+object PurchaseNoteKind {
+    const val RETURN = "RETURN"
+    const val ADDITION = "ADDITION"
+    const val QTY_CORRECTION = "QTY_CORRECTION"
+    const val PRICE_CORRECTION = "PRICE_CORRECTION"
+
+    val ALL = setOf(RETURN, ADDITION, QTY_CORRECTION, PRICE_CORRECTION)
+
+    /** Legacy NULL kind: a D note is a RETURN, a C note an ADDITION. */
+    fun effective(kind: String?, noteType: String?): String =
+        kind?.takeIf { it in ALL }
+            ?: if (noteType.equals("C", ignoreCase = true)) ADDITION else RETURN
+}

@@ -1,0 +1,332 @@
+package com.example.easy_billing.fragments
+
+import android.content.Context
+import android.os.Bundle
+import android.view.View
+import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import com.example.easy_billing.Filterable
+import com.example.easy_billing.R
+import com.example.easy_billing.ReportFilter
+import com.example.easy_billing.network.OverviewResponse
+import com.example.easy_billing.network.PeakHourResponse
+import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.util.AppTime
+import com.example.easy_billing.util.CurrencyHelper
+import kotlinx.coroutines.launch
+import java.util.*
+
+class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
+
+    // ── "Today's Story" equation ladder ─────────────────────────────────────
+    // Same component language as the Profit Analytics page's ladder card:
+    // Revenue − Returns − Cancelled = Net Collected.
+    private lateinit var tvRevenue: TextView
+    private lateinit var tvReturns: TextView
+    private lateinit var tvCancelledCaption: TextView
+    private lateinit var tvCancelled: TextView
+    private lateinit var tvNetCollected: TextView
+    private lateinit var tvStatBills: TextView
+    private lateinit var tvStatAvg: TextView
+    private lateinit var tvStatGrowth: TextView
+
+    // ── Busy time teaser ────────────────────────────────────────────────────
+    private lateinit var cardBusyTeaser: View
+    private lateinit var tvBusyTeaser: TextView
+    private lateinit var tvBusyAmount: TextView
+    private lateinit var tvBusyPeriod: TextView
+
+    private var currentFilter = ReportFilter.TODAY
+    private var customStartDate: String? = null
+    private var customEndDate: String? = null
+
+    // 🔥 H5 FIX: Locale.US guarantees ASCII digits for API dates
+    private val sdf = AppTime.isoDate()   // app timezone (matches backend)
+
+    // Convert dp → pixels for programmatic padding/margins
+    private fun Int.dp(): Int = (this * resources.displayMetrics.density + 0.5f).toInt()
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        com.example.easy_billing.util.UserEventLogger.logAction("OverviewFragment", "opened")
+
+        // "Today's Story" ladder
+        tvRevenue         = view.findViewById(R.id.tvRevenue)
+        tvReturns         = view.findViewById(R.id.tvReturns)
+        tvCancelledCaption = view.findViewById(R.id.tvCancelledCaption)
+        tvCancelled       = view.findViewById(R.id.tvCancelled)
+        tvNetCollected    = view.findViewById(R.id.tvNetCollected)
+
+        val panelDeductions = view.findViewById<View>(R.id.panelDeductions)
+        val tvDeductionsToggle = view.findViewById<TextView>(R.id.tvDeductionsToggle)
+        val ivDeductionsChevron = view.findViewById<View>(R.id.ivDeductionsChevron)
+        view.findViewById<View>(R.id.rowDeductionsToggle).setOnClickListener {
+            val open = panelDeductions.visibility != View.VISIBLE
+            panelDeductions.visibility = if (open) View.VISIBLE else View.GONE
+            ivDeductionsChevron.rotation = if (open) 180f else 0f
+            tvDeductionsToggle.setText(
+                if (open) R.string.fragment_overview_deductions_hide
+                else R.string.fragment_overview_deductions_show
+            )
+        }
+        tvStatBills       = view.findViewById(R.id.tvStatBills)
+        tvStatAvg         = view.findViewById(R.id.tvStatAvg)
+        tvStatGrowth      = view.findViewById(R.id.tvStatGrowth)
+
+        // Busy time teaser
+        cardBusyTeaser   = view.findViewById(R.id.cardBusyTeaser)
+        tvBusyTeaser     = view.findViewById(R.id.tvBusyTeaser)
+        tvBusyAmount     = view.findViewById(R.id.tvBusyAmount)
+        tvBusyPeriod     = view.findViewById(R.id.tvBusyPeriod)
+        cardBusyTeaser.setOnClickListener {
+            (activity as? com.example.easy_billing.ReportsActivity)?.goToTab(2)
+        }
+
+        syncFilterFromActivity()
+        loadKPI()
+        loadBusyTeaser()
+    }
+
+    override fun onFilterChanged(
+        filter: ReportFilter,
+        startDate: String?,
+        endDate: String?
+    ) {
+        currentFilter = filter
+        customStartDate = startDate
+        customEndDate = endDate
+        loadKPI()
+        loadBusyTeaser()
+    }
+
+    // 🔥 H4 FIX: ViewPager2 creates fragments lazily — pick up filter set before tab existed.
+    private fun syncFilterFromActivity() {
+        (activity as? com.example.easy_billing.ReportsActivity)?.let {
+            currentFilter = it.currentFilter
+            customStartDate = it.customStart
+            customEndDate = it.customEnd
+        }
+    }
+
+    // ── KPI load ────────────────────────────────────────────────────────────
+
+    private var kpiJob: kotlinx.coroutines.Job? = null
+    private var teaserJob: kotlinx.coroutines.Job? = null
+
+    private fun loadKPI() {
+        kpiJob?.cancel()
+        kpiJob = lifecycleScope.launch {
+            val token = requireActivity()
+                .getSharedPreferences("auth", Context.MODE_PRIVATE)
+                .getString("TOKEN", null) ?: return@launch
+
+            try {
+                val calendar = AppTime.calendar()
+                var start: String? = null
+                var end: String? = null
+                var type = ""
+
+                when (currentFilter) {
+                    ReportFilter.TODAY -> {
+                        type = "today"
+                    }
+                    ReportFilter.WEEK -> {
+                        // Send named type so backend can compute prev-week comparison
+                        type = "week"
+                    }
+                    ReportFilter.MONTH -> {
+                        type = "month"
+                    }
+                    ReportFilter.YEAR -> {
+                        type = "year"
+                    }
+                    ReportFilter.CUSTOM -> {
+                        if (customStartDate != null && customEndDate != null) {
+                            start = customStartDate
+                            end = customEndDate
+                            type = "custom"
+                        } else {
+                            return@launch
+                        }
+                    }
+                }
+
+                val data = RetrofitClient.api.getOverview(token, type, start, end)
+                bindUI(data)
+
+            } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                view?.let { v ->
+                    com.google.android.material.snackbar.Snackbar
+                        .make(v, R.string.overviewfragment_failed_to_load_overview, com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE)
+                        .setAction(R.string.reports_retry) { loadKPI(); loadBusyTeaser() }
+                        .show()
+                }
+            }
+        }
+    }
+
+    private fun bindUI(data: OverviewResponse) {
+        val ctx = requireContext()
+
+        // ── "Today's Story" ladder: Revenue − Returns − Cancelled = Net Collected ──
+        tvRevenue.text = CurrencyHelper.format(ctx, data.total_revenue)
+        tvReturns.text = CurrencyHelper.format(ctx, data.returns_total)
+        tvCancelled.text = CurrencyHelper.format(ctx, data.cancelled_amount)
+        tvCancelledCaption.text = if (data.cancelled_count > 0)
+            getString(R.string.fragment_overview_cancelled_caption, data.cancelled_count)
+        else getString(R.string.fragment_overview_cancelled_caption_none)
+
+        val netCollected = data.total_revenue - data.returns_total - data.cancelled_amount
+        tvNetCollected.text = CurrencyHelper.format(ctx, netCollected)
+
+        // ── Three stat columns: bills · average sale · change vs previous period ──
+        tvStatBills.text = data.total_bills.toString()
+        tvStatAvg.text = CurrencyHelper.format(ctx, data.average_bill)
+
+        if (data.prev_revenue > 0) {
+            val pct = ((data.total_revenue - data.prev_revenue) / data.prev_revenue) * 100
+            when {
+                pct > 0.5 -> {
+                    tvStatGrowth.text = "\u25B2 " + "%.0f".format(pct) + "%"
+                    tvStatGrowth.setTextColor(android.graphics.Color.parseColor("#16A34A"))
+                }
+                pct < -0.5 -> {
+                    tvStatGrowth.text = "\u25BC " + "%.0f".format(kotlin.math.abs(pct)) + "%"
+                    tvStatGrowth.setTextColor(android.graphics.Color.parseColor("#B23A3A"))
+                }
+                else -> {
+                    tvStatGrowth.text = "0%"
+                    tvStatGrowth.setTextColor(android.graphics.Color.parseColor("#8A8578"))
+                }
+            }
+        } else {
+            tvStatGrowth.text = getString(R.string.dash)
+            tvStatGrowth.setTextColor(android.graphics.Color.parseColor("#8A8578"))
+        }
+
+    }
+
+    // ── Growth chip styling ─────────────────────────────────────────────────
+
+    /** Growth chip shown on WHITE metric cards — green/red on light bg */
+    private fun setGrowth(view: TextView, current: Double, previous: Double) {
+        if (previous == 0.0) {
+            view.visibility = View.GONE
+            return
+        }
+        view.visibility = View.VISIBLE
+        val hPad = 9.dp(); val vPad = 4.dp()
+        val change = ((current - previous) / previous) * 100
+        val isPositive = change >= 0
+        view.text = if (isPositive) "↑ ${"%.1f".format(change)}%"
+                    else            "↓ ${"%.1f".format(kotlin.math.abs(change))}%"
+        view.setTextColor(requireContext().getColor(if (isPositive) R.color.ov_green else R.color.ov_red))
+        view.setBackgroundResource(if (isPositive) R.drawable.bg_growth_positive else R.drawable.bg_growth_negative)
+        view.setPadding(hPad, vPad, hPad, vPad)
+    }
+
+    // ── Busy time teaser ────────────────────────────────────────────────────
+
+    /**
+     * Pulls the same hour-by-hour data the Busy Times tab uses and shows
+     * just the headline (busiest hour + its revenue). Tapping the card
+     * opens the full Busy Times tab for the detailed breakdown.
+     */
+    private fun loadBusyTeaser() {
+        teaserJob?.cancel()
+        teaserJob = lifecycleScope.launch {
+            val token = requireActivity()
+                .getSharedPreferences("auth", Context.MODE_PRIVATE)
+                .getString("TOKEN", null) ?: return@launch
+
+            try {
+                val calendar = AppTime.calendar()
+                var start: String? = null
+                var end: String? = null
+                var type = ""
+
+                when (currentFilter) {
+                    ReportFilter.TODAY -> type = "today"
+                    ReportFilter.WEEK -> {
+                        calendar.add(Calendar.DAY_OF_MONTH, -(calendar.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY))
+                        start = sdf.format(calendar.time)
+                        calendar.add(Calendar.DAY_OF_MONTH, 6)
+                        end = sdf.format(calendar.time)
+                        type = "custom"
+                    }
+                    ReportFilter.MONTH -> {
+                        calendar.set(Calendar.DAY_OF_MONTH, 1)
+                        start = sdf.format(calendar.time)
+                        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+                        end = sdf.format(calendar.time)
+                        type = "custom"
+                    }
+                    ReportFilter.YEAR -> {
+                        calendar.set(Calendar.MONTH, Calendar.JANUARY)
+                        calendar.set(Calendar.DAY_OF_MONTH, 1)
+                        start = sdf.format(calendar.time)
+                        calendar.set(Calendar.MONTH, Calendar.DECEMBER)
+                        calendar.set(Calendar.DAY_OF_MONTH, 31)
+                        end = sdf.format(calendar.time)
+                        type = "custom"
+                    }
+                    ReportFilter.CUSTOM -> {
+                        if (customStartDate != null && customEndDate != null) {
+                            start = customStartDate; end = customEndDate; type = "custom"
+                        } else return@launch
+                    }
+                }
+
+                val data: List<PeakHourResponse> = RetrofitClient.api.getPeakHours(token, type, start, end)
+                val best = data.maxByOrNull { it.revenue }
+                val dayTotal = data.sumOf { it.revenue }
+                if (best == null || best.revenue <= 0.0) {
+                    tvBusyTeaser.text = getString(R.string.dash)
+                    tvBusyAmount.text = getString(R.string.dash)
+                    tvBusyPeriod.visibility = View.GONE
+                } else {
+                    val sharePct = if (dayTotal > 0) ((best.revenue / dayTotal) * 100).toInt().coerceIn(0, 100) else 0
+                    // One plain sentence, with the hour range picked out in bold amber
+                    val range = formatHourRange(best.hour)
+                    val sentence = getString(R.string.fragment_overview_busy_sentence, range, sharePct.toString())
+                    val styled = android.text.SpannableString(sentence)
+                    val at = sentence.indexOf(range)
+                    if (at >= 0) {
+                        styled.setSpan(android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                            at, at + range.length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        styled.setSpan(android.text.style.ForegroundColorSpan(android.graphics.Color.parseColor("#8A6526")),
+                            at, at + range.length, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    }
+                    tvBusyTeaser.text = styled
+                    tvBusyAmount.text = CurrencyHelper.format(requireContext(), best.revenue)
+                    tvBusyPeriod.visibility = View.VISIBLE
+                    tvBusyPeriod.text = getString(when (best.hour) {
+                        in 5..11  -> R.string.fragment_overview_busy_morning
+                        in 12..16 -> R.string.fragment_overview_busy_afternoon
+                        in 17..20 -> R.string.fragment_overview_busy_evening
+                        else      -> R.string.fragment_overview_busy_night
+                    })
+                }
+            } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                tvBusyTeaser.text = getString(R.string.dash)
+                tvBusyAmount.text = getString(R.string.dash)
+                tvBusyPeriod.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun formatHourShort(hour: Int): String = when {
+        hour == 0  -> "12 AM"
+        hour < 12  -> "$hour AM"
+        hour == 12 -> "12 PM"
+        else       -> "${hour - 12} PM"
+    }
+
+    private fun formatHourRange(hour: Int): String =
+        "${formatHourShort(hour)} \u2013 ${formatHourShort((hour + 1) % 24)}"
+
+}

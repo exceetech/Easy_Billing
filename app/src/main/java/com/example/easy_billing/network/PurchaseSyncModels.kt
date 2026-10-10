@@ -210,7 +210,12 @@ data class PurchaseReturnDto(
     val place_of_supply_code: String = "",
     // Moving-average redesign, Phase 2: gain/loss vs. the supplier's
     // refund, computed on-device. Zero for Credit Notes and legacy rows.
-    val inventory_valuation_variance: Double = 0.0
+    val inventory_valuation_variance: Double = 0.0,
+    // Purchase correction notes (QDN / PDN), Phase 2. Null note_kind =
+    // RETURN (D) / ADDITION (C). Server accepts old payloads without these.
+    val note_kind: String? = null,
+    val rate_delta_net: Double = 0.0,
+    val shelf_value_delta: Double = 0.0
 )
 
 /* ---------- Scrap ---------- */

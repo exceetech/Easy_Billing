@@ -167,7 +167,8 @@ interface ApiService {
     @POST("pos-payments/{billNumber}/create-qr")
     suspend fun createQrCode(
         @Header("Authorization") token: String,
-        @Path("billNumber") billNumber: String
+        @Path("billNumber") billNumber: String,
+        @retrofit2.http.Query("amount") amount: Double? = null
     ): CreateQrCodeResponse
 
     // Manual "customer already paid, webhook hasn't caught up" override —
@@ -705,6 +706,36 @@ interface ApiService {
         @Body body: PurchaseBatchSyncRequest
     ): PurchaseBatchSyncResponse
 
+    @POST("sale-allocations/sync")
+    suspend fun syncSaleAllocations(
+        @Header("Authorization") token: String,
+        @Body body: SaleAllocationSyncRequest
+    ): SaleAllocationSyncResponse
+
+    @GET("sale-allocations/{shop_id}")
+    suspend fun getSaleAllocations(
+        @Header("Authorization") token: String,
+        @Path("shop_id") shopId: Int,
+        @Query("after_alloc_id") afterAllocId: Int = 0,
+        @Query("after_pool_id") afterPoolId: Int = 0,
+        @Query("after_claim_id") afterClaimId: Int = 0
+    ): SaleAllocationPullResponse
+
+    // Payment & cash-flow tracking: the Money Book.
+    @POST("money-entries/sync")
+    suspend fun syncMoneyEntries(
+        @Header("Authorization") token: String,
+        @Body body: MoneyEntrySyncRequest
+    ): MoneyEntrySyncResponse
+
+    @GET("money-entries/{shop_id}")
+    suspend fun getMoneyEntries(
+        @Header("Authorization") token: String,
+        @Path("shop_id") shopId: Int,
+        @Query("after_id") afterId: Int = 0,
+        @Query("limit") limit: Int = 500
+    ): MoneyEntryPullResponse
+
     // Support/debugging breadcrumb trail — see UserEventLogger.kt.
     // device_id is auto-attached to every request by AuthInterceptor, so
     // (matching every other sync call in this file) it's not passed here.
@@ -737,6 +768,12 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Path("shop_id") shopId: Int
     ): List<PurchaseImportDetailsDto>
+
+    @GET("scrap/{shop_id}")
+    suspend fun getScrap(
+        @Header("Authorization") token: String,
+        @Path("shop_id") shopId: Int
+    ): List<ScrapOutDto>
 
     @POST("scrap/sync")
     suspend fun syncScrap(

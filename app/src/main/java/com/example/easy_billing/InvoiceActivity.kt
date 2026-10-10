@@ -1,5 +1,6 @@
 package com.example.easy_billing
 
+import androidx.room.withTransaction
 import com.example.easy_billing.util.appNow
 
 import com.example.easy_billing.util.AppTime
@@ -175,6 +176,12 @@ class InvoiceActivity : AppCompatActivity() {
      * retry can't apply it twice.
      */
     private var pendingCreditAccount: CreditAccount? = null
+
+    /**
+     * Payment lines chosen in the Split sheet (cash + UPI + card + credit). Null unless Split is the
+     * selected method. Always re-checked against the live bill total before the bill is saved.
+     */
+    private var splitLines: List<com.example.easy_billing.util.PayLine>? = null
     private var isUpdating = false
     private var billNumber: String = " "
 
@@ -289,8 +296,13 @@ class InvoiceActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        rgPaymentMethod.setOnCheckedChangeListener { _, _ ->
+        rgPaymentMethod.setOnCheckedChangeListener { _, checkedId ->
+            if (checkedId != R.id.rbSplit) splitLines = null
             updatePaymentMethodCues()
+        }
+        // A tap on Split (also when it is already selected) opens the sheet to set / change the amounts.
+        findViewById<View>(R.id.rbSplit)?.setOnClickListener {
+            if (!isBillSaved) openSplitSheet()
         }
         updatePaymentMethodCues()
 
@@ -319,7 +331,13 @@ class InvoiceActivity : AppCompatActivity() {
             )
             if (!validateB2BFields()) return@setOnClickListener
             if (!validateEcommerceFields()) return@setOnClickListener
-            if (getPaymentMethod() == "CREDIT") {
+            if (isSplitSelected() && !splitMatchesTotal()) {
+                // The cart or discount changed after the split was entered.
+                Toast.makeText(this, R.string.invoice_split_total_changed, Toast.LENGTH_LONG).show()
+                openSplitSheet()
+                return@setOnClickListener
+            }
+            if (needsCreditCustomer()) {
                 handleCreditFlow()
             } else {
                 // Drop any customer left over from a credit attempt that failed
@@ -1228,6 +1246,29 @@ class InvoiceActivity : AppCompatActivity() {
             }
         }
 
+        // ── Payment lines: checked against the live total BEFORE anything is written ──
+        val payTotal = currentPayableTotal()
+        val payLines: List<com.example.easy_billing.util.PayLine> = when {
+            payTotal <= 0.0 -> emptyList()
+            isSplitSelected() -> {
+                if (!splitMatchesTotal()) {
+                    Toast.makeText(this, R.string.invoice_split_total_changed, Toast.LENGTH_LONG).show()
+                    openSplitSheet()
+                    return
+                }
+                com.example.easy_billing.util.PaymentSplit.merge(splitLines.orEmpty())
+            }
+            else -> listOf(com.example.easy_billing.util.PayLine(getPaymentMethod(), payTotal))
+        }
+        val (moneyLines, creditPortion) = com.example.easy_billing.util.PaymentSplit.separateCredit(payLines)
+        val creditAccountForSale = pendingCreditAccount
+        if (creditPortion > 0.0 && creditAccountForSale == null) {
+            // Cannot happen through the buttons (they ask for the customer first); refuse rather than lose the debt.
+            Toast.makeText(this, R.string.invoice_no_shop_credit_record, Toast.LENGTH_LONG).show()
+            return
+        }
+        val methodString = com.example.easy_billing.util.PaymentMethodText.encode(payLines, getPaymentMethod())
+
         isBillSaved = true
         setCosmeticEnabled(btnConfirm, false)
 
@@ -1283,16 +1324,21 @@ class InvoiceActivity : AppCompatActivity() {
                 // line's own cost must stay attached to that line, not
                 // overwrite the other's.
                 val costAtSaleByIndex = mutableMapOf<Int, Double>()
+                // Stage 3A: which purchase bill(s) each cart line's units came from.
+                val allocSlicesByIndex = mutableMapOf<Int, MutableList<com.example.easy_billing.correction.FifoAllocator.Slice>>()
                 for ((idx, cartItem) in items.withIndex()) {
                     val product = cartItem.product
                     if (product.trackInventory) {
                         val inventory = db.inventoryDao().getInventory(product.id)
                         if (inventory != null) {
+                            val lineSlices = mutableListOf<com.example.easy_billing.correction.FifoAllocator.Slice>()
                             val costRemoved = InventoryManager.reduceStock(
                                 db = db,
                                 productId = product.id,
-                                quantity = cartItem.quantity
+                                quantity = cartItem.quantity,
+                                allocationSink = lineSlices
                             )
+                            allocSlicesByIndex[idx] = lineSlices
                             costAtSaleByIndex[idx] = costRemoved
                         }
                     }
@@ -1421,7 +1467,7 @@ class InvoiceActivity : AppCompatActivity() {
                 // or cancellation can find the account — the bill number and
                 // amount alone never could. Only for actual credit sales.
                 val billCreditAccountId =
-                    pendingCreditAccount?.id?.takeIf { getPaymentMethod() == "CREDIT" }
+                    creditAccountForSale?.id?.takeIf { com.example.easy_billing.util.PaymentMethodText.hasCredit(methodString) }
 
                 // 4. Persist legacy `bills` row.
                 val finalBill = Bill(
@@ -1431,7 +1477,7 @@ class InvoiceActivity : AppCompatActivity() {
                     gst            = breakdown.totalTax,
                     discount       = discount,
                     total          = total,
-                    paymentMethod  = getPaymentMethod(),
+                    paymentMethod  = methodString,
                     customerType   = invoiceType,
                     customerGstin  = customerGstin,
                     placeOfSupply  = customerStateCode.ifBlank { sellerStateCode },
@@ -1442,9 +1488,69 @@ class InvoiceActivity : AppCompatActivity() {
                     isSynced       = false,
                     creditAccountId = billCreditAccountId
                 )
-                val billId = db.billDao().insertBill(finalBill).toInt()
+                // Stage 3A: bill + items + allocations land together or not at all.
+                val billId = db.withTransaction {
+                    val newBillId = db.billDao().insertBill(finalBill).toInt()
+                    val finalBillItems = billItemsTmp.map { it.copy(billId = newBillId) }
+                    val itemIds = db.billItemDao().insertAllReturningIds(finalBillItems)
+                    for ((idx, itemId) in itemIds.withIndex()) {
+                        val slices = allocSlicesByIndex[idx] ?: continue
+                        com.example.easy_billing.db.AllocationRecorder.save(
+                            db = db,
+                            sourceType = com.example.easy_billing.db.AllocationSource.SALE,
+                            sourceId = newBillId,
+                            sourceLineId = itemId.toInt(),
+                            productId = finalBillItems[idx].productId,
+                            slices = slices
+                        )
+                    }
+
+                    // ── Money Book + the credit part: same transaction as the bill ──
+                    // The lines were checked against the live total before saving; if the total
+                    // moved since, stop here so the bill and its money can never disagree.
+                    check(com.example.easy_billing.util.PaymentSplit.toPaise(total) ==
+                        com.example.easy_billing.util.PaymentSplit.toPaise(payTotal)) { "Bill total changed while saving" }
+                    // The UPI part (pure or split) is "pending" until the payment is confirmed
+                    // (QR / link / Mark as paid). Every other part is received at once.
+                    val moneyBook = com.example.easy_billing.repository.MoneyBook(db.moneyEntryDao())
+                    val (upiLines, otherLines) = moneyLines.partition {
+                        it.mode == com.example.easy_billing.util.MoneyMode.UPI
+                    }
+                    val partyForMoney = customerName ?: creditAccountForSale?.name.orEmpty()
+                    if (otherLines.isNotEmpty()) moneyBook.recordLines(
+                        direction = com.example.easy_billing.util.MoneyDirection.IN,
+                        lines = otherLines,
+                        reason = com.example.easy_billing.util.MoneyReason.SALE,
+                        sourceType = com.example.easy_billing.util.MoneySource.BILL,
+                        sourceId = newBillId,
+                        partyName = partyForMoney,
+                        status = com.example.easy_billing.util.MoneyStatus.RECEIVED
+                    )
+                    if (upiLines.isNotEmpty()) moneyBook.recordLines(
+                        direction = com.example.easy_billing.util.MoneyDirection.IN,
+                        lines = upiLines,
+                        reason = com.example.easy_billing.util.MoneyReason.SALE,
+                        sourceType = com.example.easy_billing.util.MoneySource.BILL,
+                        sourceId = newBillId,
+                        partyName = partyForMoney,
+                        status = com.example.easy_billing.util.MoneyStatus.PENDING
+                    )
+                    if (creditPortion > 0.0 && creditAccountForSale != null) {
+                        db.creditAccountDao().addToDue(creditAccountForSale.id, creditPortion, billShopId)
+                        db.creditTransactionDao().insert(
+                            CreditTransaction(
+                                accountId = creditAccountForSale.id,
+                                shopId    = billShopId,
+                                amount    = creditPortion,     // only the part left on credit
+                                type      = "ADD",
+                                billId    = newBillId,
+                                sourceDoc = "SALE:$newBillId"
+                            )
+                        )
+                    }
+                    newBillId
+                }
                 val finalBillItems = billItemsTmp.map { it.copy(billId = billId) }
-                db.billItemDao().insertAll(finalBillItems)
 
                 // ── Credit sale: the debt goes on only now the bill exists ──
                 // Applied as a delta so a concurrent payment or sync can't be
@@ -1460,28 +1566,10 @@ class InvoiceActivity : AppCompatActivity() {
                 // the radio button: the bill is the record of what was agreed,
                 // and reading it here is also the only thread-safe option from
                 // inside this coroutine.
-                pendingCreditAccount?.takeIf { finalBill.paymentMethod == "CREDIT" }?.let { creditAccount ->
+                // The debt (credit part of the bill) was written inside the transaction above.
+                if (creditPortion > 0.0 && creditAccountForSale != null) {
                     pendingCreditAccount = null
-
-                    val creditShopId = currentShopIdOrNull()
-
-                    if (creditShopId != null) {
-                        db.creditAccountDao().addToDue(creditAccount.id, total, creditShopId)
-                        db.creditTransactionDao().insert(
-                            CreditTransaction(
-                                accountId = creditAccount.id,
-                                shopId    = creditShopId,
-                                amount    = total,
-                                type      = "ADD",
-                                // Ties the debt to this bill so an adjustment
-                                // can later find how much of it is on credit.
-                                // sourceDoc marks it as the original sale.
-                                billId    = billId,
-                                sourceDoc = "SALE:$billId"
-                            )
-                        )
-                        SyncManager(this@InvoiceActivity).syncCredit()
-                    }
+                    SyncManager(this@InvoiceActivity).syncCredit()
                 }
 
                 // 5. Persist new GST-aware invoice + items (the spec's new tables).
@@ -1554,9 +1642,15 @@ class InvoiceActivity : AppCompatActivity() {
                     if (!token.isNullOrEmpty()) {
                         val saleItems = items.mapIndexed { idx, ci ->
                             val product = ci.product
-                            val avgCost = if (product.trackInventory) {
-                                db.inventoryDao().getInventory(product.id)?.averageCost ?: 0.0
-                            } else 0.0
+                            // Cost per unit AT THE MOMENT OF SALE (captured in step 1b).
+                            // Re-reading inventory.averageCost here is wrong: a sale that
+                            // empties the shelf zeroes the average, so the server would
+                            // record a cost of 0 and show the whole sale as profit.
+                            val avgCost = costAtSaleByIndex[idx]
+                                ?.let { if (ci.quantity > 0.0) it / ci.quantity else 0.0 }
+                                ?: if (product.trackInventory) {
+                                    db.inventoryDao().getInventory(product.id)?.averageCost ?: 0.0
+                                } else 0.0
                             // Send the DISCOUNTED per-unit price (the line's net
                             // taxable ÷ qty) so backend profit reflects the bill
                             // discount and matches the local per-item profit.
@@ -1692,7 +1786,11 @@ class InvoiceActivity : AppCompatActivity() {
                     // that always gets automatic paid/pending tracking.
                     // "Send to customer" (SMS) stays available separately
                     // as the secondary "pay later" option, SIM-gated.
-                    if (getPaymentMethod() == "UPI") {
+                    if (com.example.easy_billing.util.PaymentMethodText.hasUpi(methodString)) {
+                        // Split bill: the QR is for the UPI part only; a pure-UPI bill uses the full total.
+                        splitUpiAmount = if (com.example.easy_billing.util.PaymentMethodText.isPureUpi(methodString)) null
+                            else moneyLines.filter { it.mode == com.example.easy_billing.util.MoneyMode.UPI }
+                                .sumOf { it.amount }
                         setCosmeticEnabled(btnShowQr, true)
                         btnShowQr.visibility = View.VISIBLE
                         // The activity's own `billNumber` field is never
@@ -1706,7 +1804,7 @@ class InvoiceActivity : AppCompatActivity() {
                             }
                             val realBillNumber = savedBill?.billNumber.orEmpty()
                             if (realBillNumber.isNotBlank()) {
-                                showQrPaymentDialog(realBillNumber, total)
+                                showQrPaymentDialog(realBillNumber, splitUpiAmount ?: total, splitUpiAmount)
                             }
                         }
                     }
@@ -1883,9 +1981,11 @@ class InvoiceActivity : AppCompatActivity() {
             val savedInvoice = repository.getGstInvoiceByBillId(savedBillId)
             val printerLayout = com.example.easy_billing.db.AppDatabase.getDatabase(this@InvoiceActivity)
                 .billingSettingsDao().get()?.printerLayout ?: "80mm"
+            val payBreakdown = com.example.easy_billing.util.BillPaymentText.breakdown(this@InvoiceActivity, bill)
             withContext(Dispatchers.Main) {
                 InvoicePdfGenerator.generatePdfFromBill(
                     context = this@InvoiceActivity, 
+                    payBreakdown = payBreakdown,
                     bill = bill, 
                     billItems = billItems, 
                     storeInfo = storeInfo,
@@ -1908,6 +2008,9 @@ class InvoiceActivity : AppCompatActivity() {
     // longer needed since this covers every device.
 
     private var qrPollJob: kotlinx.coroutines.Job? = null
+
+    /** Set after saving a split bill that has a UPI part: the QR is for this amount only. Null = whole bill. */
+    private var splitUpiAmount: Double? = null
 
     /** btnShowQr's click target — re-fetches the saved bill so it always
      *  uses the current total (matters if a discount was ever editable
@@ -1938,12 +2041,12 @@ class InvoiceActivity : AppCompatActivity() {
 
             val realBillNumber = savedBill.billNumber
             if (realBillNumber.isNotBlank()) {
-                showQrPaymentDialog(realBillNumber, savedBill.total)
+                showQrPaymentDialog(realBillNumber, splitUpiAmount ?: savedBill.total, splitUpiAmount)
             }
         }
     }
 
-    private fun showQrPaymentDialog(billNumber: String, amount: Double) {
+    private fun showQrPaymentDialog(billNumber: String, amount: Double, qrAmount: Double? = null) {
         if (billNumber.isBlank()) return
 
         val dialogView = layoutInflater.inflate(R.layout.dialog_qr_payment, null)
@@ -1982,7 +2085,7 @@ class InvoiceActivity : AppCompatActivity() {
             tvQrStatus.text = ""
 
             lifecycleScope.launch {
-                val qr = com.example.easy_billing.repository.PosPaymentRepository.createQrCode(this@InvoiceActivity, billNumber)
+                val qr = com.example.easy_billing.repository.PosPaymentRepository.createQrCode(this@InvoiceActivity, billNumber, qrAmount)
                 if (qr == null) {
                     progressQr.visibility = View.GONE
                     tvQrStatus.text = getString(R.string.qr_payment_failed_retry)
@@ -2239,6 +2342,9 @@ class InvoiceActivity : AppCompatActivity() {
 
     private fun updatePaymentMethodCues() {
         if (isBillSaved) return
+        // The helper line is only used to show the amounts of a split.
+        tvPaymentMethodHelper.visibility =
+            if (rgPaymentMethod.checkedRadioButtonId == R.id.rbSplit) View.VISIBLE else View.GONE
         when (rgPaymentMethod.checkedRadioButtonId) {
             R.id.rbCash -> {
                 tvPaymentMethodHelper.text = getString(R.string.invoice_payment_helper_cash)
@@ -2248,6 +2354,10 @@ class InvoiceActivity : AppCompatActivity() {
                 tvPaymentMethodHelper.text = getString(R.string.invoice_payment_helper_upi)
                 tvConfirmSubtitle.text = getString(R.string.invoice_sub_upi)
             }
+            R.id.rbBank -> {
+                tvPaymentMethodHelper.text = getString(R.string.invoice_payment_helper_bank)
+                tvConfirmSubtitle.text = getString(R.string.invoice_sub_bank)
+            }
             R.id.rbCard -> {
                 tvPaymentMethodHelper.text = getString(R.string.invoice_payment_helper_card)
                 tvConfirmSubtitle.text = getString(R.string.invoice_sub_card)
@@ -2256,6 +2366,13 @@ class InvoiceActivity : AppCompatActivity() {
                 tvPaymentMethodHelper.text = getString(R.string.invoice_payment_helper_credit)
                 tvConfirmSubtitle.text = getString(R.string.invoice_sub_credit)
             }
+            R.id.rbSplit -> {
+                val summary = splitSummary()
+                tvPaymentMethodHelper.text =
+                    if (summary.isNotEmpty()) summary else getString(R.string.invoice_payment_helper_split)
+                tvConfirmSubtitle.text =
+                    if (summary.isNotEmpty()) summary else getString(R.string.invoice_sub_split)
+            }
             else -> {
                 tvPaymentMethodHelper.text = getString(R.string.invoice_payment_helper_cash)
                 tvConfirmSubtitle.text = getString(R.string.invoice_sub_cash)
@@ -2263,10 +2380,80 @@ class InvoiceActivity : AppCompatActivity() {
         }
     }
 
+    // ================= SPLIT PAYMENT =================
+
+    private fun isSplitSelected() = rgPaymentMethod.checkedRadioButtonId == R.id.rbSplit
+
+    /** The amount the customer has to settle right now (after discount and round-off). */
+    private fun currentPayableTotal(): Double {
+        val grand = lastBreakdown?.grandTotal ?: return 0.0
+        return (grand - roundOffAmount(grand)).coerceAtLeast(0.0)
+    }
+
+    /** True when the chosen split lines add up exactly to the live bill total. */
+    private fun splitMatchesTotal(): Boolean {
+        val lines = splitLines ?: return false
+        val total = currentPayableTotal()
+        if (total <= 0.0) return true
+        return com.example.easy_billing.util.PaymentSplit.validate(
+            total, lines,
+            com.example.easy_billing.util.MoneyMode.COUNTER + com.example.easy_billing.util.MoneyMode.CREDIT
+        ) == com.example.easy_billing.util.SplitCheck.Ok
+    }
+
+    /** The customer picker is needed when any part of the bill goes on credit. */
+    private fun needsCreditCustomer(): Boolean =
+        if (isSplitSelected())
+            com.example.easy_billing.util.PaymentSplit.separateCredit(splitLines.orEmpty()).second > 0.0
+        else getPaymentMethod() == "CREDIT"
+
+    private fun splitSummary(): String =
+        splitLines.orEmpty().joinToString(" + ") {
+            "${com.example.easy_billing.util.PaymentLinesSheet.modeLabel(this, it.mode)} " +
+                CurrencyHelper.format(this, it.amount)
+        }
+
+    private fun openSplitSheet() {
+        if (isBillSaved) return
+        val total = currentPayableTotal()
+        if (total <= 0.0) {
+            Toast.makeText(this, R.string.invoice_split_zero_total, Toast.LENGTH_SHORT).show()
+            findViewById<android.widget.RadioButton>(R.id.rbCash)?.isChecked = true
+            return
+        }
+        val modes = buildList {
+            add(com.example.easy_billing.util.MoneyMode.CASH)
+            if (com.example.easy_billing.util.UpiSettings.isEnabled(this@InvoiceActivity))
+                add(com.example.easy_billing.util.MoneyMode.UPI)
+            add(com.example.easy_billing.util.MoneyMode.CARD)
+            add(com.example.easy_billing.util.MoneyMode.BANK)
+            add(com.example.easy_billing.util.MoneyMode.CREDIT)
+        }
+        // Re-open with the old amounts only if they still add up; otherwise start fresh.
+        val start = if (splitMatchesTotal()) splitLines.orEmpty() else emptyList()
+        com.example.easy_billing.util.PaymentLinesSheet.show(
+            activity = this,
+            title = getString(R.string.invoice_split_title),
+            total = total,
+            modes = modes,
+            initial = start,
+            defaultMode = com.example.easy_billing.util.MoneyMode.CASH,
+            onConfirm = { lines ->
+                splitLines = lines
+                updatePaymentMethodCues()
+            },
+            onCancel = {
+                // No split chosen yet: go back to Cash instead of leaving an empty Split selected.
+                if (splitLines == null) findViewById<android.widget.RadioButton>(R.id.rbCash)?.isChecked = true
+            }
+        )
+    }
+
     private fun getPaymentMethod(): String = when (rgPaymentMethod.checkedRadioButtonId) {
         R.id.rbCash   -> "CASH"
         R.id.rbUpi    -> "UPI"
         R.id.rbCard   -> "CARD"
+        R.id.rbBank   -> "BANK"
         R.id.rbCredit -> "CREDIT"
         else          -> "CASH"
     }

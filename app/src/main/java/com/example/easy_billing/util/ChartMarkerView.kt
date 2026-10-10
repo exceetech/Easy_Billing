@@ -9,51 +9,31 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.utils.MPPointF
 
 /**
- * Premium scrubber marker for the Sales trend line chart.
- * Shows the period label (date/month) + revenue, sits above the touched point
- * (drops below near the top edge), and stays clamped inside the chart so it
- * never overlaps the line edges. Slides as the user drags along the line.
+ * Dark tooltip bubble for the Sales trend line chart — same layout and
+ * positioning as the Profit Analytics trend marker (marker_trend_tooltip).
  */
 class ChartMarkerView(
     context: Context,
     private val labels: List<String>
-) : MarkerView(context, R.layout.marker_chart_premium) {
+) : MarkerView(context, R.layout.marker_trend_tooltip) {
 
-    private val tvDate: TextView = findViewById(R.id.tvMarkDate)
-    private val tvValue: TextView = findViewById(R.id.tvMarkValue)
-
-    private val gap = 14f * context.resources.displayMetrics.density
+    private val tvLabel: TextView = findViewById(R.id.tvMarkerLabel)
+    private val tvAmount: TextView = findViewById(R.id.tvMarkerAmount)
+    private var lastIndex = -1
 
     override fun refreshContent(e: Entry?, highlight: Highlight?) {
-        val i = e?.x?.toInt() ?: 0
-        tvDate.text = labels.getOrNull(i) ?: ""
-        tvValue.text = CurrencyHelper.format(context, (e?.y ?: 0f).toDouble())
-
-        // Text width changes per point — re-measure so positioning is correct.
-        measure(
-            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
-            MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
-        )
-        layout(0, 0, measuredWidth, measuredHeight)
-
+        val i = e?.x?.toInt() ?: -1
+        lastIndex = i
+        tvLabel.text = labels.getOrNull(i) ?: ""
+        tvAmount.text = CurrencyHelper.format(context, (e?.y ?: 0f).toDouble())
         super.refreshContent(e, highlight)
     }
 
-    override fun getOffset(): MPPointF = MPPointF(-(width / 2f), -height.toFloat() - gap)
-
-    /** Keep the pill inside the chart; flip below the point when near the top. */
-    override fun getOffsetForDrawingAtPoint(posX: Float, posY: Float): MPPointF {
-        val w = width.toFloat()
-        val h = height.toFloat()
-        val cw = chartView?.width?.toFloat() ?: (posX + w)
-
-        var x = -w / 2f
-        if (posX + x < 0f) x = -posX
-        else if (posX + x + w > cw) x = cw - posX - w
-
-        var y = -h - gap
-        if (posY + y < 0f) y = gap   // not enough room above → drop below the point
-
-        return MPPointF(x, y)
+    // Centered above the point; the last two points open to the left so the
+    // bubble is never clipped at the right edge.
+    override fun getOffset(): MPPointF {
+        val nearRightEdge = labels.isNotEmpty() && lastIndex >= labels.size - 2
+        val offsetX = if (nearRightEdge) -width.toFloat() - 6f else -(width / 2f)
+        return MPPointF(offsetX, -height.toFloat() - 10f)
     }
 }

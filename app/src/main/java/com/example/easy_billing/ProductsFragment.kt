@@ -1,12 +1,8 @@
 package com.example.easy_billing.fragments
 
 import android.content.Context
-import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
-import android.view.Gravity
 import android.view.View
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -15,35 +11,40 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.Filterable
 import com.example.easy_billing.R
 import com.example.easy_billing.ReportFilter
-import com.example.easy_billing.adapter.ProductRow
-import com.example.easy_billing.adapter.ProductRowAdapter
+import com.example.easy_billing.adapter.RankedRowAdapter
+import com.example.easy_billing.adapter.SalesRow
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.network.TopProductResponse
 import com.example.easy_billing.util.AppTime
 import com.example.easy_billing.util.CurrencyHelper
-import com.github.mikephil.charting.charts.PieChart
-import com.github.mikephil.charting.data.PieData
-import com.github.mikephil.charting.data.PieDataSet
-import com.github.mikephil.charting.data.PieEntry
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.math.roundToInt
 
 /**
- * Top Products — Sales design language with a SHARE donut.
- * The sort (Fast moving / Revenue / Popular / Smart) drives the metric the
- * donut, center total, legend and breakdown list show.
+ * Best Sellers — a KPI card (best and slowest product) and one ranked
+ * breakdown card. The sort selector (Fast moving / Revenue / Popular / Smart)
+ * decides how the products are ranked and which figure each row shows.
  */
 class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
 
     private lateinit var tvSortChip: TextView
-    private lateinit var pieChart: PieChart
-    private lateinit var tvCenterVal: TextView
-    private lateinit var tvCenterLbl: TextView
-    private lateinit var llLegend: LinearLayout
+    private lateinit var rowSortChip: View
+    private lateinit var tvBreakdownCaption: TextView
+    private lateinit var tvBestName: TextView
+    private lateinit var tvBestValue: TextView
+    private lateinit var tvBestSub: TextView
+    private lateinit var tvWorstName: TextView
+    private lateinit var tvWorstValue: TextView
+    private lateinit var tvWorstSub: TextView
     private lateinit var rvProducts: RecyclerView
     private lateinit var tvEmpty: TextView
-    private lateinit var adapter: ProductRowAdapter
+    private lateinit var tvNotSold: TextView
+    private var loadJob: kotlinx.coroutines.Job? = null
+    private lateinit var adapter: RankedRowAdapter
+    private lateinit var tvBreakdownMore: View
+    private lateinit var tvBreakdownMoreText: TextView
+    private lateinit var ivBreakdownMoreChevron: View
 
     private var currentFilter = ReportFilter.TODAY
     private var customStartDate: String? = null
@@ -52,29 +53,35 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
     private var sortBy = "quantity"   // quantity | revenue | frequency | smart
 
     private val sdf = AppTime.isoDate()
-    private val sliceColors = listOf("#0F6E56", "#B8895A", "#791F1F", "#D9CBA3", "#5DCAA5", "#8A6526")
-        .map { Color.parseColor(it) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         com.example.easy_billing.util.UserEventLogger.logAction("ProductsFragment", "opened")
 
         tvSortChip  = view.findViewById(R.id.tvSortChip)
-        pieChart    = view.findViewById(R.id.pieChart)
-        tvCenterVal = view.findViewById(R.id.tvCenterVal)
-        tvCenterLbl = view.findViewById(R.id.tvCenterLbl)
-        llLegend    = view.findViewById(R.id.llLegend)
+        rowSortChip = view.findViewById(R.id.rowSortChip)
+        tvBreakdownCaption = view.findViewById(R.id.tvBreakdownCaption)
+        tvBestName  = view.findViewById(R.id.tvBestName)
+        tvBestValue = view.findViewById(R.id.tvBestValue)
+        tvBestSub   = view.findViewById(R.id.tvBestSub)
+        tvWorstName  = view.findViewById(R.id.tvWorstName)
+        tvWorstValue = view.findViewById(R.id.tvWorstValue)
+        tvWorstSub   = view.findViewById(R.id.tvWorstSub)
         rvProducts  = view.findViewById(R.id.rvProducts)
         tvEmpty     = view.findViewById(R.id.tvEmpty)
+        tvNotSold   = view.findViewById(R.id.tvNotSold)
 
         rvProducts.layoutManager = LinearLayoutManager(requireContext())
         rvProducts.isNestedScrollingEnabled = false
-        adapter = ProductRowAdapter()
+        adapter = RankedRowAdapter()
         rvProducts.adapter = adapter
+        tvBreakdownMore = view.findViewById(R.id.tvBreakdownMore)
+        tvBreakdownMoreText = view.findViewById(R.id.tvBreakdownMoreText)
+        ivBreakdownMoreChevron = view.findViewById(R.id.ivBreakdownMoreChevron)
+        tvBreakdownMore.setOnClickListener { adapter.toggleExpanded(); updateMoreButton() }
 
-        setupPie()
-        tvSortChip.text = sortLabel() + " ▾"
-        tvSortChip.setOnClickListener { showSortMenu(it) }
+        tvSortChip.text = sortLabel()
+        rowSortChip.setOnClickListener { showSortMenu(it) }
 
         syncFilterFromActivity()
         loadProducts()
@@ -99,12 +106,12 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
 
     // ── Sort ─────────────────────────────────────────────────────────────────
 
-    private fun sortLabel(key: String = sortBy): String = when (key) {
-        "revenue"   -> "Revenue"
-        "frequency" -> "Popular"
-        "smart"     -> "Smart"
-        else        -> "Fast moving"
-    }
+    private fun sortLabel(key: String = sortBy): String = getString(when (key) {
+        "revenue"   -> R.string.products_sort_revenue
+        "frequency" -> R.string.products_sort_popular
+        "smart"     -> R.string.products_sort_smart
+        else        -> R.string.products_sort_fast
+    })
 
     private fun showSortMenu(anchor: View) {
         val keys = listOf("quantity", "revenue", "frequency", "smart")
@@ -113,7 +120,7 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
             anchor, keys.map { sortLabel(it) }, selected, rightAlign = true
         ) { idx ->
             sortBy = keys[idx]
-            tvSortChip.text = sortLabel() + " ▾"
+            tvSortChip.text = sortLabel()
             loadProducts()
         }
     }
@@ -121,7 +128,8 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
     // ── Data loading ───────────────────────────────────────────────────────────
 
     private fun loadProducts() {
-        lifecycleScope.launch {
+        loadJob?.cancel()
+        loadJob = lifecycleScope.launch {
             val token = requireActivity()
                 .getSharedPreferences("auth", Context.MODE_PRIVATE)
                 .getString("TOKEN", null) ?: return@launch
@@ -166,9 +174,16 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
 
                 val products = RetrofitClient.api.getTopProducts(token, type, start, end, sortBy)
                 render(products)
+                showNotSold(products)
 
             } catch (e: Exception) {
-                e.printStackTrace()
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                view?.let { v ->
+                    com.google.android.material.snackbar.Snackbar
+                        .make(v, R.string.reports_toast_load_failed, com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE)
+                        .setAction(R.string.reports_retry) { loadProducts() }
+                        .show()
+                }
             }
         }
     }
@@ -186,110 +201,70 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
         if (products.isEmpty()) {
             tvEmpty.visibility = View.VISIBLE
             rvProducts.visibility = View.GONE
-            llLegend.removeAllViews()
-            pieChart.clear()
-            tvCenterVal.text = getString(R.string.dash)
+            adapter.updateData(emptyList()); updateMoreButton()
+            bindKpi(tvBestName, tvBestValue, tvBestSub, null)
+            bindKpi(tvWorstName, tvWorstValue, tvWorstSub, null)
             return
         }
         tvEmpty.visibility = View.GONE
         rvProducts.visibility = View.VISIBLE
 
-        val total = products.sumOf { metricOf(it) }
-        tvCenterVal.text = centerValue(total)
-        tvCenterLbl.text = centerLabel()
+        // Smart = the server's weighted ranking; keep its order (don't re-sort by money).
+        val ranked = if (sortBy == "smart") products else products.sortedByDescending { metricOf(it) }
+        val best = ranked.first()
+        // With a single product there is no "slowest" to compare against.
+        val worst = if (ranked.size >= 2) ranked.last() else null
 
-        // Donut: top 5 by metric + Others
-        val byMetric = products.sortedByDescending { metricOf(it) }
-        val top = byMetric.take(5)
-        val othersVal = byMetric.drop(5).sumOf { metricOf(it) }
-        val slices = top.map { name(it) to metricOf(it) }.toMutableList()
-        if (othersVal > 0) slices.add("Others" to othersVal)
+        bindKpi(tvBestName, tvBestValue, tvBestSub, best)
+        if (worst != null) bindKpi(tvWorstName, tvWorstValue, tvWorstSub, worst)
+        else { bindKpi(tvWorstName, tvWorstValue, tvWorstSub, null); tvWorstSub.text = getString(R.string.products_only_one) }
 
-        val entries = slices.map { PieEntry(it.second.toFloat(), it.first) }
-        val ds = PieDataSet(entries, "").apply {
-            colors = (0 until slices.size).map { sliceColors[it % sliceColors.size] }
-            sliceSpace = 2f
-            setDrawValues(false)
-        }
-        pieChart.data = PieData(ds)
-        pieChart.highlightValues(null)
-        pieChart.invalidate()
+        tvBreakdownCaption.text = getString(R.string.products_card_caption)
 
-        buildLegend(slices, total)
-
-        // Breakdown list — backend's sort order; star the #1
-        val rows = products.mapIndexed { i, p ->
-            ProductRow(name(p), secondary(ctx, p), valueText(ctx, p), isBest = i == 0)
-        }
-        adapter.updateData(rows)
+        // Breakdown list — best first (medals, bar relative to the #1 seller).
+        adapter.updateData(ranked.map { p ->
+            SalesRow(
+                label = name(p), revenue = metricOf(p), bills = p.frequency,
+                subText = secondary(ctx, p), valueText = valueText(ctx, p)
+            )
+        })
+        updateMoreButton()
     }
 
-    private fun setupPie() {
-        pieChart.apply {
-            setUsePercentValues(false)
-            description.isEnabled = false
-            legend.isEnabled = false
-            setDrawEntryLabels(false)
-            isRotationEnabled = false
-            isHighlightPerTapEnabled = true
-            setHoleColor(Color.WHITE)
-            holeRadius = 68f
-            transparentCircleRadius = 71f
-            setDrawCenterText(false)   // custom overlay instead
-            setExtraOffsets(2f, 2f, 2f, 2f)
-        }
+    private fun updateMoreButton() {
+        if (!adapter.canExpand) { tvBreakdownMore.visibility = View.GONE; return }
+        tvBreakdownMore.visibility = View.VISIBLE
+        ivBreakdownMoreChevron.rotation = if (adapter.expanded) 180f else 0f
+        tvBreakdownMoreText.text = if (adapter.expanded) getString(R.string.reports_show_less)
+            else getString(R.string.products_see_all, adapter.totalCount)
     }
 
-    private fun buildLegend(slices: List<Pair<String, Double>>, total: Double) {
-        llLegend.removeAllViews()
-        val ctx = requireContext()
-        val safeTotal = total.takeIf { it > 0 } ?: 1.0
-        slices.indices.chunked(2).forEach { idxs ->
-            val row = LinearLayout(ctx).apply {
-                orientation = LinearLayout.HORIZONTAL
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
-                ).apply { bottomMargin = dp(9) }
-            }
-            idxs.forEachIndexed { col, i ->
-                val pct = (slices[i].second / safeTotal * 100).roundToInt()
-                val lp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                if (col == 0) lp.marginEnd = dp(20)   // clear gap between the two columns
-                row.addView(legendCell(ctx, slices[i].first, pct, sliceColors[i % sliceColors.size]), lp)
-            }
-            if (idxs.size == 1) {
-                row.addView(View(ctx), LinearLayout.LayoutParams(0, 1, 1f))
-            }
-            llLegend.addView(row)
+    private fun bindKpi(nameTv: TextView, valueTv: TextView, subTv: TextView, p: TopProductResponse?) {
+        if (p == null) {
+            nameTv.text = getString(R.string.dash); valueTv.text = getString(R.string.dash); subTv.text = getString(R.string.dash)
+            return
         }
+        nameTv.text = name(p)
+        valueTv.text = valueText(requireContext(), p)
+        subTv.text = secondary(requireContext(), p)
     }
 
-    private fun legendCell(ctx: Context, label: String, pct: Int, color: Int): View {
-        // [dot] name … %  — name fills the column, % stays right beside it
-        val cell = LinearLayout(ctx).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-        }
-        val dot = View(ctx).apply {
-            background = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE; cornerRadius = dp(3).toFloat(); setColor(color)
-            }
-            layoutParams = LinearLayout.LayoutParams(dp(9), dp(9)).apply { marginEnd = dp(7) }
-        }
-        val name = TextView(ctx).apply {
-            text = label; textSize = 12f; setTextColor(Color.parseColor("#1A1A18"))
-            maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END
-            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-        }
-        val pctTv = TextView(ctx).apply {
-            text = "$pct%"; textSize = 12f; setTextColor(Color.parseColor("#1A1A18"))
-            setTypeface(typeface, android.graphics.Typeface.BOLD)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { marginStart = dp(6) }
-        }
-        cell.addView(dot); cell.addView(name); cell.addView(pctTv)
-        return cell
+    /** Active products that had no sales at all in the chosen period. */
+    private suspend fun showNotSold(sold: List<TopProductResponse>) {
+        val ctx = context ?: return
+        val soldNames = sold.map { name(it).trim().lowercase() }.toSet()
+        val names = try {
+            com.example.easy_billing.db.AppDatabase.getDatabase(ctx).productDao().getAll()
+                .map { p -> p.variant?.takeIf { it.isNotBlank() }?.let { "${p.name} ($it)" } ?: p.name }
+                .filter { it.trim().lowercase() !in soldNames }
+                .distinct()
+        } catch (e: Exception) { emptyList() }
+        if (names.isEmpty()) { tvNotSold.visibility = View.GONE; return }
+        val shown = names.take(8).joinToString(", ")
+        val more = names.size - 8
+        tvNotSold.text = getString(R.string.products_not_sold, shown) +
+            if (more > 0) " " + getString(R.string.products_not_sold_more, more) else ""
+        tvNotSold.visibility = View.VISIBLE
     }
 
     // ── Formatting helpers ────────────────────────────────────────────────────
@@ -300,29 +275,15 @@ class ProductsFragment : Fragment(R.layout.fragment_products), Filterable {
     private fun qty(q: Double): String =
         if (q == q.toLong().toDouble()) q.toLong().toString() else "%.1f".format(q)
 
-    private fun centerLabel(): String = when (sortBy) {
-        "revenue", "smart" -> "total revenue"
-        "frequency"        -> "total bills"
-        else               -> "total units"
-    }
-
-    private fun centerValue(total: Double): String = when (sortBy) {
-        "revenue", "smart" -> CurrencyHelper.format(requireContext(), total)
-        "frequency"        -> total.toLong().toString()
-        else               -> qty(total)
-    }
-
     private fun valueText(ctx: Context, p: TopProductResponse): String = when (sortBy) {
         "revenue", "smart" -> CurrencyHelper.format(ctx, p.revenue)
-        "frequency"        -> "${p.frequency} bills"
+        "frequency"        -> ctx.getString(R.string.reports_bills_count, p.frequency)
         else               -> "${qty(p.quantity)} ${p.unit}"
     }
 
     private fun secondary(ctx: Context, p: TopProductResponse): String = when (sortBy) {
-        "revenue", "smart" -> "${qty(p.quantity)} ${p.unit} · ${p.frequency} bills"
+        "revenue", "smart" -> "${qty(p.quantity)} ${p.unit} · " + ctx.getString(R.string.reports_bills_count, p.frequency)
         "frequency"        -> "${qty(p.quantity)} ${p.unit} · ${CurrencyHelper.format(ctx, p.revenue)}"
-        else               -> "${p.frequency} bills · ${CurrencyHelper.format(ctx, p.revenue)}"
+        else               -> ctx.getString(R.string.reports_bills_count, p.frequency) + " · " + CurrencyHelper.format(ctx, p.revenue)
     }
-
-    private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
 }

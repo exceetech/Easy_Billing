@@ -38,6 +38,10 @@ class Gstr1ViewModel(app: Application) : AndroidViewModel(app) {
     private val _gstin = MutableStateFlow("")
     val gstin: StateFlow<String> = _gstin.asStateFlow()
 
+    private val _gstScheme = MutableStateFlow("")
+    /** "REGULAR" / "COMPOSITION" from the saved GST profile ("" when unknown). */
+    val gstScheme: StateFlow<String> = _gstScheme.asStateFlow()
+
     // ── Report state ──────────────────────────────────────────────────────────
 
     private val _report = MutableStateFlow<Gstr1Report?>(null)
@@ -88,6 +92,7 @@ class Gstr1ViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             val profile = repo.getProfile()
             _gstin.value = profile?.gstin ?: ""
+            _gstScheme.value = profile?.gstScheme ?: ""
             // Set current FY and period as default
             val cal = java.util.Calendar.getInstance()
             val month = cal.get(java.util.Calendar.MONTH) + 1 // 1-based
@@ -137,12 +142,10 @@ class Gstr1ViewModel(app: Application) : AndroidViewModel(app) {
                     return@launch
                 }
 
-                // Same prefs key Gstr2ViewModel already uses successfully for
-                // this call ("token", lowercase) — kept identical rather than
-                // guessing at an alternate casing.
+                // Login token is stored under "TOKEN" (uppercase) in the auth prefs.
                 val prefs = getApplication<Application>()
                     .getSharedPreferences("auth", android.content.Context.MODE_PRIVATE)
-                val token = prefs.getString("token", "") ?: ""
+                val token = prefs.getString("TOKEN", "") ?: ""
 
                 val report = try {
                     repo.fetchGstr1Online(
@@ -151,6 +154,15 @@ class Gstr1ViewModel(app: Application) : AndroidViewModel(app) {
                         period = p,
                         returnType = _returnType.value
                     )
+                } catch (e: retrofit2.HttpException) {
+                    // Plain words for the two cases an owner can actually act on.
+                    val app = getApplication<Application>()
+                    _error.value = when (e.code()) {
+                        401 -> app.getString(R.string.gstr1_vm_error_login_again)
+                        402, 403 -> app.getString(R.string.gstr1_vm_error_no_access)
+                        else -> app.getString(R.string.gstr1_vm_error_generate_failed)
+                    }
+                    return@launch
                 } catch (e: java.io.IOException) {
                     // Network-layer failure (no connection, timeout, DNS, etc.)
                     // — distinct from a server error, worth a distinct message

@@ -474,12 +474,37 @@ class BillHistoryActivity : BaseActivity() {
         // Same "on credit vs cash" split Purchase History shows for money
         // going out — here it's money coming in, so the owner can see at a
         // glance how much of today's sales are still owed to them.
-        val creditToday = todayBills.filter { it.payment_method.contains("credit", ignoreCase = true) }
-        val cashToday = todayBills.filter { !it.payment_method.contains("credit", ignoreCase = true) }
+        val pm = com.example.easy_billing.util.PaymentMethodText
+        // Whole-credit bills are fully on credit; a part-credit bill ("CASH+CREDIT") only owes its credit part.
+        val creditToday = todayBills.filter { pm.hasCredit(it.payment_method) && !pm.isSplit(it.payment_method) }
+        val partCreditToday = todayBills.filter { pm.hasCredit(it.payment_method) && pm.isSplit(it.payment_method) }
+        val cashToday = todayBills.filter { !pm.hasCredit(it.payment_method) }
 
         tvTodaySales.text = CurrencyHelper.format(this, totalToday)
         tvBillsToday.text = todayBills.size.toString()
         tvOnCreditToday.text = CurrencyHelper.format(this, creditToday.sumOf { it.total_amount })
-        tvCashToday.text = CurrencyHelper.format(this, cashToday.sumOf { it.total_amount })
+        tvCashToday.text = CurrencyHelper.format(this, cashToday.sumOf { it.total_amount } + partCreditToday.sumOf { it.total_amount })
+
+        if (partCreditToday.isNotEmpty()) {
+            // Split the part-credit bills exactly, from this phone's credit ledger.
+            lifecycleScope.launch {
+                val creditPart = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    val db = com.example.easy_billing.db.AppDatabase.getDatabase(this@BillHistoryActivity)
+                    val shop = getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", -1)
+                    var sum = 0.0
+                    for (b in partCreditToday) {
+                        val local = db.billDao().getByBillNumber(b.bill_number) ?: continue
+                        sum += db.creditTransactionDao().getByBill(local.id, shop)
+                            .filter { it.type == "ADD" }.sumOf { it.amount }
+                    }
+                    sum
+                }
+                val partTotal = partCreditToday.sumOf { it.total_amount }
+                tvOnCreditToday.text = CurrencyHelper.format(this@BillHistoryActivity,
+                    creditToday.sumOf { it.total_amount } + creditPart)
+                tvCashToday.text = CurrencyHelper.format(this@BillHistoryActivity,
+                    cashToday.sumOf { it.total_amount } + (partTotal - creditPart))
+            }
+        }
     }
 }

@@ -5,6 +5,7 @@ import com.example.easy_billing.InventoryManager
 import com.example.easy_billing.InventoryValuation
 import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.PurchaseReturn
+import com.example.easy_billing.db.grossUnitCost
 import com.example.easy_billing.db.ScrapEntry
 import com.example.easy_billing.util.GstEngine
 import com.example.easy_billing.util.appNow
@@ -46,12 +47,32 @@ class InventoryReductionRepository private constructor(
         )
         val id = db.scrapDao().insert(toInsert).toInt()
         entry.productId?.let {
+            val slices = mutableListOf<com.example.easy_billing.correction.FifoAllocator.Slice>()
             InventoryManager.reduceStock(
-                db = db, productId = it, quantity = entry.quantity, type = InventoryManager.LogType.LOSS
+                db = db, productId = it, quantity = entry.quantity, type = InventoryManager.LogType.LOSS,
+                allocationSink = slices
             )
+            saveScrapAllocation(id, it, slices)
         }
         id
     }
+
+    /**
+     * Stage 3A: records which purchase bills the units of a scrap / loss
+     * came from. [slices] come straight from the batches that were drained.
+     */
+    private suspend fun saveScrapAllocation(
+        scrapId: Int,
+        productId: Int,
+        slices: List<com.example.easy_billing.correction.FifoAllocator.Slice>
+    ) = com.example.easy_billing.db.AllocationRecorder.save(
+        db = db,
+        sourceType = com.example.easy_billing.db.AllocationSource.SCRAP,
+        sourceId = scrapId,
+        sourceLineId = 0,
+        productId = productId,
+        slices = slices
+    )
 
     /** Resolve shop_id (gstin) + state (gst_profile.stateCode → name). */
     private suspend fun currentShopAndState(): Pair<String, String> {
@@ -84,7 +105,8 @@ class InventoryReductionRepository private constructor(
         supplierGstin: String? = null,
         supplierName: String? = null,
         isCredit: Boolean = false,
-        creditAccountId: Int? = null
+        creditAccountId: Int? = null,
+        scrapReason: String? = null
     ): ClearStockResult = db.withTransaction {
 
         val inventory = db.inventoryDao().getInventory(productId)
@@ -95,6 +117,8 @@ class InventoryReductionRepository private constructor(
 
         val avgCost = inventory.averageCost
         val taxableAmount = qty * avgCost
+        var scrapClearSlices: List<com.example.easy_billing.correction.FifoAllocator.Slice> = emptyList()
+        var scrapClearRowId = 0
 
         val store = db.storeInfoDao().get()
         val gst   = db.gstProfileDao().get()
@@ -310,7 +334,22 @@ class InventoryReductionRepository private constructor(
                     }
                 }
             }
-            ClearReason.SCRAP -> db.scrapDao().insert(
+            ClearReason.SCRAP -> {
+                // Stage 3A: snapshot which bills the cleared units belong to
+                // BEFORE clearStock drains the batches below.
+                val clearBatches = db.purchaseBatchDao().getRemainingBatches(productId)
+                scrapClearSlices = com.example.easy_billing.correction.FifoAllocator.plan(
+                    batches = clearBatches.map { b ->
+                        com.example.easy_billing.correction.FifoAllocator.BatchView(
+                            b.id, b.purchaseInvoiceId, b.quantityRemaining,
+                            b.unitCostExcludingTax, b.grossUnitCost()
+                        )
+                    },
+                    quantity = qty,
+                    shortfallCostNet = avgCost,
+                    shortfallCostGross = avgCost
+                ).slices
+                scrapClearRowId = db.scrapDao().insert(
                 ScrapEntry(
                     shopId         = shopIdStr,
                     productId      = productId,
@@ -327,9 +366,10 @@ class InventoryReductionRepository private constructor(
                     sgstAmount     = sgstAmt,
                     igstAmount     = igstAmt,
                     state          = stateStr,
-                    reason         = "Stock cleared"
+                    reason         = scrapReason ?: "Stock cleared"
                 )
-            )
+                ).toInt()
+            }
         }
 
         // Supplier-balance adjustment lifted OUT — see the note in
@@ -354,6 +394,7 @@ class InventoryReductionRepository private constructor(
                 db = db, productId = productId,
                 type = InventoryManager.LogType.LOSS
             )
+            if (scrapClearRowId > 0) saveScrapAllocation(scrapClearRowId, productId, scrapClearSlices)
         }
 
         val creditAdj =
@@ -590,7 +631,15 @@ class InventoryReductionRepository private constructor(
             val cgst = if (sameStateForThisBatch) taxable * cgstPct / 100.0 else 0.0
             val sgst = if (sameStateForThisBatch) taxable * sgstPct / 100.0 else 0.0
             val igst = if (!sameStateForThisBatch) taxable * igstPct / 100.0 else 0.0
+            // Price-corrected bill (PDN): cess per pen follows the corrected rate.
+            // Null for a bill with no price notes, so the original formulas below apply.
+            val correctedRates = if (historicalItem != null) {
+                batch.purchaseInvoiceId?.let { invId ->
+                    PurchaseCorrectionRepository.correctedRatesOrNull(db, invId, historicalItem)
+                }
+            } else null
             val cess = when {
+                correctedRates != null -> qty * correctedRates.cessPerPen
                 historicalItem != null && historicalItem.quantity > 0.0 && historicalItem.cessAmount > 0.0 ->
                     (qty / historicalItem.quantity) * historicalItem.cessAmount
                 cessPct > 0.0 ->
@@ -652,7 +701,7 @@ class InventoryReductionRepository private constructor(
                     // the supplier refunds at this batch's own original
                     // cost. Positive = loss, negative = gain.
                     inventoryValuationVariance = Math.round(
-                        ((qty * avgAtTimeOfReturn) - (qty * batch.unitCostExcludingTax)) * 100.0
+                        ((qty * avgAtTimeOfReturn) - (qty * batch.grossUnitCost())) * 100.0
                     ) / 100.0,
 
                     // Purchase-return-flow audit, Phase 1: same note
@@ -752,7 +801,8 @@ class InventoryReductionRepository private constructor(
         productName: String,
         variantName: String?,
         hsnCode: String?,
-        lines: List<BatchScrapLine>
+        lines: List<BatchScrapLine>,
+        scrapReason: String = "Scrap"
     ): BatchScrapResult? = db.withTransaction {
 
         if (lines.isEmpty()) return@withTransaction null
@@ -864,9 +914,22 @@ class InventoryReductionRepository private constructor(
                     sgstAmount       = roundedSgst,
                     igstAmount       = roundedIgst,
                     state            = batchStateName,
-                    reason         = "Scrap"
+                    reason         = scrapReason
                 )
             ).toInt()
+
+            saveScrapAllocation(
+                scrapId, productId,
+                listOf(
+                    com.example.easy_billing.correction.FifoAllocator.Slice(
+                        batchId = batch.id,
+                        purchaseInvoiceId = batch.purchaseInvoiceId,
+                        quantity = qty,
+                        unitCostNet = batch.unitCostExcludingTax,
+                        unitCostGross = batch.grossUnitCost()
+                    )
+                )
+            )
 
             grandScrapId = scrapId
             grandTotalQuantity += qty

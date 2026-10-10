@@ -153,7 +153,9 @@ object CreditAdjustmentRepository {
             is Source.Bill -> {
                 val bill = db.billDao().getBillById(source.billId)
                 val accId = bill.creditAccountId
-                if (bill.paymentMethod != "CREDIT" || accId == null) return null
+                // Whole-credit and part-credit bills both carry an account; a part-credit bill's debt is only its credit portion
+                // (see remainingForSource, which sums the bill's own ledger rows).
+                if (!com.example.easy_billing.util.PaymentMethodText.hasCredit(bill.paymentMethod) || accId == null) return null
                 val account = db.creditAccountDao().getById(accId, shop) ?: return null
                 Resolved(accId, account, bill.billNumber.trim().ifBlank { null })
             }
@@ -238,6 +240,18 @@ object CreditAdjustmentRepository {
         val remaining = remainingForSource(context, source, shop)
         decide(r.account, remaining, r.account.dueAmount, amount, kind.raises)
     }
+
+    /**
+     * How much of [amount] lands on the credit account: the smaller of the amount and what this
+     * source still has on credit. The rest of a return / cancel is money the customer had actually
+     * paid, so it is a real refund (payment tracking). 0 when the source is not on credit.
+     */
+    suspend fun creditShareOf(context: Context, source: Source, amount: Double): Double =
+        withContext(Dispatchers.IO) {
+            val shop = shopIdOrNull(context) ?: return@withContext 0.0
+            resolve(context, source, shop) ?: return@withContext 0.0
+            minOf(maxOf(amount, 0.0), remainingForSource(context, source, shop))
+        }
 
     /** Generalized committer. Writes one ledger row and moves the balance. */
     suspend fun commitSource(

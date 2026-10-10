@@ -1,0 +1,82 @@
+package com.example.easy_billing.util
+
+import android.text.InputType
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.room.withTransaction
+import com.example.easy_billing.R
+import com.example.easy_billing.db.AppDatabase
+import com.example.easy_billing.repository.MoneyBook
+import com.example.easy_billing.ui.MoneyViews
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+/**
+ * One-time opening balance: what the owner has in hand and in the bank on day one.
+ * Saved as OPENING rows in the Money Book, dated the start of today. It can be set only once;
+ * a later correction is a manual entry (Phase 7), never an edit.
+ */
+object OpeningBalanceDialog {
+
+    fun show(activity: AppCompatActivity, onSaved: () -> Unit) {
+        val pad = MoneyViews.dp(activity, 20)
+        val box = LinearLayout(activity).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(pad, MoneyViews.dp(activity, 8), pad, 0)
+        }
+        fun field(hint: Int) = EditText(activity).apply {
+            setHint(hint)
+            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+        }.also { box.addView(it) }
+        val cash = field(R.string.money_opening_cash)
+        val bank = field(R.string.money_opening_bank)
+
+        AlertDialog.Builder(activity)
+            .setTitle(R.string.money_opening_title)
+            .setMessage(R.string.money_opening_msg)
+            .setView(box)
+            .setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(R.string.money_opening_save) { _, _ ->
+                val c = PaymentSplit.round2(cash.text.toString().trim().toDoubleOrNull() ?: 0.0)
+                val b = PaymentSplit.round2(bank.text.toString().trim().toDoubleOrNull() ?: 0.0)
+                if (c < 0.0 || b < 0.0 || (c <= 0.0 && b <= 0.0)) {
+                    Toast.makeText(activity, R.string.money_opening_zero, Toast.LENGTH_LONG).show()
+                    return@setPositiveButton
+                }
+                activity.lifecycleScope.launch {
+                    val result = withContext(Dispatchers.IO) {
+                        runCatching {
+                            val db = AppDatabase.getDatabase(activity)
+                            val dao = db.moneyEntryDao()
+                            db.withTransaction {
+                                if (dao.countReason(MoneyReason.OPENING) > 0) return@withTransaction false
+                                val sid = dao.nextManualSourceId()
+                                val at = MoneyReport.startOfToday()
+                                val book = MoneyBook(dao)
+                                if (c > 0.0) book.record(MoneyDirection.IN, MoneyMode.CASH, c, MoneyReason.OPENING,
+                                    MoneySource.MANUAL, sid, at = at)
+                                if (b > 0.0) book.record(MoneyDirection.IN, MoneyMode.BANK, b, MoneyReason.OPENING,
+                                    MoneySource.MANUAL, sid, at = at)
+                                true
+                            }
+                        }
+                    }
+                    when {
+                        result.isFailure -> Toast.makeText(activity, R.string.money_opening_failed, Toast.LENGTH_LONG).show()
+                        result.getOrNull() == true -> {
+                            Toast.makeText(activity, R.string.money_opening_done, Toast.LENGTH_LONG).show()
+                            com.example.easy_billing.sync.SyncCoordinator.get(activity).requestSync()
+                            onSaved()
+                        }
+                        else -> Toast.makeText(activity, R.string.money_opening_exists, Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+            .show()
+    }
+}

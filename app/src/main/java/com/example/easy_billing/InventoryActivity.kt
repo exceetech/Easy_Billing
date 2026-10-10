@@ -952,8 +952,29 @@ class InventoryActivity : BaseActivity() {
         val checkReasonReturn = view.findViewById<View>(R.id.checkReasonReturn)
         val checkReasonScrap = view.findViewById<View>(R.id.checkReasonScrap)
 
+        // Scrap reason (Expired / Damaged / Spoiled / Other) -- only visible
+        // while "Scrap / Damage" is the chosen reason; saved with the scrap entry.
+        var scrapReasonLabel = "Other"
+        val scrapReasonChips = listOf(
+            R.id.chipScrapExpired to "Expired", R.id.chipScrapDamaged to "Damaged",
+            R.id.chipScrapSpoiled to "Spoiled", R.id.chipScrapOther to "Other"
+        ).map { (id, label) -> view.findViewById<TextView>(id) to label }
+        val rowScrapReasons = view.findViewById<View>(R.id.rowScrapReasons)
+        fun refreshScrapChips() {
+            scrapReasonChips.forEach { (tv, label) ->
+                val on = label == scrapReasonLabel
+                tv.setBackgroundResource(if (on) R.drawable.bg_scrap_chip_on else R.drawable.bg_scrap_chip_off)
+                tv.setTextColor(android.graphics.Color.parseColor(if (on) "#FFFFFF" else "#6E6A60"))
+            }
+        }
+        scrapReasonChips.forEach { (tv, label) ->
+            tv.setOnClickListener { scrapReasonLabel = label; refreshScrapChips() }
+        }
+        refreshScrapChips()
+
         fun refreshReasonRows() {
             val isReturn = rbReturn.isChecked
+            rowScrapReasons.visibility = if (isReturn) View.GONE else View.VISIBLE
             cardReasonReturn.setBackgroundResource(if (isReturn) R.drawable.bg_reason_card_selected else R.drawable.bg_reason_card_unselected)
             checkReasonReturn.setBackgroundResource(if (isReturn) R.drawable.bg_radio_selected else R.drawable.bg_radio_unselected)
             rowReasonScrap.setBackgroundResource(if (!isReturn) R.drawable.bg_reason_card_selected else R.drawable.bg_reason_card_unselected)
@@ -1132,7 +1153,8 @@ class InventoryActivity : BaseActivity() {
                 dialog.dismiss()
                 runScrapByBatches(
                     product = product,
-                    lines = scrapLines
+                    lines = scrapLines,
+                    reason = scrapReasonLabel
                 )
                 return@setOnClickListener
             }
@@ -1207,7 +1229,8 @@ class InventoryActivity : BaseActivity() {
 
     private fun runScrapByBatches(
         product: Product,
-        lines: List<InventoryReductionRepository.BatchScrapLine>
+        lines: List<InventoryReductionRepository.BatchScrapLine>,
+        reason: String = "Other"
     ) {
         com.example.easy_billing.util.UserEventLogger.logAction(
             "Inventory", "scrap_clicked: product=${product.name}, product_id=${product.id}, batches=${lines.size}"
@@ -1220,7 +1243,8 @@ class InventoryActivity : BaseActivity() {
                     productName     = product.name,
                     variantName     = product.variant,
                     hsnCode         = product.hsnCode,
-                    lines           = lines
+                    lines           = lines,
+                    scrapReason     = reason
                 )
                 withContext(Dispatchers.Main) {
                     loadInventory()
@@ -1438,8 +1462,29 @@ class InventoryActivity : BaseActivity() {
         val checkReasonReturn = view.findViewById<View>(R.id.checkReasonReturn)
         val checkReasonScrap = view.findViewById<View>(R.id.checkReasonScrap)
 
+        // Scrap reason (Expired / Damaged / Spoiled / Other) -- only visible
+        // while "Scrap / Damage" is the chosen reason; saved with the scrap entry.
+        var scrapReasonLabel = "Other"
+        val scrapReasonChips = listOf(
+            R.id.chipScrapExpired to "Expired", R.id.chipScrapDamaged to "Damaged",
+            R.id.chipScrapSpoiled to "Spoiled", R.id.chipScrapOther to "Other"
+        ).map { (id, label) -> view.findViewById<TextView>(id) to label }
+        val rowScrapReasons = view.findViewById<View>(R.id.rowScrapReasons)
+        fun refreshScrapChips() {
+            scrapReasonChips.forEach { (tv, label) ->
+                val on = label == scrapReasonLabel
+                tv.setBackgroundResource(if (on) R.drawable.bg_scrap_chip_on else R.drawable.bg_scrap_chip_off)
+                tv.setTextColor(android.graphics.Color.parseColor(if (on) "#FFFFFF" else "#6E6A60"))
+            }
+        }
+        scrapReasonChips.forEach { (tv, label) ->
+            tv.setOnClickListener { scrapReasonLabel = label; refreshScrapChips() }
+        }
+        refreshScrapChips()
+
         fun refreshReasonRows() {
             val isReturn = rbReturn.isChecked
+            rowScrapReasons.visibility = if (isReturn) View.GONE else View.VISIBLE
             cardReasonReturn.setBackgroundResource(if (isReturn) R.drawable.bg_reason_card_selected else R.drawable.bg_reason_card_unselected)
             checkReasonReturn.setBackgroundResource(if (isReturn) R.drawable.bg_radio_selected else R.drawable.bg_radio_unselected)
             rowReasonScrap.setBackgroundResource(if (!isReturn) R.drawable.bg_reason_card_selected else R.drawable.bg_reason_card_unselected)
@@ -1690,7 +1735,8 @@ class InventoryActivity : BaseActivity() {
                     }
                     runScrapByBatches(
                         product = product,
-                        lines = lines
+                        lines = lines,
+                        reason = scrapReasonLabel
                     )
                 }
             } else {
@@ -1715,7 +1761,8 @@ class InventoryActivity : BaseActivity() {
                                 purchaseTaxSgst = product.sgstPercentage,
                                 purchaseTaxIgst = product.igstPercentage,
                                 isCredit = isCredit,
-                                creditAccountId = creditAccountId
+                                creditAccountId = creditAccountId,
+                                scrapReason = scrapReasonLabel
                             )
 
                             withContext(Dispatchers.Main) {

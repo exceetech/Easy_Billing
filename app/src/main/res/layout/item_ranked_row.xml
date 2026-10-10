@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ranked breakdown row: [rank circle]  label / "N bills · P% of sales"  ·····  amount -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <View
+        android:id="@+id/vRankDivider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#F0EADC"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingVertical="11dp"
+        android:paddingHorizontal="4dp">
+
+        <TextView
+            android:id="@+id/tvRank"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:gravity="center"
+            android:text="1"
+            android:textSize="13sp"
+            android:textStyle="bold"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="11dp"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/tvRankLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dash"
+                android:textSize="13.5sp"
+                android:textStyle="bold"
+                android:textColor="#1A1A18"/>
+            <TextView
+                android:id="@+id/tvRankSub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:text="@string/dash"
+                android:textSize="10.5sp"
+                android:textColor="#8A8578"/>
+            <LinearLayout
+                android:id="@+id/rankBarTrack"
+                android:layout_width="match_parent"
+                android:layout_height="7dp"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal"
+                android:weightSum="100">
+                <View
+                    android:id="@+id/vRankBarFill"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="60"/>
+                <View
+                    android:id="@+id/vRankBarSpacer"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="40"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvRankAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="@string/dash"
+            android:textSize="15sp"
+            android:fontFamily="serif"
+            android:textStyle="bold"
+            android:textColor="#1A1A18"/>
+    </LinearLayout>
+</LinearLayout>

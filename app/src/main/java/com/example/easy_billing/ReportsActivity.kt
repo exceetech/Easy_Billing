@@ -20,8 +20,19 @@ import java.util.*
 class ReportsActivity : BaseActivity() {
 
     private lateinit var viewPager: ViewPager2
-    private lateinit var btnTabPicker: android.view.View
-    private lateinit var tvTabChoice: android.widget.TextView
+    private lateinit var tabOverview: android.view.View
+    private lateinit var tabTrends: android.view.View
+    private lateinit var tabBusyTimes: android.view.View
+    private lateinit var tabBestSellers: android.view.View
+    private lateinit var tvTabOverview: android.widget.TextView
+    private lateinit var tvTabTrends: android.widget.TextView
+    private lateinit var tvTabBusyTimes: android.widget.TextView
+    private lateinit var tvTabBestSellers: android.widget.TextView
+    private lateinit var indicatorOverview: android.view.View
+    private lateinit var indicatorTrends: android.view.View
+    private lateinit var indicatorBusyTimes: android.view.View
+    private lateinit var indicatorBestSellers: android.view.View
+    private lateinit var tvReportDate: android.widget.TextView
 
     // 🔥 H4 FIX: single source of truth for the active filter.
     // ViewPager2 creates fragments lazily — fragments read this in
@@ -44,6 +55,14 @@ class ReportsActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reports)
+        // Restore the selected chip / custom range after rotation
+        savedInstanceState?.getString("rep_filter")?.let { n ->
+            currentFilter = try { ReportFilter.valueOf(n) } catch (e: Exception) { ReportFilter.TODAY }
+            customStart = savedInstanceState.getString("rep_start")
+            customEnd = savedInstanceState.getString("rep_end")
+            if (currentFilter == ReportFilter.CUSTOM && (customStart == null || customEnd == null))
+                currentFilter = ReportFilter.TODAY
+        }
         com.example.easy_billing.util.UserEventLogger.logAction("Reports", "opened")
 
         // ✅ Toolbar
@@ -52,21 +71,52 @@ class ReportsActivity : BaseActivity() {
 
         // ✅ Views
         viewPager = findViewById(R.id.viewPager)
-        btnTabPicker = findViewById(R.id.btnTabPicker)
-        tvTabChoice = findViewById(R.id.tvTabChoice)
+        tabOverview = findViewById(R.id.tabOverview)
+        tabTrends = findViewById(R.id.tabTrends)
+        tabBusyTimes = findViewById(R.id.tabBusyTimes)
+        tabBestSellers = findViewById(R.id.tabBestSellers)
+        tvTabOverview = findViewById(R.id.tvTabOverview)
+        tvTabTrends = findViewById(R.id.tvTabTrends)
+        tvTabBusyTimes = findViewById(R.id.tvTabBusyTimes)
+        tvTabBestSellers = findViewById(R.id.tvTabBestSellers)
+        indicatorOverview = findViewById(R.id.indicatorOverview)
+        indicatorTrends = findViewById(R.id.indicatorTrends)
+        indicatorBusyTimes = findViewById(R.id.indicatorBusyTimes)
+        indicatorBestSellers = findViewById(R.id.indicatorBestSellers)
+        tvReportDate = findViewById(R.id.tvReportDate)
+        tvReportDate.text = SimpleDateFormat("MMM dd, yyyy", Locale.US).format(Date())
 
         setupViewPager()
         setupFilters()
         setupSendReportButton()
     }
 
-    private fun tabTitle(position: Int): String = when (position) {
-        0 -> "Overview"
-        1 -> "Charts"
-        2 -> "Peak Hours"
-        3 -> "Sales"
-        4 -> "Products"
-        else -> ""
+    /** Lets a child fragment (e.g. Overview's "busiest time" teaser) jump to another tab. */
+    fun goToTab(position: Int) {
+        viewPager.setCurrentItem(position, true)
+        selectTab(position)
+    }
+
+    // Same plain underline-tab visual language as the Overview/Trend switch
+    // inside Profit Analytics: active tab gets dark bold text + a teal bar
+    // underneath, the other three fall back to muted medium text + no bar.
+    private fun selectTab(position: Int) {
+        val labels = listOf(tvTabOverview, tvTabTrends, tvTabBusyTimes, tvTabBestSellers)
+        val indicators = listOf(indicatorOverview, indicatorTrends, indicatorBusyTimes, indicatorBestSellers)
+        labels.forEachIndexed { index, label ->
+            val indicator = indicators[index]
+            if (index == position) {
+                label.setTextColor(Color.parseColor("#1A1A18"))
+                label.typeface = androidx.core.content.res.ResourcesCompat
+                    .getFont(this, R.font.googlesans_semibold)
+                indicator.setBackgroundColor(Color.parseColor("#0F6E56"))
+            } else {
+                label.setTextColor(Color.parseColor("#8C8576"))
+                label.typeface = androidx.core.content.res.ResourcesCompat
+                    .getFont(this, R.font.googlesans_medium)
+                indicator.setBackgroundColor(Color.TRANSPARENT)
+            }
+        }
     }
 
     // ---------------- VIEWPAGER ----------------
@@ -74,26 +124,18 @@ class ReportsActivity : BaseActivity() {
     private fun setupViewPager() {
 
         viewPager.adapter = ReportsPagerAdapter(this)
-        tvTabChoice.text = tabTitle(viewPager.currentItem)
+        selectTab(viewPager.currentItem)
 
-        btnTabPicker.setOnClickListener {
-            val titles = (0 until (viewPager.adapter?.itemCount ?: 5)).map { tabTitle(it) }
-            ThemedDropdown.show(
-                anchor = btnTabPicker,
-                options = titles,
-                selectedIndex = viewPager.currentItem,
-                rightAlign = true
-            ) { idx ->
-                viewPager.setCurrentItem(idx, true)
-                tvTabChoice.text = tabTitle(idx)
-            }
-        }
+        tabOverview.setOnClickListener { viewPager.setCurrentItem(0, true) }
+        tabTrends.setOnClickListener { viewPager.setCurrentItem(1, true) }
+        tabBusyTimes.setOnClickListener { viewPager.setCurrentItem(2, true) }
+        tabBestSellers.setOnClickListener { viewPager.setCurrentItem(3, true) }
 
-        // Keep the pill's label in sync if the page changes some other way
+        // Keep the active pill in sync if the page changes some other way
         // (e.g. a fragment programmatically navigating the pager).
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                tvTabChoice.text = tabTitle(position)
+                selectTab(position)
             }
         })
     }
@@ -129,12 +171,11 @@ class ReportsActivity : BaseActivity() {
         }
 
         chipCustom?.setOnClickListener {
-            selectChip(chipCustom)
             openCustomDatePicker()
         }
 
         // Apply initial selected state — XML state lists are ignored by M3
-        chipToday?.let { selectChip(it) }
+        chipFor(currentFilter)?.let { selectChip(it) }
     }
 
     // ── Chip selection ───────────────────────────────────────────────────
@@ -187,125 +228,194 @@ class ReportsActivity : BaseActivity() {
     private fun openCustomDatePicker() {
 
         val picker = MaterialDatePicker.Builder.dateRangePicker()
-            .setTitleText("Select Date Range")
+            .setTitleText(getString(R.string.reports_pick_range))
             .build()
 
         picker.show(supportFragmentManager, "DATE_RANGE")
 
+        // Only highlight "Custom" once a range is actually chosen —
+        // cancelling the picker keeps the previous chip and its data.
         picker.addOnPositiveButtonClickListener {
 
             val start = sdf.format(Date(it.first))
             val end = sdf.format(Date(it.second))
 
+            findViewById<Chip>(R.id.chipCustom)?.let { c -> selectChip(c) }
             notifyFragments(ReportFilter.CUSTOM, start, end)
         }
     }
 
-    // ---------------- SEND REPORT ----------------
+    private fun chipFor(filter: ReportFilter): Chip? = findViewById(
+        when (filter) {
+            ReportFilter.TODAY -> R.id.chipToday
+            ReportFilter.WEEK -> R.id.chipWeek
+            ReportFilter.MONTH -> R.id.chipMonth
+            ReportFilter.YEAR -> R.id.chipYear
+            ReportFilter.CUSTOM -> R.id.chipCustom
+        }
+    )
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("rep_filter", currentFilter.name)
+        outState.putString("rep_start", customStart)
+        outState.putString("rep_end", customEnd)
+    }
+
+    // ---------------- SHARE REPORT AS PDF ----------------
 
     private fun setupSendReportButton() {
-
         findViewById<MaterialButton>(R.id.btnSendReport)?.setOnClickListener {
-            showReportOptions()
+            shareReportPdf()
         }
     }
 
-    private fun showReportOptions() {
-
-        val options = listOf(
-            "Today's Bills",
-            "Weekly Bills",
-            "Monthly Bills",
-            "Custom Report"
-        )
-
-        com.example.easy_billing.ui.ThemedDropdown.showActionSheet(
-            this, "Send report", options
-        ) { which ->
-            when (which) {
-                0 -> sendEmailReport("today")
-                1 -> sendEmailReport("weekly")
-                2 -> sendEmailReport("monthly")
-                3 -> openEmailDatePicker()
+    /** Dates (yyyy-MM-dd) covered by the selected chip. */
+    fun rangeForFilter(): Pair<String, String>? {
+        val iso = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val cal = com.example.easy_billing.util.AppTime.calendar()
+        iso.timeZone = cal.timeZone
+        return when (currentFilter) {
+            ReportFilter.TODAY -> iso.format(cal.time).let { it to it }
+            ReportFilter.WEEK -> {
+                cal.add(Calendar.DAY_OF_MONTH, -(cal.get(Calendar.DAY_OF_WEEK) - Calendar.SUNDAY))
+                val s = iso.format(cal.time)
+                cal.add(Calendar.DAY_OF_MONTH, 6)
+                s to iso.format(cal.time)
+            }
+            ReportFilter.MONTH -> {
+                cal.set(Calendar.DAY_OF_MONTH, 1)
+                val s = iso.format(cal.time)
+                cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH))
+                s to iso.format(cal.time)
+            }
+            ReportFilter.YEAR -> {
+                cal.set(Calendar.MONTH, Calendar.JANUARY); cal.set(Calendar.DAY_OF_MONTH, 1)
+                val s = iso.format(cal.time)
+                cal.set(Calendar.MONTH, Calendar.DECEMBER); cal.set(Calendar.DAY_OF_MONTH, 31)
+                s to iso.format(cal.time)
+            }
+            ReportFilter.CUSTOM -> {
+                val s = customStart; val e = customEnd
+                if (s != null && e != null) s to e else null
             }
         }
     }
 
-    private fun openEmailDatePicker() {
+    /** Day/month rows, scrap rows and unsold products for the longer PDF; any part may come back empty. */
+    private suspend fun buildPdfExtra(
+        token: String, filter: ReportFilter, s: String, e: String,
+        products: List<com.example.easy_billing.network.TopProductResponse>
+    ): com.example.easy_billing.util.ReportsPdfExtra {
+        val api = RetrofitClient.api
+        val today = com.example.easy_billing.util.AppTime.todayIso()
+        var dayRows = emptyList<Triple<String, Int, Double>>()
+        var byMonth = false
+        try {
+            val iso = com.example.easy_billing.util.AppTime.isoDate()
+            if (filter == ReportFilter.YEAR) {
+                val ym = com.example.easy_billing.util.AppTime.formatter("yyyy-MM")
+                val label = com.example.easy_billing.util.AppTime.formatter("MMM yyyy")
+                dayRows = api.getMonthlyReport(token)
+                    .filter { it.month.startsWith(s.take(4)) && it.month.take(7) <= today.take(7) }
+                    .sortedBy { it.month }
+                    .map { Triple(runCatching { label.format(ym.parse(it.month.take(7))!!) }.getOrDefault(it.month), it.bills, it.revenue) }
+                byMonth = true
+            } else if (s != e) {
+                val label = com.example.easy_billing.util.AppTime.formatter("EEE, dd MMM")
+                dayRows = api.getDailyReport(token)
+                    .filter { it.date >= s && it.date <= e && it.date <= today }
+                    .sortedBy { it.date }
+                    .map { Triple(runCatching { label.format(iso.parse(it.date)!!) }.getOrDefault(it.date), it.bills, it.revenue) }
+            }
+        } catch (ex: Exception) { /* section is skipped */ }
 
-        val picker = MaterialDatePicker.Builder.dateRangePicker()
-            .setTitleText("Select Report Range")
-            .build()
+        val scrap = try {
+            com.example.easy_billing.ScrapData.load(this).rows.filter { it.date >= s && it.date <= e }
+        } catch (ex: Exception) { emptyList() }
 
-        picker.show(supportFragmentManager, "EMAIL_RANGE")
+        val sold = products.map { p ->
+            (p.variant?.takeIf { it.isNotBlank() }?.let { "${p.product} ($it)" } ?: p.product).trim().lowercase()
+        }.toSet()
+        val notSold = try {
+            com.example.easy_billing.db.AppDatabase.getDatabase(this).productDao().getAll()
+                .map { p -> p.variant?.takeIf { it.isNotBlank() }?.let { "${p.name} ($it)" } ?: p.name }
+                .filter { it.trim().lowercase() !in sold }
+                .distinct()
+        } catch (ex: Exception) { emptyList() }
 
-        picker.addOnPositiveButtonClickListener {
-
-            val start = sdf.format(Date(it.first))
-            val end = sdf.format(Date(it.second))
-
-            sendEmailReport(
-                type = "custom",
-                startDate = start,
-                endDate = end
-            )
-        }
+        return com.example.easy_billing.util.ReportsPdfExtra(dayRows, byMonth, scrap, notSold)
     }
 
-    private fun sendEmailReport(
-        type: String,
-        startDate: String? = null,
-        endDate: String? = null
-    ) {
+    private fun shareReportPdf() {
+        val range = rangeForFilter() ?: return
+        val filter = currentFilter
+        val btn = findViewById<MaterialButton>(R.id.btnSendReport)
+        btn?.isEnabled = false
 
         lifecycleScope.launch {
-
-            val token = getSharedPreferences("auth", MODE_PRIVATE)
-                .getString("TOKEN", null)
-
-            if (token == null) {
-                Toast.makeText(
-                    this@ReportsActivity,
-                    getString(R.string.reports_toast_auth_error),
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@launch
-            }
-
             try {
+                val token = getSharedPreferences("auth", MODE_PRIVATE).getString("TOKEN", null)
+                if (token == null) {
+                    Toast.makeText(this@ReportsActivity,
+                        getString(R.string.reports_toast_auth_error), Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+                val (s, e) = range
+                val overviewType = when (filter) {
+                    ReportFilter.TODAY -> "today"
+                    ReportFilter.WEEK -> "week"
+                    ReportFilter.MONTH -> "month"
+                    ReportFilter.YEAR -> "year"
+                    ReportFilter.CUSTOM -> "custom"
+                }
+                val api = RetrofitClient.api
+                val overview = if (filter == ReportFilter.CUSTOM)
+                    api.getOverview(token, "custom", s, e)
+                else api.getOverview(token, overviewType)
 
-                val response = RetrofitClient.api.sendEmailReport(
-                    token = token,
-                    type = type,
-                    startDate = startDate,
-                    endDate = endDate,
-                    // I7 FIX: PDF should use the same symbol the app shows
-                    currency = com.example.easy_billing.util.CurrencyHelper
-                        .getCurrencySymbol(this@ReportsActivity)
-                )
+                if (overview.total_bills == 0 && overview.total_revenue == 0.0) {
+                    Toast.makeText(this@ReportsActivity,
+                        getString(R.string.reports_share_no_data), Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
 
-                com.example.easy_billing.ui.ThemedDropdown.showResultDialog(
-                    this@ReportsActivity,
-                    success = true,
-                    titlePlain = "Report",
-                    titleAccent = "sent",
-                    subtitle = response.message
-                        ?: "Your PDF report has been emailed to your registered address."
-                )
+                val products = try {
+                    if (filter == ReportFilter.TODAY) api.getTopProducts(token, "today", null, null, "revenue")
+                    else api.getTopProducts(token, "custom", s, e, "revenue")
+                } catch (ex: Exception) { emptyList() }
+                val hours = try {
+                    if (filter == ReportFilter.TODAY) api.getPeakHours(token, "today")
+                    else api.getPeakHours(token, "custom", s, e)
+                } catch (ex: Exception) { emptyList() }
 
-            } catch (e: Exception) {
+                val extra = buildPdfExtra(token, filter, s, e, products)
 
+                val pretty = com.example.easy_billing.util.AppTime.formatter("dd MMM yyyy")
+                val iso = com.example.easy_billing.util.AppTime.isoDate()
+                val a = pretty.format(iso.parse(s)!!)
+                val b = pretty.format(iso.parse(e)!!)
+                val periodText = if (s == e) a else "$a – $b"
+
+                val file = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    com.example.easy_billing.util.ReportsPdfGenerator
+                        .generate(this@ReportsActivity, overview, products, hours, periodText, extra)
+                }
+                val uri = androidx.core.content.FileProvider.getUriForFile(
+                    this@ReportsActivity, "$packageName.provider", file)
+                startActivity(android.content.Intent.createChooser(
+                    android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                        type = "application/pdf"
+                        putExtra(android.content.Intent.EXTRA_STREAM, uri)
+                        addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }, null))
+            } catch (ex: Exception) {
                 com.example.easy_billing.util.UserEventLogger.logError(
-                    "Reports", "email_report_failed: ${e.javaClass.simpleName}"
-                )
-                com.example.easy_billing.ui.ThemedDropdown.showResultDialog(
-                    this@ReportsActivity,
-                    success = false,
-                    titlePlain = "Send",
-                    titleAccent = "failed",
-                    subtitle = "We couldn't send your report. Please check your connection and try again.",
-                    buttonLabel = "Try again"
-                )
+                    "Reports", "share_report_failed: ${ex.javaClass.simpleName}")
+                Toast.makeText(this@ReportsActivity,
+                    getString(R.string.reports_share_failed), Toast.LENGTH_SHORT).show()
+            } finally {
+                btn?.isEnabled = true
             }
         }
     }

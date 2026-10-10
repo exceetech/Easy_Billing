@@ -1,150 +1,166 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    List-view row — left colour stripe (rounded to match the surrounding
-    card's corner radius) + the same tile-style avatar, name + variant
-    inline (matching the grid tile's bold name / italic serif variant
-    treatment), and a right-aligned price with the stock caption stacked
-    beneath it. No column header — the row is self-explanatory.
+    List-view row — "separate cards with tags": every item is its own white
+    rounded card. Round initials avatar on the left, bold name with a
+    category line beneath it, a row of small status tags (in bill /
+    stock / sold by weight), and the price in a soft green chip on the right.
 
-    Bound by ProductAdapter.ListRowViewHolder: listRow, viewListStripe,
-    tvListMonogram, viewListMonogramBg, tvListName, tvListVariant,
-    tvListStock, tvListPrice.
+    Bound by ProductAdapter.ListRowViewHolder: listRow, viewListInBillStripe,
+    tvListMonogram, viewListMonogramBg, tvListName, tvListCategory,
+    tvListStock, tvListPrice, tvListInBillBadge, tvListWeightTag.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/listRow"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="?attr/selectableItemBackground"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:layout_marginHorizontal="7dp"
+    android:layout_marginVertical="6dp"
+    android:elevation="2dp"
+    android:padding="12dp"
+    android:background="@drawable/bg_list_card"
     android:clickable="true"
     android:focusable="true">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+    <!-- kept for the adapter, always hidden -->
+    <View
+        android:id="@+id/viewListInBillStripe"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"/>
 
-        <!-- Accent stripe hidden -->
+    <FrameLayout
+        android:layout_width="44dp"
+        android:layout_height="44dp">
         <View
-            android:id="@+id/viewListInBillStripe"
-            android:layout_width="0dp"
+            android:id="@+id/viewListMonogramBg"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@drawable/bg_list_avatar"/>
+        <TextView
+            android:id="@+id/tvListMonogram"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:fontFamily="@font/googlesans_medium"
+            android:includeFontPadding="false"/>
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="12dp">
+
+        <TextView
+            android:id="@+id/tvListName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:fontFamily="@font/googlesans_medium"
+            android:textColor="#1A1A18"
+            android:maxLines="2"
+            android:ellipsize="end"/>
+
+        <TextView
+            android:id="@+id/tvListCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textSize="12sp"
+            android:textColor="#6B6B63"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:visibility="gone"/>
 
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="9dp">
+            android:layout_marginTop="6dp">
 
-            <FrameLayout
-                android:layout_width="34dp"
-                android:layout_height="34dp">
-                <View
-                    android:id="@+id/viewListMonogramBg"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_product_monogram"/>
-                <TextView
-                    android:id="@+id/tvListMonogram"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/googlesans_medium"
-                    android:includeFontPadding="false"/>
-            </FrameLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginStart="11dp">
-
-                <TextView
-                    android:id="@+id/tvListName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14sp"
-                    android:fontFamily="@font/googlesans_medium"
-                    android:textColor="#1A1A18"
-                    android:maxLines="1"
-                    android:ellipsize="end"/>
-
-                <TextView
-                    android:id="@+id/tvListVariant"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:textSize="12sp"
-                    android:textColor="#0F6E56"
-                    android:fontFamily="serif"
-                    android:textStyle="italic"
-                    android:includeFontPadding="false"
-                    android:maxLines="1"
-                    android:ellipsize="end"
-                    android:visibility="gone"/>
-            </LinearLayout>
-
-            <LinearLayout
+            <TextView
+                android:id="@+id/tvListInBillBadge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="end"
-                android:layout_marginStart="10dp">
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/bg_list_tag_bill"
+                android:paddingHorizontal="9dp"
+                android:paddingVertical="3dp"
+                android:textColor="#FFFFFF"
+                android:textSize="11.5sp"
+                android:fontFamily="@font/googlesans_bold"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                android:visibility="gone"/>
 
-                <TextView
-                    android:id="@+id/tvListInBillBadge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="3dp"
-                    android:background="@drawable/bg_in_bill_badge"
-                    android:paddingStart="7dp"
-                    android:paddingEnd="8dp"
-                    android:paddingTop="3dp"
-                    android:paddingBottom="3dp"
-                    android:text="1 in bill"
-                    android:textColor="#FFFFFF"
-                    android:textSize="9.5sp"
-                    android:fontFamily="@font/googlesans_bold"
-                    android:includeFontPadding="false"
-                    android:singleLine="true"
-                    android:visibility="gone"/>
+            <TextView
+                android:id="@+id/tvListStock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:paddingHorizontal="9dp"
+                android:paddingVertical="3dp"
+                android:textSize="10sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                android:ellipsize="end"/>
 
-                <TextView
-                    android:id="@+id/tvListPrice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="15sp"
-                    android:fontFamily="serif"
-                    android:textColor="#0F6E56"
-                    android:includeFontPadding="false"
-                    android:singleLine="true"/>
-
-                <TextView
-                    android:id="@+id/tvListStock"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:textSize="10sp"
-                    android:fontFamily="@font/googlesans_medium"
-                    android:maxLines="1"
-                    android:ellipsize="end"/>
-            </LinearLayout>
-
+            <TextView
+                android:id="@+id/tvListWeightTag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_list_tag_svc"
+                android:paddingHorizontal="9dp"
+                android:paddingVertical="3dp"
+                android:text="@string/product_list_sold_by_weight"
+                android:textColor="#6E6551"
+                android:textSize="10sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                android:visibility="gone"/>
         </LinearLayout>
-
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:layout_marginStart="18dp"
-        android:background="#F1EBDD"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:orientation="vertical"
+        android:gravity="end">
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="bottom"
+        android:layout_marginStart="10dp">
+
+        <TextView
+            android:id="@+id/tvListPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="#0F6E56"
+            android:fontFamily="@font/googlesans_bold"
+            android:textStyle="bold"
+            android:includeFontPadding="false"
+            android:maxLines="1"/>
+
+        <TextView
+            android:id="@+id/tvListPriceUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
+            android:paddingBottom="1dp"
+            android:textSize="10sp"
+            android:textColor="#9A968C"
+            android:singleLine="true"/>
+    </LinearLayout>
+    </LinearLayout>
 </LinearLayout>

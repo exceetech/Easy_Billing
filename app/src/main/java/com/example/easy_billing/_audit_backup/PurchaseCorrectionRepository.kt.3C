@@ -1,0 +1,348 @@
+package com.example.easy_billing.repository
+
+import android.content.Context
+import androidx.room.withTransaction
+import com.example.easy_billing.InventoryValuation
+import com.example.easy_billing.correction.PurchaseCorrectionMath
+import com.example.easy_billing.correction.PurchaseCorrectionPlanner as Planner
+import com.example.easy_billing.db.AppDatabase
+import com.example.easy_billing.db.Inventory
+import com.example.easy_billing.db.InventoryLog
+import com.example.easy_billing.db.Purchase
+import com.example.easy_billing.db.PurchaseBatch
+import com.example.easy_billing.db.PurchaseItem
+import com.example.easy_billing.db.PurchaseNoteKind
+import com.example.easy_billing.db.PurchaseReturn
+import com.example.easy_billing.db.getNetQtyOut
+import com.example.easy_billing.db.grossUnitCost
+import com.example.easy_billing.db.heldQuantity
+import com.example.easy_billing.util.GstEngine
+import com.example.easy_billing.util.appNow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import kotlin.math.abs
+
+/**
+ * Purchase correction notes (QDN / PDN), Phase 4 — loads a bill line,
+ * previews a correction and saves it in ONE transaction.
+ *
+ * All the arithmetic lives in [PurchaseCorrectionPlanner] /
+ * [PurchaseCorrectionMath] (unit-tested); this class only reads the
+ * database into plain snapshots and writes the resulting plan:
+ *   • the GSTR-2 note row(s)            (purchase_return_table)
+ *   • the bill's batch edits            (purchase_batches)
+ *   • the product's stock / average     (inventory + inventory_log)
+ *
+ * Safety:
+ *   • everything runs inside `db.withTransaction` — all or nothing;
+ *   • the caller passes the held pens it SAW ([expectedHeld]); if the bill
+ *     changed since (another note, a double tap) the save is refused as
+ *     [Outcome.Stale] and nothing is written;
+ *   • a price correction is an absolute target, so repeating it is a
+ *     harmless "no change".
+ */
+object PurchaseCorrectionRepository {
+
+    private const val EPS = 1e-6
+
+    /** Everything the UI needs to show / preview one bill line. */
+    data class LineView(
+        val purchase: Purchase,
+        val item: PurchaseItem,
+        val held: Double,
+        val shelf: Double,
+        val stock: Double,
+        val averageCost: Double,
+        val tracksStock: Boolean,
+        val rates: Planner.LineRates,
+        val itc: Planner.ItcInfo,
+        /** The bill's batches for this product that still hold pens, oldest first. */
+        val batches: List<Planner.BatchTake>
+    ) {
+        val state: PurchaseCorrectionMath.LineState
+            get() = PurchaseCorrectionMath.LineState(
+                held, shelf, stock, averageCost, tracksStock, purchase.isCancelled
+            )
+    }
+
+    sealed class LoadResult {
+        data class Ok(val view: LineView) : LoadResult()
+        data class Unavailable(val message: String) : LoadResult()
+    }
+
+    /** A supplier-balance move the caller runs through CreditAdjustmentPrompt. */
+    data class Adjustment(val purchaseId: Int, val amount: Double, val isDebitNote: Boolean, val docSeq: Int)
+
+    sealed class Outcome {
+        data class Saved(val noteNumbers: List<String>, val adjustments: List<Adjustment>) : Outcome()
+        data class Refused(val message: String) : Outcome()
+        /** The bill changed since the user looked at it; reload and retry. */
+        data class Stale(val message: String) : Outcome()
+    }
+
+    fun tracksStock(item: PurchaseItem): Boolean =
+        item.productId != null &&
+            item.eligibilityForItc !in listOf("Capital goods", "Input services") &&
+            !item.isRawMaterial
+
+    private fun ratio(availed: Double, amount: Double): Double =
+        if (amount > 0.0) (availed / amount).coerceIn(0.0, 1.0) else 1.0
+
+    private fun itcInfo(i: PurchaseItem) = Planner.ItcInfo(
+        eligible = i.eligibilityForItc !in listOf("Ineligible", "None"),
+        cgstRatio = ratio(i.availedItcCgst, i.purchaseCgstAmount),
+        sgstRatio = ratio(i.availedItcSgst, i.purchaseSgstAmount),
+        igstRatio = ratio(i.availedItcIgst, i.purchaseIgstAmount),
+        cessRatio = ratio(i.availedItcCess, i.cessAmount)
+    )
+
+    private fun itemSnap(i: PurchaseItem) = Planner.ItemSnap(
+        i.quantity, i.taxableAmount, i.invoiceValue,
+        i.purchaseCgstPercentage, i.purchaseSgstPercentage, i.purchaseIgstPercentage,
+        i.cessPercentage, i.cessAmount
+    )
+
+    private fun noteSnap(n: PurchaseReturn) = Planner.PriceNoteSnap(
+        direction = (n.noteType ?: "D").uppercase(),
+        taxable = n.taxableAmount, value = n.noteRefundVoucherValue, cessAmount = n.cessAmount,
+        quantity = n.quantityReturned,
+        cgstPct = n.cgstPercentage, sgstPct = n.sgstPercentage, igstPct = n.igstPercentage
+    )
+
+    /**
+     * Corrected rates for a bill line, or null when the line has no price
+     * corrections (callers then keep their original-item formulas, so bills
+     * that were never corrected behave exactly as before).
+     */
+    suspend fun correctedRatesOrNull(db: AppDatabase, purchaseId: Int, item: PurchaseItem): Planner.LineRates? {
+        val pid = item.productId ?: return null
+        val priceNotes = db.purchaseReturnDao().getNotesForLine(purchaseId, pid)
+            .filter { it.effectiveKind() == PurchaseNoteKind.PRICE_CORRECTION }
+        if (priceNotes.isEmpty()) return null
+        return Planner.currentRates(itemSnap(item), priceNotes.map(::noteSnap))
+    }
+
+    /** Corrected rates for a line, falling back to the bill's own figures. */
+    suspend fun ratesFor(db: AppDatabase, purchaseId: Int, item: PurchaseItem): Planner.LineRates =
+        correctedRatesOrNull(db, purchaseId, item) ?: Planner.currentRates(itemSnap(item), emptyList())
+
+    private suspend fun load(db: AppDatabase, purchaseId: Int, itemId: Int): LoadResult {
+        val purchase = db.purchaseDao().getById(purchaseId)
+            ?: return LoadResult.Unavailable("Purchase not found.")
+        val items = db.purchaseItemDao().getByPurchase(purchaseId)
+        val item = items.find { it.id == itemId }
+            ?: return LoadResult.Unavailable("Bill line not found.")
+        val pid = item.productId
+            ?: return LoadResult.Unavailable("This line is not linked to a product, so it cannot be corrected.")
+        if (items.count { it.productId == pid } > 1)
+            return LoadResult.Unavailable("This product appears on more than one line of the bill, so it cannot be corrected here.")
+
+        val tracks = tracksStock(item)
+        val netOut = db.purchaseReturnDao().getNetQtyOut(purchaseId, pid)
+        val held = heldQuantity(item.quantity, netOut)
+
+        val billBatches = db.purchaseBatchDao().getAllBatches(pid).filter { it.purchaseInvoiceId == purchaseId }
+        val shelf = if (tracks) billBatches.sumOf { it.quantityRemaining } else 0.0
+        val inv = db.inventoryDao().getInventory(pid)
+
+        val priceNotes = db.purchaseReturnDao().getNotesForLine(purchaseId, pid)
+            .filter { it.effectiveKind() == PurchaseNoteKind.PRICE_CORRECTION }
+        val rates = Planner.currentRates(itemSnap(item), priceNotes.map(::noteSnap))
+
+        return LoadResult.Ok(
+            LineView(
+                purchase = purchase, item = item, held = held, shelf = shelf,
+                stock = inv?.currentStock ?: 0.0, averageCost = inv?.averageCost ?: 0.0,
+                tracksStock = tracks, rates = rates, itc = itcInfo(item),
+                batches = billBatches.filter { it.quantityRemaining > 0.0 }
+                    .map { Planner.BatchTake(it.id, it.quantityRemaining) }
+            )
+        )
+    }
+
+    suspend fun loadLine(context: Context, purchaseId: Int, itemId: Int): LoadResult =
+        withContext(Dispatchers.IO) { load(AppDatabase.getDatabase(context), purchaseId, itemId) }
+
+    fun previewPrice(view: LineView, req: Planner.PriceRequest): Planner.Result =
+        Planner.planPrice(view.state, view.rates, req, view.itc)
+
+    fun previewQuantity(view: LineView, pens: Double, increase: Boolean): Planner.Result =
+        Planner.planQuantity(view.state, view.rates, pens, increase, view.itc, view.batches)
+
+    // ───────────────────────── save ─────────────────────────
+
+    suspend fun applyPrice(
+        context: Context, purchaseId: Int, itemId: Int,
+        req: Planner.PriceRequest, expectedHeld: Double,
+        reason: String = "Price correction"
+    ): Outcome = applyPlan(context, purchaseId, itemId, expectedHeld, reason) { v -> previewPrice(v, req) }
+
+    suspend fun applyQuantity(
+        context: Context, purchaseId: Int, itemId: Int,
+        pens: Double, increase: Boolean, expectedHeld: Double,
+        reason: String = "Quantity correction"
+    ): Outcome = applyPlan(context, purchaseId, itemId, expectedHeld, reason) { v -> previewQuantity(v, pens, increase) }
+
+    private suspend fun applyPlan(
+        context: Context, purchaseId: Int, itemId: Int, expectedHeld: Double, reason: String,
+        planner: (LineView) -> Planner.Result
+    ): Outcome = withContext(Dispatchers.IO) {
+        val db = AppDatabase.getDatabase(context)
+        db.withTransaction {
+            val view = when (val l = load(db, purchaseId, itemId)) {
+                is LoadResult.Unavailable -> return@withTransaction Outcome.Refused(l.message)
+                is LoadResult.Ok -> l.view
+            }
+            if (abs(view.held - expectedHeld) > EPS)
+                return@withTransaction Outcome.Stale("This bill changed since you opened it. Please reopen it and try again.")
+
+            val plan = when (val r = planner(view)) {
+                is Planner.Result.Blocked -> return@withTransaction Outcome.Refused(r.message)
+                is Planner.Result.Ok -> r.plan
+            }
+            val p = view.purchase
+            val item = view.item
+            val pid = item.productId!!
+            val corr = plan.correction
+
+            val store = db.storeInfoDao().get()
+            val gst = db.gstProfileDao().get()
+            val stateCode = gst?.stateCode?.takeIf { it.isNotBlank() } ?: GstEngine.getStateCode(store?.gstin)
+            val stateName = GstEngine.INDIA_STATES[stateCode] ?: stateCode
+            val shopIdStr = gst?.shopId?.takeIf { it.isNotBlank() } ?: store?.gstin.orEmpty()
+            val posCode = p.placeOfSupplyCode.ifBlank { stateCode }
+            val kind = if (corr.kind == PurchaseCorrectionMath.Kind.PRICE_CORRECTION)
+                PurchaseNoteKind.PRICE_CORRECTION else PurchaseNoteKind.QTY_CORRECTION
+
+            var nextD = db.purchaseReturnDao().getMaxDebitNoteSequence()
+            var nextC = db.purchaseReturnDao().getMaxCreditNoteSequence()
+            val now = appNow()
+            val numbers = ArrayList<String>()
+            val adjustments = ArrayList<Adjustment>()
+            var creditNoteNumber: String? = null
+
+            // ── note rows ──
+            for (row in plan.rows) {
+                val isD = row.direction == "D"
+                val seq = if (isD) ++nextD else ++nextC
+                val prefix = if (isD) "DN" else "CN"
+                val number = "$prefix-%05d".format(seq)
+                numbers.add(number)
+                if (!isD) creditNoteNumber = number
+                val inter = row.igstPct > 0.0 || row.igst > 0.0
+                db.purchaseReturnDao().insert(
+                    PurchaseReturn(
+                        shopId = shopIdStr, productId = pid, productName = item.productName,
+                        variantName = item.variant, hsnCode = item.hsnCode,
+                        quantityReturned = row.quantity,
+                        taxableAmount = row.taxable, invoiceValue = row.value,
+                        cgstPercentage = row.cgstPct, sgstPercentage = row.sgstPct, igstPercentage = row.igstPct,
+                        cgstAmount = row.cgst, sgstAmount = row.sgst, igstAmount = row.igst,
+                        state = p.state.ifBlank { stateName },
+                        supplierGstin = p.supplierGstin, supplierName = p.supplierName,
+                        isSynced = false,
+                        noteNumber = number, noteDate = now, noteType = row.direction,
+                        originalInvoiceId = p.id, originalInvoiceNumber = p.invoiceNumber, originalInvoiceDate = p.invoiceDate,
+                        placeOfSupply = stateName,
+                        supplyType = if (inter) "interstate" else "intrastate",
+                        cessAmount = row.cess,
+                        documentType = if (isD) "Debit Note" else "Credit Note",
+                        documentNature = if (isD) "Debit Note" else "Credit Note",
+                        documentSeries = prefix,
+                        isCredit = p.isCredit, creditAccountId = p.creditAccountId, creditTransactionId = null,
+                        preGst = "N", reasonForIssuingDocument = reason,
+                        noteRefundVoucherValue = row.value,
+                        rate = row.cgstPct + row.sgstPct + row.igstPct,
+                        eligibilityForItc = item.eligibilityForItc,
+                        availedItcIntegratedTax = row.availedIgst, availedItcCentralTax = row.availedCgst,
+                        availedItcStateTax = row.availedSgst, availedItcCess = row.availedCess,
+                        invoiceType = p.invoiceType, placeOfSupplyCode = posCode,
+                        inventoryValuationVariance = row.variance,
+                        noteKind = kind, rateDeltaNet = row.rateDeltaNet, shelfValueDelta = row.shelfValueDelta
+                    )
+                )
+                if (p.isCredit && p.creditAccountId != null)
+                    adjustments.add(Adjustment(p.id, row.value, isD, seq))
+            }
+
+            // ── batches + inventory ──
+            if (view.tracksStock) {
+                val inventoryDao = db.inventoryDao()
+                val batchDao = db.purchaseBatchDao()
+
+                // PDN: re-price every batch of this bill+product (keeps cancel / return valuation right)
+                plan.batchPatch?.let { bp ->
+                    for (b in batchDao.getAllBatches(pid).filter { it.purchaseInvoiceId == p.id }) {
+                        batchDao.updateBatch(
+                            b.copy(
+                                unitCostExcludingTax = (b.unitCostExcludingTax + bp.netDelta).coerceAtLeast(0.0),
+                                taxableValue = b.taxableValue + bp.netDelta * b.quantityPurchased,
+                                invoiceValue = b.invoiceValue + bp.grossDelta * b.quantityPurchased,
+                                cgstPercent = bp.cgstPct, sgstPercent = bp.sgstPct, igstPercent = bp.igstPct,
+                                gstPercent = bp.cgstPct + bp.sgstPct + bp.igstPct,
+                                isSynced = false
+                            )
+                        )
+                    }
+                }
+                // QDN decrease: take pens oldest batch first
+                for (t in plan.takes) {
+                    val b = batchDao.getBatchById(t.batchId)
+                        ?: error("Batch ${t.batchId} disappeared during the correction.")
+                    if (b.quantityRemaining + EPS < t.quantity) error("Batch ${b.id} no longer holds ${t.quantity} pens.")
+                    val unitGross = b.grossUnitCost()
+                    batchDao.updateBatch(
+                        b.copy(
+                            quantityRemaining = (b.quantityRemaining - t.quantity).coerceAtLeast(0.0),
+                            quantityPurchased = (b.quantityPurchased - t.quantity).coerceAtLeast(0.0),
+                            invoiceValue = (b.invoiceValue - t.quantity * unitGross).coerceAtLeast(0.0),
+                            taxableValue = (b.taxableValue - t.quantity * b.unitCostExcludingTax).coerceAtLeast(0.0),
+                            isSynced = false
+                        )
+                    )
+                }
+                // QDN increase: a new batch for the added pens
+                plan.newBatch?.let { nb ->
+                    val row = plan.rows.single()
+                    InventoryValuation.recordBatch(
+                        db,
+                        PurchaseBatch(
+                            productId = pid, purchaseInvoiceId = p.id,
+                            supplierName = p.supplierName, supplierGstin = p.supplierGstin,
+                            invoiceNumber = p.invoiceNumber, batchCode = creditNoteNumber,
+                            quantityPurchased = nb.newBatchQuantity, quantityRemaining = nb.newBatchQuantity,
+                            unitCostExcludingTax = nb.newBatchNetRate,
+                            gstPercent = row.cgstPct + row.sgstPct + row.igstPct,
+                            cgstPercent = row.cgstPct, sgstPercent = row.sgstPct, igstPercent = row.igstPct,
+                            invoiceValue = row.value, taxableValue = row.taxable,
+                            createdAt = now, isSynced = false
+                        )
+                    )
+                }
+
+                // inventory row + log (direct: the engine already worked out stock and average)
+                val inv = inventoryDao.getInventory(pid)
+                val changed = inv == null ||
+                    abs(inv.currentStock - corr.newStock) > 1e-9 || abs(inv.averageCost - corr.newAverage) > 1e-9
+                if (changed) {
+                    if (inv == null) {
+                        inventoryDao.insert(Inventory(productId = pid, currentStock = corr.newStock, averageCost = corr.newAverage, isActive = true, isSynced = false))
+                    } else {
+                        inventoryDao.update(inv.copy(currentStock = corr.newStock, averageCost = corr.newAverage, isSynced = false))
+                    }
+                }
+                corr.log?.let { lg ->
+                    db.inventoryLogDao().insert(
+                        InventoryLog(
+                            productId = pid, type = lg.type, quantity = lg.quantity, price = lg.price,
+                            date = now, resultingAverageCost = lg.resultingAverage
+                        )
+                    )
+                }
+                runCatching { InventoryValuation.reconcileDrift(db, pid) }
+            }
+
+            Outcome.Saved(numbers, adjustments)
+        }
+    }
+}

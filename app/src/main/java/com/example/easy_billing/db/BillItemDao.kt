@@ -10,11 +10,22 @@ interface BillItemDao {
     @Query("SELECT * FROM bill_items WHERE billId = :billId")
     suspend fun getItemsForBill(billId: Int): List<BillItem>
 
+    /** Stage 3D: a bill's lines for one product in a stable order (line ordinal). */
+    @Query("SELECT * FROM bill_items WHERE billId = :billId AND productId = :productId ORDER BY id ASC")
+    suspend fun getItemsForBillProduct(billId: Int, productId: Int): List<BillItem>
+
+    @Query("SELECT * FROM bill_items WHERE id = :id")
+    suspend fun getItemById(id: Int): BillItem?
+
     @Query("UPDATE bill_items SET is_synced = 1 WHERE billId = :billId")
     suspend fun markItemsSynced(billId: Int)
 
     @Insert
     suspend fun insertAll(items: List<BillItem>)
+
+    /** Same insert, but returns the new row ids in input order (Stage 3A allocations). */
+    @Insert
+    suspend fun insertAllReturningIds(items: List<BillItem>): List<Long>
 
     @Query("DELETE FROM bill_items")
     suspend fun deleteAll()

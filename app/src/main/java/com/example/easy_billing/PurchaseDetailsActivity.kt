@@ -21,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.easy_billing.db.Purchase
 import com.example.easy_billing.db.PurchaseItem
 import com.example.easy_billing.db.PurchaseReturn
+import com.example.easy_billing.db.PurchaseNoteKind
 import com.example.easy_billing.util.CurrencyHelper
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.flow.collectLatest
@@ -58,6 +59,9 @@ class PurchaseDetailsActivity : BaseActivity() {
     private lateinit var llPriorReturns:  LinearLayout
     private lateinit var btnDebitNote:    MaterialButton
     private lateinit var btnCreditNote:   MaterialButton
+    private lateinit var btnCorrectBill:  MaterialButton
+    private lateinit var btnCorrectedInvoice: MaterialButton
+    private var resumedOnce = false
     private lateinit var btnClose:        MaterialButton
     private lateinit var btnCancelPurchase: MaterialButton
 
@@ -115,6 +119,8 @@ class PurchaseDetailsActivity : BaseActivity() {
         llPriorReturns       = findViewById(R.id.llPriorReturns)
         btnDebitNote         = findViewById(R.id.btnDebitNote)
         btnCreditNote        = findViewById(R.id.btnCreditNote)
+        btnCorrectBill       = findViewById(R.id.btnCorrectBill)
+        btnCorrectedInvoice  = findViewById(R.id.btnCorrectedInvoice)
         btnClose             = findViewById(R.id.btnClose)
         btnCancelPurchase    = findViewById(R.id.btnCancelPurchase)
 
@@ -145,6 +151,11 @@ class PurchaseDetailsActivity : BaseActivity() {
             com.example.easy_billing.util.UserEventLogger.logAction("PurchaseDetails", "credit_note_clicked")
             openNote("C")
         }
+        btnCorrectBill.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("PurchaseDetails", "correct_bill_clicked")
+            chooseCorrection()
+        }
+        btnCorrectedInvoice.setOnClickListener { showCorrectedInvoice() }
         btnCancelPurchase.setOnClickListener {
             com.example.easy_billing.util.UserEventLogger.logAction("PurchaseDetails", "cancel_purchase_clicked")
             confirmCancelPurchase()
@@ -177,6 +188,8 @@ class PurchaseDetailsActivity : BaseActivity() {
         lifecycleScope.launch {
             viewModel.returnsForSelected.collectLatest { returns ->
                 buildPriorReturns(returns)
+                val its = viewModel.selectedItems.value
+                if (its.isNotEmpty()) buildItemsList(its)
             }
         }
     }
@@ -282,7 +295,7 @@ class PurchaseDetailsActivity : BaseActivity() {
         // Net returned quantity per product (debit notes minus credit notes),
         // so a line can show a "N returned" chip.
         val returnedByProduct = viewModel.returnsForSelected.value
-            .filter { it.productId != null }
+            .filter { it.productId != null && it.effectiveKind() != PurchaseNoteKind.PRICE_CORRECTION }
             .groupBy { it.productId }
             .mapValues { (_, rows) ->
                 rows.sumOf { if (it.noteType == "D") it.quantityReturned else -it.quantityReturned }
@@ -374,8 +387,11 @@ class PurchaseDetailsActivity : BaseActivity() {
             val delta = returns.sumOf {
                 if (it.noteType == "D") -it.invoiceValue else it.invoiceValue
             }
-            val debitNotes = returns.filter { it.noteType == "D" }
-            val creditNotes = returns.filter { it.noteType != "D" }
+            val debitNotes = returns.filter { it.noteType == "D" && it.effectiveKind() == PurchaseNoteKind.RETURN }
+            val creditNotes = returns.filter { it.noteType != "D" && it.effectiveKind() == PurchaseNoteKind.ADDITION }
+            val corrections = returns.filter {
+                it.effectiveKind() == PurchaseNoteKind.QTY_CORRECTION || it.effectiveKind() == PurchaseNoteKind.PRICE_CORRECTION
+            }
             val debitTotal = debitNotes.sumOf { it.invoiceValue }
             val creditTotal = creditNotes.sumOf { it.invoiceValue }
 
@@ -398,13 +414,19 @@ class PurchaseDetailsActivity : BaseActivity() {
                     "${creditNotes.size} ${noteWord(creditNotes.size)}"
             }
 
+            if (corrections.isNotEmpty()) {
+                val net = corrections.sumOf { if (it.noteType == "D") -it.invoiceValue else it.invoiceValue }
+                parts += "${CurrencyHelper.format(this, kotlin.math.abs(net))} " +
+                    (if (net < 0) "reduced" else "added") + " by ${corrections.size} correction " + noteWord(corrections.size)
+            }
+
             // Moving-average redesign, Phase 5: roll up the total inventory
             // gain/loss across all debit notes on this invoice. Positive =
             // net loss (removed more shelf value than the supplier
             // refunded), negative = net gain. Omitted entirely when zero —
             // true for every Credit Note and for legacy rows that predate
             // this field, so old purchases show exactly what they always did.
-            val totalVariance = debitNotes.sumOf { it.inventoryValuationVariance }
+            val totalVariance = returns.sumOf { it.inventoryValuationVariance }
             if (kotlin.math.abs(totalVariance) >= 0.01) {
                 val suffix = if (totalVariance > 0)
                     getString(R.string.purchase_details_inventory_loss_suffix)
@@ -426,8 +448,10 @@ class PurchaseDetailsActivity : BaseActivity() {
             card.findViewById<TextView>(R.id.tvNoteNumber).text =
                 ret.noteNumber ?: getString(R.string.purchase_details_note_number_fallback)
             card.findViewById<TextView>(R.id.tvProductName).text = ret.productName
+            val kind = ret.effectiveKind()
             card.findViewById<TextView>(R.id.tvReturnedQty).text =
-                "· Qty ${formatQty(ret.quantityReturned)}"
+                if (kind == PurchaseNoteKind.PRICE_CORRECTION) "· Price / tax"
+                else "· Qty ${formatQty(ret.quantityReturned)}"
             card.findViewById<TextView>(R.id.tvNoteDate).text =
                 "· ${ret.noteDate?.let { dateFmt.format(Date(it)) } ?: "—"}"
 
@@ -453,16 +477,19 @@ class PurchaseDetailsActivity : BaseActivity() {
                 )
                 setTextColor(Color.parseColor(amtHex))
             }
-            card.findViewById<TextView>(R.id.tvNoteCaption).text =
-                if (isReturn) getString(R.string.purchase_details_note_caption_returned)
-                else getString(R.string.purchase_details_note_caption_added)
+            card.findViewById<TextView>(R.id.tvNoteCaption).text = when (kind) {
+                PurchaseNoteKind.QTY_CORRECTION -> if (isReturn) "Quantity correction (reduced)" else "Quantity correction (added)"
+                PurchaseNoteKind.PRICE_CORRECTION -> if (isReturn) "Price correction (lowered)" else "Price correction (raised)"
+                else -> if (isReturn) getString(R.string.purchase_details_note_caption_returned)
+                        else getString(R.string.purchase_details_note_caption_added)
+            }
 
             // Moving-average redesign, Phase 5: per-row inventory gain/loss.
             // Only meaningful for a Debit Note; zero for Credit Notes and
             // legacy rows, in which case the view stays hidden.
             val variance = ret.inventoryValuationVariance
             val tvVariance = card.findViewById<TextView>(R.id.tvValuationVariance)
-            if (isReturn && kotlin.math.abs(variance) >= 0.01) {
+            if (kotlin.math.abs(variance) >= 0.01) {
                 val isLoss = variance > 0
                 val varianceHex = if (isLoss) "#B04A3B" else "#0F6E56"
                 val label = if (isLoss)
@@ -482,6 +509,217 @@ class PurchaseDetailsActivity : BaseActivity() {
 
             llPriorReturns.addView(card)
         }
+    }
+
+    // ── Correction notes (QDN / PDN) ─────────────────────────────────────────
+
+    private fun chooseCorrection() {
+        val p = viewModel.selectedPurchase.value
+        if (p == null) {
+            Toast.makeText(this, getString(R.string.purchase_not_loaded_toast), Toast.LENGTH_SHORT).show()
+            return
+        }
+        val view = layoutInflater.inflate(R.layout.dialog_correct_bill, null)
+        val dialog = AlertDialog.Builder(this).setView(view).create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        view.findViewById<TextView>(R.id.tvCorrectEyebrow).text =
+            currentInvoiceNumber.ifBlank { getString(R.string.purchase_details_eyebrow_fallback, purchaseId) }
+
+        fun open(mode: String) {
+            dialog.dismiss()
+            startActivity(
+                Intent(this, PurchaseCorrectionActivity::class.java)
+                    .putExtra("PURCHASE_ID", p.id)
+                    .putExtra("MODE", mode)
+            )
+        }
+        view.findViewById<View>(R.id.optCorrectQty).setOnClickListener { open(PurchaseCorrectionActivity.MODE_QTY) }
+        view.findViewById<View>(R.id.optCorrectPrice).setOnClickListener { open(PurchaseCorrectionActivity.MODE_PRICE) }
+        view.findViewById<MaterialButton>(R.id.btnCorrectCancel).setOnClickListener { dialog.dismiss() }
+        dialog.show()
+    }
+
+    /** Original bill lines + every note, with the corrected total. */
+    private fun showCorrectedInvoice() {
+        val p = viewModel.selectedPurchase.value ?: return
+        val items = viewModel.selectedItems.value
+        val notes = viewModel.returnsForSelected.value
+
+        val view = layoutInflater.inflate(R.layout.dialog_corrected_invoice, null)
+        val dialog = AlertDialog.Builder(this).setView(view).create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        view.findViewById<TextView>(R.id.tvCorrEyebrow).text =
+            p.invoiceNumber.ifBlank { getString(R.string.purchase_details_eyebrow_fallback, purchaseId) }
+
+        val delta = notes.sumOf { if (it.noteType == "D") -it.invoiceValue else it.invoiceValue }
+        val corrected = p.invoiceValue + delta
+        val hasDelta = kotlin.math.abs(delta) >= 0.005
+        val tvWas = view.findViewById<TextView>(R.id.tvCorrWas)
+        tvWas.text = CurrencyHelper.format(this, p.invoiceValue)
+        if (hasDelta) tvWas.paintFlags = tvWas.paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
+        else tvWas.visibility = View.GONE
+        view.findViewById<TextView>(R.id.tvCorrNow).text = CurrencyHelper.format(this, corrected)
+        val tvChg = view.findViewById<TextView>(R.id.tvCorrChg)
+        val tvSay = view.findViewById<TextView>(R.id.tvCorrSay)
+        if (hasDelta) {
+            val neg = delta < 0
+            val amt = CurrencyHelper.format(this, kotlin.math.abs(delta))
+            tvChg.visibility = View.VISIBLE
+            tvChg.text = getString(if (neg) R.string.corr_inv_from_less else R.string.corr_inv_from_more, amt)
+            tvChg.setTextColor(Color.parseColor(if (neg) "#9B2C2C" else "#0F6E56"))
+            tvChg.background = pillBg(if (neg) "#FBEDED" else "#E1F5EE", 99)
+            if (p.isCredit && p.creditAccountId != null) {
+                tvSay.visibility = View.VISIBLE
+                tvSay.text = getString(if (neg) R.string.correct_qty_owe_less else R.string.correct_qty_owe_more, amt)
+            }
+        }
+
+        val list = view.findViewById<LinearLayout>(R.id.llCorrList)
+        var firstOpen = true
+        for (item in items) {
+            val lineNotes = notes.filter { it.productId != null && it.productId == item.productId }
+            var lineTotal = item.invoiceValue
+            for (n in lineNotes) lineTotal += if (n.noteType == "D") -n.invoiceValue else n.invoiceValue
+            list.addView(corrItemRow(item, lineNotes, lineTotal, firstOpen && lineNotes.isNotEmpty()))
+            if (lineNotes.isNotEmpty()) firstOpen = false
+        }
+
+        view.findViewById<View>(R.id.btnCorrDone).setOnClickListener { dialog.dismiss() }
+        dialog.show()
+
+        // Keep header and Done button in view: the middle part scrolls past half the screen height.
+        val sv = view.findViewById<View>(R.id.svCorr)
+        sv.post {
+            val max = (resources.displayMetrics.heightPixels * 0.5f).toInt()
+            val content = (sv as android.widget.ScrollView).getChildAt(0)
+            if (content.height > max) {
+                val lp = sv.layoutParams
+                lp.height = max
+                sv.layoutParams = lp
+            }
+        }
+    }
+
+    private fun dpi(v: Int) = (v * resources.displayMetrics.density).toInt()
+
+    private fun pillBg(color: String, radiusDp: Int) = android.graphics.drawable.GradientDrawable().apply {
+        setColor(Color.parseColor(color)); cornerRadius = dpi(radiusDp).toFloat()
+    }
+
+    /** One tap-to-open row: item name, billed + correction count, old value struck out and corrected value. */
+    private fun corrItemRow(item: PurchaseItem, lineNotes: List<PurchaseReturn>, lineTotal: Double, openFirst: Boolean): View {
+        val semibold = androidx.core.content.res.ResourcesCompat.getFont(this, R.font.googlesans_semibold)
+        val card = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = android.graphics.drawable.GradientDrawable().apply {
+                setColor(Color.WHITE); cornerRadius = dpi(16).toFloat(); setStroke(dpi(1), Color.parseColor("#EAE2D1"))
+            }
+            layoutParams = LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT)
+                .apply { topMargin = dpi(10) }
+        }
+        val head = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL; gravity = android.view.Gravity.CENTER_VERTICAL
+            setPadding(dpi(12), dpi(11), dpi(12), dpi(11))
+        }
+        val initials = item.productName.trim().split(" ").filter { it.isNotEmpty() }.take(2)
+            .joinToString("") { it.first().uppercase() }.ifEmpty { "?" }
+        head.addView(TextView(this).apply {
+            text = initials; textSize = 12f; gravity = android.view.Gravity.CENTER
+            setTextColor(Color.parseColor("#2A5CA8")); setBackgroundResource(R.drawable.bg_circle_soft_blue)
+            typeface = semibold
+            layoutParams = LinearLayout.LayoutParams(dpi(34), dpi(34)).apply { marginEnd = dpi(10) }
+        })
+        val mid = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+        }
+        mid.addView(TextView(this).apply {
+            text = item.productName; textSize = 13.5f; setTextColor(Color.parseColor("#1A1A18")); typeface = semibold
+        })
+        val billed = formatQty(item.quantity)
+        mid.addView(TextView(this).apply {
+            text = when (lineNotes.size) {
+                0 -> getString(R.string.corr_inv_sub_none, billed)
+                1 -> getString(R.string.corr_inv_sub_one, billed)
+                else -> getString(R.string.corr_inv_sub_many, billed, lineNotes.size)
+            }
+            textSize = 11f; setTextColor(Color.parseColor("#8A8272"))
+        })
+        head.addView(mid)
+        val right = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; gravity = android.view.Gravity.END }
+        if (lineNotes.isNotEmpty()) right.addView(TextView(this).apply {
+            text = CurrencyHelper.format(this@PurchaseDetailsActivity, item.invoiceValue)
+            textSize = 11f; setTextColor(Color.parseColor("#8A8272"))
+            paintFlags = paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
+        })
+        right.addView(TextView(this).apply {
+            text = CurrencyHelper.format(this@PurchaseDetailsActivity, lineTotal)
+            textSize = 15f; typeface = android.graphics.Typeface.create("serif", android.graphics.Typeface.BOLD)
+            setTextColor(Color.parseColor("#0F6E56"))
+        })
+        head.addView(right)
+        val chev = TextView(this).apply {
+            text = "›"; textSize = 18f; setTextColor(Color.parseColor("#8A8272"))
+            setPadding(dpi(8), 0, 0, 0)
+            visibility = if (lineNotes.isEmpty()) View.GONE else View.VISIBLE
+        }
+        head.addView(chev)
+        card.addView(head)
+
+        if (lineNotes.isNotEmpty()) {
+            val body = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(dpi(12), 0, dpi(12), dpi(12))
+                visibility = if (openFirst) View.VISIBLE else View.GONE
+            }
+            chev.rotation = if (openFirst) 90f else 0f
+            for (n in lineNotes) {
+                val signed = if (n.noteType == "D") -n.invoiceValue else n.invoiceValue
+                val (label, bg) = when (n.effectiveKind()) {
+                    PurchaseNoteKind.RETURN -> getString(R.string.corr_inv_ret, formatQty(n.quantityReturned)) to "#FBEDED"
+                    PurchaseNoteKind.ADDITION -> getString(R.string.corr_inv_add, formatQty(n.quantityReturned)) to "#E1F5EE"
+                    PurchaseNoteKind.QTY_CORRECTION -> getString(R.string.corr_inv_qty, formatQty(n.quantityReturned)) to "#E6EEF9"
+                    else -> getString(R.string.corr_inv_price) to "#EEE6F6"
+                }
+                val row = LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL; gravity = android.view.Gravity.CENTER_VERTICAL
+                    background = pillBg(bg, 12); setPadding(dpi(10), dpi(8), dpi(10), dpi(8))
+                    layoutParams = LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT)
+                        .apply { topMargin = dpi(6) }
+                }
+                val col = LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+                    layoutParams = LinearLayout.LayoutParams(0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+                }
+                col.addView(TextView(this).apply { text = label; textSize = 12f; typeface = semibold; setTextColor(Color.parseColor("#1A1A18")) })
+                col.addView(TextView(this).apply {
+                    text = n.noteNumber ?: getString(R.string.corr_inv_note); textSize = 10.5f; setTextColor(Color.parseColor("#8A8272"))
+                })
+                row.addView(col)
+                row.addView(TextView(this).apply {
+                    text = (if (signed < 0) "− " else "+ ") + CurrencyHelper.format(this@PurchaseDetailsActivity, kotlin.math.abs(signed))
+                    textSize = 12.5f; typeface = semibold
+                    setTextColor(Color.parseColor(if (signed < 0) "#B23A3A" else "#0F6E56"))
+                })
+                body.addView(row)
+            }
+            card.addView(body)
+            head.setOnClickListener {
+                val open = body.visibility != View.VISIBLE
+                body.visibility = if (open) View.VISIBLE else View.GONE
+                chev.rotation = if (open) 90f else 0f
+            }
+        }
+        return card
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Coming back from the correction screen: reload so notes and totals are fresh.
+        if (resumedOnce && purchaseId > 0) viewModel.loadPurchaseDetail(purchaseId)
+        resumedOnce = true
     }
 
     /** Opens the note screen directly. "D" = debit note (return goods),

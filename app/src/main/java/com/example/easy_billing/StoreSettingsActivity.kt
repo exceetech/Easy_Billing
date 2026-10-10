@@ -43,6 +43,11 @@ class StoreSettingsActivity : BaseActivity() {
     private lateinit var tvAddressPreview: TextView
     private lateinit var etStorePhone: EditText
     private lateinit var etStoreGstin: EditText
+    private lateinit var rowStoreScheme: View
+    private lateinit var tvStoreScheme: TextView
+    private lateinit var icSchemeChevron: View
+    /** "Regular" / "Composition", or "" while unknown. Filled from the GSTIN lookup, editable by hand. */
+    private var selectedScheme: String = ""
     private lateinit var progressGstin: ProgressBar
     private lateinit var tvGstinStatus: TextView
 
@@ -135,6 +140,10 @@ class StoreSettingsActivity : BaseActivity() {
         tvAddressPreview     = findViewById(R.id.tvAddressPreview)
         etStorePhone         = findViewById(R.id.etStorePhone)
         etStoreGstin         = findViewById(R.id.etStoreGstin)
+        rowStoreScheme       = findViewById(R.id.rowStoreScheme)
+        tvStoreScheme        = findViewById(R.id.tvStoreScheme)
+        icSchemeChevron      = findViewById(R.id.icSchemeChevron)
+        setupSchemeDropdown()
         progressGstin        = findViewById(R.id.progressGstin)
         tvGstinStatus        = findViewById(R.id.tvGstinStatus)
         rowShopType          = findViewById(R.id.rowShopType)
@@ -278,6 +287,7 @@ class StoreSettingsActivity : BaseActivity() {
                 if (res.legal_name.isNotBlank() || res.trade_name.isNotBlank()) {
                     val displayName = res.legal_name.ifBlank { res.trade_name }
                     tvGstinStatus.text = "✓ $displayName"
+                    applyScheme(res.gst_scheme)   // autofill the Scheme field with what the lookup found
 
                     // Save looked-up GST profile to Room so BillingSettings has the official data
                     withContext(Dispatchers.IO) {
@@ -353,6 +363,39 @@ class StoreSettingsActivity : BaseActivity() {
     private fun printerLabel(v: String) =
         getString(if (v == "A4") R.string.paper_full else R.string.paper_small)
 
+    private fun schemeLabel(v: String) = when (v) {
+        "Composition" -> getString(R.string.store_scheme_composition)
+        "Regular" -> getString(R.string.store_scheme_regular)
+        else -> ""
+    }
+
+    private fun applyScheme(raw: String?) {
+        selectedScheme = when {
+            raw.isNullOrBlank() -> ""
+            raw.contains("compos", ignoreCase = true) -> "Composition"
+            else -> "Regular"
+        }
+        if (selectedScheme.isEmpty()) {
+            tvStoreScheme.text = getString(R.string.store_scheme_hint)
+            tvStoreScheme.setTextColor(android.graphics.Color.parseColor("#A99E88"))
+        } else {
+            tvStoreScheme.text = schemeLabel(selectedScheme)
+            tvStoreScheme.setTextColor(android.graphics.Color.parseColor("#1A1A18"))
+        }
+    }
+
+    private fun setupSchemeDropdown() {
+        applyScheme("")
+        rowStoreScheme.setOnClickListener {
+            val values = listOf("Regular", "Composition")
+            ThemedDropdown.show(
+                anchor = rowStoreScheme,
+                options = values.map { schemeLabel(it) },
+                selectedIndex = values.indexOf(selectedScheme)
+            ) { idx -> applyScheme(values[idx]) }
+        }
+    }
+
     private fun applyPrinter(v: String) {
         selectedPrinter = if (v == "A4") "A4" else "80mm"
         tvPrinter.text = printerLabel(selectedPrinter)
@@ -387,6 +430,10 @@ class StoreSettingsActivity : BaseActivity() {
         rowPrinter.isClickable = enabled
         icPrinterChevron.visibility = if (enabled) View.VISIBLE else View.INVISIBLE
 
+        rowStoreScheme.isEnabled = enabled
+        rowStoreScheme.isClickable = enabled
+        icSchemeChevron.visibility = if (enabled) View.VISIBLE else View.INVISIBLE
+
         rowShopType.isEnabled = enabled
         rowShopType.isClickable = enabled
         icShopTypeChevron.visibility = if (enabled) View.VISIBLE else View.INVISIBLE
@@ -415,7 +462,8 @@ class StoreSettingsActivity : BaseActivity() {
                 street  = etStoreStreet.text.toString(),
                 phone   = etStorePhone.text.toString(),
                 gstin   = etStoreGstin.text.toString(),
-                type    = selectedShopType
+                type    = selectedShopType,
+                scheme  = selectedScheme
             )
         } else {
             // Discard: restore the snapshot taken when edit mode began.
@@ -428,6 +476,7 @@ class StoreSettingsActivity : BaseActivity() {
                 etStoreStreet.setText(s.street)
                 etStorePhone.setText(s.phone)
                 etStoreGstin.setText(s.gstin)
+                applyScheme(s.scheme)
                 applyShopType(s.type)
                 updateAddressPreview()
             }
@@ -444,7 +493,8 @@ class StoreSettingsActivity : BaseActivity() {
         val street: String,
         val phone: String,
         val gstin: String,
-        val type: String
+        val type: String,
+        val scheme: String = ""
     )
 
 
@@ -460,6 +510,7 @@ class StoreSettingsActivity : BaseActivity() {
             // ---- Local cache ----
             val local = db.storeInfoDao().get()
             val localBilling = db.billingSettingsDao().get()
+            val localGstProfile = db.gstProfileDao().get()
 
             withContext(Dispatchers.Main) {
                 local?.let {
@@ -467,6 +518,7 @@ class StoreSettingsActivity : BaseActivity() {
                     populateAddressFields(it.address)
                     etStorePhone.setText(it.phone)
                     etStoreGstin.setText(it.gstin)
+                    applyScheme(localGstProfile?.gstScheme)
                     applyShopTypeFromStored(it.type)
                 }
                 localBilling?.let { applyPrinter(it.printerLayout) }
@@ -600,6 +652,7 @@ class StoreSettingsActivity : BaseActivity() {
                 val merged = if (existingProfile != null && existingProfile.gstin == gstin) {
                     existingProfile.copy(
                         gstin     = gstin,
+                        gstScheme = selectedScheme.ifBlank { existingProfile.gstScheme },
                         stateCode = existingProfile.stateCode
                             .takeIf { it.isNotBlank() }
                             ?: GstEngine.getStateCode(gstin),
@@ -609,6 +662,7 @@ class StoreSettingsActivity : BaseActivity() {
                 } else {
                     GstProfile(
                         gstin      = gstin,
+                        gstScheme  = selectedScheme,
                         stateCode  = GstEngine.getStateCode(gstin),
                         syncStatus = "pending",
                         updatedAt  = appNow()

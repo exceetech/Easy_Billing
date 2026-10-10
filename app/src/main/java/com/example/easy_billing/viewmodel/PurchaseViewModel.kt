@@ -77,7 +77,7 @@ class PurchaseViewModel(app: Application) : AndroidViewModel(app) {
     suspend fun autofillForLine(name: String?, hsn: String?) =
         productRepo.autoFillFromHistory(name, hsn)
 
-    fun save(header: Purchase) {
+    fun save(header: Purchase, payLines: List<com.example.easy_billing.util.PayLine> = emptyList()) {
         viewModelScope.launch {
             val current = _lines.value
             if (current.isEmpty()) {
@@ -93,7 +93,7 @@ class PurchaseViewModel(app: Application) : AndroidViewModel(app) {
             _state.value = _state.value.copy(loading = true, error = null)
             runCatching { 
                 val detailsToSave = if (_isImportedGoods.value) _importDetails.value else null
-                purchaseRepo.savePurchase(header, current, detailsToSave) 
+                purchaseRepo.savePurchase(header, current, detailsToSave, payLines)
             }
                 .onSuccess { result ->
                     val syncMessage = when (val outcome = result.syncOutcome) {

@@ -57,9 +57,10 @@ class PurchaseRepository private constructor(
     suspend fun savePurchase(
         header: Purchase,
         lines: List<PurchaseItemDraft>,
-        importDetails: PurchaseImportDetailsDraft? = null
+        importDetails: PurchaseImportDetailsDraft? = null,
+        payLines: List<com.example.easy_billing.util.PayLine> = emptyList()
     ): SaveResult {
-        val purchaseId = doSave(header, lines, importDetails)
+        val purchaseId = doSave(header, lines, importDetails, payLines)
 
         // Inline push so the user gets immediate feedback. The
         // SyncCoordinator is also kicked from PurchaseViewModel for
@@ -86,7 +87,8 @@ class PurchaseRepository private constructor(
     private suspend fun doSave(
         header: Purchase,
         lines: List<PurchaseItemDraft>,
-        importDetails: PurchaseImportDetailsDraft?
+        importDetails: PurchaseImportDetailsDraft?,
+        payLines: List<com.example.easy_billing.util.PayLine> = emptyList()
     ): Int {
         // Collect products that need a backend field-update (already synced).
         val pendingUpdates = mutableListOf<PendingProductUpdate>()
@@ -123,6 +125,19 @@ class PurchaseRepository private constructor(
                 deviceId = DeviceUtils.getDeviceId(context.applicationContext)
             )
             db.purchaseImportDetailsDao().insert(importDetailsEntity)
+        }
+
+        // Payment tracking: a purchase paid now writes its money-out rows in this same transaction.
+        // A credit purchase writes none; it is paid later from the credit accounts screen.
+        if (!safeHeader.isCredit && payLines.isNotEmpty()) {
+            val check = com.example.easy_billing.util.PaymentSplit.validate(safeHeader.invoiceValue, payLines)
+            require(check == com.example.easy_billing.util.SplitCheck.Ok) { "Payment lines do not match the invoice value: $check" }
+            com.example.easy_billing.repository.MoneyBook(db.moneyEntryDao()).recordLines(
+                com.example.easy_billing.util.MoneyDirection.OUT, payLines,
+                com.example.easy_billing.util.MoneyReason.PURCHASE_PAID,
+                com.example.easy_billing.util.MoneySource.PURCHASE, purchaseId,
+                partyName = safeHeader.supplierName, refText = safeHeader.invoiceNumber.trim()
+            )
         }
 
         // 1. Credit Integration

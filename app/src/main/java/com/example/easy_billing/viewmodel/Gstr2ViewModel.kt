@@ -150,7 +150,7 @@ class Gstr2ViewModel(app: Application) : AndroidViewModel(app) {
                 val (startDate, endDate) = resolveDates(fy, p, _returnType.value)
                 
                 val prefs = getApplication<Application>().getSharedPreferences("auth", android.content.Context.MODE_PRIVATE)
-                val token = prefs.getString("token", "") ?: ""
+                val token = prefs.getString("TOKEN", "") ?: ""
                 val report  = repo.fetchGstr2("Bearer $token", startDate, endDate)
 
                 _report.value = report.copy(

@@ -2,6 +2,8 @@ package com.example.easy_billing.repository
 
 import android.content.Context
 import com.example.easy_billing.db.AppDatabase
+import com.example.easy_billing.db.getNetQtyOut
+import com.example.easy_billing.db.heldQuantity
 import com.example.easy_billing.util.appNow
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -17,11 +19,12 @@ import kotlinx.coroutines.withContext
  * is reinvented here, so it can't drift from how returns behave.
  *
  * Hard rule: **cancel is blocked the moment any unit from this purchase has
- * been sold.** You can't return goods you've already sold on. Partial prior
- * returns are fine — cancel just sweeps up whatever remains. "Sold" is measured
- * as consumption of this purchase's batches that isn't explained by returns
- * booked against the purchase; if that's non-zero, we block rather than risk
- * corrupting stock.
+ * been sold or scrapped.** You can't return goods you've already sold on.
+ * Prior returns, additions and quantity/price corrections are fine — cancel
+ * just sweeps up whatever remains. "Sold" is the pens this bill still owns
+ * (billed − net notes) that are no longer on the shelf (its batch counters);
+ * if that is more than a rounding hair we block rather than risk corrupting
+ * stock. (Phase 4 rule: a prior return is no longer counted as consumption.)
  *
  * The supplier-balance move is NOT done here. The caller runs it afterward
  * through [CreditAdjustmentPrompt] with `Source.Purchase`, so it is clamped to
@@ -58,22 +61,33 @@ object PurchaseCancelRepository {
             var remainingValue = 0.0
 
             for (pid in items.mapNotNull { it.productId }.distinct()) {
+                // Asset / service / raw-material lines never get stock or batches, so
+                // there is nothing on a shelf to compare: skip them (otherwise held > 0
+                // and shelf = 0 would wrongly look like "sold or scrapped").
+                if (items.none { it.productId == pid && PurchaseCorrectionRepository.tracksStock(it) }) continue
                 val batches = batchDao.getAllBatches(pid)
                     .filter { it.purchaseInvoiceId == purchaseId }
 
-                val purchased = batches.sumOf { it.quantityPurchased }
+                // Pens of this bill still owned (H) = billed − net taken off by notes.
+                // Returns, additions and quantity corrections are all in that net, so
+                // they are NOT "consumption". Pens on the shelf (S) are this bill's
+                // batch counters. Whatever is owned but not on the shelf (H − S) was
+                // sold or scrapped, and that alone blocks a cancel.
+                val billed = items.filter { it.productId == pid }.sumOf { it.quantity }
+                val held = heldQuantity(billed, db.purchaseReturnDao().getNetQtyOut(purchaseId, pid))
                 val onHand = batches.sumOf { it.quantityRemaining }
-                val consumed = purchased - onHand
-
-                if (consumed > EPS) hasConsumption = true
+                if (held - onHand > EPS) hasConsumption = true
 
                 val item = items.find { it.productId == pid }
                 val cessPct = item?.cessPercentage ?: db.productDao().getById(pid)?.cessRate ?: 0.0
+                val corrected = item?.let { PurchaseCorrectionRepository.correctedRatesOrNull(db, purchaseId, it) }
 
                 remainingValue += batches.sumOf { b ->
                     val taxable = b.unitCostExcludingTax * b.quantityRemaining
                     val tax = taxable * (b.cgstPercent + b.sgstPercent + b.igstPercent) / 100.0
-                    val cess = if (item != null && item.quantity > 0.0 && item.cessAmount > 0.0) {
+                    val cess = if (corrected != null) {
+                        b.quantityRemaining * corrected.cessPerPen
+                    } else if (item != null && item.quantity > 0.0 && item.cessAmount > 0.0) {
                         (b.quantityRemaining / item.quantity) * item.cessAmount
                     } else if (cessPct > 0.0) {
                         taxable * cessPct / 100.0
@@ -86,7 +100,7 @@ object PurchaseCancelRepository {
 
             if (hasConsumption)
                 return@withContext CancelCheck.Blocked(
-                    "This purchase has been partially consumed or returned. Please use Debit Notes for any further returns."
+                    "Some pens from this purchase have already been sold or scrapped, so it cannot be cancelled. Use Debit Notes to return what is left."
                 )
 
             CancelCheck.Allowed(remainingValue)

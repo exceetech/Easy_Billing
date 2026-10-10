@@ -160,6 +160,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="34dp"
+            android:layout_marginEnd="6dp"
             android:checkable="true"
             app:chipBackgroundColor="@android:color/white"
             app:chipStrokeColor="#B8895A"
@@ -176,23 +177,25 @@
             android:fontFamily="@font/googlesans_medium"
             android:textSize="12sp"/>
 
-        <!-- Custom stays hidden (date-range picker is opened a different
-             way elsewhere); kept here only so the id still resolves. -->
+        <!-- Custom date range: opens the range picker; shared by all three tabs. -->
         <com.google.android.material.chip.Chip
             android:id="@+id/btnCustom"
             android:text="@string/xml_profit_filter_custom"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="34dp"
-            android:visibility="gone"
             android:checkable="true"
             app:chipBackgroundColor="@android:color/white"
             app:chipStrokeColor="#E4DCC8"
             app:chipStrokeWidth="1.5dp"
             app:chipCornerRadius="8dp"
-            app:chipStartPadding="12dp"
-            app:chipEndPadding="12dp"
+            app:chipStartPadding="0dp"
+            app:chipEndPadding="0dp"
+            app:ensureMinTouchTargetSize="false"
             app:checkedIconVisible="false"
             app:chipMinTouchTargetSize="0dp"
+            android:gravity="center"
+            android:textAlignment="center"
             android:textColor="#6E6A60"
             android:fontFamily="@font/googlesans_medium"
             android:textSize="12sp"/>
@@ -265,10 +268,39 @@
                 android:layout_marginTop="7dp"
                 android:background="@android:color/transparent"/>
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tabNavScrap"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingVertical="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+
+            <TextView
+                android:id="@+id/tvTabScrap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/scrap_tab_title"
+                android:textColor="#8C8576"
+                android:textSize="13.5sp"
+                android:fontFamily="@font/googlesans_medium"/>
+
+            <View
+                android:id="@+id/tabScrapIndicator"
+                android:layout_width="36dp"
+                android:layout_height="3dp"
+                android:layout_marginTop="7dp"
+                android:background="@android:color/transparent"/>
+        </LinearLayout>
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/profitFragmentContainer"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/profitPager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>

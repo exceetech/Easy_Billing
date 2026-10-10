@@ -1,0 +1,236 @@
+package com.example.easy_billing.db
+
+import android.content.Context
+import androidx.room.Room
+import androidx.room.testing.MigrationTestHelper
+import androidx.room.withTransaction
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import com.example.easy_billing.repository.MoneyBook
+import com.example.easy_billing.util.MoneyDirection
+import com.example.easy_billing.util.MoneyMode
+import com.example.easy_billing.util.MoneyReason
+import com.example.easy_billing.util.MoneySource
+import com.example.easy_billing.util.MoneyStatus
+import com.example.easy_billing.util.PayLine
+import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+/** Payment tracking, Phase 1: migration 70 -> 71 and the Money Book rules. Needs schemas/.../70.json and 71.json. */
+@RunWith(AndroidJUnit4::class)
+class MoneyBookTest {
+
+    @get:Rule
+    val helper = MigrationTestHelper(InstrumentationRegistry.getInstrumentation(), AppDatabase::class.java)
+
+    private lateinit var db: AppDatabase
+    private lateinit var book: MoneyBook
+
+    @Before fun open() {
+        val ctx = ApplicationProvider.getApplicationContext<Context>()
+        db = Room.inMemoryDatabaseBuilder(ctx, AppDatabase::class.java).allowMainThreadQueries().build()
+        book = MoneyBook(db.moneyEntryDao())
+    }
+
+    @After fun close() = db.close()
+
+    // PM-1: migration creates the table and keeps old data.
+    @Test fun pm1_migration() {
+        helper.createDatabase("mig71", 70).close()
+        val m = helper.runMigrationsAndValidate("mig71", 71, true, AppDatabase.MIGRATION_70_71)
+        m.query("SELECT COUNT(*) FROM money_entries").use { it.moveToFirst(); assertEquals(0, it.getInt(0)) }
+    }
+
+    // PM-2: a split sale writes one IN row per mode; a credit line writes nothing.
+    @Test fun pm2_split_sale_rows() = runBlocking {
+        val n = book.recordLines(
+            MoneyDirection.IN,
+            listOf(PayLine("CASH", 300.0), PayLine("UPI", 200.0), PayLine("CREDIT", 500.0)),
+            MoneyReason.SALE, MoneySource.BILL, 7, refText = "INV-7"
+        )
+        assertEquals(2, n)
+        val rows = db.moneyEntryDao().forParent(MoneySource.BILL, 7)
+        assertEquals(listOf("CASH", "UPI"), rows.map { it.mode })
+        assertEquals(500.0, rows.sumOf { it.amount }, 0.0)
+        assertTrue(rows.all { it.uid.length == 32 && !it.isSynced })
+    }
+
+    // PM-3: a double tap (same document, direction, mode, reason) writes nothing extra.
+    @Test fun pm3_double_tap_is_harmless() = runBlocking {
+        assertTrue(book.record("IN", "CASH", 100.0, MoneyReason.SALE, MoneySource.BILL, 1))
+        assertFalse(book.record("IN", "CASH", 100.0, MoneyReason.SALE, MoneySource.BILL, 1))
+        assertEquals(1, db.moneyEntryDao().count())
+    }
+
+    // PM-4: money rows roll back together with their business event.
+    @Test fun pm4_rolls_back_with_the_event() = runBlocking {
+        try {
+            db.withTransaction {
+                book.record("IN", "CASH", 100.0, MoneyReason.SALE, MoneySource.BILL, 2)
+                book.record("IN", "GOLD", 5.0, MoneyReason.SALE, MoneySource.BILL, 2)   // throws
+            }
+        } catch (e: IllegalArgumentException) { /* expected */ }
+        assertEquals(0, db.moneyEntryDao().count())
+    }
+
+    // PM-5: refund ceiling = received - already returned; PENDING money is not received.
+    @Test fun pm5_refund_ceiling() = runBlocking {
+        book.record("IN", "CASH", 300.0, MoneyReason.SALE, MoneySource.BILL, 3)
+        book.record("IN", "UPI", 200.0, MoneyReason.SALE, MoneySource.BILL, 3, status = MoneyStatus.PENDING)
+        assertEquals(300.0, book.refundCeiling(MoneySource.BILL, 3, MoneyDirection.IN), 0.0)
+        db.moneyEntryDao().markSynced(db.moneyEntryDao().unsynced(500).map { it.uid })
+        assertEquals(0, db.moneyEntryDao().unsynced(500).size)
+        assertTrue(book.markReceived(MoneySource.BILL, 3, MoneyMode.UPI))
+        assertEquals(500.0, book.refundCeiling(MoneySource.BILL, 3, MoneyDirection.IN), 0.0)
+        book.record("OUT", "CASH", 120.0, MoneyReason.SALE_REFUND, MoneySource.CREDIT_NOTE, 11,
+            parentType = MoneySource.BILL, parentId = 3)
+        assertEquals(380.0, book.refundCeiling(MoneySource.BILL, 3, MoneyDirection.IN), 0.0)
+        // the PENDING -> RECEIVED flip is the one change that must be pushed again
+        assertEquals(listOf("UPI"), db.moneyEntryDao().unsynced(500).map { it.mode })
+    }
+
+    // PM-6: bad input is refused.
+    @Test fun pm6_bad_input_refused() = runBlocking {
+        for (bad in listOf(0.0, -1.0, Double.NaN)) {
+            try { book.record("IN", "CASH", bad, MoneyReason.SALE, MoneySource.BILL, 9); org.junit.Assert.fail() }
+            catch (e: IllegalArgumentException) { }
+        }
+        try { book.record("IN", "CREDIT", 5.0, MoneyReason.SALE, MoneySource.BILL, 9); org.junit.Assert.fail() }
+        catch (e: IllegalArgumentException) { }
+        assertEquals(0, db.moneyEntryDao().count())
+    }
+
+    // PM-7: what InvoiceActivity.saveBill does - bill + money rows + credit part in ONE transaction,
+    // and bill total = money received + credit part (invariant I6).
+    @Test fun pm7_part_credit_sale_transaction() = runBlocking {
+        val accId = db.creditAccountDao().insert(CreditAccount(name = "Ravi", phone = "9999999999", shopId = 1)).toInt()
+        val lines = listOf(PayLine("CASH", 300.0), PayLine("UPI", 200.0), PayLine("CREDIT", 500.0))
+        val (money, credit) = com.example.easy_billing.util.PaymentSplit.separateCredit(lines)
+        val billId = db.withTransaction {
+            val id = db.billDao().insertBill(
+                Bill(billNumber = " ", date = "2026-10-10", subTotal = 1000.0, gst = 0.0, discount = 0.0,
+                    total = 1000.0, paymentMethod = "CASH+UPI+CREDIT", creditAccountId = accId)
+            ).toInt()
+            book.recordLines(MoneyDirection.IN, money, MoneyReason.SALE, MoneySource.BILL, id, partyName = "Ravi")
+            db.creditAccountDao().addToDue(accId, credit, 1)
+            db.creditTransactionDao().insert(
+                CreditTransaction(accountId = accId, shopId = 1, amount = credit, type = "ADD",
+                    billId = id, sourceDoc = "SALE:$id")
+            )
+            id
+        }
+        val received = db.moneyEntryDao().sumForParent(MoneySource.BILL, billId, MoneyDirection.IN)
+        val onCredit = db.creditTransactionDao().getByBill(billId, 1).filter { it.type == "ADD" }.sumOf { it.amount }
+        assertEquals(500.0, received, 0.0)
+        assertEquals(500.0, onCredit, 0.0)
+        assertEquals(1000.0, received + onCredit, 0.0)                       // I6
+        assertEquals(500.0, db.creditAccountDao().getById(accId, 1)!!.dueAmount, 0.0)
+    }
+
+    // PM-8: a failure after the bill is inserted rolls back the bill, money rows and the debt together.
+    @Test fun pm8_failed_sale_leaves_nothing_behind() = runBlocking {
+        val accId = db.creditAccountDao().insert(CreditAccount(name = "Ravi", phone = "9999999999", shopId = 1)).toInt()
+        try {
+            db.withTransaction {
+                val id = db.billDao().insertBill(
+                    Bill(billNumber = " ", date = "2026-10-10", subTotal = 100.0, gst = 0.0, discount = 0.0,
+                        total = 100.0, paymentMethod = "CASH+CREDIT", creditAccountId = accId)
+                ).toInt()
+                book.record("IN", "CASH", 40.0, MoneyReason.SALE, MoneySource.BILL, id)
+                db.creditAccountDao().addToDue(accId, 60.0, 1)
+                check(false) { "total changed while saving" }
+            }
+        } catch (e: IllegalStateException) { /* expected */ }
+        assertEquals(0, db.moneyEntryDao().count())
+        assertEquals(0.0, db.creditAccountDao().getById(accId, 1)!!.dueAmount, 0.0)
+    }
+
+    // PM-9: refunds. Basis follows how the bill was paid; the ceiling shrinks only with SALE_REFUND rows
+    // (a cash settlement of old dues does not eat into the paid money).
+    @Test fun pm9_refund_basis_and_ceiling() = runBlocking {
+        book.recordLines(MoneyDirection.IN, listOf(PayLine("CASH", 600.0), PayLine("UPI", 400.0)),
+            MoneyReason.SALE, MoneySource.BILL, 20)
+        assertEquals(1000.0, book.refundCeiling(MoneySource.BILL, 20, MoneyDirection.IN), 0.0)
+        assertEquals(listOf(PayLine("CASH", 600.0), PayLine("UPI", 400.0)), book.refundBasis(MoneySource.BILL, 20, MoneyDirection.IN))
+
+        // refund 100 for a credit note: 60 cash + 40 UPI
+        book.recordLines(MoneyDirection.OUT, listOf(PayLine("CASH", 60.0), PayLine("UPI", 40.0)),
+            MoneyReason.SALE_REFUND, MoneySource.CREDIT_NOTE, 5, parentType = MoneySource.BILL, parentId = 20)
+        assertEquals(900.0, book.refundCeiling(MoneySource.BILL, 20, MoneyDirection.IN), 0.0)
+        assertEquals(listOf(PayLine("CASH", 540.0), PayLine("UPI", 360.0)), book.refundBasis(MoneySource.BILL, 20, MoneyDirection.IN))
+
+        // a cash settlement of earlier dues on the same document does not reduce the ceiling
+        book.recordLines(MoneyDirection.OUT, listOf(PayLine("CASH", 50.0)),
+            MoneyReason.ADVANCE_REFUND, MoneySource.CREDIT_NOTE, 5, parentType = MoneySource.BILL, parentId = 20)
+        assertEquals(900.0, book.refundCeiling(MoneySource.BILL, 20, MoneyDirection.IN), 0.0)
+
+        // the same document cannot refund the same mode twice
+        assertEquals(0, book.recordLines(MoneyDirection.OUT, listOf(PayLine("CASH", 60.0)),
+            MoneyReason.SALE_REFUND, MoneySource.CREDIT_NOTE, 5, parentType = MoneySource.BILL, parentId = 20))
+    }
+
+    // PM-10: cancelling a bill whose UPI money never arrived cancels the pending row.
+    @Test fun pm10_cancel_pending_upi() = runBlocking {
+        book.record("IN", "UPI", 250.0, MoneyReason.SALE, MoneySource.BILL, 30, status = MoneyStatus.PENDING)
+        assertEquals(250.0, db.moneyEntryDao().pendingInTotal(), 0.0)
+        assertEquals(0.0, book.refundCeiling(MoneySource.BILL, 30, MoneyDirection.IN), 0.0)   // nothing received, nothing to refund
+        assertEquals(1, db.moneyEntryDao().cancelPending(MoneySource.BILL, 30))
+        assertEquals(0.0, db.moneyEntryDao().pendingInTotal(), 0.0)
+        assertFalse(book.markReceived(MoneySource.BILL, 30, MoneyMode.UPI))                  // a late "paid" cannot revive it
+    }
+
+    // PM-11: a dues payment saves the balance change, the ledger row and the money rows together (I4).
+    @Test fun pm11_dues_payment_transaction() = runBlocking {
+        val accId = db.creditAccountDao().insert(CreditAccount(name = "Ravi", phone = "9999999999", shopId = 1, dueAmount = 500.0)).toInt()
+        val txnId = db.withTransaction {
+            db.creditAccountDao().addToDue(accId, -300.0, 1)
+            val id = db.creditTransactionDao().insert(CreditTransaction(accountId = accId, shopId = 1, amount = 300.0, type = "PAY")).toInt()
+            book.recordLines(MoneyDirection.IN, listOf(PayLine("CASH", 100.0), PayLine("UPI", 200.0)),
+                com.example.easy_billing.util.CreditSide.payReason(MoneyDirection.IN), MoneySource.CREDIT_TXN, id, partyName = "Ravi")
+            id
+        }
+        assertTrue(txnId > 0)
+        assertEquals(200.0, db.creditAccountDao().getById(accId, 1)!!.dueAmount, 0.0)
+        val rows = db.moneyEntryDao().forParent(MoneySource.CREDIT_TXN, txnId)
+        assertEquals(300.0, rows.sumOf { it.amount }, 0.0)
+        assertTrue(rows.all { it.direction == "IN" && it.reason == MoneyReason.DUES_RECEIVED })
+        // supplier side: same transaction, money goes OUT
+        val sup = db.creditAccountDao().insert(CreditAccount(name = "Agency", phone = "8888888888", shopId = 1, dueAmount = 900.0)).toInt()
+        val t2 = db.creditTransactionDao().insert(CreditTransaction(accountId = sup, shopId = 1, amount = 900.0, type = "PAY")).toInt()
+        book.recordLines(MoneyDirection.OUT, listOf(PayLine("BANK", 900.0)), MoneyReason.SUPPLIER_PAID, MoneySource.CREDIT_TXN, t2)
+        assertEquals("OUT", db.moneyEntryDao().forParent(MoneySource.CREDIT_TXN, t2).single().direction)
+    }
+
+    // PM-12: a purchase paid in two modes can be refunded only up to what was paid, split the same way.
+    @Test fun pm12_purchase_paid_and_refund_ceiling() = runBlocking {
+        book.recordLines(MoneyDirection.OUT, listOf(PayLine("CASH", 400.0), PayLine("BANK", 600.0)),
+            MoneyReason.PURCHASE_PAID, MoneySource.PURCHASE, 9, partyName = "Agency", refText = "S-1")
+        assertEquals(1000.0, book.refundCeiling(MoneySource.PURCHASE, 9, MoneyDirection.OUT), 0.0)
+        assertEquals(listOf(PayLine("CASH", 400.0), PayLine("BANK", 600.0)), book.refundBasis(MoneySource.PURCHASE, 9, MoneyDirection.OUT))
+
+        // supplier sends back 250 for a debit note: IN rows, reason PURCHASE_REFUND
+        book.recordLines(MoneyDirection.IN, listOf(PayLine("CASH", 100.0), PayLine("BANK", 150.0)),
+            MoneyReason.PURCHASE_REFUND, MoneySource.PURCHASE_NOTE, 3, parentType = MoneySource.PURCHASE, parentId = 9)
+        assertEquals(750.0, book.refundCeiling(MoneySource.PURCHASE, 9, MoneyDirection.OUT), 0.0)
+        assertEquals(listOf(PayLine("CASH", 300.0), PayLine("BANK", 450.0)), book.refundBasis(MoneySource.PURCHASE, 9, MoneyDirection.OUT))
+
+        // a supplier credit note that raised the bill and was paid on top counts as more money paid
+        book.recordLines(MoneyDirection.OUT, listOf(PayLine("CASH", 50.0)),
+            MoneyReason.PURCHASE_PAID, MoneySource.PURCHASE_NOTE, 4, parentType = MoneySource.PURCHASE, parentId = 9)
+        assertEquals(800.0, book.refundCeiling(MoneySource.PURCHASE, 9, MoneyDirection.OUT), 0.0)
+
+        // a credit purchase wrote no rows, so nothing can be refunded in cash for it
+        assertEquals(0.0, book.refundCeiling(MoneySource.PURCHASE, 10, MoneyDirection.OUT), 0.0)
+        // the same debit note cannot bring the same mode back twice
+        assertEquals(0, book.recordLines(MoneyDirection.IN, listOf(PayLine("CASH", 10.0)),
+            MoneyReason.PURCHASE_REFUND, MoneySource.PURCHASE_NOTE, 3, parentType = MoneySource.PURCHASE, parentId = 9))
+    }
+}

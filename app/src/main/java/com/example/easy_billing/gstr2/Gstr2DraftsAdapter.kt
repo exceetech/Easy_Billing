@@ -36,7 +36,7 @@ class Gstr2DraftsAdapter(
         val d = drafts[position]
         holder.tvTitle.text = "${d.period} ${d.financialYear}"
         holder.tvType.text = "· ${d.returnType}"
-        holder.tvSubtitle.text = "Saved ${df.format(Date(d.updatedAt))}"
+        holder.tvSubtitle.text = holder.itemView.context.getString(com.example.easy_billing.R.string.gst_draft_saved, df.format(Date(d.updatedAt)))
         holder.btnOpen.setOnClickListener { onOpen(d) }
         holder.btnDelete.setOnClickListener { onDelete(d) }
     }

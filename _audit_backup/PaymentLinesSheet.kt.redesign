@@ -1,0 +1,194 @@
+package com.example.easy_billing.util
+
+import android.app.Activity
+import android.graphics.Color
+import android.text.Editable
+import android.text.InputType
+import android.text.TextWatcher
+import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.TextView
+import com.example.easy_billing.R
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.button.MaterialButton
+
+/**
+ * The shared "payment lines" bottom sheet (payment & cash-flow tracking).
+ *
+ * Shows the amount to settle and one line per mode. The owner types an amount on each line he used;
+ * "Fill" puts whatever is still missing on that line. Confirm is enabled only when the lines add up
+ * to exactly the total (checked by [PaymentSplit.validate], to the paisa).
+ *
+ * Used for: split bills at the counter now, and refunds / dues / purchase payments in later phases.
+ */
+object PaymentLinesSheet {
+
+    private val GREEN = Color.parseColor("#137333")
+    private val RED = Color.parseColor("#B3261E")
+    private val GREY = Color.parseColor("#5A6872")
+
+    fun modeLabel(activity: android.content.Context, mode: String): String = when (mode) {
+        MoneyMode.CASH -> activity.getString(R.string.cash)
+        MoneyMode.UPI -> activity.getString(R.string.upi)
+        MoneyMode.CARD -> activity.getString(R.string.card)
+        MoneyMode.BANK -> activity.getString(R.string.payment_mode_bank)
+        MoneyMode.CREDIT -> activity.getString(R.string.invoice_payment_credit)
+        else -> mode
+    }
+
+    /**
+     * @param modes        the lines offered, in order (may include [MoneyMode.CREDIT])
+     * @param initial      lines to start from; when empty, [defaultMode] is pre-filled with the whole total
+     * @param onConfirm    called with the non-empty lines (same-mode merged) that add up to [total]
+     * @param onCancel     called when the sheet is dismissed without confirming
+     */
+    fun show(
+        activity: Activity,
+        title: String,
+        total: Double,
+        modes: List<String>,
+        initial: List<PayLine>,
+        defaultMode: String,
+        confirmLabel: String = activity.getString(R.string.invoice_split_confirm),
+        onConfirm: (List<PayLine>) -> Unit,
+        onCancel: () -> Unit = {}
+    ) {
+        val dp = activity.resources.displayMetrics.density
+        fun px(v: Int) = (v * dp).toInt()
+
+        val dialog = BottomSheetDialog(activity)
+        var confirmed = false
+
+        val root = LinearLayout(activity).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(px(20), px(20), px(20), px(20))
+        }
+
+        root.addView(TextView(activity).apply {
+            text = title
+            textSize = 18f
+            setTextColor(Color.parseColor("#1F2328"))
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+        })
+
+        val totalRow = LinearLayout(activity).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(0, px(12), 0, px(8))
+        }
+        totalRow.addView(TextView(activity).apply {
+            text = activity.getString(R.string.invoice_split_total)
+            textSize = 14f
+            setTextColor(GREY)
+            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+        })
+        totalRow.addView(TextView(activity).apply {
+            text = CurrencyHelper.format(activity, total)
+            textSize = 16f
+            setTextColor(Color.parseColor("#1F2328"))
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+        })
+        root.addView(totalRow)
+
+        val fields = LinkedHashMap<String, EditText>()
+        val startAmounts: Map<String, Double> =
+            if (initial.isNotEmpty()) PaymentSplit.merge(initial).associate { it.mode to it.amount }
+            else mapOf(defaultMode to total)
+
+        fun linesNow(): List<PayLine> =
+            modes.mapNotNull { m ->
+                val v = fields[m]?.text?.toString()?.trim()?.toDoubleOrNull() ?: 0.0
+                if (PaymentSplit.toPaise(v) > 0L) PayLine(m, v) else null
+            }
+
+        val status = TextView(activity).apply {
+            textSize = 13f
+            setPadding(0, px(10), 0, px(4))
+        }
+        val btnConfirm = MaterialButton(activity).apply {
+            text = confirmLabel
+            isAllCaps = false
+        }
+
+        fun refresh() {
+            val lines = linesNow()
+            val diffP = lines.sumOf { PaymentSplit.toPaise(it.amount) } - PaymentSplit.toPaise(total)
+            val ok = PaymentSplit.validate(total, lines, modes) == SplitCheck.Ok
+            when {
+                ok -> { status.text = activity.getString(R.string.invoice_split_ok); status.setTextColor(GREEN) }
+                diffP < 0L -> {
+                    status.text = activity.getString(R.string.invoice_split_remaining,
+                        CurrencyHelper.format(activity, PaymentSplit.fromPaise(-diffP)))
+                    status.setTextColor(RED)
+                }
+                else -> {
+                    status.text = activity.getString(R.string.invoice_split_over,
+                        CurrencyHelper.format(activity, PaymentSplit.fromPaise(diffP)))
+                    status.setTextColor(RED)
+                }
+            }
+            btnConfirm.isEnabled = ok
+        }
+
+        for (m in modes) {
+            val row = LinearLayout(activity).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(0, px(4), 0, px(4))
+            }
+            row.addView(TextView(activity).apply {
+                text = modeLabel(activity, m)
+                textSize = 15f
+                setTextColor(Color.parseColor("#1F2328"))
+                layoutParams = LinearLayout.LayoutParams(px(96), ViewGroup.LayoutParams.WRAP_CONTENT)
+            })
+            val et = EditText(activity).apply {
+                inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+                hint = "0.00"
+                setSingleLine()
+                startAmounts[m]?.takeIf { PaymentSplit.toPaise(it) > 0L }?.let { setText("%.2f".format(it)) }
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+                addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
+                    override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) {}
+                    override fun afterTextChanged(s: Editable?) = refresh()
+                })
+            }
+            fields[m] = et
+            row.addView(et)
+            row.addView(TextView(activity).apply {
+                text = activity.getString(R.string.invoice_split_fill)
+                textSize = 14f
+                setTextColor(Color.parseColor("#0B57D0"))
+                setPadding(px(14), px(10), px(4), px(10))
+                setOnClickListener {
+                    // Whatever the OTHER lines leave missing goes on this one.
+                    val others = linesNow().filter { it.mode != m }
+                    val left = PaymentSplit.toPaise(total) - others.sumOf { PaymentSplit.toPaise(it.amount) }
+                    et.setText(if (left > 0L) "%.2f".format(PaymentSplit.fromPaise(left)) else "")
+                    et.setSelection(et.text.length)
+                }
+            })
+            root.addView(row)
+        }
+
+        root.addView(status)
+        btnConfirm.setOnClickListener {
+            val lines = PaymentSplit.merge(linesNow())
+            if (PaymentSplit.validate(total, lines, modes) != SplitCheck.Ok) return@setOnClickListener
+            confirmed = true
+            dialog.dismiss()
+            onConfirm(lines)
+        }
+        root.addView(btnConfirm, LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = px(8) })
+
+        dialog.setOnDismissListener { if (!confirmed) onCancel() }
+        dialog.setContentView(root)
+        dialog.behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+        dialog.show()
+        refresh()
+    }
+}

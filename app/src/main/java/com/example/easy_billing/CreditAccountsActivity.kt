@@ -15,6 +15,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.Button
 import androidx.lifecycle.lifecycleScope
+import androidx.room.withTransaction
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.easy_billing.db.CreditAccount
@@ -708,24 +709,58 @@ class CreditAccountsActivity : BaseActivity() {
 
             dialog.dismiss()
 
-            lifecycleScope.launch {
-
-                // Applied as an adjustment in SQL rather than a total computed
-                // from the captured account, which may be out of date by the
-                // time the dialog is confirmed.
-                repository.addToDue(account.id, -amount, shopId)
-
-                repository.insertTransaction(
-                    CreditTransaction(
-                        accountId = account.id,
-                        amount = amount,
-                        type = "PAY",
-                        shopId = shopId
-                    )
+            // Payment tracking: first find out whether this money came IN or went OUT, then how it
+            // was paid (cash / UPI / card / bank). The payment is only recorded once that is known.
+            android.util.Log.d("MoneyFlow", "pay clicked account=${account.id} amount=$amount")
+            chooseDirection(account, refund = false) { direction ->
+                android.util.Log.d("MoneyFlow", "pay direction=$direction")
+                val title = getString(
+                    if (direction == com.example.easy_billing.util.MoneyDirection.IN) R.string.pay_sheet_received
+                    else R.string.pay_sheet_paid, account.name
                 )
-
-                loadAccounts()
-                SyncManager(this@CreditAccountsActivity).syncCredit()
+                com.example.easy_billing.util.PaymentLinesSheet.show(
+                    activity = this,
+                    title = title,
+                    total = amount,
+                    modes = com.example.easy_billing.util.MoneyMode.ALL,
+                    initial = emptyList(),
+                    defaultMode = com.example.easy_billing.util.MoneyMode.CASH,
+                    onConfirm = { lines ->
+                        lifecycleScope.launch {
+                            val db = com.example.easy_billing.db.AppDatabase.getDatabase(this@CreditAccountsActivity)
+                            withContext(Dispatchers.IO) {
+                                // The balance, the ledger row and the money rows are saved together.
+                                db.withTransaction {
+                                    // Applied as an adjustment in SQL rather than a total computed
+                                    // from the captured account, which may be out of date by the
+                                    // time the dialog is confirmed.
+                                    repository.addToDue(account.id, -amount, shopId)
+                                    val txnId = repository.insertTransaction(
+                                        CreditTransaction(
+                                            accountId = account.id,
+                                            amount = amount,
+                                            type = "PAY",
+                                            shopId = shopId
+                                        )
+                                    ).toInt()
+                                    com.example.easy_billing.repository.MoneyBook(db.moneyEntryDao()).recordLines(
+                                        direction = direction,
+                                        lines = lines,
+                                        reason = com.example.easy_billing.util.CreditSide.payReason(direction),
+                                        sourceType = com.example.easy_billing.util.MoneySource.CREDIT_TXN,
+                                        sourceId = txnId,
+                                        partyName = account.name
+                                    )
+                                }
+                            }
+                            loadAccounts()
+                            SyncManager(this@CreditAccountsActivity).syncCredit()
+                        }
+                    },
+                    onCancel = {
+                        Toast.makeText(this, R.string.pay_not_recorded, Toast.LENGTH_SHORT).show()
+                    }
+                )
             }
         }
 
@@ -755,8 +790,7 @@ class CreditAccountsActivity : BaseActivity() {
             if (account.dueAmount < 0)
                 "The advance is cleared and the amount is logged in their history."
             else
-                "The balance goes to zero and the amount is logged in their history. " +
-                "This doesn't record money received — use Record a payment for that."
+                "The balance goes to zero. Next you choose whether it was paid or settled for free."
 
         val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
@@ -805,6 +839,124 @@ class CreditAccountsActivity : BaseActivity() {
                     return@launch
                 }
 
+                if (cleared < 0) {
+                    // An advance is being handed back (or a supplier gives back an overpayment): that is real
+                    // money, so ask how, and only then clear the balance.
+                    chooseDirection(account, refund = true) { direction ->
+                        com.example.easy_billing.util.PaymentLinesSheet.show(
+                            activity = this@CreditAccountsActivity,
+                            title = getString(R.string.refund_advance_sheet_title, account.name),
+                            total = kotlin.math.abs(cleared),
+                            modes = com.example.easy_billing.util.MoneyMode.ALL,
+                            initial = emptyList(),
+                            defaultMode = com.example.easy_billing.util.MoneyMode.CASH,
+                            onConfirm = { lines ->
+                                lifecycleScope.launch { finishSettle(account, cleared, direction, lines) }
+                            },
+                            onCancel = {
+                                Toast.makeText(this@CreditAccountsActivity, R.string.pay_not_recorded, Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                    }
+                    return@launch
+                }
+                // A due is being cleared: either it was PAID (money moves, so ask how) or it is forgiven
+                // for free (a write-off, no money moves). The owner must say which.
+                AlertDialog.Builder(this@CreditAccountsActivity)
+                    .setTitle(R.string.settle_how_title)
+                    .setMessage(getString(R.string.settle_how_msg, account.name, money(cleared)))
+                    .setPositiveButton(R.string.settle_paid_full) { d, _ ->
+                        d.dismiss()
+                        chooseDirection(account, refund = false) { direction ->
+                            val title = getString(
+                                if (direction == com.example.easy_billing.util.MoneyDirection.IN) R.string.pay_sheet_received
+                                else R.string.pay_sheet_paid, account.name
+                            )
+                            com.example.easy_billing.util.PaymentLinesSheet.show(
+                                activity = this@CreditAccountsActivity,
+                                title = title,
+                                total = cleared,
+                                modes = com.example.easy_billing.util.MoneyMode.ALL,
+                                initial = emptyList(),
+                                defaultMode = com.example.easy_billing.util.MoneyMode.CASH,
+                                onConfirm = { lines ->
+                                    lifecycleScope.launch { finishPaidSettle(account, cleared, direction, lines) }
+                                },
+                                onCancel = {
+                                    Toast.makeText(this@CreditAccountsActivity, R.string.pay_not_recorded, Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        }
+                    }
+                    .setNegativeButton(R.string.settle_free) { d, _ ->
+                        d.dismiss()
+                        lifecycleScope.launch { finishSettle(account, cleared, null, emptyList()) }
+                    }
+                    .setNeutralButton(android.R.string.cancel, null)
+                    .show()
+            }
+        }
+
+        dialog.show()
+    }
+
+    /**
+     * The whole due was PAID and the account is cleared: the balance, a PAY ledger row and the money rows
+     * are saved together. (A free settle is [finishSettle] with no money.)
+     */
+    private suspend fun finishPaidSettle(
+        account: CreditAccount,
+        cleared: Double,
+        direction: String,
+        lines: List<com.example.easy_billing.util.PayLine>
+    ) {
+        val now = repository.getById(account.id, shopId)?.dueAmount ?: account.dueAmount
+        if (kotlin.math.abs(now - cleared) > 0.005) {
+            Toast.makeText(this, R.string.settle_balance_changed, Toast.LENGTH_LONG).show()
+            loadAccounts()
+            return
+        }
+        val db = com.example.easy_billing.db.AppDatabase.getDatabase(this)
+        withContext(Dispatchers.IO) {
+            db.withTransaction {
+                repository.updateDue(account.id, 0.0, shopId)
+                val txnId = repository.insertTransaction(
+                    CreditTransaction(accountId = account.id, amount = cleared, type = "PAY", shopId = shopId)
+                ).toInt()
+                com.example.easy_billing.repository.MoneyBook(db.moneyEntryDao()).recordLines(
+                    direction = direction,
+                    lines = lines,
+                    reason = com.example.easy_billing.util.CreditSide.payReason(direction),
+                    sourceType = com.example.easy_billing.util.MoneySource.CREDIT_TXN,
+                    sourceId = txnId,
+                    partyName = account.name
+                )
+            }
+        }
+        loadAccounts()
+        SyncManager(this).syncCredit()
+    }
+
+    /**
+     * Clears the account to zero. For an advance being handed back ([moneyDirection] != null) the money
+     * rows are saved in the same transaction. Nothing moves for a write-off.
+     */
+    private suspend fun finishSettle(
+        account: CreditAccount,
+        cleared: Double,
+        moneyDirection: String?,
+        lines: List<com.example.easy_billing.util.PayLine>
+    ) {
+        // The balance may have changed while the sheet was open: refuse rather than refund the wrong sum.
+        val now = repository.getById(account.id, shopId)?.dueAmount ?: account.dueAmount
+        if (kotlin.math.abs(now - cleared) > 0.005) {
+            Toast.makeText(this, R.string.settle_balance_changed, Toast.LENGTH_LONG).show()
+            loadAccounts()
+            return
+        }
+        val db = com.example.easy_billing.db.AppDatabase.getDatabase(this)
+        withContext(Dispatchers.IO) {
+            db.withTransaction {
                 repository.updateDue(account.id, 0.0, shopId)
 
                 // Two different events, recorded as two different types.
@@ -818,21 +970,56 @@ class CreditAccountsActivity : BaseActivity() {
                 // The amount is always a magnitude; the type carries the
                 // direction. Logging 0 (as this once did) left the history
                 // reading "₹0" with no trace of the sum involved.
-                repository.insertTransaction(
+                val txnId = repository.insertTransaction(
                     CreditTransaction(
                         accountId = account.id,
                         amount = kotlin.math.abs(cleared),
                         type = if (cleared < 0) "REFUND" else "WRITE_OFF",
                         shopId = shopId
                     )
-                )
-
-                loadAccounts()
-                SyncManager(this@CreditAccountsActivity).syncCredit()
+                ).toInt()
+                if (moneyDirection != null) {
+                    com.example.easy_billing.repository.MoneyBook(db.moneyEntryDao()).recordLines(
+                        direction = moneyDirection,
+                        lines = lines,
+                        reason = com.example.easy_billing.util.CreditSide.refundReason(moneyDirection),
+                        sourceType = com.example.easy_billing.util.MoneySource.CREDIT_TXN,
+                        sourceId = txnId,
+                        partyName = account.name
+                    )
+                }
             }
         }
 
-        dialog.show()
+        loadAccounts()
+        SyncManager(this).syncCredit()
+    }
+
+    /**
+     * Works out whether money on this account moves IN or OUT from its history; when the history cannot
+     * tell (empty or mixed), asks the owner. [refund] = handing back an advance instead of a payment.
+     */
+    private fun chooseDirection(account: CreditAccount, refund: Boolean, onChosen: (String) -> Unit) {
+        lifecycleScope.launch {
+            val types = withContext(Dispatchers.IO) {
+                com.example.easy_billing.db.AppDatabase.getDatabase(this@CreditAccountsActivity)
+                    .creditTransactionDao().getByAccount(account.id, shopId).map { it.type }
+            }
+            val side = com.example.easy_billing.util.CreditSide.of(types)
+            val known = if (refund) com.example.easy_billing.util.CreditSide.refundDirection(side)
+                        else com.example.easy_billing.util.CreditSide.payDirection(side)
+            if (known != null) { onChosen(known); return@launch }
+
+            val inDir = com.example.easy_billing.util.MoneyDirection.IN
+            val outDir = com.example.easy_billing.util.MoneyDirection.OUT
+            AlertDialog.Builder(this@CreditAccountsActivity)
+                .setTitle(if (refund) R.string.direction_refund_title else R.string.direction_pay_title)
+                .setMessage(account.name)
+                .setPositiveButton(if (refund) R.string.direction_refund_in else R.string.direction_pay_in) { d, _ -> d.dismiss(); onChosen(inDir) }
+                .setNegativeButton(if (refund) R.string.direction_refund_out else R.string.direction_pay_out) { d, _ -> d.dismiss(); onChosen(outDir) }
+                .setNeutralButton(android.R.string.cancel, null)
+                .show()
+        }
     }
 
     // ================= UTILS =================

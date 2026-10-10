@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -15,12 +16,13 @@ import com.example.easy_billing.Filterable
 import com.example.easy_billing.R
 import com.example.easy_billing.ReportFilter
 import com.example.easy_billing.adapter.SalesRow
-import com.example.easy_billing.adapter.SalesRowAdapter
+import com.example.easy_billing.adapter.RankedRowAdapter
 import com.example.easy_billing.network.PeakHourResponse
 import com.example.easy_billing.network.RetrofitClient
 import com.example.easy_billing.util.AppTime
-import com.example.easy_billing.util.BarValueMarker
+import com.example.easy_billing.util.BarBubbleMarker
 import com.example.easy_billing.util.CurrencyHelper
+import com.example.easy_billing.util.DayPartBarChart
 import com.example.easy_billing.util.RoundedBarChartRenderer
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.XAxis
@@ -39,7 +41,10 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
 
     private lateinit var tvPeakRevenue: TextView
     private lateinit var tvDelta: TextView
-    private lateinit var tvPeakAt: TextView
+
+    private lateinit var tvBreakdownMore: View
+    private lateinit var tvBreakdownMoreText: TextView
+    private lateinit var ivBreakdownMoreChevron: View
 
     private lateinit var tvBestValue: TextView
     private lateinit var tvBestSub: TextView
@@ -47,7 +52,7 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
     private lateinit var tvAvgSub: TextView
 
     // ── State ──────────────────────────────────────────────────────────────
-    private lateinit var adapter: SalesRowAdapter
+    private lateinit var adapter: RankedRowAdapter
     private var currentFilter    = ReportFilter.TODAY
     private var customStartDate: String? = null
     private var customEndDate: String?   = null
@@ -66,7 +71,9 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
 
         tvPeakRevenue = view.findViewById(R.id.tvPeakRevenue)
         tvDelta       = view.findViewById(R.id.tvDelta)
-        tvPeakAt      = view.findViewById(R.id.tvPeakAt)
+        tvBreakdownMore = view.findViewById(R.id.tvBreakdownMore)
+        tvBreakdownMoreText = view.findViewById(R.id.tvBreakdownMoreText)
+        ivBreakdownMoreChevron = view.findViewById(R.id.ivBreakdownMoreChevron)
 
         tvBestValue   = view.findViewById(R.id.tvBestValue)
         tvBestSub     = view.findViewById(R.id.tvBestSub)
@@ -79,8 +86,9 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
         rvPeakHours.layoutManager = LinearLayoutManager(requireContext())
         rvPeakHours.isNestedScrollingEnabled = false
 
-        adapter = SalesRowAdapter(emptyList(), 0.0)
+        adapter = RankedRowAdapter()
         rvPeakHours.adapter = adapter
+        tvBreakdownMore.setOnClickListener { adapter.toggleExpanded(); updateMoreButton() }
 
         setupChartChrome()
 
@@ -107,8 +115,11 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
 
     // ── Data loading ───────────────────────────────────────────────────────
 
+    private var loadJob: kotlinx.coroutines.Job? = null
+
     private fun loadPeakHours() {
-        lifecycleScope.launch {
+        loadJob?.cancel()
+        loadJob = lifecycleScope.launch {
             val token = requireActivity()
                 .getSharedPreferences("auth", Context.MODE_PRIVATE)
                 .getString("TOKEN", null) ?: return@launch
@@ -165,110 +176,147 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
                 render(peak)
 
             } catch (e: Exception) {
-                e.printStackTrace()
-                Toast.makeText(requireContext(), R.string.peak_hours_toast_load_failed, Toast.LENGTH_SHORT).show()
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                view?.let { v ->
+                    com.google.android.material.snackbar.Snackbar
+                        .make(v, R.string.peak_hours_toast_load_failed, com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE)
+                        .setAction(R.string.reports_retry) { loadPeakHours() }
+                        .show()
+                }
             }
         }
     }
 
-    // ── Render (Sales-style: hero · bars · metric cards · breakdown) ────────
+    // ── Render ─────────────────────────────────────────────────────────────
+
+    private data class HPt(val hour: Int, val rev: Double, val bills: Int)
+    private var axisPts: List<HPt> = emptyList()
 
     private fun render(data: List<PeakHourResponse>) {
         val ctx = requireContext()
 
-        if (data.isEmpty()) {
+        val map = data.associateBy { it.hour }
+        // All 24 hours so the morning / afternoon / evening bands line up.
+        val pts = (0..23).map { h -> HPt(h, map[h]?.revenue ?: 0.0, map[h]?.bills ?: 0) }
+        val active = pts.filter { it.bills > 0 || it.rev > 0 }
+
+        view?.findViewById<View>(R.id.tvPeakEmpty)?.visibility = if (active.isEmpty()) View.VISIBLE else View.GONE
+        if (active.isEmpty()) {
             tvPeakRevenue.text = CurrencyHelper.format(ctx, 0.0)
             tvDelta.visibility = View.GONE
-            tvPeakAt.text = getString(R.string.dash)
             tvBestValue.text = getString(R.string.dash); tvBestSub.text = getString(R.string.dash)
             tvAvgValue.text = getString(R.string.dash); tvAvgSub.text = getString(R.string.dash)
             barChart.clear(); barChart.invalidate()
-            adapter.updateData(emptyList(), 0.0)
+            adapter.updateData(emptyList()); updateMoreButton()
             return
         }
 
-        val byHour     = data.sortedBy { it.hour }
-        val best       = data.maxByOrNull { it.revenue } ?: byHour.first()
-        val totalRev   = data.sumOf { it.revenue }
-        val totalBills = data.sumOf { it.bills }
-        val avgBills   = totalBills.toDouble() / data.size
+        val best       = active.maxByOrNull { it.rev } ?: active.first()
+        val totalRev   = active.sumOf { it.rev }
+        val totalBills = active.sumOf { it.bills }
+        val avgBills   = totalBills.toDouble() / active.size
 
-        // Hero: peak revenue + share-of-period chip + "at <hour>"
-        tvPeakRevenue.text = CurrencyHelper.format(ctx, best.revenue)
-        tvPeakAt.text      = "at ${formatHour(best.hour)}"
+        // Busiest-hour sales + share of the whole period
+        tvPeakRevenue.text = CurrencyHelper.format(ctx, best.rev)
         if (totalRev > 0) {
-            val pct = (best.revenue / totalRev * 100).roundToInt()
+            val pct = (best.rev / totalRev * 100).roundToInt()
             tvDelta.visibility = View.VISIBLE
-            tvDelta.text = "$pct% of total"
+            tvDelta.text = getString(R.string.busy_pct_of_total, pct)
             tvDelta.setTextColor(Color.parseColor("#085041"))
             tvDelta.background = GradientDrawable().apply {
-                cornerRadius = dp(8f); setColor(Color.parseColor("#DDEEEE"))
+                cornerRadius = dp(8f); setColor(Color.parseColor("#CFEBDD"))
             }
         } else {
             tvDelta.visibility = View.GONE
         }
 
-        // Metric cards
-        tvBestValue.text = formatHourShort(best.hour)
-        tvBestSub.text   = "${best.bills} bills"
+        // Busiest / average boxes
+        tvBestValue.text = formatRange(best.hour)
+        tvBestSub.text   = getString(R.string.busy_best_sub, best.bills)
         tvAvgValue.text  = "%.1f".format(avgBills)
-        tvAvgSub.text    = "$totalBills bills"
+        tvAvgSub.text    = getString(R.string.busy_avg_sub, totalBills)
 
-        // Hourly bar chart (chronological), peak hour highlighted teal
-        drawBars(byHour, best.hour)
+        drawBars(pts, best.hour)
 
-        // Hourly breakdown list (ranked by revenue, ★ on peak)
-        val maxRev = data.maxOf { it.revenue }
-        val rows = data.sortedByDescending { it.revenue }.map {
-            SalesRow(
-                label   = formatHour(it.hour),
-                revenue = it.revenue,
-                bills   = it.bills,
-                isBest  = it.hour == best.hour
-            )
-        }
-        adapter.updateData(rows, maxRev)
+        // Ranked breakdown (best first), only hours that had sales
+        adapter.updateData(
+            active.sortedByDescending { it.rev }.map { SalesRow(formatRange(it.hour), it.rev, it.bills) }
+        )
+        updateMoreButton()
     }
 
-    private fun drawBars(byHour: List<PeakHourResponse>, peakHour: Int) {
-        // data = Pair(label, bills) so the tap marker can show them
-        val entries = byHour.mapIndexed { i, p ->
-            BarEntry(i.toFloat(), p.revenue.toFloat(), Pair(formatHour(p.hour), p.bills))
+    private fun updateMoreButton() {
+        if (!adapter.canExpand) { tvBreakdownMore.visibility = View.GONE; return }
+        tvBreakdownMore.visibility = View.VISIBLE
+        ivBreakdownMoreChevron.rotation = if (adapter.expanded) 180f else 0f
+        tvBreakdownMoreText.text = if (adapter.expanded) getString(R.string.reports_show_less)
+            else getString(R.string.reports_see_all_hours, adapter.totalCount)
+    }
+
+    private fun drawBars(pts: List<HPt>, peakHour: Int) {
+        axisPts = pts
+        // data = Pair(label, bills) so the tap bubble can show them
+        val entries = pts.mapIndexed { i, p ->
+            BarEntry(i.toFloat(), p.rev.toFloat(), Pair(formatRange(p.hour), p.bills))
         }
         val ds = BarDataSet(entries, "").apply {
-            colors = byHour.map { if (it.hour == peakHour) teal else blue }
+            colors = pts.map { if (it.hour == peakHour) teal else blue }
             setDrawValues(false)
             highLightAlpha = 0
         }
-        barChart.data = BarData(ds).apply { barWidth = 0.55f }
+        barChart.data = BarData(ds).apply { barWidth = 0.6f }
 
-        val maxRev = byHour.maxOf { it.revenue }.toFloat().takeIf { it > 0f } ?: 1f
+        val maxRev = pts.maxOf { it.rev }.toFloat().takeIf { it > 0f } ?: 1f
         barChart.axisLeft.axisMaximum  = maxRev * 1.30f
         barChart.axisRight.axisMaximum = maxRev * 1.30f
 
-        barChart.xAxis.valueFormatter = object : ValueFormatter() {
-            override fun getFormattedValue(value: Float): String =
-                byHour.getOrNull(value.roundToInt())?.let { formatHourShort(it.hour) } ?: ""
+        (barChart as? DayPartBarChart)?.apply {
+            showDayParts = true
+            partLabels = listOf(
+                getString(R.string.fragment_overview_busy_morning),
+                getString(R.string.fragment_overview_busy_afternoon),
+                getString(R.string.fragment_overview_busy_evening),
+                getString(R.string.fragment_overview_busy_night)
+            )
         }
+        barChart.xAxis.apply {
+            valueFormatter = object : ValueFormatter() {
+                override fun getFormattedValue(value: Float): String {
+                    val i = value.roundToInt()
+                    if (axisPts.getOrNull(i) == null) return ""
+                    val visible = (barChart.highestVisibleX - barChart.lowestVisibleX + 1f).roundToInt().coerceIn(1, 24)
+                    val step = if (visible > 16) 6 else if (visible > 8) 3 else 1
+                    return if (i % step == 0) hourName(i) else ""
+                }
+            }
+            textSize = 9.5f
+            setLabelCount(pts.size, false)
+        }
+        barChart.fitScreen()
         barChart.setFitBars(true)
         barChart.renderer = RoundedBarChartRenderer(barChart, barChart.animator, barChart.viewPortHandler, 4f)
-        barChart.animateY(700)
+        barChart.animateY(600)
         barChart.invalidate()
     }
 
-    /** One-time static bar-chart styling (matches Sales). */
+    /** One-time static bar-chart styling (matches the Trends tab). */
     private fun setupChartChrome() {
         barChart.apply {
             description.isEnabled = false
             legend.isEnabled = false
-            setScaleEnabled(false)
+            setScaleXEnabled(true)
+            setScaleYEnabled(false)
             setPinchZoom(false)
-            isDoubleTapToZoomEnabled = false
+            isDoubleTapToZoomEnabled = true
+            isDragEnabled = true
+            isDragXEnabled = true
+            isDragYEnabled = false
             setDrawGridBackground(false)
             setTouchEnabled(true)
             isHighlightPerTapEnabled = true
             isHighlightPerDragEnabled = false
-            marker = BarValueMarker(requireContext())
+            setNoDataText("")
+            marker = BarBubbleMarker(requireContext())
             setExtraOffsets(4f, 18f, 4f, 4f)
             axisRight.isEnabled = false
             axisLeft.isEnabled = false
@@ -277,10 +325,10 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
             xAxis.apply {
                 position = XAxis.XAxisPosition.BOTTOM
                 setDrawGridLines(false)
-                setDrawAxisLine(false)
+                setDrawAxisLine(true)
+                axisLineColor = Color.parseColor("#E4DCC8")
                 granularity = 1f
                 textColor = Color.parseColor("#9A8F79")
-                textSize = 10f
                 yOffset = 6f
             }
         }
@@ -290,19 +338,14 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
 
     // ── Helpers ────────────────────────────────────────────────────────────
 
-    /** Compact hour for axis/metric, e.g. "7 PM", "12 AM". */
-    private fun formatHourShort(hour: Int): String = when {
-        hour == 0  -> "12 AM"
-        hour < 12  -> "$hour AM"
-        hour == 12 -> "12 PM"
-        else       -> "${hour - 12} PM"
+    /** 12-hour clock text, e.g. 6 AM, 6 PM. */
+    private fun hourName(hour: Int): String {
+        val x = ((hour % 24) + 24) % 24
+        val n = if (x % 12 == 0) 12 else x % 12
+        return "$n " + getString(if (x < 12) R.string.scrap_am else R.string.scrap_pm)
     }
 
-    private fun formatHour(hour: Int): String = when {
-        hour == 0  -> "12:00 AM"
-        hour < 12  -> "${hour}:00 AM"
-        hour == 12 -> "12:00 PM"
-        else       -> "${hour - 12}:00 PM"
-    }
+    /** e.g. "6 PM – 7 PM". */
+    private fun formatRange(hour: Int): String = hourName(hour) + " – " + hourName((hour + 1) % 24)
 
 }

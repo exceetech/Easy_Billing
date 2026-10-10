@@ -31,6 +31,9 @@ private val TRANSACTION_DIFF_CALLBACK = object : DiffUtil.ItemCallback<Transacti
 
 class TransactionAdapter : ListAdapter<TransactionUI, RecyclerView.ViewHolder>(TRANSACTION_DIFF_CALLBACK) {
 
+    /** Customer or supplier account, read from the ledger itself; only changes wording. */
+    var side: com.example.easy_billing.util.CreditSide.Side = com.example.easy_billing.util.CreditSide.Side.UNKNOWN
+
     companion object {
         const val TYPE_HEADER = 0
         const val TYPE_ITEM = 1
@@ -46,13 +49,17 @@ class TransactionAdapter : ListAdapter<TransactionUI, RecyclerView.ViewHolder>(T
          * Anything unrecognised falls back to the raw value rather than being
          * hidden, so a type added later is visible instead of silently blank.
          */
-        fun labelFor(type: String): String = when (type) {
+        fun labelFor(
+            type: String,
+            side: com.example.easy_billing.util.CreditSide.Side = com.example.easy_billing.util.CreditSide.Side.UNKNOWN
+        ): String = when (type) {
             "ADD"              -> "Credit sale"
-            "PAY"              -> "Payment received"
+            // The ledger is shared by customers and suppliers: a payment on a supplier account is money paid OUT.
+            "PAY"              -> if (side == com.example.easy_billing.util.CreditSide.Side.SUPPLIER) "Payment made" else "Payment received"
             "PURCHASE_CREDIT"  -> "Purchase on credit"
             "PURCHASE_RETURN"  -> "Purchase return"
             "WRITE_OFF"        -> "Written off"
-            "REFUND"           -> "Refunded"
+            "REFUND"           -> if (side == com.example.easy_billing.util.CreditSide.Side.SUPPLIER) "Refund received" else "Refunded"
             // Bill adjustments applied to the account.
             "SALE_RETURN"      -> "Credit note"
             "BILL_CANCEL"      -> "Bill cancelled"
@@ -93,7 +100,7 @@ class TransactionAdapter : ListAdapter<TransactionUI, RecyclerView.ViewHolder>(T
 
             // Raw type codes mean nothing to someone reading their own khata.
             // Shared with the printed statement so the two can't drift apart.
-            holder.tvType.text = labelFor(item.type)
+            holder.tvType.text = labelFor(item.type, side)
             holder.tvType.setTextColor(Color.parseColor("#1A1A18"))
 
             // Time, plus whatever else is worth knowing about this entry: the

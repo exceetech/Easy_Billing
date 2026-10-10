@@ -2,6 +2,7 @@ package com.example.easy_billing
 
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
@@ -26,6 +27,7 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ImageView
 import com.example.easy_billing.db.Product
@@ -147,6 +149,11 @@ class PurchaseActivity : BaseActivity() {
     private lateinit var rgCreditOption: android.widget.RadioGroup
     private lateinit var rbCredit: android.widget.RadioButton
     private lateinit var rbNotCredit: android.widget.RadioButton
+
+    // Payment tracking: how a "paid now" purchase is paid. A single mode, or a split across modes.
+    private var payMode = com.example.easy_billing.util.MoneyMode.CASH
+    private var isSplitMode = false
+    private var splitLines: List<com.example.easy_billing.util.PayLine>? = null
     private lateinit var cardSelectedAccount: com.google.android.material.card.MaterialCardView
     private lateinit var cardSelectedAccountWrap: View
     private lateinit var tvSelectedAccountName: TextView
@@ -1149,8 +1156,7 @@ class PurchaseActivity : BaseActivity() {
             val sgstPct = if (totals.taxable > 0) totals.sgstAmt / totals.taxable * 100 else 0.0
             val igstPct = if (totals.taxable > 0) totals.igstAmt / totals.taxable * 100 else 0.0
 
-            viewModel.save(
-                Purchase(
+            val header = Purchase(
                     invoiceNumber  = invoice,
                     supplierGstin  = typedGstin.takeIf { it.isNotBlank() },
                     supplierName   = supplier,
@@ -1176,9 +1182,163 @@ class PurchaseActivity : BaseActivity() {
                     availedItcStateTax = availedItcState,
                     availedItcCess = availedItcCess,
                     purchaseSource = if (viewModel.isImportedGoods.value) "IMPORT" else "DOMESTIC"
-                )
             )
+            payThenSave(header)
         }
+
+    /**
+     * Payment tracking: a purchase that is NOT on credit was paid now, in the mode chosen in the payment card
+     * (one mode, or a split). The money rows are saved together with the purchase.
+     * A credit purchase saves straight away; it is paid later from the credit accounts screen.
+     */
+    private fun payThenSave(header: Purchase) {
+        val total = com.example.easy_billing.util.PaymentSplit.round2(header.invoiceValue)
+        android.util.Log.d("MoneyFlow", "payThenSave credit=${header.isCredit} total=$total split=$isSplitMode mode=$payMode")
+        if (header.isCredit || total <= 0.0) { viewModel.save(header); return }
+        if (!isSplitMode) {
+            viewModel.save(header, listOf(com.example.easy_billing.util.PayLine(payMode, total)))
+            return
+        }
+        val existing = splitLines
+        if (existing != null && com.example.easy_billing.util.PaymentSplit.validate(total, existing) ==
+            com.example.easy_billing.util.SplitCheck.Ok) {
+            viewModel.save(header, existing)
+            return
+        }
+        // The invoice value changed since the split was entered: ask again for the new amount.
+        openSplitSheet(total) { lines -> viewModel.save(header, lines) }
+    }
+
+    private fun openSplitSheet(total: Double, then: ((List<com.example.easy_billing.util.PayLine>) -> Unit)?) {
+        val keep = splitLines?.takeIf {
+            com.example.easy_billing.util.PaymentSplit.validate(total, it) == com.example.easy_billing.util.SplitCheck.Ok
+        } ?: emptyList()
+        com.example.easy_billing.util.PaymentLinesSheet.show(
+            activity = this,
+            title = getString(R.string.paymode_split_title),
+            total = total,
+            modes = com.example.easy_billing.util.MoneyMode.ALL,
+            initial = keep,
+            defaultMode = com.example.easy_billing.util.MoneyMode.CASH,
+            confirmLabel = getString(if (then != null) R.string.purchase_pay_sheet_confirm else R.string.invoice_split_confirm),
+            onConfirm = { lines ->
+                splitLines = lines
+                refreshPayModeChips()
+                then?.invoke(lines)
+            },
+            onCancel = {
+                // Cancelled from the chip with nothing entered yet: go back to a single mode.
+                if (then == null && splitLines == null) { isSplitMode = false; refreshPayModeChips() }
+            }
+        )
+    }
+
+    /** Payment rows, same look as the reason rows in "Correct price & tax": icon circle, title, hint, radio. */
+    private fun setupPayModeChips() {
+        val box = findViewById<LinearLayout>(R.id.payModeChips)
+        box.removeAllViews()
+        val dp = resources.displayMetrics.density
+        fun px(v: Int) = (v * dp).toInt()
+        // key, title, hint, circle drawable, lucide icon, icon colour
+        data class Opt(val key: String, val title: Int, val hint: Int, val circle: Int, val icon: Int, val color: String)
+        val opts = listOf(
+            Opt("CASH", R.string.cash, R.string.paymode_hint_cash, R.drawable.bg_circle_soft_green, R.drawable.ic_lucide_cash, "#0F6E56"),
+            Opt("UPI", R.string.upi, R.string.paymode_hint_upi, R.drawable.bg_circle_soft_blue, R.drawable.ic_lucide_device_mobile, "#2A5CA8"),
+            Opt("CARD", R.string.card, R.string.paymode_hint_card, R.drawable.bg_circle_soft_purple, R.drawable.ic_lucide_credit_card, "#6B4A9C"),
+            Opt("BANK", R.string.payment_mode_bank, R.string.paymode_hint_bank, R.drawable.bg_circle_soft_teal, R.drawable.ic_lc_landmark, "#0F6E56"),
+            Opt("SPLIT", R.string.purchase_pay_split, R.string.paymode_hint_split, R.drawable.bg_circle_soft_gold, R.drawable.ic_lc_split, "#854F0B"),
+            Opt("CREDIT", R.string.purchase_history_tile_on_credit, R.string.paymode_hint_credit, R.drawable.bg_circle_soft_amber, R.drawable.ic_lc_clock, "#854F0B")
+        )
+        opts.forEachIndexed { i, o ->
+            val row = LinearLayout(this).apply {
+                tag = o.key
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                setPadding(px(13), px(13), px(13), px(13))
+                isClickable = true; isFocusable = true
+                layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+                ).also { if (i > 0) it.topMargin = px(10) }
+            }
+            row.addView(FrameLayout(this).apply {
+                setBackgroundResource(o.circle)
+                layoutParams = LinearLayout.LayoutParams(px(36), px(36))
+                addView(android.widget.ImageView(this@PurchaseActivity).apply {
+                    setImageResource(o.icon)
+                    setColorFilter(android.graphics.Color.parseColor(o.color))
+                    layoutParams = FrameLayout.LayoutParams(px(20), px(20), android.view.Gravity.CENTER)
+                })
+            })
+            row.addView(LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).also { it.marginStart = px(12) }
+                addView(TextView(this@PurchaseActivity).apply {
+                    text = getString(o.title); textSize = 13.5f
+                    setTextColor(android.graphics.Color.parseColor("#1A1A18"))
+                    typeface = androidx.core.content.res.ResourcesCompat.getFont(this@PurchaseActivity, R.font.googlesans_semibold)
+                })
+                addView(TextView(this@PurchaseActivity).apply {
+                    text = getString(o.hint); textSize = 10.5f
+                    setTextColor(android.graphics.Color.parseColor("#8A8272"))
+                })
+            })
+            row.addView(View(this).apply {
+                id = View.generateViewId()
+                tag = "check"
+                layoutParams = LinearLayout.LayoutParams(px(22), px(22))
+            })
+            row.setOnClickListener {
+                when (o.key) {
+                    "CREDIT" -> rbCredit.isChecked = true
+                    "SPLIT" -> {
+                        rbNotCredit.isChecked = true
+                        isSplitMode = true
+                        refreshPayModeChips()
+                        val total = computeTotals().invoice
+                        if (total > 0.0) openSplitSheet(com.example.easy_billing.util.PaymentSplit.round2(total), null)
+                    }
+                    else -> {
+                        rbNotCredit.isChecked = true
+                        isSplitMode = false
+                        payMode = o.key
+                        refreshPayModeChips()
+                    }
+                }
+            }
+            box.addView(row)
+        }
+        refreshPayModeChips()
+    }
+
+    private fun refreshPayModeChips() {
+        val box = findViewById<LinearLayout>(R.id.payModeChips) ?: return
+        val onCredit = rbCredit.isChecked
+        for (i in 0 until box.childCount) {
+            val row = box.getChildAt(i) as LinearLayout
+            val selected = when (row.tag) {
+                "CREDIT" -> onCredit
+                "SPLIT" -> !onCredit && isSplitMode
+                else -> !onCredit && !isSplitMode && row.tag == payMode
+            }
+            row.setBackgroundResource(if (selected) R.drawable.bg_reason_card_selected else R.drawable.bg_reason_card_unselected)
+            row.getChildAt(row.childCount - 1).setBackgroundResource(
+                if (selected) R.drawable.bg_radio_selected else R.drawable.bg_radio_unselected)
+        }
+        val summary = findViewById<TextView>(R.id.tvPaySplitSummary)
+        val lines = splitLines
+        if (!onCredit && isSplitMode) {
+            summary.text = if (lines != null) lines.joinToString(" + ") {
+                com.example.easy_billing.util.PaymentLinesSheet.modeLabel(this, it.mode) + " " +
+                    com.example.easy_billing.util.CurrencyHelper.format(this, it.amount)
+            } + "  ·  " + getString(R.string.paymode_split_edit)
+            else getString(R.string.paymode_split_pending)
+            summary.setOnClickListener {
+                val total = computeTotals().invoice
+                if (total > 0.0) openSplitSheet(com.example.easy_billing.util.PaymentSplit.round2(total), null)
+            }
+            summary.visibility = View.VISIBLE
+        } else summary.visibility = View.GONE
+    }
 
     private fun wireActions() {
         listOf(etInvoiceNumber, etSupplierName).forEach { input ->
@@ -1300,9 +1460,8 @@ class PurchaseActivity : BaseActivity() {
         }
 
         // Card-style payment tiles drive the hidden radios.
-        findViewById<View>(R.id.tilePaidNow).setOnClickListener { rbNotCredit.isChecked = true }
-        findViewById<View>(R.id.tileCredit).setOnClickListener { rbCredit.isChecked = true }
         updatePaymentTiles(rbCredit.isChecked)
+        setupPayModeChips()
 
         btnChangeAccount.setOnClickListener {
             com.example.easy_billing.util.CreditAccountPicker.show(
@@ -1317,50 +1476,9 @@ class PurchaseActivity : BaseActivity() {
         }
     }
 
-    /** Reflects the credit selection on the two payment tiles. */
+    /** The payment chips are the only control now; keep them in step with the hidden radios. */
     private fun updatePaymentTiles(credit: Boolean) {
-        val tilePaid   = findViewById<View>(R.id.tilePaidNow)
-        val tileCredit = findViewById<View>(R.id.tileCredit)
-        val chipPaid   = findViewById<View>(R.id.chipPaidNow)
-        val chipCredit = findViewById<View>(R.id.chipCredit)
-        val ivPaid     = findViewById<android.widget.ImageView>(R.id.ivPaidNow)
-        val ivCredit   = findViewById<android.widget.ImageView>(R.id.ivCredit)
-        val checkPaid  = findViewById<View>(R.id.checkPaidNow)
-        val checkCred  = findViewById<View>(R.id.checkCredit)
-        val tvPaid     = findViewById<TextView>(R.id.tvPaidNow)
-        val tvPaidSub  = findViewById<TextView>(R.id.tvPaidNowSub)
-        val tvCredit   = findViewById<TextView>(R.id.tvCredit)
-        val tvCredSub  = findViewById<TextView>(R.id.tvCreditSub)
-
-        if (credit) {
-            tilePaid.setBackgroundResource(R.drawable.bg_pay_tile_idle)
-            chipPaid.setBackgroundResource(R.drawable.bg_pay_chip_idle)
-            ivPaid.setColorFilter(android.graphics.Color.parseColor("#8A8272"))
-            checkPaid.visibility = View.GONE
-            tvPaid.setTextColor(android.graphics.Color.parseColor("#1A1A18"))
-            tvPaidSub.setTextColor(android.graphics.Color.parseColor("#9A8F79"))
-
-            tileCredit.setBackgroundResource(R.drawable.bg_pay_tile_gold_sel)
-            chipCredit.setBackgroundResource(R.drawable.bg_pay_chip_gold)
-            ivCredit.setColorFilter(android.graphics.Color.parseColor("#FFFFFF"))
-            checkCred.visibility = View.VISIBLE
-            tvCredit.setTextColor(android.graphics.Color.parseColor("#7A5A32"))
-            tvCredSub.setTextColor(android.graphics.Color.parseColor("#A98B63"))
-        } else {
-            tilePaid.setBackgroundResource(R.drawable.bg_pay_tile_green_sel)
-            chipPaid.setBackgroundResource(R.drawable.bg_pay_chip_green)
-            ivPaid.setColorFilter(android.graphics.Color.parseColor("#FFFFFF"))
-            checkPaid.visibility = View.VISIBLE
-            tvPaid.setTextColor(android.graphics.Color.parseColor("#0B5544"))
-            tvPaidSub.setTextColor(android.graphics.Color.parseColor("#5E8C7C"))
-
-            tileCredit.setBackgroundResource(R.drawable.bg_pay_tile_idle)
-            chipCredit.setBackgroundResource(R.drawable.bg_pay_chip_idle)
-            ivCredit.setColorFilter(android.graphics.Color.parseColor("#8A8272"))
-            checkCred.visibility = View.GONE
-            tvCredit.setTextColor(android.graphics.Color.parseColor("#1A1A18"))
-            tvCredSub.setTextColor(android.graphics.Color.parseColor("#9A8F79"))
-        }
+        if (::rbCredit.isInitialized) refreshPayModeChips()
     }
 
     private fun observe() {

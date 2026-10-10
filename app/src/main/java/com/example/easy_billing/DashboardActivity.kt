@@ -443,6 +443,14 @@ class DashboardActivity : BaseActivity() {
             }
         }
 
+        // Tablet held upright: the tiles would be too narrow to show every
+        // detail at 5 across, so use 3 per row. Landscape keeps 5.
+        if (isTablet &&
+            resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT
+        ) {
+            GRID_SPAN = 3
+        }
+
         rvProducts = findViewById(R.id.rvProducts)
         rvCart = findViewById(R.id.rvCart)
         tvTotal = findViewById(R.id.tvTotal)
@@ -2304,10 +2312,15 @@ class DashboardActivity : BaseActivity() {
         view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnRenewSubscription)
             .setOnClickListener {
                 dialog.dismiss()
+                // Do NOT finish() the dashboard here. SubscriptionActivity
+                // closes itself after a successful payment, and with the
+                // dashboard gone the task was empty, so the app exited and
+                // had to be relaunched. Staying in the back stack returns
+                // the user to the dashboard, whose onResume re-runs
+                // checkSubscription() (dialog reappears only if still unpaid).
                 startActivity(
                     Intent(this@DashboardActivity, SubscriptionActivity::class.java)
                 )
-                finish()
             }
 
         view.findViewById<TextView>(R.id.tvContactSupport).setOnClickListener {
@@ -2561,9 +2574,8 @@ class DashboardActivity : BaseActivity() {
                 // a hairline divider, like Inventory's), so the whole list
                 // needs a single white rounded card behind it — otherwise
                 // the rows just float on the cream dashboard background.
-                rvProducts.background = if (viewMode == ViewMode.LIST) {
-                    androidx.core.content.ContextCompat.getDrawable(this@DashboardActivity, R.drawable.bg_inv_value_card)
-                } else null
+                // List rows are now separate cards, so no backing card is needed.
+                rvProducts.background = null
                 productAdapter.setProducts(
                     sorted,
                     grouped = viewMode == ViewMode.CATEGORIZED,

@@ -713,6 +713,67 @@
             android:insetRight="0dp"/>
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCorrectBill"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="48dp"
+                android:text="Correct this bill"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+                app:icon="@drawable/ic_lc_sliders"
+                app:iconTint="#FFFFFF"
+                app:iconSize="17dp"
+                app:iconGravity="textStart"
+                app:iconPadding="6dp"
+                app:cornerRadius="14dp"
+                app:backgroundTint="@null"
+                android:background="@drawable/bg_cta_gold"
+                android:stateListAnimator="@null" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCorrectedInvoice"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="46dp"
+                android:layout_marginStart="10dp"
+                android:text="Corrected invoice"
+                android:textColor="#8A6526"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+                app:icon="@drawable/ic_lc_file_text"
+                app:iconTint="#8A6526"
+                app:iconSize="17dp"
+                app:iconGravity="textStart"
+                app:iconPadding="6dp"
+                app:cornerRadius="14dp"
+                app:backgroundTint="#FFFFFF"
+                app:strokeColor="#E3D3AE"
+                app:strokeWidth="1dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+        </LinearLayout>
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancelPurchase"
             android:layout_width="match_parent"

@@ -4,6 +4,7 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import android.widget.EditText
 import android.widget.Filter
 import android.widget.Filterable
 import android.widget.ImageView
@@ -228,19 +229,26 @@ class PurchaseLineDialog(
 
     /** Mapper to translate clean, non-jargon UI labels into strict backend GST codes. */
     private object EligibilityMapper {
-        private val codeToDisplay = mapOf(
-            "Inputs" to "For Resale (Inputs)",
-            "Capital goods" to "For Shop Use (Capital)",
-            "Input services" to "For Business (Services)",
-            "Ineligible" to "Cannot Claim GST (Blocked)",
-            "None" to "No GST to Claim (None)"
-        )
-        private val displayToCode = codeToDisplay.entries.associate { it.value to it.key }
+        private val codes = listOf("Inputs", "Capital goods", "Input services", "Ineligible", "None")
+        private var labels: Map<String, String> = codes.associateWith { it }
+        private var reverse: Map<String, String> = labels.entries.associate { it.value to it.key }
 
-        val displayOptions = codeToDisplay.values.toList()
+        /** Loads the plain-language labels for the current app language. */
+        fun init(ctx: android.content.Context) {
+            labels = mapOf(
+                "Inputs" to ctx.getString(R.string.purchase_line_elig_resale),
+                "Capital goods" to ctx.getString(R.string.purchase_line_elig_shop_use),
+                "Input services" to ctx.getString(R.string.purchase_line_elig_services),
+                "Ineligible" to ctx.getString(R.string.purchase_line_elig_blocked),
+                "None" to ctx.getString(R.string.purchase_line_elig_none)
+            )
+            reverse = labels.entries.associate { it.value to it.key }
+        }
 
-        fun getDisplay(code: String): String = codeToDisplay[code] ?: "For Resale (Inputs)"
-        fun getCode(display: String?): String = displayToCode[display?.trim()] ?: "Inputs"
+        val displayOptions: List<String> get() = codes.map { labels.getValue(it) }
+
+        fun getDisplay(code: String): String = labels[code] ?: labels.getValue("Inputs")
+        fun getCode(display: String?): String = reverse[display?.trim()] ?: "Inputs"
     }
 
     /** Returns the backend code (e.g. "Inputs") for whatever display string is in the spinner. */
@@ -492,6 +500,28 @@ class PurchaseLineDialog(
         val etSSgst = view.findViewById<TextInputEditText>(R.id.etSalesSgst)
         val etSIgst = view.findViewById<TextInputEditText>(R.id.etSalesIgst)
         val cardSellingDetails = view.findViewById<View>(R.id.cardSellingDetails)
+        val llNewItemFields = view.findViewById<View>(R.id.llNewItemFields)
+        val llSelectedItem = view.findViewById<View>(R.id.llSelectedItem)
+
+        /** Search found no match (or an existing line is being edited): open Name / Brand / Type. */
+        fun showNewItemFields() {
+            llNewItemFields.visibility = View.VISIBLE
+            llSelectedItem.visibility = View.GONE
+        }
+        /** Search picked an existing item: keep the three boxes closed, show a one-line summary. */
+        fun showSelectedSummary(name: String, brand: String?, variant: String?) {
+            llNewItemFields.visibility = View.GONE
+            view.findViewById<TextView>(R.id.tvSelectedName).text = name
+            view.findViewById<TextView>(R.id.tvSelectedSub).apply {
+                val sub = listOf(brand, variant).filter { !it.isNullOrBlank() }.joinToString(" \u00B7 ")
+                text = sub
+                visibility = if (sub.isEmpty()) View.GONE else View.VISIBLE
+            }
+            view.findViewById<TextView>(R.id.tvSelectedInitials).text =
+                name.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }
+                    .take(2).joinToString("") { it.first().uppercaseChar().toString() }
+            llSelectedItem.visibility = View.VISIBLE
+        }
 
         /**
          * Shows/hides the "You will sell at" card based on ITC eligibility.
@@ -501,10 +531,20 @@ class PurchaseLineDialog(
          * irrelevant and hidden. Values already typed there are left
          * untouched so they reappear if the user switches back to "Inputs".
          */
+        var savedSellingText: String? = null
         fun updateAssetLineUi(eligibility: String) {
-            val isAsset = eligibility == "Capital goods" || eligibility == "Input services" ||
-                switchRawMaterial.isChecked
+            // Anything other than "For resale" is not sold on: selling details are
+            // hidden and the selling price is set to 0 (restored if switched back).
+            val isAsset = eligibility != "Inputs" || switchRawMaterial.isChecked
             cardSellingDetails.visibility = if (isAsset) View.GONE else View.VISIBLE
+            if (isAsset) {
+                val cur = etSelling.text?.toString().orEmpty()
+                if (cur != "0") { savedSellingText = cur; etSelling.setText("0") }
+            } else if (etSelling.text?.toString() == "0") {
+                etSelling.setText(savedSellingText.orEmpty())
+                savedSellingText = null
+            }
+            view.findViewById<TextView>(R.id.tvStepTax)?.text = if (isAsset) "3" else "4"
         }
 
         if (viewModel.isImportedGoods.value) {
@@ -577,6 +617,115 @@ class PurchaseLineDialog(
         // Every autofill path writes the sales trio, so watching it covers them all.
         listOf(etSCgst, etSSgst, etSIgst).forEach { it.addTextChangedListener { syncPurchaseTax() } }
 
+        // ── GST % picker (card 2) ──────────────────────────────────────────
+        // One tap writes the product's sales rate (CGST/SGST halves + IGST);
+        // syncPurchaseTax above then derives the supplier split from it, so
+        // the total shown in card 2 is known without opening More details.
+        val gstChipValues = listOf(0, 5, 12, 18, 28)
+        val gstChips = listOf(
+            R.id.chipGst0, R.id.chipGst5, R.id.chipGst12, R.id.chipGst18, R.id.chipGst28
+        ).map { view.findViewById<TextView>(it) }
+        val tvGstSplit = view.findViewById<TextView>(R.id.tvGstSplit)
+        val tvSaleTaxLine = view.findViewById<TextView>(R.id.tvSaleTaxLine)
+        val etGstPct = view.findViewById<EditText>(R.id.etGstPct)
+        val btnGstMinus = view.findViewById<View>(R.id.btnGstMinus)
+        val btnGstPlus = view.findViewById<View>(R.id.btnGstPlus)
+        var settingGstPct = false
+
+        /** Current rate shown by the sales trio, or null if none is set yet. */
+        fun currentGstPct(): Double? {
+            if (etSCgst.text.isNullOrBlank() && etSSgst.text.isNullOrBlank() && etSIgst.text.isNullOrBlank()) return null
+            val c = etSCgst.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val s2 = etSSgst.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val i = etSIgst.text?.toString()?.toDoubleOrNull() ?: 0.0
+            return (c + s2).takeIf { it > 0 } ?: i
+        }
+        /** One rate -> CGST/SGST halves + IGST; syncPurchaseTax derives the supplier split. */
+        fun applyGstPct(pct: Double) {
+            userOverrotePurchaseTax = false
+            etSCgst.setText(trimNum(pct / 2.0))
+            etSSgst.setText(trimNum(pct / 2.0))
+            etSIgst.setText(trimNum(pct))
+        }
+
+        val refreshGstUi = {
+            val sBlank = etSCgst.text.isNullOrBlank() && etSSgst.text.isNullOrBlank() &&
+                etSIgst.text.isNullOrBlank()
+            val sC = etSCgst.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val sS = etSSgst.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val sI = etSIgst.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val pct: Double? = if (sBlank) null else ((sC + sS).takeIf { it > 0 } ?: sI)
+
+            if (!etGstPct.hasFocus()) {
+                val shown = pct?.let { trimNum(it) } ?: ""
+                if (etGstPct.text?.toString() != shown) {
+                    settingGstPct = true
+                    try { etGstPct.setText(shown) } finally { settingGstPct = false }
+                }
+            }
+            gstChips.forEachIndexed { i, chip ->
+                val on = pct != null && kotlin.math.abs(pct - gstChipValues[i]) < 0.001
+                chip.setBackgroundResource(if (on) R.drawable.bg_gst_chip_on else R.drawable.bg_inv_field_light_grey)
+                chip.setTextColor(android.graphics.Color.parseColor(if (on) "#FFFFFF" else "#1A1A18"))
+            }
+
+            // Card 3: read-only line with the rate that will be charged on sale.
+            tvSaleTaxLine.text = if (pct == null) {
+                activity.getString(R.string.purchase_line_sale_tax_pick)
+            } else {
+                val detail = if (sC + sS > 0) "(CGST ${trimNum(sC)} \u00B7 SGST ${trimNum(sS)})"
+                else if (sI > 0) "(IGST ${trimNum(sI)})" else ""
+                activity.getString(
+                    R.string.purchase_line_sale_tax_line,
+                    "${trimNum(pct)}% $detail".trim()
+                )
+            }
+
+            // Card 2: what the supplier charged, in rupees on the taxable value.
+            val taxable = etTax.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val pC = etPCgst.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val pS = etPSgst.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val pI = etPIgst.text?.toString()?.toDoubleOrNull() ?: 0.0
+            tvGstSplit.text = when {
+                sBlank && pC + pS + pI <= 0 -> activity.getString(R.string.purchase_line_gst_pick_hint)
+                pC + pS > 0 ->
+                    "CGST ${trimNum(pC)}% \u00B7 \u20B9${"%.2f".format(taxable * pC / 100.0)}   " +
+                        "SGST ${trimNum(pS)}% \u00B7 \u20B9${"%.2f".format(taxable * pS / 100.0)}"
+                pI > 0 -> "IGST ${trimNum(pI)}% \u00B7 \u20B9${"%.2f".format(taxable * pI / 100.0)}"
+                else -> activity.getString(R.string.purchase_line_gst_zero)
+            }
+        }
+
+        gstChips.forEachIndexed { i, chip ->
+            chip.setOnClickListener {
+                // Locked (an existing product's saved rate) — same rule as the other master fields.
+                if (!etSCgst.isEnabled) return@setOnClickListener
+                etGstPct.clearFocus()
+                applyGstPct(gstChipValues[i].toDouble())
+            }
+        }
+        // Stepper: -/+ one percent point at a time.
+        btnGstMinus.setOnClickListener {
+            if (!etSCgst.isEnabled) return@setOnClickListener
+            etGstPct.clearFocus()
+            applyGstPct(((currentGstPct() ?: 0.0) - 1.0).coerceAtLeast(0.0))
+        }
+        btnGstPlus.setOnClickListener {
+            if (!etSCgst.isEnabled) return@setOnClickListener
+            etGstPct.clearFocus()
+            applyGstPct(((currentGstPct() ?: 0.0) + 1.0).coerceAtMost(100.0))
+        }
+        // Typed custom rate (3, 0.25, 7.5 ...).
+        etGstPct.addTextChangedListener {
+            if (settingGstPct || !etGstPct.hasFocus()) return@addTextChangedListener
+            val typed = etGstPct.text?.toString()?.toDoubleOrNull() ?: return@addTextChangedListener
+            if (typed in 0.0..100.0) applyGstPct(typed)
+        }
+        listOf(etSCgst, etSSgst, etSIgst, etPCgst, etPSgst, etPIgst, etTax).forEach {
+            it.addTextChangedListener { refreshGstUi() }
+        }
+        refreshGstUi()
+
         // btnHelp removed
         val btnAdd = view.findViewById<MaterialButton>(R.id.btnLineAdd)
         val btnCancel = view.findViewById<MaterialButton>(R.id.btnLineCancel)
@@ -600,6 +749,13 @@ class PurchaseLineDialog(
 
         // ── GSTR-2 collapsible section ──
         setupGstr2Toggle(view)
+        // Opens the tax card (and Accountant settings) so a problem is never hidden.
+        val openTaxSection = {
+            view.findViewById<LinearLayout>(R.id.llTaxGstDetailsBody).visibility = View.VISIBLE
+            view.findViewById<ImageView>(R.id.ivTaxGstToggleArrow).rotation = 180f
+            view.findViewById<LinearLayout>(R.id.llAccountantBody).visibility = View.VISIBLE
+            view.findViewById<ImageView>(R.id.ivAccountantArrow).rotation = 180f
+        }
 
         val etCessAmountPurchase = view.findViewById<TextInputEditText>(R.id.etCessAmountPurchase)
         val chipGroupEligibility = view.findViewById<AutoCompleteTextView>(R.id.spinnerEligibility)
@@ -611,6 +767,7 @@ class PurchaseLineDialog(
         // Always-visible chip selector, seeded from the invoice header's own
         // Eligibility For ITC field but still overridable per line — see
         // getSelectedEligibility/setSelectedEligibility above.
+        EligibilityMapper.init(activity)
         setSelectedEligibility(chipGroupEligibility, headerEligibility())
         updateAssetLineUi(getSelectedEligibility(chipGroupEligibility))
 
@@ -621,6 +778,21 @@ class PurchaseLineDialog(
         etAvailedItcCgstPurchase.addTextChangedListener { if (etAvailedItcCgstPurchase.isFocused) userOverroteAvailedCgst = true }
         etAvailedItcSgstPurchase.addTextChangedListener { if (etAvailedItcSgstPurchase.isFocused) userOverroteAvailedSgst = true }
         etAvailedItcCessPurchase.addTextChangedListener { if (etAvailedItcCessPurchase.isFocused) userOverroteAvailedCess = true }
+
+        // One plain-language line replaces the auto-calculated tax boxes.
+        val tvTaxSummary = view.findViewById<TextView>(R.id.tvTaxSummary)
+        val refreshTaxSummary = {
+            fun n(e: TextInputEditText) = e.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val taxable = etTax.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val paid = taxable * (n(etPCgst) + n(etPSgst) + n(etPIgst)) / 100.0 + n(etCessAmountPurchase)
+            val credit = n(etAvailedItcIgstPurchase) + n(etAvailedItcCgstPurchase) +
+                n(etAvailedItcSgstPurchase) + n(etAvailedItcCessPurchase)
+            tvTaxSummary.text = activity.getString(R.string.purchase_line_tax_summary, "%.2f".format(paid), "%.2f".format(credit))
+        }
+        listOf(etPCgst, etPSgst, etPIgst, etCessAmountPurchase, etAvailedItcIgstPurchase,
+            etAvailedItcCgstPurchase, etAvailedItcSgstPurchase, etAvailedItcCessPurchase, etTax)
+            .forEach { it.addTextChangedListener { refreshTaxSummary() } }
+        refreshTaxSummary()
 
         val recomputeCessAndItc = recomputeCessAndItc@{
             val taxable = etTax.text?.toString()?.toDoubleOrNull() ?: 0.0
@@ -683,16 +855,20 @@ class PurchaseLineDialog(
         val setProductMasterFieldsEnabled: (Boolean) -> Unit = { enabled ->
             val fields = listOf(
                 etSelling, switchTaxInclusive, etSCgst, etSSgst, etSIgst, etHsn, etUnit,
+                etGstPct, btnGstMinus, btnGstPlus,
                 spinnerUqcPurchase, etHsnDescPurchase, etCessRatePurchase,
                 spinnerSupplyClassPurchase
             )
             fields.forEach {
                 it.isEnabled = enabled
                 it.isFocusable = enabled
-                it.isFocusableInTouchMode = enabled
+                // Only text boxes take focus on touch. A switch or button that does
+                // would eat its first tap just to get focus (needing two taps).
+                it.isFocusableInTouchMode = enabled && it is android.widget.EditText
                 it.alpha = if (enabled) 1.0f else 0.5f
                 (it.parent as? View)?.alpha = if (enabled) 1.0f else 0.6f
             }
+            view.findViewById<View>(R.id.llGstChips)?.alpha = if (enabled) 1.0f else 0.5f
         }
 
         // Undoes everything the variant match writes. Called as soon as the typed
@@ -1025,10 +1201,19 @@ class PurchaseLineDialog(
         etProductSearch.setAdapter(searchAdapter)
             etProductSearch.threshold = 1
             etProductSearch.setOnClickListener { if (etProductSearch.text.isNotEmpty()) etProductSearch.showDropDown() }
+            view.findViewById<View>(R.id.tvSelectedChange).setOnClickListener {
+                // Forget the pick: clearing the name makes onProductSettled reset every
+                // autofilled field and unlock the master fields, then search starts over.
+                llSelectedItem.visibility = View.GONE
+                etProduct.setText("")
+                onProductSettled()
+                etProductSearch.requestFocus()
+            }
             etProductSearch.setOnItemClickListener { _, _, position, _ ->
                 val row = searchAdapter.getItem(position) ?: return@setOnItemClickListener
                 if (row.isAddNew) {
                     etProductSearch.setText("")
+                    showNewItemFields()
                     etProduct.setText(row.name)
                     etProduct.requestFocus()
                     return@setOnItemClickListener
@@ -1037,6 +1222,7 @@ class PurchaseLineDialog(
                 etBrand.setText(row.brand.orEmpty(), false)
                 etVariant.setText(row.variant.orEmpty(), false)
                 etProductSearch.setText("")
+                showSelectedSummary(row.name, row.brand, row.variant)
                 // Re-run the exact same pipeline a manual Name/Variant pick
                 // already triggers, so duplicate-matching, locking and
                 // statutory autofill behave identically — same as Add
@@ -1046,6 +1232,7 @@ class PurchaseLineDialog(
             }
 
             if (prefillName != null) {
+                showNewItemFields()
                 etProduct.setText(prefillName)
                 if (disableMeta) {
                     etProduct.isEnabled = false
@@ -1208,6 +1395,19 @@ class PurchaseLineDialog(
 
         listOf(etGross, etDiscount).forEach { it.addTextChangedListener { recomputeTaxable() } }
 
+        // Discount stays out of the way until asked for (or already has a value).
+        val tvAddDiscount = view.findViewById<TextView>(R.id.tvAddDiscount)
+        val llDiscountGroup = view.findViewById<LinearLayout>(R.id.llDiscountGroup)
+        val revealDiscount = {
+            llDiscountGroup.visibility = View.VISIBLE
+            tvAddDiscount.visibility = View.GONE
+        }
+        tvAddDiscount.setOnClickListener { revealDiscount(); etDiscount.requestFocus() }
+        etDiscount.addTextChangedListener {
+            if ((etDiscount.text?.toString()?.toDoubleOrNull() ?: 0.0) > 0.0) revealDiscount()
+        }
+        if ((etDiscount.text?.toString()?.toDoubleOrNull() ?: 0.0) > 0.0) revealDiscount()
+
         etInv.addTextChangedListener { if (etInv.isFocused) userOverroteInvoice = true }
 
         val invoiceValueFor = { taxable: Double ->
@@ -1225,7 +1425,7 @@ class PurchaseLineDialog(
         val recomputeInvoice = recomputeInvoice@{
             if (userOverroteInvoice) return@recomputeInvoice
             val taxable = etTax.text?.toString()?.toDoubleOrNull() ?: 0.0
-            if (taxable <= 0) return@recomputeInvoice
+            if (taxable < 0 || etTax.text.isNullOrBlank()) return@recomputeInvoice
             val rounded = "%.2f".format(invoiceValueFor(taxable))
             if (etInv.text?.toString() != rounded) etInv.setText(rounded)
         }
@@ -1236,14 +1436,13 @@ class PurchaseLineDialog(
         // goods / Input services — see isAssetLine in PurchaseRepository),
         // since they're never resold, so it's skipped for those.
         fun isAssetEligibilityNow() =
-            getSelectedEligibility(chipGroupEligibility) in
-                setOf("Capital goods", "Input services") ||
+            getSelectedEligibility(chipGroupEligibility) != "Inputs" ||
                 switchRawMaterial.isChecked
 
         val recompute = {
             btnAdd.isEnabled = !etProduct.text.isNullOrBlank() &&
                     (etQty.text?.toString()?.toDoubleOrNull() ?: 0.0) > 0 &&
-                    (etTax.text?.toString()?.toDoubleOrNull() ?: 0.0) > 0 &&
+                    (etTax.text?.toString()?.toDoubleOrNull() ?: -1.0) >= 0 &&
                     (isAssetEligibilityNow() || (etSelling.text?.toString()?.toDoubleOrNull() ?: 0.0) > 0)
         }
         listOf(etProduct, etQty, etTax, etSelling).forEach { it.addTextChangedListener { recompute() } }
@@ -1292,7 +1491,7 @@ class PurchaseLineDialog(
             val name = etProduct.text?.toString()?.trim().orEmpty()
             val qty = etQty.text?.toString()?.toDoubleOrNull() ?: 0.0
             val taxable = etTax.text?.toString()?.toDoubleOrNull() ?: 0.0
-            val selling = etSelling.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val selling = if (isAssetEligibilityNow()) 0.0 else (etSelling.text?.toString()?.toDoubleOrNull() ?: 0.0)
             val invoice = etInv.text?.toString()?.toDoubleOrNull() ?: invoiceValueFor(taxable)
 
             com.example.easy_billing.util.UserEventLogger.logAction(
@@ -1302,7 +1501,9 @@ class PurchaseLineDialog(
                     "invoice_overridden=$userOverroteInvoice"
             )
 
-            if (name.isEmpty() || qty <= 0 || taxable <= 0 || (!isAssetEligibilityNow() && selling <= 0)) {
+            val taxableTyped = etTax.text?.toString()?.toDoubleOrNull()
+            // A cost of 0 is allowed (free stock / sample); a blank or negative cost is not.
+            if (name.isEmpty() || qty <= 0 || taxableTyped == null || taxableTyped < 0 || (!isAssetEligibilityNow() && selling <= 0)) {
                 Toast.makeText(activity,
                     activity.getString(R.string.purchase_line_fill_required_toast),
                     Toast.LENGTH_SHORT).show()
@@ -1328,11 +1529,13 @@ class PurchaseLineDialog(
                 return@setOnClickListener
             }
             if (eligibility.isEmpty()) {
+                openTaxSection()
                 Toast.makeText(activity, activity.getString(R.string.purchase_line_eligibility_required_toast), Toast.LENGTH_SHORT).show()
                 com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseLine", "eligibility_or_uqc_missing")
                 return@setOnClickListener
             }
             if (officialUqc.isNullOrBlank()) {
+                openTaxSection()
                 Toast.makeText(activity, activity.getString(R.string.purchase_line_uqc_required_toast), Toast.LENGTH_SHORT).show()
                 com.example.easy_billing.util.UserEventLogger.logValidationFailed("PurchaseLine", "eligibility_or_uqc_missing")
                 return@setOnClickListener
@@ -1340,18 +1543,22 @@ class PurchaseLineDialog(
 
             val eps = 0.011
             if (availedIgst > purchaseIgstAmt + eps) {
+                openTaxSection()
                 Toast.makeText(activity, "Availed ITC IGST cannot exceed purchase IGST amount (${"%.2f".format(purchaseIgstAmt)})", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             if (availedCgst > purchaseCgstAmt + eps) {
+                openTaxSection()
                 Toast.makeText(activity, "Availed ITC CGST cannot exceed purchase CGST amount (${"%.2f".format(purchaseCgstAmt)})", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             if (availedSgst > purchaseSgstAmt + eps) {
+                openTaxSection()
                 Toast.makeText(activity, "Availed ITC SGST cannot exceed purchase SGST amount (${"%.2f".format(purchaseSgstAmt)})", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             if (availedCess > cessAmt + eps) {
+                openTaxSection()
                 Toast.makeText(activity, "Availed ITC Cess cannot exceed cess amount (${"%.2f".format(cessAmt)})", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -1521,8 +1728,9 @@ class PurchaseLineDialog(
         hide(R.id.llLineHeaderOriginal)
         hide(R.id.cardProductDetails)
         hide(R.id.cardTaxGstDetails)
-        hide(R.id.llSellingHeaderRow)
-        hide(R.id.groupSellingExtras)
+        hide(R.id.llPurchaseHeaderRow)
+        hide(R.id.cardSellingDetails)
+        hide(R.id.groupGstPicker)
         // groupTaxInvoiceExtras (taxable "after discount" value + the
         // GST-inclusive invoice total) stays visible here — shown
         // alongside quantity/cost/discount, not hidden with the rest.
@@ -1530,7 +1738,7 @@ class PurchaseLineDialog(
         // The "You sell at" card now holds only the quantity/cost/discount
         // boxes — raise it (and the floating header) off the dark backdrop
         // the same way the dashboard lifts its snapshot tile and buttons.
-        view.findViewById<View>(R.id.cardSellingDetails)?.elevation = dpToPxF(10f)
+        view.findViewById<View>(R.id.cardPurchaseAmounts)?.elevation = dpToPxF(10f)
 
         // With Product Details and Tax & GST hidden, the scroll column is
         // left holding just this one small card — on a phone that leaves
@@ -1625,6 +1833,15 @@ class PurchaseLineDialog(
                 details.visibility = View.VISIBLE
                 arrow.rotation = 180f
             }
+        }
+
+        val accToggle = view.findViewById<LinearLayout>(R.id.llAccountantToggle)
+        val accArrow = view.findViewById<ImageView>(R.id.ivAccountantArrow)
+        val accBody = view.findViewById<LinearLayout>(R.id.llAccountantBody)
+        accToggle.setOnClickListener {
+            val open = accBody.visibility != View.VISIBLE
+            accBody.visibility = if (open) View.VISIBLE else View.GONE
+            accArrow.rotation = if (open) 180f else 0f
         }
     }
 

@@ -47,6 +47,10 @@ import com.example.easy_billing.api.PurchaseImportDetailsSyncRequest
 import com.example.easy_billing.api.PurchaseImportDetailsDto
 import android.util.Log
 
+import com.example.easy_billing.network.AllocationDto
+import com.example.easy_billing.network.ClaimDto
+import com.example.easy_billing.network.PoolDto
+import com.example.easy_billing.network.SaleAllocationSyncRequest
 import com.example.easy_billing.network.PurchaseBatchDto
 import com.example.easy_billing.network.PurchaseBatchSyncRequest
 import com.example.easy_billing.network.CreditNoteResponseDto
@@ -95,6 +99,8 @@ class SyncManager(private val context: Context) {
         runStep("syncPurchaseReturns") { syncPurchaseReturns() }     // push purchase returns (debit notes)
         runStep("syncCreditNotes") { syncCreditNotes() }             // push sales returns (credit notes)
         runStep("syncScrapEntries") { syncScrapEntries() }           // push scrap
+        runStep("syncSaleAllocations") { syncSaleAllocations() }     // Stage 3D: allocations, PDN pools, claims
+        runStep("syncMoneyEntries") { syncMoneyEntries() }           // Payment tracking: the Money Book
         runStep("syncGstProfile") { syncGstProfile() }
         // syncGstSales() REMOVED (Report 3, C3): pushed the legacy
         // gst_sales_records table, which has been dropped (MIGRATION_52_53)
@@ -1170,7 +1176,10 @@ class SyncManager(private val context: Context) {
                 availed_itc_cess         = r.availedItcCess,
                 invoice_type            = r.invoiceType,
                 place_of_supply_code    = r.placeOfSupplyCode,
-                inventory_valuation_variance = r.inventoryValuationVariance
+                inventory_valuation_variance = r.inventoryValuationVariance,
+                note_kind                = r.noteKind,
+                rate_delta_net           = r.rateDeltaNet,
+                shelf_value_delta        = r.shelfValueDelta
             )
         }
 
@@ -1596,7 +1605,9 @@ class SyncManager(private val context: Context) {
                             product_id = serverId,
                             quantity = bi.quantity,
                             selling_price = sellingPrice,
-                            cost_price = bi.costPriceUsed,
+                            // costPriceUsed is the LINE total; the server multiplies
+                            // cost_price by quantity, so send the per-unit cost.
+                            cost_price = if (bi.quantity > 0.0) bi.costPriceUsed / bi.quantity else 0.0,
                             product_name = bi.productName,
                             variant = bi.variant
                         )
@@ -2640,6 +2651,14 @@ class SyncManager(private val context: Context) {
                 u.updated_at?.let { if (it > maxUpdatedAt) maxUpdatedAt = it }
                 if (u.bill_number.isBlank()) continue
                 billDao.markPaymentStatus(u.bill_number, u.payment_status, u.razorpay_payment_id)
+                // Payment tracking: a paid UPI bill's pending money becomes real money.
+                if (u.payment_status == "paid") {
+                    billDao.getByBillNumber(u.bill_number)?.let { b ->
+                        db.moneyEntryDao().markReceived(
+                            com.example.easy_billing.util.MoneySource.BILL, b.id, com.example.easy_billing.util.MoneyMode.UPI
+                        )
+                    }
+                }
             }
 
             if (maxUpdatedAt > since) {
@@ -3238,6 +3257,361 @@ class SyncManager(private val context: Context) {
         }
     }
 
+    // ───────────────────────── Stage 3D ─────────────────────────
+
+    /**
+     * Pushes exact sale allocations, price-correction write-off pools and
+     * customer-return claims. Rows whose links are not ready yet (product or
+     * purchase without a server id, bill without its final number) are left
+     * unsynced and retried on the next run — nothing is dropped.
+     */
+    suspend fun syncSaleAllocations() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE).getString("TOKEN", null) ?: return
+
+        val allocDao = db.saleBatchAllocationDao()
+        val ccDao = db.costCorrectionDao()
+        val pendingAllocs = allocDao.getUnsynced()
+        val pendingPools = ccDao.unsyncedPools()
+        val pendingClaims = ccDao.unsyncedClaims()
+        if (pendingAllocs.isEmpty() && pendingPools.isEmpty() && pendingClaims.isEmpty()) return
+
+        val productDao = db.productDao()
+        val purchaseDao = db.purchaseDao()
+
+        suspend fun serverProduct(localId: Int) = productDao.getById(localId)?.serverId
+        suspend fun serverPurchase(localId: Int?): Int? = localId?.let { purchaseDao.getById(it)?.serverId }
+
+        val allocDtos = ArrayList<AllocationDto>()
+        val allocLocalIdsSent = ArrayList<Int>()
+        for (a in pendingAllocs) {
+            val sp = serverProduct(a.productId) ?: continue
+            val sInv = if (a.purchaseInvoiceId != null) (serverPurchase(a.purchaseInvoiceId) ?: continue) else null
+
+            var billNumber: String? = null
+            var ordinal: Int? = null
+            if (a.sourceType == com.example.easy_billing.db.AllocationSource.SALE ||
+                a.sourceType == com.example.easy_billing.db.AllocationSource.SALES_DEBIT_NOTE) {
+                val item = db.billItemDao().getItemById(a.sourceLineId) ?: continue
+                val bill = runCatching { db.billDao().getBillById(item.billId) }.getOrNull() ?: continue
+                if (bill.billNumber.isBlank()) continue          // number not assigned by the server yet
+                billNumber = bill.billNumber
+                ordinal = db.billItemDao().getItemsForBillProduct(item.billId, item.productId)
+                    .indexOfFirst { it.id == item.id }.takeIf { it >= 0 }
+            }
+            allocDtos += AllocationDto(
+                local_id = a.id, source_type = a.sourceType, source_id = a.sourceId,
+                bill_number = billNumber, line_ordinal = ordinal,
+                product_id = sp, purchase_invoice_id = sInv, batch_local_id = a.batchId,
+                quantity = a.quantity, quantity_restored = a.quantityRestored,
+                unit_cost_net = a.unitCostNet, unit_cost_gross = a.unitCostGross,
+                created_at = a.createdAt
+            )
+            allocLocalIdsSent += a.id
+        }
+
+        val poolDtos = pendingPools.mapNotNull { p ->
+            val sp = serverProduct(p.productId) ?: return@mapNotNull null
+            val sInv = serverPurchase(p.purchaseInvoiceId) ?: return@mapNotNull null
+            PoolDto(local_id = p.id, note_local_id = p.noteId, purchase_invoice_id = sInv, product_id = sp,
+                gone_qty = p.goneQty, delta_gross = p.deltaGross, note_date = p.noteDate)
+        }
+
+        val allocProduct = db.saleBatchAllocationDao().getAll().associate { it.id to it.productId }
+        val claimDtos = pendingClaims.map { c ->
+            // The bill the pens were sold on, so the server can leave the claim out
+            // of profit once that bill is archived ("Clear bills").
+            val claimBill = runCatching {
+                db.billItemDao().getItemById(c.sourceId)?.let { db.billDao().getBillById(it.billId).billNumber }
+            }.getOrNull()?.takeIf { it.isNotBlank() }
+            ClaimDto(
+                local_id = c.id, allocation_local_id = c.allocationId, pool_local_id = c.poolId,
+                note_local_id = c.noteId, product_id = allocProduct[c.allocationId]?.let { serverProduct(it) },
+                qty = c.qty, amount = c.amount, claim_date = c.claimDate,
+                source_type = c.sourceType, source_id = c.sourceId, bill_number = claimBill
+            )
+        }
+
+        if (allocDtos.isEmpty() && poolDtos.isEmpty() && claimDtos.isEmpty()) return
+
+        try {
+            val resp = api.syncSaleAllocations(
+                token,
+                SaleAllocationSyncRequest(
+                    origin = com.example.easy_billing.sync.SaleAllocationSyncState.origin(context),
+                    allocations = allocDtos, pools = poolDtos, claims = claimDtos
+                )
+            )
+            db.withTransaction {
+                if (resp.allocation_ids.isNotEmpty()) allocDao.markSynced(resp.allocation_ids)
+                if (resp.pool_ids.isNotEmpty()) ccDao.markPoolsSynced(resp.pool_ids)
+                if (resp.claim_ids.isNotEmpty()) ccDao.markClaimsSynced(resp.claim_ids)
+            }
+            Log.d(SYNC_TAG, "syncSaleAllocations: ${resp.message}")
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "syncSaleAllocations: POST FAILED", e)
+        }
+    }
+
+    /**
+     * Pushes the Money Book. Keyed by each row's unique `uid`, so a retry can never write a row twice.
+     *
+     * `ref_text` is the number of the bill the money belongs to. A row whose bill has no number yet
+     * (the server assigns it on the bill sync) is held back and retried on the next run, so a restore
+     * on a new phone can always find the bill again.
+     */
+    suspend fun syncMoneyEntries() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE).getString("TOKEN", null) ?: return
+        val dao = db.moneyEntryDao()
+
+        val pending = dao.unsynced(200)
+        if (pending.isEmpty()) return
+
+        val dtos = ArrayList<com.example.easy_billing.network.MoneyEntryDto>()
+        for (e in pending) {
+            var ref = e.refText
+            if (ref.isBlank() && e.parentType == com.example.easy_billing.util.MoneySource.BILL) {
+                ref = runCatching { db.billDao().getBillById(e.parentId).billNumber }.getOrNull().orEmpty()
+                if (ref.isBlank()) continue                       // bill number not assigned yet
+                dao.setRefText(e.uid, ref)
+            }
+            dtos += com.example.easy_billing.network.MoneyEntryDto(
+                uid = e.uid, local_id = e.id, direction = e.direction, mode = e.mode,
+                amount = e.amount, reason = e.reason,
+                source_type = e.sourceType, source_id = e.sourceId,
+                parent_type = e.parentType, parent_id = e.parentId,
+                party_name = e.partyName, ref_text = ref, status = e.status, created_at = e.createdAt
+            )
+        }
+        if (dtos.isEmpty()) return
+
+        try {
+            val resp = api.syncMoneyEntries(
+                token,
+                com.example.easy_billing.network.MoneyEntrySyncRequest(
+                    origin = com.example.easy_billing.sync.SaleAllocationSyncState.origin(context),
+                    entries = dtos
+                )
+            )
+            if (resp.uids.isNotEmpty()) dao.markSynced(resp.uids)
+            Log.d(SYNC_TAG, "syncMoneyEntries: ${resp.message}")
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "syncMoneyEntries: POST FAILED", e)
+        }
+    }
+
+    /**
+     * Restores the Money Book from the server (new phone / reinstall). Rows already here (same uid)
+     * are skipped, so nothing is ever doubled. A restored row is linked to its bill by bill number;
+     * rows of other documents get a negative source id (they cannot clash with this phone's own ids)
+     * until their screens learn to re-link them.
+     */
+    suspend fun pullMoneyEntries() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+        val token = prefs.getString("TOKEN", null) ?: return
+        val shopId = prefs.getInt("SHOP_ID", -1)
+        if (shopId == -1) return
+        val state = com.example.easy_billing.sync.SaleAllocationSyncState
+        val dao = db.moneyEntryDao()
+
+        try {
+            // A wiped local database must start again from the beginning.
+            var after = if (dao.count() == 0) 0 else state.cursor(context, shopId, "money")
+            val known = dao.allUids().toHashSet()
+            var pages = 0
+            while (pages++ < 500) {
+                val page = api.getMoneyEntries(token, shopId, after, 500)
+                if (page.entries.isEmpty()) break
+                db.withTransaction {
+                    for (r in page.entries) {
+                        if (!known.add(r.uid)) continue
+                        suspend fun link(type: String): Int {
+                            if (type == com.example.easy_billing.util.MoneySource.BILL && r.ref_text.isNotBlank()) {
+                                val bill = db.billDao().getByBillNumber(r.ref_text)
+                                if (bill != null) return bill.id
+                            }
+                            return -r.id
+                        }
+                        dao.insert(
+                            com.example.easy_billing.db.MoneyEntry(
+                                uid = r.uid, direction = r.direction, mode = r.mode, amount = r.amount,
+                                reason = r.reason,
+                                sourceType = r.source_type, sourceId = link(r.source_type),
+                                parentType = r.parent_type, parentId = link(r.parent_type),
+                                partyName = r.party_name, refText = r.ref_text, status = r.status,
+                                createdAt = r.created_at, isSynced = true
+                            )
+                        )
+                    }
+                }
+                after = page.entries.maxOf { it.id }
+                state.setCursor(context, shopId, "money", after)
+                if (!page.has_more) break
+            }
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "pullMoneyEntries: FAILED", e)
+        }
+    }
+
+    /**
+     * Restores allocations, pools and claims from the server (new phone /
+     * reinstall / second terminal). Never overwrites a local row: a server row
+     * is skipped when this phone already has the same one.
+     */
+    suspend fun pullSaleAllocations() {
+        val db = AppDatabase.getDatabase(context)
+        val api = RetrofitClient.api
+        val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+        val token = prefs.getString("TOKEN", null) ?: return
+        val shopId = prefs.getInt("SHOP_ID", -1)
+        if (shopId == -1) return
+        val state = com.example.easy_billing.sync.SaleAllocationSyncState
+
+        try {
+            val allocDao = db.saleBatchAllocationDao()
+            val ccDao = db.costCorrectionDao()
+
+            // A wiped local database must start again from the beginning.
+            val localEmpty = allocDao.count() == 0 && ccDao.allPools().isEmpty() && ccDao.allClaims().isEmpty()
+            var afterAlloc = if (localEmpty) 0 else state.cursor(context, shopId, "alloc")
+            var afterPool = if (localEmpty) 0 else state.cursor(context, shopId, "pool")
+            var afterClaim = if (localEmpty) 0 else state.cursor(context, shopId, "claim")
+
+            val remote = api.getSaleAllocations(token, shopId, afterAlloc, afterPool, afterClaim)
+            if (remote.allocations.isEmpty() && remote.pools.isEmpty() && remote.claims.isEmpty()) return
+
+            val productDao = db.productDao()
+            val purchaseDao = db.purchaseDao()
+            val ownOrigin = state.origin(context)
+
+            fun allocKey(type: String, productId: Int, inv: Int?, createdMs: Long, qty: Double) =
+                "$type|$productId|${inv ?: -1}|${createdMs / 1000}|${"%.3f".format(qty)}"
+            fun poolKey(inv: Int, productId: Int, dateMs: Long, gone: Double) =
+                "$inv|$productId|${dateMs / 1000}|${"%.3f".format(gone)}"
+            fun claimKey(allocId: Int, poolId: Int, dateMs: Long, qty: Double) =
+                "$allocId|$poolId|${dateMs / 1000}|${"%.3f".format(qty)}"
+            fun originKey(origin: String?, localId: Int) = "${origin ?: ""}|$localId"
+
+            // The cursor may only move past rows that are fully handled. A row skipped because its
+            // product / purchase is not on this phone yet must be fetched again next time.
+            var retryAlloc = Int.MAX_VALUE
+            var retryPool = Int.MAX_VALUE
+            var retryClaim = Int.MAX_VALUE
+
+            db.withTransaction {
+                val allocByKey = HashMap<String, Int>()
+                allocDao.getAll().forEach { allocByKey[allocKey(it.sourceType, it.productId, it.purchaseInvoiceId, it.createdAt, it.quantity)] = it.id }
+                val originAlloc = HashMap<String, Int>()       // (origin, origin local id) -> local id here
+                val goneAlloc = HashSet<String>()              // permanently skipped (e.g. bill archived)
+
+                for (a in remote.allocations) {
+                    val ok = originKey(a.origin, a.local_id)
+                    val localProduct = productDao.getByServerId(a.product_id)?.id
+                    val localInv = a.purchase_invoice_id?.let { purchaseDao.getByServerId(it)?.id }
+                    if (localProduct == null || (a.purchase_invoice_id != null && localInv == null)) {
+                        retryAlloc = minOf(retryAlloc, a.id)      // product / purchase not on this phone yet
+                        continue
+                    }
+                    val key = allocKey(a.source_type, localProduct, localInv, a.created_at, a.quantity)
+                    val existing = allocByKey[key]
+                    if (existing != null) { originAlloc[ok] = existing; continue }
+
+                    // Bill-linked rows are re-attached to this phone's bill line via bill number + line ordinal.
+                    var lineId = 0
+                    var sourceId = a.source_id
+                    if (a.source_type == com.example.easy_billing.db.AllocationSource.SALE ||
+                        a.source_type == com.example.easy_billing.db.AllocationSource.SALES_DEBIT_NOTE) {
+                        val bill = a.bill_number?.let { db.billDao().getByBillNumber(it) }
+                        if (bill == null) { goneAlloc += ok; continue }          // archived / unknown bill
+                        val items = db.billItemDao().getItemsForBillProduct(bill.id, localProduct)
+                        val item = items.getOrNull(a.line_ordinal ?: 0)
+                        if (item == null) { goneAlloc += ok; continue }
+                        // A reused bill number must not attach a row to a different sale: a sale
+                        // line can never have sent out more than it holds.
+                        if (a.source_type == com.example.easy_billing.db.AllocationSource.SALE &&
+                            a.quantity > item.quantity + 1e-6) { goneAlloc += ok; continue }
+                        lineId = item.id
+                        if (a.source_type == com.example.easy_billing.db.AllocationSource.SALE) sourceId = bill.id
+                    }
+                    val newId = allocDao.insertOne(
+                        com.example.easy_billing.db.SaleBatchAllocation(
+                            sourceType = a.source_type, sourceId = sourceId, sourceLineId = lineId,
+                            productId = localProduct, purchaseInvoiceId = localInv, batchId = null,
+                            quantity = a.quantity, quantityRestored = a.quantity_restored,
+                            unitCostNet = a.unit_cost_net, unitCostGross = a.unit_cost_gross,
+                            // Not synced on purpose: the server holds this row under an older install tag, so it
+                            // is pushed once more under this install's tag. Claims on it are only accepted then.
+                            createdAt = a.created_at, isSynced = false
+                        )
+                    ).toInt()
+                    allocByKey[key] = newId
+                    originAlloc[ok] = newId
+                }
+                // Rows this very install pushed earlier already exist here: map them to their own ids.
+                for (a in remote.allocations) {
+                    if ((a.origin ?: "") == ownOrigin) originAlloc.putIfAbsent(originKey(a.origin, a.local_id), a.local_id)
+                }
+
+                val poolByKey = HashMap<String, Int>()
+                ccDao.allPools().forEach { poolByKey[poolKey(it.purchaseInvoiceId, it.productId, it.noteDate, it.goneQty)] = it.id }
+                val originPool = HashMap<String, Int>()
+                for (p in remote.pools) {
+                    val localProduct = productDao.getByServerId(p.product_id)?.id
+                    val localInv = purchaseDao.getByServerId(p.purchase_invoice_id)?.id
+                    if (localProduct == null || localInv == null) { retryPool = minOf(retryPool, p.id); continue }
+                    val key = poolKey(localInv, localProduct, p.note_date, p.gone_qty)
+                    val existing = poolByKey[key]
+                    if (existing != null) { originPool[originKey(p.origin, p.local_id)] = existing; continue }
+                    val newId = ccDao.insertPool(
+                        com.example.easy_billing.db.PdnGonePool(
+                            noteId = p.note_local_id, purchaseInvoiceId = localInv, productId = localProduct,
+                            goneQty = p.gone_qty, deltaGross = p.delta_gross, noteDate = p.note_date, isSynced = false
+                        )
+                    ).toInt()
+                    poolByKey[key] = newId
+                    originPool[originKey(p.origin, p.local_id)] = newId
+                }
+
+                val claimKeys = HashSet<String>()
+                ccDao.allClaims().forEach { claimKeys += claimKey(it.allocationId, it.poolId, it.claimDate, it.qty) }
+                for (c in remote.claims) {
+                    val allocId = originAlloc[originKey(c.origin, c.allocation_local_id)]
+                    val poolId = originPool[originKey(c.origin, c.pool_local_id)]
+                    if (allocId == null || poolId == null) {
+                        // Parent skipped for good (archived bill): nothing to wait for. Otherwise retry.
+                        if (originKey(c.origin, c.allocation_local_id) !in goneAlloc) retryClaim = minOf(retryClaim, c.id)
+                        continue
+                    }
+                    if (!claimKeys.add(claimKey(allocId, poolId, c.claim_date, c.qty))) continue
+                    ccDao.insertClaim(
+                        com.example.easy_billing.db.CostCorrectionClaim(
+                            allocationId = allocId, poolId = poolId, noteId = c.note_local_id,
+                            qty = c.qty, amount = c.amount, claimDate = c.claim_date,
+                            sourceType = c.source_type, sourceId = c.source_id, isSynced = true
+                        )
+                    )
+                }
+            }
+
+            // Move each cursor to the last row that was fully handled.
+            fun next(rows: List<Int>, retryFrom: Int, old: Int): Int =
+                (rows.filter { it < retryFrom }.maxOrNull() ?: old)
+            afterAlloc = next(remote.allocations.map { it.id }, retryAlloc, afterAlloc)
+            afterPool = next(remote.pools.map { it.id }, retryPool, afterPool)
+            afterClaim = next(remote.claims.map { it.id }, retryClaim, afterClaim)
+            state.setCursor(context, shopId, "alloc", afterAlloc)
+            state.setCursor(context, shopId, "pool", afterPool)
+            state.setCursor(context, shopId, "claim", afterClaim)
+        } catch (e: Exception) {
+            Log.e(SYNC_TAG, "pullSaleAllocations: FAILED", e)
+        }
+    }
+
     suspend fun pullCreditNotes() {
         val db = AppDatabase.getDatabase(context)
         val api = RetrofitClient.api
@@ -3406,7 +3780,11 @@ class SyncManager(private val context: Context) {
                                 noteNumber = r.note_number,
                                 noteDate = parseIsoDate(r.note_date) ?: 0L,
                                 noteType = r.note_type,
-                                originalInvoiceId = r.original_invoice_id,
+                                // The server sends ITS purchase id; this device keys notes
+                                // by the LOCAL purchase id (null until that purchase is pulled).
+                                originalInvoiceId = r.original_invoice_id?.let { sid ->
+                                    db.purchaseDao().getByServerId(sid)?.id
+                                },
                                 originalInvoiceNumber = r.original_invoice_number,
                                 originalInvoiceDate = parseIsoDate(r.original_invoice_date) ?: 0L,
                                 placeOfSupply = r.place_of_supply ?: "",
@@ -3430,7 +3808,10 @@ class SyncManager(private val context: Context) {
                                 // the variance was already computed and booked
                                 // on the device that created it; just carry it
                                 // through unchanged.
-                                inventoryValuationVariance = r.inventory_valuation_variance ?: 0.0
+                                inventoryValuationVariance = r.inventory_valuation_variance ?: 0.0,
+                                noteKind = r.note_kind?.takeIf { it in com.example.easy_billing.db.PurchaseNoteKind.ALL },
+                                rateDeltaNet = r.rate_delta_net ?: 0.0,
+                                shelfValueDelta = r.shelf_value_delta ?: 0.0
                             )
                         )
                     }

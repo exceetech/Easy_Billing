@@ -62,6 +62,7 @@ class EasyBillingApp : Application() {
         startPeriodicSyncRetry()
         scheduleDurableSync()
         scheduleSessionTimeoutCheck()
+        scheduleGstReminder()
     }
 
     /**
@@ -84,6 +85,24 @@ class EasyBillingApp : Application() {
 
             androidx.work.WorkManager.getInstance(this).enqueueUniquePeriodicWork(
                 "easybilling-durable-sync",
+                androidx.work.ExistingPeriodicWorkPolicy.KEEP,
+                request
+            )
+        }
+    }
+
+    /**
+     * GST due-date nudges (see GstReminderWorker). Runs every 6 hours so at least
+     * one run lands inside the worker's 9:00-20:00 daytime window.
+     */
+    private fun scheduleGstReminder() {
+        runCatching {
+            val request = androidx.work.PeriodicWorkRequestBuilder<
+                com.example.easy_billing.sync.GstReminderWorker>(
+                6, java.util.concurrent.TimeUnit.HOURS
+            ).build()
+            androidx.work.WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "easybilling-gst-reminder",
                 androidx.work.ExistingPeriodicWorkPolicy.KEEP,
                 request
             )

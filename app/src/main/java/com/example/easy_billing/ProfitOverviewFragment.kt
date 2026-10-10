@@ -70,7 +70,7 @@ class ProfitOverviewFragment : Fragment(R.layout.fragment_profit_overview) {
         setupProfitTabs(view)
 
         view.findViewById<Button>(R.id.btnPrint).setOnClickListener {
-            showPrintConfirmDialog()
+            printProfitReport()   // builds the PDF and opens the share sheet (no confirm step)
         }
 
         if (!dataLoadedOnce) {
@@ -359,6 +359,15 @@ class ProfitOverviewFragment : Fragment(R.layout.fragment_profit_overview) {
         }
     }
 
+    // Stage-1 fix P0-5: purchase invoices minus D notes plus C notes.
+    private suspend fun expenseBetween(db: AppDatabase, start: Long, end: Long): Double =
+        db.purchaseDao().getTotalExpenseBetween(start, end) +
+            db.purchaseReturnDao().getNetNoteValueBetween(start, end)
+
+    private suspend fun expenseAll(db: AppDatabase): Double =
+        db.purchaseDao().getTotalExpenseAll() +
+            db.purchaseReturnDao().getNetNoteValueAll()
+
     private suspend fun fetchLocalPurchaseExpense(): Double {
         val db = AppDatabase.getDatabase(requireContext())
         val cal = AppTime.calendar()
@@ -378,7 +387,7 @@ class ProfitOverviewFragment : Fragment(R.layout.fragment_profit_overview) {
         }.timeInMillis
 
         return when (currentFilter) {
-            "today" -> db.purchaseDao().getTotalExpenseBetween(todayStart, todayEnd)
+            "today" -> expenseBetween(db, todayStart, todayEnd)
             "week" -> {
                 val startCal = AppTime.calendar().apply {
                     set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
@@ -387,7 +396,7 @@ class ProfitOverviewFragment : Fragment(R.layout.fragment_profit_overview) {
                     set(Calendar.SECOND, 0)
                     set(Calendar.MILLISECOND, 0)
                 }
-                db.purchaseDao().getTotalExpenseBetween(startCal.timeInMillis, todayEnd)
+                expenseBetween(db, startCal.timeInMillis, todayEnd)
             }
             "month" -> {
                 val startCal = AppTime.calendar().apply {
@@ -397,7 +406,7 @@ class ProfitOverviewFragment : Fragment(R.layout.fragment_profit_overview) {
                     set(Calendar.SECOND, 0)
                     set(Calendar.MILLISECOND, 0)
                 }
-                db.purchaseDao().getTotalExpenseBetween(startCal.timeInMillis, todayEnd)
+                expenseBetween(db, startCal.timeInMillis, todayEnd)
             }
             "year" -> {
                 val startCal = AppTime.calendar().apply {
@@ -407,7 +416,7 @@ class ProfitOverviewFragment : Fragment(R.layout.fragment_profit_overview) {
                     set(Calendar.SECOND, 0)
                     set(Calendar.MILLISECOND, 0)
                 }
-                db.purchaseDao().getTotalExpenseBetween(startCal.timeInMillis, todayEnd)
+                expenseBetween(db, startCal.timeInMillis, todayEnd)
             }
             "custom" -> {
                 val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply {
@@ -415,9 +424,9 @@ class ProfitOverviewFragment : Fragment(R.layout.fragment_profit_overview) {
                 }
                 val startMs = customStartDate?.let { runCatching { format.parse(it)?.time }.getOrNull() } ?: 0L
                 val endMs = customEndDate?.let { runCatching { (format.parse(it)?.time ?: 0L) + 86399999L }.getOrNull() } ?: System.currentTimeMillis()
-                db.purchaseDao().getTotalExpenseBetween(startMs, endMs)
+                expenseBetween(db, startMs, endMs)
             }
-            else -> db.purchaseDao().getTotalExpenseAll()
+            else -> expenseAll(db)
         }
     }
 
@@ -426,7 +435,7 @@ class ProfitOverviewFragment : Fragment(R.layout.fragment_profit_overview) {
     private fun printProfitReport() {
 
         if (latestProfitList.isEmpty()) {
-            Toast.makeText(requireContext(), getString(R.string.profitactivity_no_data_to_print), Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.profit_share_no_data), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -506,12 +515,13 @@ class ProfitOverviewFragment : Fragment(R.layout.fragment_profit_overview) {
                         totalExpense = totalExpense,
                         totalLoss = totalLoss,
                         startDate = startDate,
-                        endDate = endDate
+                        endDate = endDate,
+                        share = true
                     )
 
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    Toast.makeText(activity, getString(R.string.profitactivity_print_failed), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, getString(R.string.profit_share_failed), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -533,40 +543,6 @@ class ProfitOverviewFragment : Fragment(R.layout.fragment_profit_overview) {
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
         btnGotIt.setOnClickListener { dialog.dismiss() }
-
-        dialog.show()
-    }
-
-    private fun showPrintConfirmDialog() {
-
-        val view = layoutInflater.inflate(R.layout.dialog_confirm_print, null)
-
-        val tvInfo = view.findViewById<TextView>(R.id.tvInfo)
-        val btnPrint = view.findViewById<Button>(R.id.btnPrint)
-        val btnCancel = view.findViewById<Button>(R.id.btnCancel)
-
-        val filterText = when (currentFilter) {
-            "today" -> "Today"
-            "week" -> "This Week"
-            "month" -> "This Month"
-            "custom" -> "Custom (${customStartDate ?: ""} → ${customEndDate ?: ""})"
-            else -> "All Time"
-        }
-
-        tvInfo.text = filterText
-
-        val dialog = AlertDialog.Builder(requireContext())
-            .setView(view)
-            .create()
-
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-
-        btnCancel.setOnClickListener { dialog.dismiss() }
-
-        btnPrint.setOnClickListener {
-            dialog.dismiss()
-            printProfitReport()
-        }
 
         dialog.show()
     }

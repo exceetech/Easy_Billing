@@ -236,6 +236,7 @@ class DataSecurityActivity : BaseActivity() {
                 // one. See db/ImportService.kt.
                 try {
                     AppDatabase.getDatabase(applicationContext).clearAllTables()
+                    com.example.easy_billing.sync.SaleAllocationSyncState.reset(applicationContext)
                 } catch (clearError: Exception) {
                     clearError.printStackTrace()
                     AppDatabase.destroyInstance()

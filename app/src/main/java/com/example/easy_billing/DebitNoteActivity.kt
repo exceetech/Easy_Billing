@@ -161,14 +161,21 @@ class DebitNoteActivity : BaseActivity() {
                         // extra charge should be added to the customer's
                         // balance. Skips itself for cash bills.
                         val note = result.creditNote
-                        CreditAdjustmentPrompt.handle(
-                            activity = this@DebitNoteActivity,
-                            billId = note.originalInvoiceId,
-                            kind = CreditAdjustmentRepository.Kind.DEBIT_NOTE,
-                            amount = note.totalAmount,
-                            documentLocalId = note.id,
-                            onDone = { finish() }
-                        )
+                        val noteBill = viewModel.bill.value
+                        if (noteBill != null &&
+                            !com.example.easy_billing.util.PaymentMethodText.hasCredit(noteBill.paymentMethod)) {
+                            // Paid at the counter: the extra charge is collected now - record how.
+                            collectExtraCharge(noteBill, note.id, note.totalAmount) { finish() }
+                        } else {
+                            CreditAdjustmentPrompt.handle(
+                                activity = this@DebitNoteActivity,
+                                billId = note.originalInvoiceId,
+                                kind = CreditAdjustmentRepository.Kind.DEBIT_NOTE,
+                                amount = note.totalAmount,
+                                documentLocalId = note.id,
+                                onDone = { finish() }
+                            )
+                        }
                     }
                     is CreditNoteRepository.Result.ValidationError -> {
                         Toast.makeText(
@@ -189,6 +196,47 @@ class DebitNoteActivity : BaseActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * Payment tracking (Flow B): the debit note is saved; ask how the extra charge was collected and
+     * write it to the Money Book. Closing the sheet means "not collected now" - nothing is recorded.
+     */
+    private fun collectExtraCharge(bill: Bill, noteId: Int, amount: Double, onDone: () -> Unit) {
+        if (amount <= 0.0) { onDone(); return }
+        val mode = com.example.easy_billing.util.MoneyMode
+        val defaultMode = com.example.easy_billing.util.PaymentMethodText.parts(bill.paymentMethod)
+            .firstOrNull { it in mode.COUNTER } ?: mode.CASH
+        com.example.easy_billing.util.PaymentLinesSheet.show(
+            activity = this,
+            title = getString(R.string.debit_extra_collect_title),
+            total = amount,
+            modes = mode.ALL,
+            initial = emptyList(),
+            defaultMode = defaultMode,
+            onConfirm = { lines ->
+                lifecycleScope.launch {
+                    kotlinx.coroutines.withContext(Dispatchers.IO) {
+                        val db = com.example.easy_billing.db.AppDatabase.getDatabase(this@DebitNoteActivity)
+                        com.example.easy_billing.repository.MoneyBook(db.moneyEntryDao()).recordLines(
+                            direction = com.example.easy_billing.util.MoneyDirection.IN,
+                            lines = lines,
+                            reason = com.example.easy_billing.util.MoneyReason.SALE_EXTRA,
+                            sourceType = com.example.easy_billing.util.MoneySource.DEBIT_NOTE,
+                            sourceId = noteId,
+                            parentType = com.example.easy_billing.util.MoneySource.BILL,
+                            parentId = bill.id,
+                            refText = bill.billNumber.trim()
+                        )
+                    }
+                    onDone()
+                }
+            },
+            onCancel = {
+                Toast.makeText(this, R.string.debit_extra_not_recorded, Toast.LENGTH_LONG).show()
+                onDone()
+            }
+        )
     }
 
     private fun bindBillHeader(bill: Bill) {

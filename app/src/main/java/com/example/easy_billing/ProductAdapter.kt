@@ -307,16 +307,19 @@ class ProductAdapter(
             // ── Monogram Styling ─────────────────────────────────────────
             // Monogram circle stays white so it still pops against the
             // colored card instead of blending into it.
-            val firstLetter = product.name.take(1).uppercase()
+            // First letter of the brand; the item name when there is no brand.
+            val firstLetter = (product.brand?.trim()?.takeIf { it.isNotEmpty() } ?: product.name.trim()).take(1).uppercase()
             monogram.text = firstLetter
             monogramBg.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FFFFFF"))
             monogram.setTextColor(Color.parseColor(monogramAccents[colorIdx]))
             accentStripe.backgroundTintList =
                 ColorStateList.valueOf(Color.parseColor(monogramAccents[colorIdx]))
 
-            name.text = product.name
-
+            // Line 1: "Brand Item name" in the item-name style (just the item
+            // name when there is no brand). Line 2: the type, hidden if empty.
             val variantText = product.variant?.takeIf { it.isNotBlank() }
+            val brandText = product.brand?.takeIf { it.isNotBlank() }
+            name.text = if (brandText != null) "$brandText ${product.name}" else product.name
             variant.visibility = if (variantText != null) View.VISIBLE else View.GONE
             variant.text       = variantText ?: ""
 
@@ -474,13 +477,15 @@ class ProductAdapter(
         private val tapArbiter = TapArbiter(itemView)
         private val row: View          = view.findViewById(R.id.listRow)
         private val name: TextView     = view.findViewById(R.id.tvListName)
-        private val variant: TextView  = view.findViewById(R.id.tvListVariant)
+        private val categoryLine: TextView = view.findViewById(R.id.tvListCategory)
         private val price: TextView    = view.findViewById(R.id.tvListPrice)
         private val stock: TextView    = view.findViewById(R.id.tvListStock)
         private val monogram: TextView = view.findViewById(R.id.tvListMonogram)
         private val monogramBg: View   = view.findViewById(R.id.viewListMonogramBg)
         private val inBillStripe: View? = view.findViewById(R.id.viewListInBillStripe)
         private val inBillBadge: TextView = view.findViewById(R.id.tvListInBillBadge)
+        private val weightTag: TextView = view.findViewById(R.id.tvListWeightTag)
+        private val priceUnit: TextView = view.findViewById(R.id.tvListPriceUnit)
 
         fun bind(product: Product) {
             // MUST be first — see TapArbiter's kdoc.
@@ -488,58 +493,84 @@ class ProductAdapter(
 
             val context = itemView.context
 
-            name.text = product.name
+            // Brand and item name share the name line ("Nescafe Cold Coffee");
+            // the type/variant follows on the same line; category sits below.
+            val brandText = product.brand?.takeIf { it.isNotBlank() }
+            val nameText = if (brandText != null) "$brandText ${product.name}" else product.name
+            val typeText = product.variant?.takeIf { it.isNotBlank() }
+            if (typeText != null) {
+                // Type/variant follows the item name on the same line in the
+                // tile's green italic serif style.
+                val sp = android.text.SpannableString("$nameText  $typeText")
+                val start = nameText.length + 2
+                sp.setSpan(android.text.style.TypefaceSpan("serif"), start, sp.length, 0)
+                sp.setSpan(android.text.style.StyleSpan(android.graphics.Typeface.ITALIC), start, sp.length, 0)
+                sp.setSpan(android.text.style.ForegroundColorSpan(0xFF0F6E56.toInt()), start, sp.length, 0)
+                sp.setSpan(android.text.style.AbsoluteSizeSpan(12, true), start, sp.length, 0)
+                name.text = sp
+            } else {
+                name.text = nameText
+            }
 
-            // Same avatar treatment as the grid tile: single-letter
-            // monogram on a pastel tile, coloured to match.
+            // Round avatar with one letter (brand, else item name),
+            // pastel fill and matching accent letters.
             val colorIdx = getStableIndex(product.name)
             val accent = monogramAccents[colorIdx]
-            monogram.text = product.name.take(1).uppercase()
+            // First letter of the brand; the item name when there is no brand.
+            monogram.text = (product.brand?.trim()?.takeIf { it.isNotEmpty() } ?: product.name.trim()).take(1).uppercase()
             monogramBg.backgroundTintList =
                 ColorStateList.valueOf(Color.parseColor(cardPastels[colorIdx]))
             monogram.setTextColor(Color.parseColor(accent))
 
-            val variantText = product.variant?.takeIf { it.isNotBlank() }
-            variant.visibility = if (variantText != null) View.VISIBLE else View.GONE
-            variant.text = variantText ?: ""
+            val catText = product.category.takeIf { it.isNotBlank() } ?: ""
+            categoryLine.visibility = if (catText.isNotEmpty()) View.VISIBLE else View.GONE
+            categoryLine.text = catText
 
+            val weighed = isWeighed(product)
+            val unitLabel = formatUnit(context, product.unit?.takeIf { it.isNotBlank() } ?: "unit")
             price.text = CurrencyHelper.format(context, product.price)
+            priceUnit.text = "/ $unitLabel"
+            weightTag.visibility = if (weighed) View.VISIBLE else View.GONE
 
             val stockEntry = if (product.trackInventory) inventoryMap[product.id] else null
+            val inBillQty = cartQtyMap[product.id]
+            val inBill = inBillQty != null && inBillQty > 0
 
             row.alpha = 1f
+            row.setBackgroundResource(if (inBill) R.drawable.bg_list_card_bill else R.drawable.bg_list_card)
+            fun tagState(bg: Int, text: String, textColor: String) {
+                stock.setBackgroundResource(bg)
+                stock.text = text
+                stock.setTextColor(Color.parseColor(textColor))
+            }
             when {
                 stockEntry == null -> {
-                    stock.text = context.getString(R.string.product_adapter_service_item)
-                    stock.setTextColor(0xFF9A8F79.toInt())
+                    tagState(R.drawable.bg_list_tag_svc, context.getString(R.string.product_adapter_service_pill), "#6E6551")
                     setClickListeners(product)
                 }
                 stockEntry <= 0 -> {
-                    stock.text = context.getString(R.string.product_adapter_out_of_stock_pill_2)
-                    stock.setTextColor(0xFFA32D2D.toInt())
-                    row.alpha = 0.6f
+                    tagState(R.drawable.bg_list_tag_out, context.getString(R.string.product_adapter_out_of_stock_pill_2), "#A32D2D")
+                    row.alpha = 0.55f
                     itemView.setOnClickListener {
                         Toast.makeText(context, context.getString(R.string.product_adapter_out_of_stock_toast_2), Toast.LENGTH_SHORT).show()
                     }
                     itemView.setOnLongClickListener { onItemLongClick(product, row); true }
                 }
                 stockEntry <= 5 -> {
-                    stock.text = "Low · ${fmtQty(stockEntry)} left"
-                    stock.setTextColor(0xFF854F0B.toInt())
+                    tagState(R.drawable.bg_list_tag_low, context.getString(R.string.product_list_low_left, fmtQty(stockEntry)), "#854F0B")
                     setClickListeners(product)
                 }
                 else -> {
-                    stock.text = "${fmtQty(stockEntry)} units in stock"
-                    stock.setTextColor(0xFF3B6D11.toInt())
+                    tagState(R.drawable.bg_list_tag_ok,
+                        if (weighed) "${fmtQty(stockEntry)} $unitLabel"
+                        else context.getString(R.string.product_list_in_stock, fmtQty(stockEntry)), "#3B6D11")
                     setClickListeners(product)
                 }
             }
 
-            // Compact "N in bill" badge on the right side
-            val inBillQty = cartQtyMap[product.id]
-            if (inBillQty != null && inBillQty > 0) {
+            if (inBill) {
                 inBillBadge.visibility = View.VISIBLE
-                inBillBadge.text = "${fmtQty(inBillQty)} in bill"
+                inBillBadge.text = context.getString(R.string.product_list_in_bill, fmtQty(inBillQty!!))
             } else {
                 inBillBadge.visibility = View.GONE
             }

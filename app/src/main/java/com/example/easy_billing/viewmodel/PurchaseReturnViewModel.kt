@@ -12,6 +12,9 @@ import com.example.easy_billing.db.AppDatabase
 import com.example.easy_billing.db.Purchase
 import com.example.easy_billing.db.PurchaseItem
 import com.example.easy_billing.db.PurchaseReturn
+import com.example.easy_billing.db.grossUnitCost
+import com.example.easy_billing.correction.PurchaseCorrectionPlanner
+import com.example.easy_billing.repository.PurchaseCorrectionRepository
 import com.example.easy_billing.util.GstEngine
 import com.example.easy_billing.util.CurrencyHelper
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,7 +49,7 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
 
     sealed class Result {
         /**
-         * @param creditAdjustment non-null only for a credit purchase — the
+         * @param creditAdjustment set for every purchase now (cash ones too, for the money back) — the
          *        Activity runs it through CreditAdjustmentPrompt after save.
          */
         data class Success(
@@ -184,6 +187,12 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
             val stateCode = gst?.stateCode?.takeIf { it.isNotBlank() }
                 ?: GstEngine.getStateCode(store?.gstin)
 
+            // R2: returns / additions are priced at the line's CURRENT (price-corrected)
+            // rates. For a bill with no price notes these equal the bill's own figures.
+            val ratesByItem = lines.keys.associateWith {
+                PurchaseCorrectionRepository.ratesFor(db, p.id, it)
+            }
+
             // Calculate actual totals to validate against
             var cgstTotal = 0.0
             var sgstTotal = 0.0
@@ -194,13 +203,13 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
             for ((item, qty) in lines) {
                 if (qty <= 0.0) continue
                 val supplierState = GstEngine.getStateCodeFromName(p.state) ?: GstEngine.getStateCode(p.supplierGstin)
-                val sameState = if (stateCode.isNotBlank() && supplierState.isNotBlank()) stateCode == supplierState else item.purchaseIgstPercentage <= 0.0
-                val unitTaxable = if (item.quantity > 0.0) item.taxableAmount / item.quantity else 0.0
+                val sameState = if (stateCode.isNotBlank() && supplierState.isNotBlank()) stateCode == supplierState else ratesByItem.getValue(item).igstPct <= 0.0
+                val unitTaxable = ratesByItem.getValue(item).net
                 val taxable = qty * unitTaxable
-                val cgstAmt = if (sameState) taxable * item.purchaseCgstPercentage / 100.0 else 0.0
-                val sgstAmt = if (sameState) taxable * item.purchaseSgstPercentage / 100.0 else 0.0
-                val igstAmt = if (!sameState) taxable * item.purchaseIgstPercentage / 100.0 else 0.0
-                val cessAmt = if (item.quantity > 0.0 && item.cessAmount > 0.0) (qty / item.quantity) * item.cessAmount else (taxable * item.cessPercentage / 100.0)
+                val cgstAmt = if (sameState) taxable * ratesByItem.getValue(item).cgstPct / 100.0 else 0.0
+                val sgstAmt = if (sameState) taxable * ratesByItem.getValue(item).sgstPct / 100.0 else 0.0
+                val igstAmt = if (!sameState) taxable * ratesByItem.getValue(item).igstPct / 100.0 else 0.0
+                val cessAmt = qty * ratesByItem.getValue(item).cessPerPen
 
                 cgstTotal += cgstAmt
                 sgstTotal += sgstAmt
@@ -312,14 +321,14 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                         val sameState     = if (stateCode.isNotBlank() && supplierState.isNotBlank())
                             stateCode == supplierState
                         else
-                            item.purchaseIgstPercentage <= 0.0
+                            ratesByItem.getValue(item).igstPct <= 0.0
 
-                        val unitTaxable = if (item.quantity > 0.0) item.taxableAmount / item.quantity else 0.0
+                        val unitTaxable = ratesByItem.getValue(item).net
                         val taxable  = qty * unitTaxable
-                        val cgstAmt  = if (sameState) taxable * item.purchaseCgstPercentage / 100.0 else 0.0
-                        val sgstAmt  = if (sameState) taxable * item.purchaseSgstPercentage / 100.0 else 0.0
-                        val igstAmt  = if (!sameState) taxable * item.purchaseIgstPercentage / 100.0 else 0.0
-                        val cessAmt  = if (item.quantity > 0.0 && item.cessAmount > 0.0) (qty / item.quantity) * item.cessAmount else (taxable * item.cessPercentage / 100.0)
+                        val cgstAmt  = if (sameState) taxable * ratesByItem.getValue(item).cgstPct / 100.0 else 0.0
+                        val sgstAmt  = if (sameState) taxable * ratesByItem.getValue(item).sgstPct / 100.0 else 0.0
+                        val igstAmt  = if (!sameState) taxable * ratesByItem.getValue(item).igstPct / 100.0 else 0.0
+                        val cessAmt  = qty * ratesByItem.getValue(item).cessPerPen
                         val invoice  = taxable + cgstAmt + sgstAmt + igstAmt + cessAmt
 
                         totalNoteInvoiceValue += round(invoice)
@@ -340,7 +349,7 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                     // Now process the inventory updates and insert the records
                     for ((item, qty, invoice) in itemsToSave) {
                         val productId = item.productId ?: continue
-                        val unitTaxable = if (item.quantity > 0.0) item.taxableAmount / item.quantity else 0.0
+                        val unitTaxable = ratesByItem.getValue(item).net
                         val taxable  = qty * unitTaxable
 
                         val supplierState = GstEngine.getStateCodeFromName(p.state)
@@ -348,12 +357,12 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                         val sameState     = if (stateCode.isNotBlank() && supplierState.isNotBlank())
                             stateCode == supplierState
                         else
-                            item.purchaseIgstPercentage <= 0.0
+                            ratesByItem.getValue(item).igstPct <= 0.0
 
-                        val cgstAmt  = if (sameState) taxable * item.purchaseCgstPercentage / 100.0 else 0.0
-                        val sgstAmt  = if (sameState) taxable * item.purchaseSgstPercentage / 100.0 else 0.0
-                        val igstAmt  = if (!sameState) taxable * item.purchaseIgstPercentage / 100.0 else 0.0
-                        val cessAmt  = if (item.quantity > 0.0 && item.cessAmount > 0.0) (qty / item.quantity) * item.cessAmount else (taxable * item.cessPercentage / 100.0)
+                        val cgstAmt  = if (sameState) taxable * ratesByItem.getValue(item).cgstPct / 100.0 else 0.0
+                        val sgstAmt  = if (sameState) taxable * ratesByItem.getValue(item).sgstPct / 100.0 else 0.0
+                        val igstAmt  = if (!sameState) taxable * ratesByItem.getValue(item).igstPct / 100.0 else 0.0
+                        val cessAmt  = qty * ratesByItem.getValue(item).cessPerPen
 
                         var lineValuationVariance = 0.0
 
@@ -382,8 +391,10 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                                 // Gain/loss for this slice: value actually leaving
                                 // inventory (at the current average) minus what the
                                 // supplier is refunding for it (this batch's own
-                                // original per-unit cost). Positive = loss.
-                                lineValuationVariance += (take * avgAtTimeOfReturn) - (take * b.unitCostExcludingTax)
+                                // original per-unit GROSS cost - both sides are GST-inclusive,
+                                // so a same-price return gives variance 0 (Stage 1 fix P0-1).
+                                // Positive = loss.
+                                lineValuationVariance += (take * avgAtTimeOfReturn) - (take * b.grossUnitCost())
                                 qtyToDebit -= take
                             }
 
@@ -432,7 +443,7 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                             }
                         } else {
                             // ── Credit Note: increase stock and batch ────────────────
-                            val unitCostGross = if (item.quantity > 0.0) item.invoiceValue / item.quantity else 0.0
+                            val unitCostGross = ratesByItem.getValue(item).gross
                             InventoryManager.addStock(
                                 db = db,
                                 productId = productId,
@@ -444,11 +455,14 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                                     supplierGstin = p.supplierGstin,
                                     invoiceNumber = p.invoiceNumber,
                                     batchCode = noteNumber,
-                                    unitCostExcludingTax = unitCostGross,
-                                    gstPercent = item.purchaseCgstPercentage + item.purchaseSgstPercentage + item.purchaseIgstPercentage,
-                                    cgstPercent = item.purchaseCgstPercentage,
-                                    sgstPercent = item.purchaseSgstPercentage,
-                                    igstPercent = item.purchaseIgstPercentage,
+                                    // NET unit cost (taxable / qty). This column is 'excluding tax';
+                                    // storing the gross value here made Cancel Purchase tax it a
+                                    // second time (Stage 1 fix P0-2).
+                                    unitCostExcludingTax = unitTaxable,
+                                    gstPercent = ratesByItem.getValue(item).cgstPct + ratesByItem.getValue(item).sgstPct + ratesByItem.getValue(item).igstPct,
+                                    cgstPercent = ratesByItem.getValue(item).cgstPct,
+                                    sgstPercent = ratesByItem.getValue(item).sgstPct,
+                                    igstPercent = ratesByItem.getValue(item).igstPct,
                                     invoiceValue = invoice,
                                     taxableValue = taxable
                                 )
@@ -486,9 +500,9 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                                 quantityReturned      = qty,
                                 taxableAmount         = round(taxable),
                                 invoiceValue          = round(invoice),
-                                cgstPercentage        = if (sameState) item.purchaseCgstPercentage else 0.0,
-                                sgstPercentage        = if (sameState) item.purchaseSgstPercentage else 0.0,
-                                igstPercentage        = if (!sameState) item.purchaseIgstPercentage else 0.0,
+                                cgstPercentage        = if (sameState) ratesByItem.getValue(item).cgstPct else 0.0,
+                                sgstPercentage        = if (sameState) ratesByItem.getValue(item).sgstPct else 0.0,
+                                igstPercentage        = if (!sameState) ratesByItem.getValue(item).igstPct else 0.0,
                                 cgstAmount            = round(cgstAmt),
                                 sgstAmount            = round(sgstAmt),
                                 igstAmount            = round(igstAmt),
@@ -538,15 +552,16 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
                     // purchases; a cash purchase carries no adjustment and the
                     // prompt is never shown. docSeq + note direction make the
                     // idempotency key unique per note.
+                    // Payment tracking: a cash purchase also needs the prompt now, because the supplier may
+                    // hand money back (debit note) or ask for more (credit note); the prompt itself skips the
+                    // credit account for a cash purchase.
                     val adjustment =
-                        if (p.isCredit && p.creditAccountId != null)
-                            Result.CreditAdjustment(
-                                purchaseId = p.id,
-                                amount = totalNoteInvoiceValue,
-                                isDebitNote = (noteType == "D"),
-                                docSeq = nextSeq
-                            )
-                        else null
+                        Result.CreditAdjustment(
+                            purchaseId = p.id,
+                            amount = totalNoteInvoiceValue,
+                            isDebitNote = (noteType == "D"),
+                            docSeq = nextSeq
+                        )
 
                     _result.value = Result.Success(noteNumber, adjustment)
                 }
@@ -560,6 +575,74 @@ class PurchaseReturnViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
     }
+
+    // ── Correction notes (QDN / PDN) — Phase 4 ───────────────────────────────
+    // Kept on its own flow so the existing return screen's `when (result)` is
+    // untouched. The UI (Phase 5) collects [correctionResult].
+
+    sealed class CorrectionResult {
+        /** One or two notes saved (two only for a price change that goes both ways). */
+        data class Saved(
+            val noteNumbers: List<String>,
+            val adjustments: List<PurchaseCorrectionRepository.Adjustment>
+        ) : CorrectionResult()
+        data class Refused(val message: String) : CorrectionResult()
+        /** The bill changed since it was opened — reload and retry. */
+        data class Stale(val message: String) : CorrectionResult()
+        data class Error(val cause: Throwable) : CorrectionResult()
+    }
+
+    private val _correctionResult = MutableStateFlow<CorrectionResult?>(null)
+    val correctionResult: StateFlow<CorrectionResult?> = _correctionResult.asStateFlow()
+
+    /** Guards against a double tap saving the same correction twice. */
+    private var correcting = false
+
+    suspend fun loadCorrectionLine(purchaseId: Int, itemId: Int): PurchaseCorrectionRepository.LoadResult =
+        PurchaseCorrectionRepository.loadLine(getApplication(), purchaseId, itemId)
+
+    fun submitPriceCorrection(
+        purchaseId: Int, itemId: Int,
+        request: PurchaseCorrectionPlanner.PriceRequest,
+        expectedHeld: Double,
+        reason: String = "Price correction"
+    ) = runCorrection {
+        PurchaseCorrectionRepository.applyPrice(getApplication(), purchaseId, itemId, request, expectedHeld, reason)
+    }
+
+    fun submitQuantityCorrection(
+        purchaseId: Int, itemId: Int,
+        pens: Double, increase: Boolean,
+        expectedHeld: Double,
+        reason: String = "Quantity correction"
+    ) = runCorrection {
+        PurchaseCorrectionRepository.applyQuantity(getApplication(), purchaseId, itemId, pens, increase, expectedHeld, reason)
+    }
+
+    private fun runCorrection(block: suspend () -> PurchaseCorrectionRepository.Outcome) {
+        if (correcting) return
+        correcting = true
+        _isLoading.value = true
+        viewModelScope.launch {
+            try {
+                _correctionResult.value = when (val o = block()) {
+                    is PurchaseCorrectionRepository.Outcome.Saved -> CorrectionResult.Saved(o.noteNumbers, o.adjustments)
+                    is PurchaseCorrectionRepository.Outcome.Refused -> CorrectionResult.Refused(o.message)
+                    is PurchaseCorrectionRepository.Outcome.Stale -> CorrectionResult.Stale(o.message)
+                }
+            } catch (e: Exception) {
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "PurchaseCorrection", "save_failed: ${e.javaClass.simpleName}"
+                )
+                _correctionResult.value = CorrectionResult.Error(e)
+            } finally {
+                correcting = false
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun clearCorrectionResult() { _correctionResult.value = null }
 
     fun clearResult() { _result.value = null }
 }

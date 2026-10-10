@@ -383,11 +383,10 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
         set.fillDrawable = fillDrawable
 
         // ================= HIGHLIGHT (clean, vertical guide only) =================
-        set.highLightColor = Color.parseColor("#C9C3B4")
-        set.highlightLineWidth = 1.2f
-        set.setDrawVerticalHighlightIndicator(true)
-        set.setDrawHorizontalHighlightIndicator(false)
-        set.enableDashedHighlightLine(8f, 6f, 0f)
+        // Same indicator lines as the Profit Analytics trend chart
+        set.highLightColor = Color.parseColor("#B9C9C3")
+        set.highlightLineWidth = 0.8f
+        set.setDrawHorizontalHighlightIndicator(true)
 
         // Glow first (under), crisp line on top
         chart.renderer = GlowLineChartRenderer(chart, chart.animator, chart.viewPortHandler)
@@ -410,17 +409,9 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
             yOffset = 10f
         }
 
-        // ================= Y AXIS (faint horizontal guides, no labels) =================
+        // ================= Y AXIS (hidden, no horizontal grid — like Profit trend) =================
         chart.axisLeft.apply {
-            setDrawAxisLine(false)
-            setDrawLabels(false)
-
-            setDrawGridLines(true)
-            gridColor = Color.parseColor("#EFE9DA")
-            gridLineWidth = 1f
-
-            labelCount = 4
-            // Lift the baseline below 0 so a flat/zero line still shows above the bottom edge
+            isEnabled = false
             axisMinimum = -(entries.maxOf { it.y }.coerceAtLeast(20f) * 0.12f)
             setSpaceTop(22f)
         }

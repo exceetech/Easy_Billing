@@ -39,6 +39,7 @@ class PurchaseHistoryAdapter(
     }
 
     private val dateFmt = SimpleDateFormat("dd MMM", Locale.getDefault())
+    private val timeFmt = SimpleDateFormat("hh:mm a", Locale.getDefault())
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val stripe:   View     = view.findViewById(R.id.viewStatusStripe)
@@ -60,11 +61,12 @@ class PurchaseHistoryAdapter(
         val ctx  = holder.itemView.context
         val item = getItem(position)
 
-        holder.tvSupplier.text = item.supplierName
+        // Invoice number on top, supplier (and date) underneath.
+        holder.tvSupplier.text = item.invoiceNumber
         holder.tvAvatar.text   = monogram(item.supplierName)
 
         val dateMillis = item.invoiceDate ?: item.createdAt
-        holder.tvSub.text = "${item.invoiceNumber} · ${dateFmt.format(Date(dateMillis))}"
+        holder.tvSub.text = "${item.supplierName} · ${dateFmt.format(Date(dateMillis))}, ${timeFmt.format(Date(item.createdAt))}"
 
         holder.tvAmount.text = CurrencyHelper.format(ctx, item.invoiceValue)
 

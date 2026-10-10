@@ -74,9 +74,19 @@ import com.example.easy_billing.gstr2.Gstr2DraftEntity
         Supplier::class,
 
         // Support/debugging breadcrumb trail (v61) — see [UserEventLog].
-        UserEventLog::class
+        UserEventLog::class,
+
+        // Stage 3A (v69): which purchase bill each outgoing unit came from.
+        SaleBatchAllocation::class,
+
+        // Stage 3C (v70): PDN write-off pools and customer-return claims.
+        PdnGonePool::class,
+        CostCorrectionClaim::class,
+
+        // Payment & cash-flow tracking (v71): the Money Book.
+        MoneyEntry::class
     ],
-    version = 67
+    version = 71
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -118,6 +128,11 @@ abstract class AppDatabase : RoomDatabase() {
 
     // Hybrid inventory architecture (v21) — purchase batches.
     abstract fun purchaseBatchDao(): PurchaseBatchDao
+    abstract fun saleBatchAllocationDao(): SaleBatchAllocationDao
+    abstract fun costCorrectionDao(): CostCorrectionDao
+
+    // Payment & cash-flow tracking (v71)
+    abstract fun moneyEntryDao(): MoneyEntryDao
 
     // Return management (v25) — Credit Notes (Sales Returns).
     abstract fun creditNoteDao(): CreditNoteDao
@@ -816,6 +831,34 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_gst_sales_items_table_gst_invoice_id` ON `gst_sales_items_table`(`gst_invoice_id`)")
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_gst_sales_items_table_product_id` ON `gst_sales_items_table`(`product_id`)")
+            }
+        }
+
+        /** Payment tracking: one new table (the Money Book), nothing existing is touched. */
+        val MIGRATION_70_71 = object : Migration(70, 71) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `money_entries` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`uid` TEXT NOT NULL, " +
+                        "`direction` TEXT NOT NULL, " +
+                        "`mode` TEXT NOT NULL, " +
+                        "`amount` REAL NOT NULL, " +
+                        "`reason` TEXT NOT NULL, " +
+                        "`source_type` TEXT NOT NULL, " +
+                        "`source_id` INTEGER NOT NULL, " +
+                        "`parent_type` TEXT NOT NULL, " +
+                        "`parent_id` INTEGER NOT NULL, " +
+                        "`party_name` TEXT NOT NULL, " +
+                        "`ref_text` TEXT NOT NULL, " +
+                        "`status` TEXT NOT NULL, " +
+                        "`created_at` INTEGER NOT NULL, " +
+                        "`is_synced` INTEGER NOT NULL)"
+                )
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_money_entries_uid` ON `money_entries` (`uid`)")
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_money_entries_source_type_source_id_direction_mode_reason` ON `money_entries` (`source_type`, `source_id`, `direction`, `mode`, `reason`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_money_entries_parent_type_parent_id` ON `money_entries` (`parent_type`, `parent_id`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_money_entries_created_at` ON `money_entries` (`created_at`)")
             }
         }
 
@@ -1942,6 +1985,82 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * Purchase correction notes (QDN / PDN), Phase 2. Three additive
+         * columns on `purchase_return_table`; every existing row keeps
+         * working unchanged (note_kind NULL = RETURN for D, ADDITION for C;
+         * the two REAL columns default to 0). No data is rewritten.
+         */
+        val MIGRATION_67_68 = object : Migration(67, 68) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `note_kind` TEXT")
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `rate_delta_net` REAL NOT NULL DEFAULT 0.0")
+                db.execSQL("ALTER TABLE `purchase_return_table` ADD COLUMN `shelf_value_delta` REAL NOT NULL DEFAULT 0.0")
+            }
+        }
+
+        /**
+         * Stage 3A: exact sale allocations. One new table, nothing existing
+         * is touched. Old sales simply have no rows (treated as unallocated).
+         */
+        val MIGRATION_68_69 = object : Migration(68, 69) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `sale_batch_allocation` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`source_type` TEXT NOT NULL, " +
+                        "`source_id` INTEGER NOT NULL, " +
+                        "`source_line_id` INTEGER NOT NULL, " +
+                        "`product_id` INTEGER NOT NULL, " +
+                        "`purchase_invoice_id` INTEGER, " +
+                        "`batch_id` INTEGER, " +
+                        "`quantity` REAL NOT NULL, " +
+                        "`quantity_restored` REAL NOT NULL, " +
+                        "`unit_cost_net` REAL NOT NULL, " +
+                        "`unit_cost_gross` REAL NOT NULL, " +
+                        "`created_at` INTEGER NOT NULL, " +
+                        "`is_synced` INTEGER NOT NULL)"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_sale_batch_allocation_source_type_source_id_source_line_id` ON `sale_batch_allocation` (`source_type`, `source_id`, `source_line_id`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_sale_batch_allocation_purchase_invoice_id_product_id` ON `sale_batch_allocation` (`purchase_invoice_id`, `product_id`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_sale_batch_allocation_product_id` ON `sale_batch_allocation` (`product_id`)")
+            }
+        }
+
+        /** Stage 3C: two new tables, nothing existing is touched. */
+        val MIGRATION_69_70 = object : Migration(69, 70) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `pdn_gone_pool` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`note_id` INTEGER NOT NULL, " +
+                        "`purchase_invoice_id` INTEGER NOT NULL, " +
+                        "`product_id` INTEGER NOT NULL, " +
+                        "`gone_qty` REAL NOT NULL, " +
+                        "`delta_gross` REAL NOT NULL, " +
+                        "`note_date` INTEGER NOT NULL, " +
+                        "`is_synced` INTEGER NOT NULL)"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_pdn_gone_pool_purchase_invoice_id_product_id` ON `pdn_gone_pool` (`purchase_invoice_id`, `product_id`)")
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `cost_correction_claim` (" +
+                        "`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "`allocation_id` INTEGER NOT NULL, " +
+                        "`pool_id` INTEGER NOT NULL, " +
+                        "`note_id` INTEGER NOT NULL, " +
+                        "`qty` REAL NOT NULL, " +
+                        "`amount` REAL NOT NULL, " +
+                        "`claim_date` INTEGER NOT NULL, " +
+                        "`source_type` TEXT NOT NULL, " +
+                        "`source_id` INTEGER NOT NULL, " +
+                        "`is_synced` INTEGER NOT NULL)"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_cost_correction_claim_pool_id` ON `cost_correction_claim` (`pool_id`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_cost_correction_claim_allocation_id` ON `cost_correction_claim` (`allocation_id`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_cost_correction_claim_claim_date` ON `cost_correction_claim` (`claim_date`)")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
@@ -1999,7 +2118,11 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_63_64,
                         MIGRATION_64_65,
                         MIGRATION_65_66,
-                        MIGRATION_66_67
+                        MIGRATION_66_67,
+                        MIGRATION_67_68,
+                        MIGRATION_68_69,
+                        MIGRATION_69_70,
+                        MIGRATION_70_71
                     )
                     // Report 1 S-8 / Report 3 D-b: a blanket
                     // fallbackToDestructiveMigration() meant any future

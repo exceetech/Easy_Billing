@@ -69,6 +69,7 @@ class EditProductActivity : BaseActivity() {
     private lateinit var etPrice: TextInputEditText
     private lateinit var etHsn: TextInputEditText
     private lateinit var etCgst: TextInputEditText
+    private lateinit var etGstPct: TextInputEditText
     private lateinit var etSgst: TextInputEditText
     private lateinit var etIgst: TextInputEditText
     private lateinit var switchTaxInclusive: MaterialSwitch
@@ -103,8 +104,8 @@ class EditProductActivity : BaseActivity() {
     private lateinit var tilStock: View
     private lateinit var etAddStock: TextInputEditText
 
-    private lateinit var btnSave: MaterialButton
-    private lateinit var btnCancel: MaterialButton
+    private lateinit var btnSave: View
+    private lateinit var btnCancel: View
 
     /** Current stock at dialog-open time (used to gate the toggle). */
     private var currentStock: Double = 0.0
@@ -145,6 +146,7 @@ class EditProductActivity : BaseActivity() {
         etPrice   = findViewById(R.id.etPrice)
         etHsn     = findViewById(R.id.etHsn)
         etCgst    = findViewById(R.id.etCgst)
+        etGstPct  = findViewById(R.id.etGstPct)
         etSgst    = findViewById(R.id.etSgst)
         etIgst    = findViewById(R.id.etIgst)
         switchTaxInclusive = findViewById(R.id.switchTaxInclusive)
@@ -207,6 +209,31 @@ class EditProductActivity : BaseActivity() {
     private fun setMoreOptionsExpanded(expanded: Boolean) {
         groupMoreOptions.visibility = if (expanded) View.VISIBLE else View.GONE
         ivMoreOptionsChevron.rotation = if (expanded) 180f else 0f
+        findViewById<View>(R.id.groupTax).visibility = if (expanded) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.ivTaxChevron).rotation = if (expanded) 180f else 0f
+    }
+
+    private fun toggleRow(group: Int, chevron: Int) {
+        val g = findViewById<View>(group)
+        val open = g.visibility != View.VISIBLE
+        g.visibility = if (open) View.VISIBLE else View.GONE
+        findViewById<View>(chevron).rotation = if (open) 180f else 0f
+    }
+
+    /** One-line summaries shown on the collapsed rows. */
+    private fun updateSummaries() {
+        val rate = etIgst.text?.toString()?.toDoubleOrNull() ?: 0.0
+        val hsn = etHsn.text?.toString()?.trim().orEmpty()
+        val taxTv = findViewById<TextView>(R.id.tvTaxSummary)
+        if (hsn.isBlank()) {
+            taxTv.text = getString(R.string.ep_tax_summary_nocode, formatRate(rate))
+            taxTv.setTextColor(0xFFB8895A.toInt())
+        } else {
+            taxTv.text = getString(R.string.ep_tax_summary, formatRate(rate), hsn)
+            taxTv.setTextColor(0xFF6E6A60.toInt())
+        }
+        findViewById<TextView>(R.id.tvCategorySummary).text =
+            etCategory.text?.toString()?.trim().orEmpty().ifBlank { getString(R.string.ep_category_none) }
     }
 
     // Independent of setMoreOptionsExpanded() -- collapsing "More options"
@@ -219,6 +246,15 @@ class EditProductActivity : BaseActivity() {
 
     private fun wireButtons() {
         btnHsnHelp.setOnClickListener { HsnHelpLauncher.open(this) }
+
+        findViewById<View>(R.id.rowTax).setOnClickListener {
+            setMoreOptionsExpanded(findViewById<View>(R.id.groupTax).visibility != View.VISIBLE)
+        }
+        findViewById<View>(R.id.rowCategory).setOnClickListener { toggleRow(R.id.groupCategory, R.id.ivCategoryChevron) }
+        findViewById<View>(R.id.rowStock).setOnClickListener { toggleRow(R.id.groupStock, R.id.ivStockChevron) }
+        etIgst.addTextChangedListener { updateSummaries() }
+        etHsn.addTextChangedListener { updateSummaries() }
+        etCategory.addTextChangedListener { updateSummaries() }
 
         btnToggleMoreOptions.setOnClickListener {
             setMoreOptionsExpanded(groupMoreOptions.visibility != View.VISIBLE)
@@ -241,6 +277,16 @@ class EditProductActivity : BaseActivity() {
         }
         etCgst.addTextChangedListener { recomputeIgst() }
         etSgst.addTextChangedListener { recomputeIgst() }
+        // One simple "GST %" box for the owner; CGST/SGST are split half and
+        // half behind the scenes (those boxes stay in the layout, hidden).
+        etGstPct.addTextChangedListener {
+            if (etGstPct.hasFocus()) {
+                val v = etGstPct.text?.toString()?.toDoubleOrNull() ?: 0.0
+                etCgst.setText(formatRate(v / 2))
+                etSgst.setText(formatRate(v / 2))
+                if (v <= 0) etIgst.setText(formatRate(0.0))
+            }
+        }
 
         btnSave.setOnClickListener { onSaveClicked() }
         btnCancel.setOnClickListener {
@@ -352,11 +398,11 @@ class EditProductActivity : BaseActivity() {
         tvAvatar.text = avatarInitials(product.name)
 
         if (product.isPurchased) {
-            badge.text = getString(R.string.badge_purchased)
+            badge.text = getString(R.string.ep_badge_purchased)
             badge.backgroundTintList =
                 android.content.res.ColorStateList.valueOf(0xFF1D9E75.toInt())
         } else {
-            badge.text = getString(R.string.badge_manual)
+            badge.text = getString(R.string.ep_badge_manual)
             badge.backgroundTintList =
                 android.content.res.ColorStateList.valueOf(0xFFB8895A.toInt())
         }
@@ -378,6 +424,7 @@ class EditProductActivity : BaseActivity() {
         // IGST-only product and keeps what was stored.
         val split = product.cgstPercentage + product.sgstPercentage
         etIgst.setText(formatRate(if (split > 0) split else product.igstPercentage))
+        etGstPct.setText(formatRate(if (split > 0) split else product.igstPercentage))
         switchTaxInclusive.isChecked = product.isTaxInclusive
         // GSTR-1 product master (v23)
         spinnerOfficialUqc.text = UqcMapper.codeToDisplay(product.officialUqc) ?: ""
@@ -387,16 +434,30 @@ class EditProductActivity : BaseActivity() {
         etCategory.setText(product.category, false)
 
         // Inventory section toggles by isPurchased.
-        if (product.isPurchased) {
+        val helper = findViewById<TextView>(R.id.tvStockHelper)
+        val llStart = findViewById<View>(R.id.llStartCounting)
+        if (product.isPurchased || product.trackInventory) {
+            // Display only: stock is changed from Inventory / purchase bills.
             cardLockedStock.visibility = View.VISIBLE
             groupEditableInventory.visibility = View.GONE
+            helper.text = getString(if (product.isPurchased) R.string.ep_stock_locked else R.string.ep_stock_view_helper)
+            switchTrack.setOnCheckedChangeListener(null)
+            switchTrack.isChecked = product.trackInventory
         } else {
+            findViewById<TextView>(R.id.tvStockSummary).text = getString(R.string.ep_stock_summary_off)
+            // Not counted yet: one plain prompt; counting starts with the button.
             cardLockedStock.visibility = View.GONE
             groupEditableInventory.visibility = View.VISIBLE
             switchTrack.setOnCheckedChangeListener(null)
-            switchTrack.isChecked = product.trackInventory
-            tilStock.visibility = if (product.trackInventory) View.VISIBLE else View.GONE
+            switchTrack.isChecked = false
+            tilStock.visibility = View.GONE
+            llStart.visibility = View.VISIBLE
             wireToggleListener()
+            findViewById<View>(R.id.btnStartCounting).setOnClickListener {
+                switchTrack.isChecked = true
+                llStart.visibility = View.GONE
+                tilStock.visibility = View.VISIBLE
+            }
         }
 
         // Pull current stock for the gate + the read-only display.
@@ -406,6 +467,10 @@ class EditProductActivity : BaseActivity() {
                     .inventoryDao().getInventory(product.id)?.currentStock ?: 0.0
             }
             tvCurrentStock.text = "${formatStock(currentStock)} ${product.unit ?: "piece"}"
+            if (product.isPurchased || product.trackInventory) {
+                findViewById<TextView>(R.id.tvStockSummary).text =
+                    getString(R.string.ep_stock_summary, tvCurrentStock.text.toString())
+            }
         }
 
         // Auto-expand "More options" once, the first time this product's
@@ -420,7 +485,7 @@ class EditProductActivity : BaseActivity() {
                     AppDatabase.getDatabase(this@EditProductActivity)
                         .storeInfoDao().get()?.gstin?.isNotBlank() == true
                 }
-                if (isGstEnabled) setMoreOptionsExpanded(true)
+                // rows stay collapsed; the Tax row summary flags a missing tax code
             }
         }
     }
@@ -463,10 +528,10 @@ class EditProductActivity : BaseActivity() {
                 }
                 if (gstEnabled) {
                     setMoreOptionsExpanded(true)
-                    etHsn.error = getString(R.string.edit_product_hsn_required_error)
+                    etHsn.error = getString(R.string.ep_hsn_needed)
                     Toast.makeText(
                         this@EditProductActivity,
-                        getString(R.string.editproductactivity_hsn_code_is_mandatory),
+                        getString(R.string.ep_hsn_needed),
                         Toast.LENGTH_SHORT
                     ).show()
                     com.example.easy_billing.util.UserEventLogger.logValidationFailed("EditProduct", "hsn_missing")

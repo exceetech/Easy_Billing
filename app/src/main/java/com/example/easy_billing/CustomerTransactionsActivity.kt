@@ -42,6 +42,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
 
     // ✅ ORIGINAL DATA (IMPORTANT)
     private val originalList = mutableListOf<CreditTransaction>()
+    private var accountSide = com.example.easy_billing.util.CreditSide.Side.UNKNOWN
 
     private val currentList = mutableListOf<CreditTransaction>()
 
@@ -250,6 +251,9 @@ class CustomerTransactionsActivity : AppCompatActivity() {
 
         originalList.clear()
         originalList.addAll(merged.sortedByDescending { it.timestamp })
+        // Wording only: a payment on a supplier account reads "Payment made", not "received".
+        accountSide = com.example.easy_billing.util.CreditSide.of(originalList.map { it.type })
+        adapter.side = accountSide
 
         // Through applyDateFilter, so a filter set before a refresh survives
         // it. Rebuilding the list directly here reset the view to everything
@@ -771,7 +775,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
                         // The same wording the ledger shows on screen. This
                         // used to print the raw code, so a customer's
                         // statement read "WRITE_OFF" and "PURCHASE_CREDIT".
-                        TransactionAdapter.labelFor(shownType),
+                        TransactionAdapter.labelFor(shownType, accountSide),
                         debitStr,
                         if (credit > 0) "$currencySymbol%.2f".format(credit) else "-",
                         "$currencySymbol%.2f".format(balance)

@@ -58,14 +58,15 @@ object PosPaymentRepository {
         context: Context,
         billNumber: String,
         customerName: String? = null,
-        customerPhone: String? = null
+        customerPhone: String? = null,
+        amount: Double? = null
     ): CreatePaymentLinkResponse? = withContext(Dispatchers.IO) {
         val tok = token(context) ?: return@withContext null
         try {
             RetrofitClient.api.createPaymentLink(
                 "Bearer $tok",
                 billNumber,
-                CreatePaymentLinkRequest(customer_name = customerName, customer_phone = customerPhone)
+                CreatePaymentLinkRequest(customer_name = customerName, customer_phone = customerPhone, amount = amount)
             )
         } catch (e: Exception) {
             e.printStackTrace()
@@ -79,11 +80,11 @@ object PosPaymentRepository {
      * screen for the customer to scan with whatever UPI app they have.
      * Returns null on any failure, same contract as createPaymentLink.
      */
-    suspend fun createQrCode(context: Context, billNumber: String): CreateQrCodeResponse? =
+    suspend fun createQrCode(context: Context, billNumber: String, amount: Double? = null): CreateQrCodeResponse? =
         withContext(Dispatchers.IO) {
             val tok = token(context) ?: return@withContext null
             try {
-                RetrofitClient.api.createQrCode("Bearer $tok", billNumber)
+                RetrofitClient.api.createQrCode("Bearer $tok", billNumber, amount)
             } catch (e: Exception) {
                 e.printStackTrace()
                 null

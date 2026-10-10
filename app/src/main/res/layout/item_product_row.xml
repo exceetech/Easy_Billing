@@ -22,11 +22,14 @@
         <TextView
             android:id="@+id/tvRank"
             android:layout_width="24dp"
-            android:layout_height="wrap_content"
-            android:text="#1"
-            android:textSize="12sp"
+            android:layout_height="24dp"
+            android:gravity="center"
+            android:text="1"
+            android:textSize="11sp"
             android:textStyle="bold"
-            android:textColor="#D9CBA3"/>
+            android:textColor="#8A6526"
+            android:background="@drawable/bg_ov_pay_icon"
+            android:backgroundTint="#F3ECDD"/>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -72,6 +75,29 @@
                 android:textSize="11sp"
                 android:textColor="#9A8F79"
                 android:layout_marginTop="1dp"/>
+
+            <!-- Relative bar — sized to this row's share of the top seller -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="6dp"
+                android:layout_marginTop="7dp"
+                android:orientation="horizontal"
+                android:weightSum="100"
+                android:background="@drawable/bg_sales_track">
+
+                <View
+                    android:id="@+id/vBarFill"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="60"
+                    android:background="@drawable/bg_sales_fill"/>
+
+                <View
+                    android:id="@+id/vBarSpacer"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="40"/>
+            </LinearLayout>
         </LinearLayout>
 
         <TextView

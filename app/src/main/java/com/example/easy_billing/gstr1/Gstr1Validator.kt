@@ -6,8 +6,9 @@ package com.example.easy_billing.gstr1
  * Validates a [Gstr1Report] and returns a list of [ValidationIssue].
  * Each issue is either a WARNING (non-blocking) or an ERROR (blocks export).
  *
- * Called before CSV/Excel export. The UI shows issues per section with
- * a coloured badge.
+ * Every issue carries a stable [ValidationIssue.key] plus [ValidationIssue.args] so the
+ * screen can show it in plain words in the owner's language (see
+ * GstReportsActivity.issueText). [ValidationIssue.message] is the English fallback.
  */
 object Gstr1Validator {
 
@@ -17,7 +18,9 @@ object Gstr1Validator {
         val section: String,
         val severity: Severity,
         val message: String,
-        val rowHint: String = ""   // e.g. invoice number or note number
+        val rowHint: String = "",          // e.g. invoice number or note number
+        val key: String = "",              // stable id used to look up the plain-word text
+        val args: List<String> = emptyList()
     )
 
     data class ValidationResult(
@@ -30,6 +33,13 @@ object Gstr1Validator {
 
         fun forSection(section: String) = issues.filter { it.section == section }
         fun isClean(section: String) = issues.none { it.section == section }
+    }
+
+    private fun MutableList<ValidationIssue>.issue(
+        section: String, sev: Severity, key: String, english: String,
+        hint: String = "", vararg args: String
+    ) {
+        add(ValidationIssue(section, sev, english, hint, key, args.toList()))
     }
 
     /**
@@ -52,9 +62,11 @@ object Gstr1Validator {
         val issues = mutableListOf<ValidationIssue>()
 
         if (report.gstin.isBlank()) {
-            issues.add(ValidationIssue("General", Severity.ERROR, "Filer GSTIN is missing. Please configure GST Profile."))
+            issues.issue("General", Severity.ERROR, "gstin_missing",
+                "Filer GSTIN is missing. Please configure GST Profile.")
         } else if (!GSTIN_REGEX.matches(report.gstin)) {
-            issues.add(ValidationIssue("General", Severity.ERROR, "Filer GSTIN '${report.gstin}' is not in valid format."))
+            issues.issue("General", Severity.ERROR, "gstin_invalid",
+                "Filer GSTIN '${report.gstin}' is not in valid format.", "", report.gstin)
         }
 
         validateB2B(report.b2b, issues)
@@ -74,31 +86,32 @@ object Gstr1Validator {
     private fun validateB2B(rows: List<B2BRow>, out: MutableList<ValidationIssue>) {
         for (row in rows) {
             if (!GSTIN_REGEX.matches(row.gstin)) {
-                out.add(ValidationIssue("B2B", Severity.ERROR,
-                    "Invalid recipient GSTIN '${row.gstin}'", row.invoiceNumber))
+                out.issue("B2B", Severity.ERROR, "cust_gstin_invalid",
+                    "Invalid recipient GSTIN '${row.gstin}'", row.invoiceNumber, row.gstin)
             }
             if (row.invoiceNumber.isBlank()) {
-                out.add(ValidationIssue("B2B", Severity.ERROR, "Invoice number is blank.", ""))
+                out.issue("B2B", Severity.ERROR, "inv_no_blank", "Invoice number is blank.")
             }
             if (row.invoiceDate.isBlank()) {
-                out.add(ValidationIssue("B2B", Severity.ERROR,
-                    "Invoice date missing for ${row.invoiceNumber}", row.invoiceNumber))
+                out.issue("B2B", Severity.ERROR, "inv_date_missing",
+                    "Invoice date missing for ${row.invoiceNumber}", row.invoiceNumber, row.invoiceNumber)
             }
             if (row.invoiceValue <= 0.0) {
-                out.add(ValidationIssue("B2B", Severity.WARNING,
-                    "Invoice value is zero or negative.", row.invoiceNumber))
+                out.issue("B2B", Severity.WARNING, "inv_value_zero",
+                    "Invoice value is zero or negative.", row.invoiceNumber)
             }
             if (row.placeOfSupply.isBlank()) {
-                out.add(ValidationIssue("B2B", Severity.ERROR,
-                    "Place of Supply missing.", row.invoiceNumber))
+                out.issue("B2B", Severity.ERROR, "pos_missing",
+                    "Place of Supply missing.", row.invoiceNumber)
             }
             if (row.rate !in VALID_GST_RATES) {
-                out.add(ValidationIssue("B2B", Severity.WARNING,
-                    "Unusual GST rate ${row.rate}% for invoice ${row.invoiceNumber}.", row.invoiceNumber))
+                out.issue("B2B", Severity.WARNING, "rate_unusual",
+                    "Unusual GST rate ${row.rate}% for invoice ${row.invoiceNumber}.",
+                    row.invoiceNumber, "${row.rate}")
             }
             if (row.taxableValue < 0.0) {
-                out.add(ValidationIssue("B2B", Severity.ERROR,
-                    "Negative taxable value.", row.invoiceNumber))
+                out.issue("B2B", Severity.ERROR, "taxable_negative",
+                    "Negative taxable value.", row.invoiceNumber)
             }
         }
     }
@@ -137,20 +150,20 @@ object Gstr1Validator {
         val limitLabel = if (threshold >= 250_000.0) "₹2.5L" else "₹1L"
         for (row in rows) {
             if (row.invoiceNumber.isBlank()) {
-                out.add(ValidationIssue("B2CL", Severity.ERROR, "Invoice number is blank.", ""))
+                out.issue("B2CL", Severity.ERROR, "inv_no_blank", "Invoice number is blank.")
             }
             if (row.invoiceValue <= threshold) {
-                out.add(ValidationIssue("B2CL", Severity.WARNING,
+                out.issue("B2CL", Severity.WARNING, "b2cl_small",
                     "Invoice value ₹${row.invoiceValue} is ≤ $limitLabel — should this be B2CS?",
-                    row.invoiceNumber))
+                    row.invoiceNumber, "${row.invoiceValue}", limitLabel)
             }
             if (row.placeOfSupply.isBlank()) {
-                out.add(ValidationIssue("B2CL", Severity.ERROR,
-                    "Place of Supply missing.", row.invoiceNumber))
+                out.issue("B2CL", Severity.ERROR, "pos_missing",
+                    "Place of Supply missing.", row.invoiceNumber)
             }
             if (row.rate !in VALID_GST_RATES) {
-                out.add(ValidationIssue("B2CL", Severity.WARNING,
-                    "Unusual GST rate ${row.rate}%.", row.invoiceNumber))
+                out.issue("B2CL", Severity.WARNING, "rate_unusual",
+                    "Unusual GST rate ${row.rate}%.", row.invoiceNumber, "${row.rate}")
             }
         }
     }
@@ -158,8 +171,8 @@ object Gstr1Validator {
     private fun validateB2CS(rows: List<B2CSRow>, out: MutableList<ValidationIssue>) {
         for (row in rows) {
             if (row.placeOfSupply.isBlank()) {
-                out.add(ValidationIssue("B2CS", Severity.ERROR,
-                    "Place of Supply missing for B2CS row.", ""))
+                out.issue("B2CS", Severity.ERROR, "b2cs_pos_missing",
+                    "Place of Supply missing for B2CS row.")
             }
             // A negative B2CS bucket used to be flagged as an ERROR, which
             // blocked export. It is now legitimate: Table 7 is reported NET of
@@ -168,10 +181,10 @@ object Gstr1Validator {
             // Kept as an informational warning — worth a second look, but not
             // a reason to stop filing.
             if (row.taxableValue < 0.0) {
-                out.add(ValidationIssue("B2CS", Severity.WARNING,
+                out.issue("B2CS", Severity.WARNING, "b2cs_negative",
                     "Negative net for ${row.placeOfSupply} at ${row.rate}% — refunds " +
                     "exceeded sales this period. Valid, but worth confirming.",
-                    row.placeOfSupply))
+                    row.placeOfSupply, row.placeOfSupply, "${row.rate}")
             }
         }
     }
@@ -179,15 +192,15 @@ object Gstr1Validator {
     private fun validateCdnr(rows: List<CdnrRow>, out: MutableList<ValidationIssue>) {
         for (row in rows) {
             if (!GSTIN_REGEX.matches(row.gstin)) {
-                out.add(ValidationIssue("CDNR", Severity.ERROR,
-                    "Invalid recipient GSTIN '${row.gstin}'", row.noteNumber))
+                out.issue("CDNR", Severity.ERROR, "cust_gstin_invalid",
+                    "Invalid recipient GSTIN '${row.gstin}'", row.noteNumber, row.gstin)
             }
             if (row.noteNumber.isBlank()) {
-                out.add(ValidationIssue("CDNR", Severity.ERROR, "Note number is blank.", ""))
+                out.issue("CDNR", Severity.ERROR, "note_no_blank", "Note number is blank.")
             }
             if (row.noteValue <= 0.0) {
-                out.add(ValidationIssue("CDNR", Severity.WARNING,
-                    "Note value is zero.", row.noteNumber))
+                out.issue("CDNR", Severity.WARNING, "note_value_zero",
+                    "Note value is zero.", row.noteNumber)
             }
         }
     }
@@ -195,11 +208,11 @@ object Gstr1Validator {
     private fun validateCdnur(rows: List<CdnurRow>, out: MutableList<ValidationIssue>) {
         for (row in rows) {
             if (row.noteNumber.isBlank()) {
-                out.add(ValidationIssue("CDNUR", Severity.ERROR, "Note number is blank.", ""))
+                out.issue("CDNUR", Severity.ERROR, "note_no_blank", "Note number is blank.")
             }
             if (row.urType.isBlank()) {
-                out.add(ValidationIssue("CDNUR", Severity.ERROR,
-                    "UR Type is blank.", row.noteNumber))
+                out.issue("CDNUR", Severity.ERROR, "ur_type_blank",
+                    "UR Type is blank.", row.noteNumber)
             }
         }
     }
@@ -207,12 +220,36 @@ object Gstr1Validator {
     private fun validateHsn(rows: List<HsnRow>, section: String, out: MutableList<ValidationIssue>) {
         for (row in rows) {
             if (row.hsn.isBlank() || row.hsn == "N/A") {
-                out.add(ValidationIssue(section, Severity.WARNING,
-                    "HSN code is missing for product '${row.description}'.", ""))
+                out.issue(section, Severity.WARNING, "hsn_missing",
+                    "HSN code is missing for product '${row.description}'.", "", row.description)
             }
             if (row.totalQuantity <= 0.0) {
-                out.add(ValidationIssue(section, Severity.WARNING,
-                    "Zero quantity for HSN ${row.hsn}.", row.hsn))
+                out.issue(section, Severity.WARNING, "hsn_qty_zero",
+                    "Zero quantity for HSN ${row.hsn}.", row.hsn, row.hsn)
+            }
+            // The GST portal wants a numeric HSN of at least 4 digits (6 if yearly sales are above Rs 5 crore).
+            val code = row.hsn.trim()
+            if (code.isNotBlank() && code != "N/A") {
+                if (!code.all { it.isDigit() }) {
+                    out.issue(section, Severity.ERROR, "hsn_digits",
+                        "HSN code '$code' must contain only digits.", code, code)
+                } else if (code.length < 4) {
+                    out.issue(section, Severity.ERROR, "hsn_short",
+                        "HSN code '$code' is too short. Use at least 4 digits.", code, code)
+                }
+            }
+            if (row.description.isBlank()) {
+                out.issue(section, Severity.WARNING, "hsn_desc_missing",
+                    "Product description is missing for HSN ${row.hsn}.", row.hsn, row.hsn)
+            }
+            if (row.uqc.isBlank()) {
+                out.issue(section, Severity.WARNING, "hsn_uqc_missing",
+                    "Unit of measure is missing for HSN ${row.hsn}.", row.hsn, row.hsn)
+            }
+            if (row.rate == 0.0 && row.taxableValue > 0.0) {
+                out.issue(section, Severity.WARNING, "hsn_zero_rate",
+                    "HSN ${row.hsn} is sold at 0% GST. Check it is really nil-rated or exempt.",
+                    row.hsn, row.hsn)
             }
         }
     }
@@ -220,11 +257,11 @@ object Gstr1Validator {
     private fun validateDocs(rows: List<DocsRow>, out: MutableList<ValidationIssue>) {
         for (row in rows) {
             if (row.natureOfDoc.isBlank()) {
-                out.add(ValidationIssue("DOCS", Severity.ERROR, "Nature of document is blank.", ""))
+                out.issue("DOCS", Severity.ERROR, "doc_nature_blank", "Nature of document is blank.")
             }
             if (row.totalNumber <= 0) {
-                out.add(ValidationIssue("DOCS", Severity.WARNING,
-                    "Document series '${row.natureOfDoc}' has 0 documents.", ""))
+                out.issue("DOCS", Severity.WARNING, "doc_zero",
+                    "Document series '${row.natureOfDoc}' has 0 documents.", "", row.natureOfDoc)
             }
         }
     }

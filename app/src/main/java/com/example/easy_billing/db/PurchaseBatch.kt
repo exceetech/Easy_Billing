@@ -92,3 +92,23 @@ data class PurchaseBatch(
     @ColumnInfo(name = "is_synced")
     val isSynced: Boolean = false
 )
+
+/**
+ * Gross (GST-inclusive) cost per unit of this batch - the same basis as
+ * `inventory.averageCost`, which is gross.
+ *
+ * [PurchaseBatch.unitCostExcludingTax] is NET, so it must never be compared
+ * directly with the (gross) average cost: doing so shows a phantom
+ * gain/loss equal to the GST on every purchase return (Stage 1 fix P0-1).
+ *
+ * Preferred source is the line's own invoice value / purchased quantity
+ * (exactly what addStock was given as costPrice). Batches without an
+ * invoice value (synthetic / manual batches) fall back to net x (1 + GST%),
+ * which equals the net cost when their GST snapshot is 0.
+ */
+fun PurchaseBatch.grossUnitCost(): Double =
+    if (invoiceValue > 0.0 && quantityPurchased > 0.0) {
+        invoiceValue / quantityPurchased
+    } else {
+        unitCostExcludingTax * (1.0 + (cgstPercent + sgstPercent + igstPercent) / 100.0)
+    }

@@ -1,0 +1,115 @@
+package com.example.easy_billing.repository
+
+import androidx.room.withTransaction
+import com.example.easy_billing.InventoryManager
+import com.example.easy_billing.correction.FifoAllocator
+import com.example.easy_billing.db.AppDatabase
+import com.example.easy_billing.db.PurchaseBatch
+import com.example.easy_billing.util.appNow
+
+/**
+ * Stage 3B: put units that come back from a customer (sales return or a
+ * cancelled sale) back against the purchase bill(s) they were sold from,
+ * instead of an anonymous "SALES_RETURN" batch.
+ *
+ * The moving-average cost is untouched: [InventoryManager.addStock] still
+ * blends at [costPrice] exactly as before. Only the BATCH side changes, so
+ * "units of bill X still on the shelf" stays true after a return.
+ *
+ * Units that cannot be tied to a live purchase bill (old sales with no
+ * allocation rows, legacy/drift stock, a cancelled purchase) restock the
+ * old way, through [batchMeta].
+ */
+object SalesRestock {
+
+    suspend fun restock(
+        db: AppDatabase,
+        billItemId: Int,
+        productId: Int,
+        quantity: Double,
+        costPrice: Double,
+        batchMeta: InventoryManager.StockBatchMeta,
+        logType: String
+    ) {
+        db.withTransaction {
+            val dao = db.saleBatchAllocationDao()
+            val rows = if (billItemId > 0) dao.getForBillLine(billItemId, productId) else emptyList()
+            val plan = FifoAllocator.planRestore(
+                rows.map {
+                    FifoAllocator.OutRow(
+                        it.id, it.purchaseInvoiceId, it.batchId, it.quantity,
+                        it.quantityRestored, it.unitCostNet, it.unitCostGross
+                    )
+                },
+                quantity
+            )
+
+            val existingBatches = db.purchaseBatchDao().getAllBatches(productId)
+            val templates = ArrayList<PurchaseBatch>()
+            var attributedQty = 0.0
+
+            for (r in plan.restores) {
+                val inv = r.purchaseInvoiceId
+                val liveInvoice = inv != null && db.purchaseDao().getById(inv)?.isCancelled == false
+                if (!liveInvoice) {
+                    // Cannot go back to a bill: counted as leftover, but still
+                    // marked restored so the row is not used twice.
+                    dao.addRestored(r.rowId, r.quantity)
+                    continue
+                }
+                // Prefer the bill's CURRENT batch (cost may have been corrected
+                // since the sale); fall back to the cost stored at sale time.
+                val live = existingBatches.firstOrNull { it.purchaseInvoiceId == inv }
+                val net = live?.unitCostExcludingTax ?: r.unitCostNet
+                val gross = if (live != null) {
+                    if (live.invoiceValue > 0.0 && live.quantityPurchased > 0.0)
+                        live.invoiceValue / live.quantityPurchased else r.unitCostGross
+                } else r.unitCostGross
+
+                templates += PurchaseBatch(
+                    productId = productId,
+                    purchaseInvoiceId = inv,
+                    supplierName = live?.supplierName,
+                    supplierGstin = live?.supplierGstin,
+                    invoiceNumber = live?.invoiceNumber,
+                    batchCode = "RESTORED-$inv",
+                    quantityPurchased = r.quantity,
+                    quantityRemaining = r.quantity,
+                    unitCostExcludingTax = net,
+                    gstPercent = live?.gstPercent ?: 0.0,
+                    cgstPercent = live?.cgstPercent ?: 0.0,
+                    sgstPercent = live?.sgstPercent ?: 0.0,
+                    igstPercent = live?.igstPercent ?: 0.0,
+                    invoiceValue = gross * r.quantity,
+                    taxableValue = net * r.quantity,
+                    // Keep the bill's own place in the FIFO queue.
+                    createdAt = live?.createdAt ?: appNow(),
+                    isSynced = false
+                )
+                attributedQty += r.quantity
+                dao.addRestored(r.rowId, r.quantity)
+            }
+
+            // The leftover (and unattributable units) use the caller's meta,
+            // sized to what is left after the restored batches.
+            val rest = quantity - attributedQty
+            val metaForRest = if (rest > 1e-9 && quantity > 0.0) {
+                val f = rest / quantity
+                batchMeta.copy(
+                    invoiceValue = batchMeta.invoiceValue * f,
+                    taxableValue = batchMeta.taxableValue * f
+                )
+            } else batchMeta
+
+            InventoryManager.addStock(
+                db = db,
+                productId = productId,
+                quantity = quantity,
+                costPrice = costPrice,
+                batchMeta = metaForRest,
+                logType = logType,
+                restoredBatches = templates.ifEmpty { null }
+            )
+        }
+    }
+}

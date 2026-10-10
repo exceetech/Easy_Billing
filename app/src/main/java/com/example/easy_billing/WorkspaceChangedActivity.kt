@@ -116,6 +116,7 @@ class WorkspaceChangedActivity : AppCompatActivity() {
                     // close+reopen caused "database is locked".
                     try {
                         AppDatabase.getDatabase(applicationContext).clearAllTables()
+                    com.example.easy_billing.sync.SaleAllocationSyncState.reset(applicationContext)
                     } catch (_: Exception) {}
 
                     // ── 3. Clear auth state ───────────────────────────────────

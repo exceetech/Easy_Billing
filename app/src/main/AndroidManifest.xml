@@ -40,6 +40,10 @@
             android:name=".ReportsActivity"
             android:screenOrientation="unspecified"/>
         <activity
+            android:name=".MoneyStatementActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false"/>
+        <activity
             android:name=".BillDetailsActivity"
             android:screenOrientation="unspecified"
             android:exported="false" />
@@ -245,6 +249,12 @@
         <activity
             android:name=".PurchaseReturnActivity"
             android:screenOrientation="unspecified"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".PurchaseCorrectionActivity"
+            android:screenOrientation="unspecified"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="false"
             android:windowSoftInputMode="adjustResize"/>
     </application>

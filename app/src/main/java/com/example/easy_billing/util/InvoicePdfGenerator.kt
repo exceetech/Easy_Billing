@@ -55,7 +55,9 @@ object InvoicePdfGenerator {
         // button flows) behaves byte-for-byte as before. Only the new
         // "send to customer" flow passes false, to get the saved File
         // back without popping the system print dialog.
-        printAfterSave: Boolean = true
+        printAfterSave: Boolean = true,
+        // "Cash ₹300 + UPI ₹200" for a split bill; null = just the method name.
+        payBreakdown: String? = null
     ): File {
         // Only branches when printerLayout == "A4" — every other value
         // (including the "80mm" default) falls through to the exact same
@@ -106,7 +108,7 @@ object InvoicePdfGenerator {
         if (isA4) {
             drawA4InvoicePages(
                 context, document, bill, billItems, storeInfo, gstInvoice,
-                isComposition, footerMessage, roundOff, currencySymbol, showDiscount, totalCess
+                isComposition, footerMessage, roundOff, currencySymbol, showDiscount, totalCess, payBreakdown
             )
             return saveAndPrint(context, document, storeName, bill, isA4 = true, printAfterSave = printAfterSave)
         }
@@ -200,7 +202,11 @@ object InvoicePdfGenerator {
         // Document title reflects the saved GST mode.
         if (!isComposition) centerText(context.getString(R.string.invoice_pdf_tax_invoice_title), 14f, bold = true)
 
-        if (storeAddress.isNotEmpty()) centerText(storeAddress, 14f, color = mutedColor80)
+        if (storeAddress.isNotEmpty()) {
+            paint.textSize = 14f
+            paint.typeface = receiptFontRegular
+            wrapAddressLines(storeAddress, paint, pageWidth - 24f).forEach { centerText(it, 14f, color = mutedColor80) }
+        }
         if (showPhone && storePhone.isNotEmpty()) centerText("Phone : $storePhone", 14f, color = mutedColor80)
         if (showGstin && storeGstin.isNotEmpty()) centerText("GSTIN : $storeGstin", 14f, color = mutedColor80)
 
@@ -425,7 +431,15 @@ object InvoicePdfGenerator {
 
         // Payment method (Cash / Card / UPI …) — just before the footer.
         if (bill.paymentMethod.isNotBlank()) {
-            centerText("Paid Through : ${bill.paymentMethod}", 14f, true)
+            if (payBreakdown != null && payBreakdown.contains('\n')) {
+                // Split payment: "Cash ₹300 + UPI ₹200" on one line; a long one continues on the next line.
+                paint.textSize = 14f
+                paint.typeface = receiptFontMedium
+                wrapPlusLines(payBreakdown.split('\n'), paint, pageWidth - 24f, "Paid Through : ")
+                    .forEach { centerText(it, 14f, true) }
+            } else {
+                centerText("Paid Through : ${payBreakdown ?: com.example.easy_billing.util.PaymentMethodText.label(bill.paymentMethod)}", 14f, true)
+            }
             y += 4
         }
 
@@ -566,7 +580,8 @@ object InvoicePdfGenerator {
         roundOff: Boolean,
         currencySymbol: String,
         showDiscount: Boolean,
-        totalCess: Double
+        totalCess: Double,
+        payBreakdown: String? = null
     ) {
         val pageWidth = 595
         val pageHeight = 842
@@ -605,16 +620,27 @@ object InvoicePdfGenerator {
                 paint.color = muted
                 paint.typeface = fontRegular
                 paint.textSize = 10f
-                val addrLine = listOfNotNull(
-                    storeInfo?.address?.takeIf { it.isNotBlank() },
+                val contactLine = listOfNotNull(
                     storeInfo?.phone?.takeIf { it.isNotBlank() }?.let { "Phone $it" },
                     storeInfo?.gstin?.takeIf { it.isNotBlank() }?.let { "GSTIN $it" }
                 ).joinToString("   ·   ")
-                canvas.drawText(addrLine, (pageWidth - paint.measureText(addrLine)) / 2f, 62f, paint)
+                // Long address: break at commas / spaces (never inside a word), so state + pincode
+                // drop to the next line together. The header below moves down by the extra lines.
+                val headerLines = wrapAddressLines(storeInfo?.address.orEmpty(), paint, pageWidth - margin * 2).toMutableList()
+                if (contactLine.isNotEmpty()) {
+                    val joined = if (headerLines.isEmpty()) contactLine else headerLines.last() + "   ·   " + contactLine
+                    if (headerLines.isNotEmpty() && paint.measureText(joined) <= pageWidth - margin * 2) {
+                        headerLines[headerLines.lastIndex] = joined
+                    } else headerLines.add(contactLine)
+                }
+                headerLines.forEachIndexed { i, line ->
+                    canvas.drawText(line, (pageWidth - paint.measureText(line)) / 2f, 62f + i * 13f, paint)
+                }
+                val hs = (maxOf(headerLines.size, 1) - 1) * 13f
 
                 paint.color = teal
                 paint.strokeWidth = 1.6f
-                canvas.drawLine(margin, 78f, pageWidth - margin, 78f, paint)
+                canvas.drawLine(margin, 78f + hs, pageWidth - margin, 78f + hs, paint)
 
                 // Outlined pill — "TAX INVOICE" / "INVOICE" — left of the meta row.
                 val pillLabel = if (isComposition) "INVOICE" else "TAX INVOICE"
@@ -622,7 +648,7 @@ object InvoicePdfGenerator {
                 paint.textSize = 10f
                 val pillTextWidth = paint.measureText(pillLabel)
                 val pillPadX = 12f
-                val pillTop = 94f
+                val pillTop = 94f + hs
                 val pillHeight = 22f
                 val pillWidth = pillTextWidth + pillPadX * 2
                 paint.style = Paint.Style.STROKE
@@ -695,11 +721,17 @@ object InvoicePdfGenerator {
                 listOfNotNull(gstInvoice?.customerName, gstInvoice?.customerPhone, gstInvoice?.customerState)
             }.ifEmpty { listOf(context.getString(R.string.invoice_pdf_walk_in_customer)) }
 
+            val splitParts = payBreakdown?.takeIf { it.contains('\n') }?.split('\n')
+            paint.typeface = fontRegular
+            paint.textSize = 10f
+            val payLines: List<String> = when {
+                bill.paymentMethod.isBlank() -> emptyList()
+                splitParts != null -> wrapPlusLines(splitParts, paint, boxW - 24f, "Payment: ")
+                else -> listOf("Payment: ${payBreakdown ?: com.example.easy_billing.util.PaymentMethodText.label(bill.paymentMethod)}")
+            }
             val detailLines = listOfNotNull(
-                bill.placeOfSupply.takeIf { it.isNotBlank() }?.let { "Place of supply: $it" },
-                bill.paymentMethod.takeIf { it.isNotBlank() }?.let { "Payment: $it" },
-                "Type: ${if (isB2B) "B2B" else "B2C"}"
-            )
+                bill.placeOfSupply.takeIf { it.isNotBlank() }?.let { "Place of supply: $it" }
+            ) + payLines + listOf("Type: ${if (isB2B) "B2B" else "B2C"}")
 
             val maxLines = maxOf(billedLines.size, detailLines.size)
             val boxH = labelToFirstLine + (maxLines - 1) * lineHeight + padBottom
@@ -1082,7 +1114,9 @@ object InvoicePdfGenerator {
         center(storeName, 18f, true)
 
         if (storeAddress.isNotEmpty()) {
-            center(storeAddress, 14f)
+            paint.textSize = 14f
+            paint.typeface = Typeface.MONOSPACE
+            wrapAddressLines(storeAddress, paint, pageWidth - 40f).forEach { center(it, 14f) }
         }
 
         if (storePhone.isNotEmpty()) {
@@ -1295,7 +1329,8 @@ object InvoicePdfGenerator {
         totalExpense: Double,
         totalLoss: Double,
         startDate: String?,
-        endDate: String?
+        endDate: String?,
+        share: Boolean = false
     ) {
 
         // Subtle default tracking applied to every sentence drawn on this
@@ -1798,9 +1833,16 @@ object InvoicePdfGenerator {
 
         // ================= SAVE =================
 
+        val profitDir = activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
+            ?: activity.filesDir
+        if (share) {
+            // Shared copies live on in the recipient's app; drop our own older ones (> 1 day).
+            val cutoff = System.currentTimeMillis() - 24L * 60 * 60 * 1000
+            profitDir.listFiles { f -> f.isFile && f.name.contains("_Profit_") && f.name.endsWith(".pdf") }
+                ?.forEach { if (it.lastModified() < cutoff) it.delete() }
+        }
         val file = File(
-            activity.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS)
-                ?: activity.filesDir,
+            profitDir,
             "${storeName}_Profit_${System.currentTimeMillis()}.pdf"
         )
 
@@ -1811,6 +1853,24 @@ object InvoicePdfGenerator {
             document.close()
         } catch (e: Exception) {
             Toast.makeText(activity, activity.getString(R.string.invoice_pdf_profit_save_failed_toast), Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // ================= SHARE (PDF file via the share sheet) =================
+
+        if (share) {
+            try {
+                val uri = FileProvider.getUriForFile(activity, "${activity.packageName}.provider", file)
+                activity.startActivity(Intent.createChooser(
+                    Intent(Intent.ACTION_SEND).apply {
+                        type = "application/pdf"
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }, null))
+            } catch (e: Exception) {
+                Log.e("InvoicePdfGenerator", "Share failed", e)
+                Toast.makeText(activity, R.string.profit_share_failed, Toast.LENGTH_LONG).show()
+            }
             return
         }
 
@@ -1838,4 +1898,57 @@ object InvoicePdfGenerator {
             Toast.makeText(activity, R.string.profitactivity_print_failed, Toast.LENGTH_LONG).show()
         }
     }
+}
+
+/**
+ * Splits an address into lines no wider than [maxWidth] (using [paint]'s current size/typeface).
+ * It breaks at commas first, so the last parts (state, pincode) stay together on the next line,
+ * and falls back to spaces for a part that is still too wide. It never cuts inside a word.
+ */
+private fun wrapAddressLines(address: String, paint: Paint, maxWidth: Float): List<String> {
+    val text = address.trim()
+    if (text.isEmpty()) return emptyList()
+    if (paint.measureText(text) <= maxWidth) return listOf(text)
+
+    val parts = text.split(',').map { it.trim() }.filter { it.isNotEmpty() }
+    val lines = mutableListOf<String>()
+    var cur = ""
+    for ((idx, part) in parts.withIndex()) {
+        val piece = if (idx < parts.lastIndex) "$part," else part
+        val candidate = if (cur.isEmpty()) piece else "$cur $piece"
+        if (paint.measureText(candidate) <= maxWidth) { cur = candidate; continue }
+        if (cur.isNotEmpty()) { lines.add(cur); cur = "" }
+        if (paint.measureText(piece) <= maxWidth) { cur = piece; continue }
+        // One comma-part wider than the line: wrap it by words.
+        for (word in piece.split(' ').filter { it.isNotEmpty() }) {
+            val c = if (cur.isEmpty()) word else "$cur $word"
+            if (paint.measureText(c) <= maxWidth || cur.isEmpty()) cur = c else { lines.add(cur); cur = word }
+        }
+    }
+    if (cur.isNotEmpty()) lines.add(cur)
+    return lines
+}
+
+/**
+ * Joins [parts] with " + " on as few lines as fit in [maxWidth] (paint's current size/typeface).
+ * A line that continues ends with " +"; the first line starts with [prefix]. Never cuts inside a part.
+ */
+private fun wrapPlusLines(parts: List<String>, paint: Paint, maxWidth: Float, prefix: String): List<String> {
+    val lines = mutableListOf<String>()
+    var cur = prefix
+    var first = true
+    for ((i, part) in parts.withIndex()) {
+        val candidate = if (first) cur + part else "$cur + $part"
+        // Room for the trailing " +" is needed unless this is the last part.
+        val needed = if (i == parts.lastIndex) candidate else "$candidate +"
+        if (first || paint.measureText(needed) <= maxWidth) {
+            cur = candidate
+        } else {
+            lines.add("$cur +")
+            cur = part
+        }
+        first = false
+    }
+    lines.add(cur)
+    return lines
 }

@@ -445,6 +445,7 @@ class MainActivity : BaseActivity() {
                         withContext(Dispatchers.IO) {
                             try {
                                 AppDatabase.getDatabase(applicationContext).clearAllTables()
+                                com.example.easy_billing.sync.SaleAllocationSyncState.reset(applicationContext)
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }

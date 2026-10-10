@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"/>
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <application
+        android:name=".EasyBillingApp"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.EasyBilling"
+        android:networkSecurityConfig="@xml/network_security_config">
+
+        <service
+            android:name=".MyFirebaseService"
+            android:exported="false">
+
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+
+        </service>
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="easy_billing_channel"/>
+
+        <activity
+            android:name=".ReportsActivity"
+            android:screenOrientation="unspecified"/>
+        <activity
+            android:name=".BillDetailsActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false" />
+        <activity
+            android:name=".ChangePasswordActivity"
+            android:screenOrientation="unspecified" />
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:screenOrientation="unspecified" />
+        <activity
+            android:name=".InvoiceActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false" />
+        <activity
+            android:name=".AddProductActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false" />
+        <activity
+            android:name=".BillHistoryActivity"
+            android:screenOrientation="unspecified" />
+        <activity
+            android:name=".CreditDebitNotesActivity"
+            android:screenOrientation="unspecified"
+            android:label="Issued notes"
+            android:exported="false" />
+        <activity
+            android:name=".DashboardActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false" />
+        <activity
+            android:name=".RegisterActivity"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.EasyBilling.Auth"
+            android:exported="false" />
+        <activity
+            android:name=".SettingsActivity"
+            android:screenOrientation="unspecified" />
+        <activity
+            android:name=".StoreSettingsActivity"
+            android:screenOrientation="unspecified" />
+        <activity
+            android:name=".BillingSettingsActivity"
+            android:screenOrientation="unspecified" />
+        <activity
+            android:name=".PaymentSetupActivity"
+            android:screenOrientation="unspecified" />
+        <activity
+            android:name=".ProfileActivity"
+            android:screenOrientation="unspecified" />
+        <activity
+            android:name=".PurchaseActivity"
+            android:screenOrientation="unspecified" />
+        <activity
+            android:name=".AssetsActivity"
+            android:parentActivityName=".DashboardActivity"
+            android:screenOrientation="unspecified" />
+        <activity
+            android:name=".EditProductActivity"
+            android:screenOrientation="unspecified" />
+        <activity
+            android:name=".InvoiceDesignActivity"
+            android:screenOrientation="unspecified" />
+        <activity
+            android:name=".DataSecurityActivity"
+            android:screenOrientation="unspecified" />
+        <activity
+            android:name=".AiDashboardActivity"
+            android:screenOrientation="unspecified"/>
+        <activity
+            android:name=".InventoryActivity"
+            android:screenOrientation="unspecified"/>
+        <activity
+            android:name=".GstReportsActivity"
+            android:screenOrientation="unspecified"/>
+
+        <activity
+            android:name=".ProfitActivity"
+            android:screenOrientation="unspecified"/>
+        <activity
+            android:name=".LocalizationSettingsActivity"
+            android:screenOrientation="unspecified"/>
+
+        <activity
+            android:name=".OtpVerificationActivity"
+            android:screenOrientation="unspecified" />
+
+        <activity
+            android:name=".SubscriptionActivity"
+            android:screenOrientation="unspecified"/>
+        <activity
+            android:name=".ConfirmPaymentActivity"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.EasyBilling.Dialog"
+            android:exported="false"/>
+
+        <!-- Overrides Razorpay's own CheckoutActivity's window theme —
+             see Theme.EasyBilling.RazorpayCheckout's doc comment in
+             themes.xml for why. Without this, the checkout window
+             rendered with a transparent/translucent backdrop, showing
+             SubscriptionActivity/ConfirmPaymentActivity bleeding through
+             behind it instead of a solid background.
+             tools:replace (not tools:node="merge") is required here —
+             Razorpay's own library manifest already declares this
+             activity with its own android:theme, and node="merge" only
+             merges child elements, it doesn't resolve a conflicting
+             attribute value on the same tag (that's what caused the
+             processDebugMainManifest / manifest merger failure). -->
+        <activity
+            android:name="com.razorpay.CheckoutActivity"
+            android:theme="@style/Theme.EasyBilling.RazorpayCheckout"
+            tools:replace="android:theme"/>
+        <activity
+            android:name=".OnboardingActivity"
+            android:screenOrientation="unspecified"/>
+        <activity
+            android:name=".TermsActivity"
+            android:screenOrientation="unspecified"/>
+        <activity
+            android:name=".CreditAccountsActivity"
+            android:screenOrientation="unspecified"/>
+
+        <activity
+            android:name=".CustomerTransactionsActivity"
+            android:screenOrientation="unspecified" />
+        <activity
+            android:name=".SplashActivity"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.EasyBilling.Splash"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".MainActivity"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.EasyBilling.Auth"/>
+
+        <!-- ── Quick Unlock (PIN + fingerprint) — faster re-login screen ──── -->
+        <activity android:name=".QuickUnlockActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false"
+            android:theme="@style/Theme.EasyBilling.Auth"/>
+
+        <!-- ── Account picker — shown before Quick Unlock when 2+ accounts on this device ──── -->
+        <activity android:name=".AccountSelectionActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false"
+            android:theme="@style/Theme.EasyBilling.Auth"/>
+
+        <!-- ── Workspace Rotation ────────────────────────────────────────── -->
+        <activity
+            android:name=".WorkspaceChangedActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false"
+            android:label="Workspace Updated"
+            android:windowSoftInputMode="stateHidden"/>
+
+        <!-- ── FileProvider for sharing exported GSTR-1 files ───────────── -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+        </provider>
+
+        <!-- ── Return Management (v25) ───────────────────────────────────── -->
+        <activity
+            android:name=".SalesReturnActivity"
+            android:screenOrientation="unspecified"
+            android:label="Issue Credit Note"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+
+        <activity
+            android:name=".DebitNoteActivity"
+            android:screenOrientation="unspecified"
+            android:label="Issue Debit Note"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".PurchaseHistoryActivity"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.EasyBilling" />
+            
+        <activity
+            android:name=".ui.ImportServicesActivity"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.EasyBilling" />
+            
+        <activity
+            android:name=".ui.AddImportServiceActivity"
+            android:screenOrientation="unspecified"
+            android:theme="@style/Theme.EasyBilling" />
+        <activity
+            android:name=".PurchaseDetailsActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false"/>
+        <activity
+            android:name=".PurchaseReturnActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".PurchaseCorrectionActivity"
+            android:screenOrientation="unspecified"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
+    </application>
+
+</manifest>

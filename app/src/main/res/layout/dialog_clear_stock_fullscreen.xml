@@ -647,6 +647,21 @@
                                 android:background="@drawable/bg_radio_unselected"/>
                         </LinearLayout>
 
+
+                        <!-- Scrap reason: only shown when "Scrap / Damage" is chosen -->
+                        <LinearLayout
+                            android:id="@+id/rowScrapReasons"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="10dp"
+                            android:visibility="gone">
+                            <TextView android:id="@+id/chipScrapExpired" android:layout_width="0dp" android:layout_weight="1" android:layout_height="40dp" android:gravity="center" android:text="@string/scrap_reason_expired" android:textSize="12sp" android:fontFamily="@font/googlesans_semibold" android:background="@drawable/bg_scrap_chip_off" android:textColor="#6E6A60" android:clickable="true" android:focusable="true"/>
+                            <TextView android:id="@+id/chipScrapDamaged" android:layout_width="0dp" android:layout_weight="1" android:layout_height="40dp" android:layout_marginStart="6dp" android:gravity="center" android:text="@string/scrap_reason_damaged" android:textSize="12sp" android:fontFamily="@font/googlesans_semibold" android:background="@drawable/bg_scrap_chip_off" android:textColor="#6E6A60" android:clickable="true" android:focusable="true"/>
+                            <TextView android:id="@+id/chipScrapSpoiled" android:layout_width="0dp" android:layout_weight="1" android:layout_height="40dp" android:layout_marginStart="6dp" android:gravity="center" android:text="@string/scrap_reason_spoiled" android:textSize="12sp" android:fontFamily="@font/googlesans_semibold" android:background="@drawable/bg_scrap_chip_off" android:textColor="#6E6A60" android:clickable="true" android:focusable="true"/>
+                            <TextView android:id="@+id/chipScrapOther" android:layout_width="0dp" android:layout_weight="1" android:layout_height="40dp" android:layout_marginStart="6dp" android:gravity="center" android:text="@string/scrap_reason_other" android:textSize="12sp" android:fontFamily="@font/googlesans_semibold" android:background="@drawable/bg_scrap_chip_off" android:textColor="#6E6A60" android:clickable="true" android:focusable="true"/>
+                        </LinearLayout>
+
                         <RadioGroup
                             android:id="@+id/rgReason"
                             android:layout_width="0dp"

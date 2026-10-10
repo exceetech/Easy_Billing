@@ -47,6 +47,18 @@ object InventoryManager {
         const val ADJUST = "ADJUST"
         /** Stock restored to inventory when a bill is cancelled. */
         const val CANCEL_RESTOCK = "CANCEL_RESTOCK"
+
+        // ── Purchase correction notes (QDN / PDN), Phase 2 ──────────────
+        // Mirrored by pos-backend inventory_routes.py (sync_inventory_logs).
+        /** Quantity correction, bill understated: extra pens received.
+         *  Additive; the log carries the bill's own rate as `price`. */
+        const val QTY_CORR_ADD = "QTY_CORR_ADD"
+        /** Quantity correction, bill overstated: pens that never arrived.
+         *  Subtractive, at the bill's own rate (not the average). */
+        const val QTY_CORR_REDUCE = "QTY_CORR_REDUCE"
+        /** Price correction (PDN): stock does NOT change, only the average
+         *  cost. Written with quantity 0. */
+        const val COST_ADJUST = "COST_ADJUST"
     }
 
     /**
@@ -159,7 +171,14 @@ object InventoryManager {
          * across the codebase (sales, manual flows, tests).
          */
         batchMeta: StockBatchMeta? = null,
-        logType: String = LogType.ADD
+        logType: String = LogType.ADD,
+        /**
+         * Stage 3B: batches to put back for units that came from specific
+         * purchase bills (customer return / cancelled sale). Their total
+         * quantity must not exceed [quantity]; any remainder goes through
+         * the normal single batch built from [batchMeta]. Null = unchanged.
+         */
+        restoredBatches: List<PurchaseBatch>? = null
     ) {
 
         require(productId > 0) { "Invalid productId" }
@@ -216,11 +235,11 @@ object InventoryManager {
 
                 // Logic:
                 // 1. If not purchased -> avg cost is ALWAYS 0.
-                // 2. If purchased and new cost <= 0 -> preserve old avg.
-                // 3. If purchased and new cost > 0 -> recompute weighted average.
+                // 2. If purchased and new cost < 0 -> preserve old avg (sanity check).
+                // 3. If purchased and new cost >= 0 -> recompute weighted average (including 0-cost freebies).
                 val newAvg = when {
                     !isPurchased -> 0.0
-                    costPrice <= 0.0 -> oldAvg
+                    costPrice < 0.0 -> oldAvg
                     oldStock <= 0.0 -> costPrice
                     newStock <= 0.0 -> costPrice
                     else -> ((oldStock * oldAvg) + (quantity * costPrice)) / newStock
@@ -242,7 +261,12 @@ object InventoryManager {
             // returns can value at the original batch cost. For non-GST
             // / manual add-stock flows the batch is minimal — productId,
             // quantity, costPrice — which is still enough for FIFO walks.
-            if (isPurchased) {
+            val restoredQty = restoredBatches?.sumOf { it.quantityPurchased } ?: 0.0
+            if (isPurchased && restoredBatches != null) {
+                restoredBatches.forEach { InventoryValuation.recordBatch(db, it) }
+            }
+            val batchQty = quantity - restoredQty
+            if (isPurchased && batchQty > 1e-9) {
                 val unitCostNet = batchMeta?.unitCostExcludingTax
                     ?: costPrice  // direct add-stock: no GST split known
                 InventoryValuation.recordBatch(
@@ -254,15 +278,15 @@ object InventoryManager {
                         supplierGstin = batchMeta?.supplierGstin,
                         invoiceNumber = batchMeta?.invoiceNumber,
                         batchCode = batchMeta?.batchCode,
-                        quantityPurchased = quantity,
-                        quantityRemaining = quantity,
+                        quantityPurchased = batchQty,
+                        quantityRemaining = batchQty,
                         unitCostExcludingTax = unitCostNet,
                         gstPercent = batchMeta?.gstPercent ?: 0.0,
                         cgstPercent = batchMeta?.cgstPercent ?: 0.0,
                         sgstPercent = batchMeta?.sgstPercent ?: 0.0,
                         igstPercent = batchMeta?.igstPercent ?: 0.0,
-                        invoiceValue = batchMeta?.invoiceValue ?: (quantity * costPrice),
-                        taxableValue = batchMeta?.taxableValue ?: (quantity * unitCostNet),
+                        invoiceValue = if (restoredQty > 0.0) batchQty * costPrice else (batchMeta?.invoiceValue ?: (quantity * costPrice)),
+                        taxableValue = if (restoredQty > 0.0) batchQty * unitCostNet else (batchMeta?.taxableValue ?: (quantity * unitCostNet)),
                         createdAt = appNow(),
                         isSynced = false
                     )
@@ -320,7 +344,14 @@ object InventoryManager {
          * other caller (sales, manual scrap, etc.) keeps the
          * inventory row in sync with the batch ledger.
          */
-        skipBatchConsume: Boolean = false
+        skipBatchConsume: Boolean = false,
+        /**
+         * Stage 3A: optional sink that receives which purchase batches /
+         * bills the removed units came from. Null = behave exactly as
+         * before. The caller persists the slices (it knows the bill line
+         * id; this function does not).
+         */
+        allocationSink: MutableList<com.example.easy_billing.correction.FifoAllocator.Slice>? = null
     ): Double {
 
         require(productId > 0) { "Invalid productId" }
@@ -391,8 +422,11 @@ object InventoryManager {
             val trueCost = avgCost * quantity
 
             if (!skipBatchConsume) {
+                val fifoSlices = mutableListOf<com.example.easy_billing.correction.FifoAllocator.Slice>()
                 runCatching {
-                    InventoryValuation.consumeFifo(db, productId, quantity)
+                    InventoryValuation.consumeFifo(db, productId, quantity, fifoSlices)
+                }.onSuccess {
+                    allocationSink?.addAll(fifoSlices)
                 }.onFailure {
                     android.util.Log.w(
                         "InventoryManager",

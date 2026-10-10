@@ -1,194 +1,420 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  Top Products — champagne redesign, matching Sales / Peak hours / Charts / Overview.
-  header (eyebrow+serif title + sort chip) · donut (center total) ·
-  legend · product breakdown list.
+  Best Sellers — two cards, same look as Trends / Busy Times:
+  card 1 (teal): KPI boxes — best product and slowest product.
+  card 2 (champagne): ranked product breakdown with the sort selector in its header.
 -->
-<FrameLayout
+<androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4F0E6">
+    android:background="#F4F0E6"
+    android:fillViewport="true"
+    android:clipToPadding="false">
 
-    <androidx.cardview.widget.CardView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="12dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="0dp"
-        app:cardPreventCornerOverlap="true"
-        app:cardBackgroundColor="#FFFFFF">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="110dp">
 
-        <FrameLayout
+        <!-- Selector: decides how both cards rank the products.
+             Same white, bordered button look as "Pick a product" in Profit trend. -->
+        <LinearLayout
+            android:id="@+id/rowSortChip"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="52dp"
+            android:layout_marginTop="14dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_pick_selector"
+            android:paddingStart="14dp"
+            android:paddingEnd="12dp"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_si_chart_columns"
+                app:tint="#123B31"
+                android:contentDescription="@null"/>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:text="@string/products_rank_by"
+                    android:textSize="10.5sp"
+                    android:textColor="#8A8578"/>
+                <TextView
+                    android:id="@+id/tvSortChip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:includeFontPadding="false"
+                    android:text="@string/products_sort_fast"
+                    android:textSize="13.5sp"
+                    android:textColor="#123B31"
+                    android:fontFamily="@font/googlesans_semibold"/>
+            </LinearLayout>
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_chevron_down"
+                app:tint="#123B31"
+                android:contentDescription="@null"/>
+        </LinearLayout>
 
-            <androidx.core.widget.NestedScrollView
+        <!-- ============ CARD 1: best / slowest ============ -->
+        <LinearLayout
+            android:id="@+id/cardKpi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_addp_card"
+            android:clipToPadding="false">
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:fillViewport="true">
-
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_inv_customer_header"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="14dp">
+                <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                    <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_si_trend_up"
+                        app:tint="#FFFFFF"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:paddingHorizontal="16dp"
-                    android:paddingTop="18dp"
-                    android:paddingBottom="110dp">
+                    android:layout_marginStart="10dp">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/products_kpi_title"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:textColor="#123B31"/>
+                    <TextView
+                        android:id="@+id/tvKpiCaption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/products_kpi_caption"
+                        android:textSize="10.5sp"
+                        android:textColor="#0F6E56"
+                        android:layout_marginTop="1dp"/>
+                </LinearLayout>
+            </LinearLayout>
 
-                    <!-- Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false"
+                android:padding="15dp">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="8dp"
+                    android:orientation="vertical"
+                    android:padding="12dp"
+                    android:background="@drawable/bg_inv_subcard_accent_green">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="16dp">
-
-                        <LinearLayout
+                        android:gravity="center_vertical">
+                        <FrameLayout
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_green">
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_lc_circle_check"
+                                app:tint="#16A34A"
+                                android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <TextView
+                            android:id="@+id/tvBestLabel"
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/products_eyebrow_breakdown"
-                                android:textColor="#B8895A"
-                                android:textSize="10sp"
-                                android:letterSpacing="0.16"
-                                android:fontFamily="@font/googlesans_semibold"/>
-
-                            <LinearLayout
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:layout_marginTop="2dp">
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/products_title_top"
-                                    android:textColor="#1A1A18"
-                                    android:textSize="19sp"
-                                    android:textStyle="bold"
-                                    android:fontFamily="@font/googlesans_bold"
-                                    android:includeFontPadding="false"/>
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="6dp"
-                                    android:text="@string/dialog_add_product_chooser_title_part3"
-                                    android:textColor="#0F6E56"
-                                    android:textSize="19sp"
-                                    android:fontFamily="serif"
-                                    android:textStyle="italic"
-                                    android:includeFontPadding="false"/>
-                            </LinearLayout>
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/tvSortChip"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/products_sort_chip_default"
-                            android:textSize="11sp"
-                            android:textColor="#8A6526"
-                            android:fontFamily="@font/googlesans_semibold"
-                            android:background="@drawable/bg_report_period_selector"
-                            android:paddingHorizontal="14dp"
-                            android:paddingVertical="6dp"
-                            android:clickable="true"
-                            android:focusable="true"/>
+                            android:layout_marginStart="8dp"
+                            android:text="@string/products_best_label"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold"
+                            android:textColor="#1A1A18"
+                            android:singleLine="true"
+                            android:ellipsize="end"/>
                     </LinearLayout>
 
-                    <!-- Donut + center total -->
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="200dp"
-                        android:layout_marginBottom="16dp">
-
-                        <com.github.mikephil.charting.charts.PieChart
-                            android:id="@+id/pieChart"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"/>
-
-                        <LinearLayout
-                            android:layout_width="112dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:orientation="vertical"
-                            android:gravity="center">
-
-                            <TextView
-                                android:id="@+id/tvCenterVal"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:maxWidth="112dp"
-                                android:text="@string/dash"
-                                android:textSize="20sp"
-                                android:fontFamily="@font/googlesans_bold"
-                                android:textStyle="bold"
-                                android:textColor="#1A1A18"
-                                android:singleLine="true"
-                                android:gravity="center"
-                                android:includeFontPadding="false"
-                                app:autoSizeTextType="uniform"
-                                app:autoSizeMinTextSize="11sp"
-                                app:autoSizeMaxTextSize="20sp"
-                                app:autoSizeStepGranularity="1sp"/>
-
-                            <TextView
-                                android:id="@+id/tvCenterLbl"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:maxWidth="112dp"
-                                android:text="@string/dialog_quantity_pad_total_label"
-                                android:textSize="10.5sp"
-                                android:textColor="#9A8F79"
-                                android:gravity="center"
-                                android:maxLines="1"
-                                android:ellipsize="end"/>
-                        </LinearLayout>
-                    </FrameLayout>
-
-                    <!-- Legend (filled in code, 2 columns) -->
-                    <LinearLayout
-                        android:id="@+id/llLegend"
+                    <TextView
+                        android:id="@+id/tvBestName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginBottom="16dp"/>
+                        android:layout_marginTop="9dp"
+                        android:minLines="2"
+                        android:maxLines="2"
+                        android:ellipsize="end"
+                        android:text="@string/dash"
+                        android:textSize="14.5sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A18"/>
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:id="@+id/tvBestValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/dash"
+                        android:textSize="17sp"
+                        android:fontFamily="serif"
+                        android:textStyle="bold"
+                        android:textColor="#16A34A"
+                        android:includeFontPadding="false"
+                        android:singleLine="true"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="12sp"
+                        app:autoSizeMaxTextSize="17sp"/>
+
+                    <TextView
+                        android:id="@+id/tvBestSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/dash"
+                        android:textSize="10.5sp"
+                        android:fontFamily="serif"
+                        android:textColor="#8A8578"
+                        android:singleLine="true"
+                        android:ellipsize="end"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="0dp"
+                    android:orientation="vertical"
+                    android:padding="12dp"
+                    android:background="@drawable/bg_inv_subcard_accent_red">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+                        <FrameLayout
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_red">
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_lc_arrow_down_left"
+                                app:tint="#B23A3A"
+                                android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <TextView
+                            android:id="@+id/tvWorstLabel"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/products_worst_label"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold"
+                            android:textColor="#1A1A18"
+                            android:singleLine="true"
+                            android:ellipsize="end"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvWorstName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="9dp"
+                        android:minLines="2"
+                        android:maxLines="2"
+                        android:ellipsize="end"
+                        android:text="@string/dash"
+                        android:textSize="14.5sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A18"/>
+
+                    <TextView
+                        android:id="@+id/tvWorstValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/dash"
+                        android:textSize="17sp"
+                        android:fontFamily="serif"
+                        android:textStyle="bold"
+                        android:textColor="#B23A3A"
+                        android:includeFontPadding="false"
+                        android:singleLine="true"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="12sp"
+                        app:autoSizeMaxTextSize="17sp"/>
+
+                    <TextView
+                        android:id="@+id/tvWorstSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="@string/dash"
+                        android:textSize="10.5sp"
+                        android:fontFamily="serif"
+                        android:textColor="#8A8578"
+                        android:singleLine="true"
+                        android:ellipsize="end"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ============ CARD 2: breakdown (champagne) ============ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_addp_card"
+            android:clipToPadding="false">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_status_header_amber"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp">
+                <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                    <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring_champagne"/>
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_si_chart_columns"
+                        app:tint="#FFFFFF"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="10dp">
+                    <TextView
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/products_breakdown_label"
-                        android:textSize="11.5sp"
-                        android:textColor="#9A8F79"
-                        android:layout_marginBottom="2dp"/>
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvProducts"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:nestedScrollingEnabled="false"/>
-
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:textColor="#6B4A20"/>
                     <TextView
-                        android:id="@+id/tvEmpty"
+                        android:id="@+id/tvBreakdownCaption"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/products_empty_state"
-                        android:textSize="13sp"
-                        android:textColor="#9A8F79"
-                        android:gravity="center"
-                        android:paddingVertical="24dp"
-                        android:visibility="gone"/>
-
+                        android:text="@string/products_card_caption"
+                        android:textSize="10.5sp"
+                        android:textColor="#B8895A"
+                        android:layout_marginTop="1dp"/>
                 </LinearLayout>
-            </androidx.core.widget.NestedScrollView>
+            </LinearLayout>
 
-        </FrameLayout>
-    </androidx.cardview.widget.CardView>
-</FrameLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="12dp">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvProducts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"/>
+
+                <LinearLayout
+                    android:id="@+id/tvBreakdownMore"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:background="@drawable/bg_growth_positive"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:visibility="gone">
+                    <TextView
+                        android:id="@+id/tvBreakdownMoreText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:includeFontPadding="false"
+                        android:text="@string/dash"
+                        android:textSize="13sp"
+                        android:textColor="#8A6526"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                    <ImageView
+                        android:id="@+id/ivBreakdownMoreChevron"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginStart="6dp"
+                        android:src="@drawable/ic_chevron_down"
+                        app:tint="#8A6526"
+                        android:contentDescription="@null"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/products_empty_state"
+                    android:textSize="13sp"
+                    android:textColor="#9A8F79"
+                    android:gravity="center"
+                    android:paddingVertical="24dp"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/tvNotSold"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:textSize="12sp"
+                    android:lineSpacingExtra="2dp"
+                    android:textColor="#8A8578"
+                    android:visibility="gone"/>
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

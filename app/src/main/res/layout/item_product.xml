@@ -97,33 +97,31 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- ── Name + variant (inline) ── -->
+        <!-- ── Line 1: brand + item name · Line 2: type ── -->
         <LinearLayout
+            android:id="@+id/rowProductName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="bottom"
+            android:orientation="vertical"
             android:layout_marginTop="11dp">
 
             <TextView
                 android:id="@+id/tvProductName"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="15sp"
                 android:textColor="#1A1A18"
                 android:fontFamily="@font/googlesans_medium"
-                android:maxLines="2"
+                android:singleLine="true"
                 android:ellipsize="end"
                 android:lineSpacingExtra="1dp"
                 android:includeFontPadding="false"/>
 
             <TextView
                 android:id="@+id/tvVariantName"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="5dp"
-                android:paddingBottom="1dp"
+                android:layout_marginTop="2dp"
                 android:textSize="12sp"
                 android:textColor="#0F6E56"
                 android:fontFamily="serif"

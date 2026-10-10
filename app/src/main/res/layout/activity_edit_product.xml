@@ -201,99 +201,237 @@
             </LinearLayout>
 
             <!-- ══ PRICING ══ -->
-            <LinearLayout style="@style/EpCard">
+            <LinearLayout style="@style/EpCard"
+                android:padding="0dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_addp_card">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
-                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#D4A574"/>
-                <TextView style="@style/EpCardHeaderLabel" android:text="@string/edit_product_xml_pricing_header"/>
+                android:background="@drawable/bg_inv_customer_header"
+                android:paddingHorizontal="15dp"
+                android:paddingVertical="14dp">
+                <FrameLayout android:layout_width="38dp" android:layout_height="38dp">
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_step_circle_ring"/>
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_indian_rupee"
+                        app:tint="#FFFFFF"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ep_price_label"
+                        android:textColor="#1A1A18"
+                        android:textSize="14sp"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="@string/ep_price_sub"
+                        android:textColor="#5C6B65"
+                        android:textSize="11sp"/>
+                </LinearLayout>
             </LinearLayout>
 
-            <TextView style="@style/EpFieldLabel" android:text="@string/activity_edit_product_selling_price"/>
-
+            <!-- sub-card exactly like Invoice "Contact" -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:orientation="vertical"
+                android:background="@drawable/bg_inv_subcard"
+                android:padding="12dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginHorizontal="15dp">
+
+                <TextView
+                    android:text="@string/ep_price_sub_header"
+                    android:textColor="#9A8F79"
+                    android:textSize="10.5sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.07"
+                    android:layout_marginBottom="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
 
                 <FrameLayout
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
+                    android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:background="@drawable/bg_glass_input">
+                    android:background="@drawable/bg_inv_field_contrast">
 
-                    <ImageView
-                        android:layout_width="19dp"
-                        android:layout_height="19dp"
+                    <FrameLayout
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
                         android:layout_gravity="center_vertical|start"
-                        android:layout_marginStart="14dp"
-                        android:src="@drawable/ic_lc_indian_rupee"
-                        app:tint="#B8895A"
-                        android:contentDescription="@null"/>
+                        android:layout_marginStart="12dp"
+                        android:background="@drawable/bg_circle_soft_green">
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_lc_indian_rupee"
+                            app:tint="#16A34A"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etPrice"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@null"
-                        android:paddingStart="44dp"
+                        android:paddingStart="50dp"
                         android:paddingEnd="14dp"
-                        android:hint="@string/activity_edit_product_rate_per_unit"
+                        android:hint="@string/ep_price_hint"
                         android:textColor="#1A1A18"
                         android:textColorHint="#A99E88"
                         android:inputType="numberDecimal"
                         android:singleLine="true"
                         android:textSize="15sp"/>
                 </FrameLayout>
+            </LinearLayout>
 
-                <!-- Price-includes-GST toggle — no card. Icon, label and
-                     switch all in one line; icon uses the same gold tint
-                     as every other field icon; switch matches Add Product. -->
+            <!-- toggle card exactly like Invoice "Business customer" -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_inv_subcard_accent_amber"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="11dp"
+                android:layout_marginTop="13dp"
+                android:layout_marginHorizontal="15dp"
+                android:layout_marginBottom="15dp">
+
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_circle_soft_amber">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_percent"
+                        app:tint="#8A6526"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="50dp"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginStart="10dp">
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="11dp">
+                    <TextView
+                        android:text="@string/ep_price_incl"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                    <TextView
+                        android:text="@string/ep_price_incl_desc"
+                        android:textSize="10.5sp"
+                        android:textColor="#8A8578"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
 
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchTaxInclusive"
+                    style="@style/EpSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false"/>
+            </LinearLayout>
+</LinearLayout><!-- /EpCard PRICING -->
+
+            <!-- ══ DETAIL ROWS: tax / category / stock ══ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_addp_card">
+            <LinearLayout
+                android:id="@+id/rowTax"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <FrameLayout
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_circle_soft_blue">
                     <ImageView
-                        android:layout_width="17dp"
-                        android:layout_height="17dp"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
                         android:src="@drawable/ic_lc_percent"
-                        app:tint="#B8895A"
+                        app:tint="#2A5CA8"
                         android:contentDescription="@null"/>
-
+                </FrameLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:text="@string/edit_product_xml_incl_gst"
-                        android:textColor="#0F6E56"
-                        android:textSize="11.5sp"
-                        android:fontFamily="@font/googlesans_medium"
-                        android:singleLine="true"
-                        android:ellipsize="end"/>
-
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switchTaxInclusive"
-                        style="@style/EpSwitch"
-                        android:layout_marginStart="6dp"
-                        android:text=""/>
+                        android:text="@string/ep_tax_header"
+                        android:textColor="#1A1A18"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                    <TextView
+                        android:id="@+id/tvTaxSummary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#6E6A60"
+                        android:textSize="13.5sp"/>
                 </LinearLayout>
+                <ImageView
+                    android:id="@+id/ivTaxChevron"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_lc_chevron_down"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null"/>
             </LinearLayout>
-            </LinearLayout><!-- /EpCard PRICING -->
-
-            <!-- ══ TAX & GSTR-1 DETAILS ══ -->
-            <LinearLayout style="@style/EpCard">
+            <LinearLayout
+                android:id="@+id/groupTax"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_inv_subcard"
+                android:padding="12dp"
+                android:layout_marginHorizontal="15dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone">
 
             <LinearLayout
                 android:id="@+id/btnToggleMoreOptions"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -306,7 +444,7 @@
                 <TextView style="@style/EpCardHeaderLabel"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:text="@string/edit_product_xml_tax_gstr1_header"/>
+                    android:text="@string/ep_tax_header"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -314,7 +452,7 @@
                     android:paddingHorizontal="10dp"
                     android:paddingVertical="3dp"
                     android:layout_marginEnd="8dp"
-                    android:text="@string/invoice_optional"
+                    android:text="@string/ep_tax_pill"
                     android:textColor="#166534"
                     android:textSize="10sp"
                     android:fontFamily="@font/googlesans_semibold"/>
@@ -332,12 +470,50 @@
                  checked/verified at a glance, unlike Add Product's
                  first-entry flow where they are folded into "More options"
                  along with everything else. -->
+            <TextView style="@style/EpFieldLabel" android:visibility="gone" android:text="@string/ep_gst_pct_label"/>
+
+            <FrameLayout
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_inv_field_contrast">
+
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_vertical|start"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_circle_soft_blue">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_percent"
+                        app:tint="#2A5CA8"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etGstPct"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:paddingStart="50dp"
+                    android:paddingEnd="14dp"
+                    android:hint="@string/ep_gst_pct_hint"
+                    android:textColor="#1A1A18"
+                    android:textColorHint="#A99E88"
+                    android:inputType="numberDecimal"
+                    android:singleLine="true"
+                    android:textSize="15sp"/>
+            </FrameLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <FrameLayout style="@style/EpMiniGlassBox">
+                <FrameLayout style="@style/EpMiniGlassBox" android:layout_height="50dp" android:background="@drawable/bg_inv_field_contrast">
                     <LinearLayout
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_gravity="center" android:orientation="vertical" android:gravity="center">
@@ -348,7 +524,7 @@
                     </LinearLayout>
                 </FrameLayout>
 
-                <FrameLayout style="@style/EpMiniGlassBox" android:layout_marginStart="8dp">
+                <FrameLayout style="@style/EpMiniGlassBox" android:layout_height="50dp" android:background="@drawable/bg_inv_field_contrast" android:layout_marginStart="8dp">
                     <LinearLayout
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_gravity="center" android:orientation="vertical" android:gravity="center">
@@ -359,7 +535,7 @@
                     </LinearLayout>
                 </FrameLayout>
 
-                <FrameLayout style="@style/EpMiniGlassBox" android:layout_marginStart="8dp">
+                <FrameLayout style="@style/EpMiniGlassBox" android:layout_height="50dp" android:background="@drawable/bg_inv_field_contrast" android:layout_marginStart="8dp">
                     <LinearLayout
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_gravity="center" android:orientation="vertical" android:gravity="center">
@@ -384,7 +560,7 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
-            <TextView style="@style/EpFieldLabel" android:layout_marginTop="14dp" android:text="@string/activity_edit_product_hsn_sac"/>
+            <TextView style="@style/EpFieldLabel" android:layout_marginTop="14dp" android:text="@string/ep_hsn_label"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -396,23 +572,29 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="50dp"
-                    android:background="@drawable/bg_glass_input">
+                    android:background="@drawable/bg_inv_field_contrast">
 
-                    <ImageView
-                        android:layout_width="19dp"
-                        android:layout_height="19dp"
+                    <FrameLayout
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
                         android:layout_gravity="center_vertical|start"
-                        android:layout_marginStart="14dp"
-                        android:src="@drawable/ic_lc_file_text"
-                        app:tint="#B8895A"
-                        android:contentDescription="@null"/>
+                        android:layout_marginStart="12dp"
+                        android:background="@drawable/bg_circle_soft_purple">
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_lc_id_card"
+                            app:tint="#6B4A9C"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etHsn"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@null"
-                        android:paddingStart="44dp"
+                        android:paddingStart="50dp"
                         android:paddingEnd="14dp"
                         android:hint="@string/activity_edit_product_tax_code"
                         android:textColor="#1A1A18"
@@ -424,6 +606,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnHsnHelp"
+                    android:visibility="gone"
                     style="@style/Widget.Material3.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="50dp"
@@ -462,30 +645,36 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:background="@drawable/bg_glass_input">
+                android:background="@drawable/bg_inv_field_contrast">
 
-                <ImageView
-                    android:layout_width="19dp"
-                    android:layout_height="19dp"
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
                     android:layout_gravity="center_vertical|start"
-                    android:layout_marginStart="14dp"
-                    android:src="@drawable/ic_lc_file_text"
-                    app:tint="#B8895A"
-                    android:contentDescription="@null"/>
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_circle_soft_teal">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_file_text"
+                        app:tint="#0F766E"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etHsnDescription"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@null"
-                    android:paddingStart="44dp"
+                    android:paddingStart="50dp"
                     android:paddingEnd="14dp"
                     android:hint="@string/activity_edit_product_short_description"
                     android:textColor="#1A1A18"
                     android:textColorHint="#A99E88"
                     android:inputType="textCapSentences"
                     android:maxLines="1"
-                    android:textSize="14.5sp"/>
+                    android:textSize="15sp"/>
             </FrameLayout>
 
             <!-- ── Nested "More tax details" sub-collapse — UQC, supply
@@ -531,16 +720,22 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:background="@drawable/bg_glass_input">
+                android:background="@drawable/bg_inv_field_contrast">
 
-                <ImageView
-                    android:layout_width="17dp"
-                    android:layout_height="17dp"
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
                     android:layout_gravity="center_vertical|start"
                     android:layout_marginStart="12dp"
-                    android:src="@drawable/ic_lc_sliders"
-                    app:tint="#B8895A"
-                    android:contentDescription="@null"/>
+                    android:background="@drawable/bg_circle_soft_grey">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_ruler"
+                        app:tint="#6E6A60"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/spinnerOfficialUqc"
@@ -550,14 +745,14 @@
                     android:gravity="center_vertical"
                     android:clickable="true"
                     android:focusable="true"
-                    android:paddingStart="38dp"
+                    android:paddingStart="50dp"
                     android:paddingEnd="26dp"
                     android:hint="@string/edit_product_xml_select_hint"
                     android:textColor="#1A1A18"
                     android:textColorHint="#A99E88"
                     android:singleLine="true"
                     android:ellipsize="end"
-                    android:textSize="14.5sp"/>
+                    android:textSize="15sp"/>
 
                 <ImageView
                     android:layout_width="14dp"
@@ -573,46 +768,58 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:background="@drawable/bg_glass_input">
+                android:background="@drawable/bg_inv_field_contrast">
 
-                <ImageView
-                    android:layout_width="17dp"
-                    android:layout_height="17dp"
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
                     android:layout_gravity="center_vertical|start"
                     android:layout_marginStart="12dp"
-                    android:src="@drawable/ic_lc_percent"
-                    app:tint="#B8895A"
-                    android:contentDescription="@null"/>
+                    android:background="@drawable/bg_circle_soft_rose">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_percent"
+                        app:tint="#791F1F"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etCessRate"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@null"
-                    android:paddingStart="38dp"
+                    android:paddingStart="50dp"
                     android:paddingEnd="12dp"
                     android:hint="@string/activity_edit_product_if_any"
                     android:textColor="#1A1A18"
                     android:textColorHint="#A99E88"
                     android:inputType="numberDecimal"
                     android:singleLine="true"
-                    android:textSize="14.5sp"/>
+                    android:textSize="15sp"/>
             </FrameLayout>
 
             <TextView style="@style/EpFieldLabel" android:layout_marginTop="12dp" android:text="@string/activity_edit_product_supply_classification"/>
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:background="@drawable/bg_glass_input">
+                android:background="@drawable/bg_inv_field_contrast">
 
-                <ImageView
-                    android:layout_width="17dp"
-                    android:layout_height="17dp"
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
                     android:layout_gravity="center_vertical|start"
                     android:layout_marginStart="12dp"
-                    android:src="@drawable/ic_lc_box"
-                    app:tint="#B8895A"
-                    android:contentDescription="@null"/>
+                    android:background="@drawable/bg_circle_soft_blue">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_truck"
+                        app:tint="#2A5CA8"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
 
                 <TextView
                     android:id="@+id/spinnerSupplyClassification"
@@ -622,14 +829,14 @@
                     android:gravity="center_vertical"
                     android:clickable="true"
                     android:focusable="true"
-                    android:paddingStart="38dp"
+                    android:paddingStart="50dp"
                     android:paddingEnd="26dp"
                     android:hint="@string/activity_edit_product_select"
                     android:textColor="#1A1A18"
                     android:textColorHint="#A99E88"
                     android:singleLine="true"
                     android:ellipsize="end"
-                    android:textSize="14.5sp"/>
+                    android:textSize="15sp"/>
 
                 <ImageView
                     android:layout_width="14dp"
@@ -646,9 +853,72 @@
             </LinearLayout><!-- /EpCard TAX -->
 
             <!-- ══ CATEGORY ══ -->
-            <LinearLayout style="@style/EpCard">
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F1EBDC"/>
+            <LinearLayout
+                android:id="@+id/rowCategory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <FrameLayout
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_circle_soft_amber">
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_tag"
+                        app:tint="#8A6526"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ep_category_title"
+                        android:textColor="#1A1A18"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                    <TextView
+                        android:id="@+id/tvCategorySummary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#6E6A60"
+                        android:textSize="13.5sp"/>
+                </LinearLayout>
+                <ImageView
+                    android:id="@+id/ivCategoryChevron"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_lc_chevron_down"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/groupCategory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_inv_subcard"
+                android:padding="12dp"
+                android:layout_marginHorizontal="15dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone">
 
             <LinearLayout
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -661,16 +931,22 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:background="@drawable/bg_glass_input">
+                android:background="@drawable/bg_inv_field_contrast">
 
-                <ImageView
-                    android:layout_width="19dp"
-                    android:layout_height="19dp"
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
                     android:layout_gravity="center_vertical|start"
-                    android:layout_marginStart="14dp"
-                    android:src="@drawable/ic_lc_tag"
-                    app:tint="#B8895A"
-                    android:contentDescription="@null"/>
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_circle_soft_amber">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_tag"
+                        app:tint="#8A6526"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
 
                 <AutoCompleteTextView
                     android:id="@+id/etCategory"
@@ -678,7 +954,7 @@
                     android:layout_height="match_parent"
                     android:background="@null"
                     android:popupBackground="@drawable/bg_pos_dropdown"
-                    android:paddingStart="44dp"
+                    android:paddingStart="50dp"
                     android:paddingEnd="34dp"
                     android:hint="@string/activity_edit_product_select_category"
                     android:textColor="#1A1A18"
@@ -699,9 +975,72 @@
             </LinearLayout><!-- /EpCard CATEGORY -->
 
             <!-- ══ INVENTORY ══ -->
-            <LinearLayout style="@style/EpCard">
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F1EBDC"/>
+            <LinearLayout
+                android:id="@+id/rowStock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <FrameLayout
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_circle_soft_green">
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_package"
+                        app:tint="#0F6E56"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ep_stock_title"
+                        android:textColor="#1A1A18"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                    <TextView
+                        android:id="@+id/tvStockSummary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#6E6A60"
+                        android:textSize="13.5sp"/>
+                </LinearLayout>
+                <ImageView
+                    android:id="@+id/ivStockChevron"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_lc_chevron_down"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/groupStock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_inv_subcard"
+                android:padding="12dp"
+                android:layout_marginHorizontal="15dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone">
 
             <LinearLayout
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -760,7 +1099,8 @@
                         app:tint="#9A968C"
                         android:contentDescription="@null"/>
                     <TextView
-                        android:text="@string/edit_stock_locked_helper"
+                        android:id="@+id/tvStockHelper"
+                        android:text="@string/ep_stock_locked"
                         android:textColor="#9A968C"
                         android:textSize="11sp"
                         android:layout_width="0dp"
@@ -779,12 +1119,13 @@
                 android:padding="15dp">
 
                 <LinearLayout
+                    android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical">
                     <TextView
-                        android:text="@string/edit_track_inventory"
+                        android:text="@string/ep_track_stock"
                         android:textColor="#1A1A18"
                         android:textSize="13sp"
                         android:layout_width="0dp"
@@ -797,6 +1138,30 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/llStartCounting"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ep_not_counted"
+                        android:textColor="#6E6A60"
+                        android:textSize="14sp"/>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnStartCounting"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/ep_start_counting"
+                        android:textColor="#FFFFFF"
+                        android:textAllCaps="false"
+                        android:textSize="15sp"
+                        app:cornerRadius="14dp"
+                        app:backgroundTint="#0F6E56"/>
+                </LinearLayout>
+
+                <LinearLayout
                     android:id="@+id/tilStock"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -804,31 +1169,38 @@
                     android:layout_marginTop="10dp">
 
                     <TextView style="@style/EpFieldLabel"
+                        android:id="@+id/tvAddStockLabel"
                         android:layout_marginStart="0dp"
-                        android:text="@string/edit_add_stock_qty"/>
+                        android:text="@string/ep_start_count_label"/>
 
                     <FrameLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
-                        android:background="@drawable/bg_glass_input">
+                        android:background="@drawable/bg_inv_field_contrast">
 
-                        <ImageView
-                            android:layout_width="19dp"
-                            android:layout_height="19dp"
+                        <FrameLayout
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
                             android:layout_gravity="center_vertical|start"
-                            android:layout_marginStart="14dp"
-                            android:src="@drawable/ic_lc_package"
-                            app:tint="#B8895A"
-                            android:contentDescription="@null"/>
+                            android:layout_marginStart="12dp"
+                            android:background="@drawable/bg_circle_soft_red">
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_lc_package_plus"
+                                app:tint="#A32D2D"
+                                android:contentDescription="@null"/>
+                        </FrameLayout>
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/etAddStock"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:background="@null"
-                            android:paddingStart="44dp"
+                            android:paddingStart="50dp"
                             android:paddingEnd="14dp"
-                            android:hint="@string/edit_product_xml_units_to_add_hint"
+                            android:hint="@string/ep_add_stock_hint"
                             android:textColor="#1A1A18"
                             android:textColorHint="#A99E88"
                             android:inputType="numberDecimal"
@@ -837,7 +1209,7 @@
                     </FrameLayout>
 
                     <TextView
-                        android:text="@string/edit_add_stock_helper"
+                        android:text="@string/ep_add_stock_helper"
                         android:textColor="#9A968C"
                         android:textSize="10.5sp"
                         android:layout_marginTop="5dp"
@@ -846,70 +1218,102 @@
                 </LinearLayout>
             </LinearLayout>
             </LinearLayout><!-- /EpCard INVENTORY -->
-
-            <!-- ══ Save / Cancel — same premium action row as Invoice Activity
-                 (btnClose = bg_inv_action_close ghost-rose, btnPrint = bg_login_cta_green solid). ══ -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="22dp">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnCancel"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="10dp"
-                    android:text="@string/activity_edit_product_cancel"
-                    android:textAllCaps="false"
-                    android:textSize="13.5sp"
-                    android:textStyle="bold"
-                    android:textColor="#9A2E2E"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:background="@drawable/bg_inv_action_close"
-                    android:stateListAnimator="@null"
-                    app:rippleColor="#F6D8D4"
-                    app:icon="@drawable/ic_close"
-                    app:iconTint="#B91C1C"
-                    app:iconGravity="textStart"
-                    app:iconPadding="8dp"
-                    app:cornerRadius="14dp"
-                    app:backgroundTint="@null"
-            android:includeFontPadding="false"
-            android:gravity="center"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSave"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="48dp"
-                    android:text="@string/save"
-                    android:textAllCaps="false"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:background="@drawable/bg_login_cta_green"
-                    android:stateListAnimator="@null"
-                    app:rippleColor="#2E9C5B"
-                    app:icon="@drawable/ic_lc_check"
-                    app:iconTint="#FFFFFF"
-                    app:iconGravity="textStart"
-                    app:iconPadding="7dp"
-                    app:cornerRadius="13dp"
-                    app:backgroundTint="@null"
-            android:includeFontPadding="false"
-            android:gravity="center"
-            android:insetLeft="0dp"
-            android:insetRight="0dp"/>
-            </LinearLayout>
+            </LinearLayout><!-- /detail rows card -->
 
         </LinearLayout>
     </ScrollView>
+
+    <!-- ══ Footer — floating capsule bar ══ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="10dp"
+        android:paddingHorizontal="18dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="10dp"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <View
+            android:layout_width="34dp"
+            android:layout_height="3dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_gold_accent_tick"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_addp_footer_capsule"
+            android:paddingStart="20dp"
+            android:paddingEnd="8dp"
+            android:paddingVertical="8dp"
+            android:elevation="3dp"
+            android:baselineAligned="false">
+
+            <LinearLayout
+                android:id="@+id/btnCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:layout_width="13dp"
+                    android:layout_height="13dp"
+                    android:src="@drawable/ic_close"
+                    app:tint="#B0A895"
+                    android:layout_marginEnd="6dp"
+                    android:contentDescription="@null"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/cancel"
+                    android:textColor="#8A8272"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_semibold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btnSave"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp"
+                android:layout_marginStart="14dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@drawable/bg_addp_save_pill_sheen"
+                android:clickable="true"
+                android:focusable="true">
+                <FrameLayout
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp">
+                    <View
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:background="@drawable/bg_check_badge_translucent"/>
+                    <ImageView
+                        android:layout_width="11dp"
+                        android:layout_height="11dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_check"
+                        app:tint="#FFFFFF"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/save"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>

@@ -1,0 +1,522 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Correct quantity page — Add-product style (champagne page, eyebrow + serif-italic
+    title, green step headers, white cards, floating capsule footer).
+    Bound by PurchaseCorrectionActivity (MODE = QTY only; the price/tax mode
+    still builds its own UI in code).
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="#F3ECDD">
+
+    <FrameLayout android:layout_width="match_parent" android:layout_height="?attr/actionBarSize">
+        <ImageView android:id="@+id/btnQtyBack" android:layout_width="48dp" android:layout_height="48dp"
+            android:layout_gravity="center_vertical" android:padding="12dp"
+            android:src="@drawable/ic_chevron_left" app:tint="#1A1A18"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cancel"/>
+    </FrameLayout>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:paddingHorizontal="18dp" android:paddingTop="2dp">
+        <TextView android:id="@+id/tvQtyEyebrow" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/correct_qty_eyebrow" android:textColor="#B8895A" android:textSize="10sp"
+            android:letterSpacing="0.16" android:fontFamily="@font/googlesans_semibold"/>
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:layout_marginTop="2dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/correct_qty_title1" android:textColor="#1A1A18" android:textSize="21sp"
+                android:fontFamily="@font/googlesans_bold" android:includeFontPadding="false"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp"
+                android:text="@string/correct_price_title2" android:textColor="#0F6E56" android:textSize="21sp"
+                android:fontFamily="serif" android:textStyle="italic" android:includeFontPadding="false"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:layout_marginTop="10dp" android:fillViewport="true" android:overScrollMode="never" android:scrollbars="none">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:paddingHorizontal="18dp" android:paddingBottom="8dp">
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/bg_note_green_soft" android:padding="12dp"
+                android:text="@string/correct_price_use_when" android:textColor="#123B31"
+                android:textSize="12.5sp" android:lineSpacingExtra="2dp"/>
+
+            <!-- STEP 1 · ITEM -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:background="@drawable/bg_addp_card" android:layout_marginTop="12dp">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:background="@drawable/bg_inv_customer_header" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
+            <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_gravity="center" android:text="1" android:textColor="#FFFFFF"
+                    android:textSize="13sp" android:fontFamily="@font/googlesans_bold"/>
+            </FrameLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                android:orientation="vertical" android:layout_marginStart="10dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/correct_qty_step1_title" android:textColor="#123B31" android:textSize="15sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/correct_qty_step1_sub" android:textColor="#3E6F62" android:textSize="11sp"/>
+            </LinearLayout>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:background="@drawable/bg_pill_red" android:paddingHorizontal="10dp" android:paddingVertical="3dp"
+            android:text="@string/invoice_required" android:textColor="#9B2C2C" android:textSize="10sp"
+            android:fontFamily="@font/googlesans_semibold"/>
+        </LinearLayout>
+
+                <LinearLayout android:id="@+id/llQtyItems" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="16dp"/>
+            </LinearLayout>
+
+            <!-- STEP 2 · PRICE -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:background="@drawable/bg_addp_card" android:layout_marginTop="12dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:background="@drawable/bg_inv_items_header" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
+            <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring_champagne"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_gravity="center" android:text="2" android:textColor="#FFFFFF"
+                    android:textSize="13sp" android:fontFamily="@font/googlesans_bold"/>
+            </FrameLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                android:orientation="vertical" android:layout_marginStart="10dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/correct_price_step2_title" android:textColor="#5C4423" android:textSize="15sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/correct_price_step2_sub" android:textColor="#8A6526" android:textSize="11sp"/>
+            </LinearLayout>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:background="@drawable/bg_pill_red" android:paddingHorizontal="10dp" android:paddingVertical="3dp"
+            android:text="@string/invoice_required" android:textColor="#9B2C2C" android:textSize="10sp"
+            android:fontFamily="@font/googlesans_semibold"/>
+        </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="16dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="0dp"
+                        android:text="@string/correct_price_net_label" android:textSize="11sp" android:fontFamily="@font/googlesans_bold" android:textColor="#5C4A22"/>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="6dp"
+                        android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="12dp"
+                        android:background="@drawable/bg_inv_field_light_grey">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
+                            <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_green"/>
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_indian_rupee" app:tint="#16A34A" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <EditText android:id="@+id/etNetPrice" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                            android:layout_marginStart="12dp" android:background="@android:color/transparent" android:inputType="numberDecimal"
+                            android:textSize="15sp" android:textColor="#1A1A18"
+                            android:padding="0dp" android:importantForAutofill="no" android:hint="0" android:textColorHint="#C9BFA8"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/correct_price_per_item"
+                            android:textSize="11sp" android:textColor="#8A8272"/>
+                    </LinearLayout>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="14dp"
+                        android:text="@string/correct_price_gross_label" android:textSize="11sp" android:fontFamily="@font/googlesans_bold" android:textColor="#5C4A22"/>
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="6dp"
+                        android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="12dp"
+                        android:background="@drawable/bg_inv_field_light_grey">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
+                            <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_gold"/>
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_indian_rupee" app:tint="#8A6526" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <EditText android:id="@+id/etGrossPrice" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                            android:layout_marginStart="12dp" android:background="@android:color/transparent" android:inputType="numberDecimal"
+                            android:textSize="15sp" android:textColor="#1A1A18"
+                            android:padding="0dp" android:importantForAutofill="no" android:hint="0" android:textColorHint="#C9BFA8"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/correct_price_per_item"
+                            android:textSize="11sp" android:textColor="#8A8272"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- STEP 3 · GST RATE -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:background="@drawable/bg_addp_card" android:layout_marginTop="12dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:background="@drawable/bg_inv_customer_header" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
+            <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_gravity="center" android:text="3" android:textColor="#FFFFFF"
+                    android:textSize="13sp" android:fontFamily="@font/googlesans_bold"/>
+            </FrameLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                android:orientation="vertical" android:layout_marginStart="10dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/correct_price_step3_title" android:textColor="#123B31" android:textSize="15sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/correct_price_step3_sub" android:textColor="#3E6F62" android:textSize="11sp"/>
+            </LinearLayout>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:background="@drawable/bg_pill_red" android:paddingHorizontal="10dp" android:paddingVertical="3dp"
+            android:text="@string/invoice_required" android:textColor="#9B2C2C" android:textSize="10sp"
+            android:fontFamily="@font/googlesans_semibold"/>
+        </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="16dp">
+                    <LinearLayout android:id="@+id/rowGst0" android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical" android:padding="12dp"
+                        android:layout_marginTop="0dp" android:background="@drawable/bg_reason_card_unselected"
+                        android:clickable="true" android:focusable="true">
+                        <TextView android:layout_width="46dp" android:layout_height="36dp" android:gravity="center"
+                            android:text="0%" android:textSize="16sp" android:fontFamily="serif" android:textStyle="bold"
+                            android:textColor="#8A8272" android:background="@drawable/bg_gst_badge" android:backgroundTint="#F1ECDD"/>
+                        <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                            android:orientation="vertical" android:layout_marginStart="12dp">
+                            <TextView android:id="@+id/tvGstTitle0" android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
+                                android:text="@string/correct_price_gst_hint0" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                        </LinearLayout>
+                        <View android:id="@+id/checkGst0" android:layout_width="22dp" android:layout_height="22dp"
+                            android:background="@drawable/bg_radio_unselected"/>
+                    </LinearLayout>
+                    <LinearLayout android:id="@+id/rowGst1" android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical" android:padding="12dp"
+                        android:layout_marginTop="8dp" android:background="@drawable/bg_reason_card_unselected"
+                        android:clickable="true" android:focusable="true">
+                        <TextView android:layout_width="46dp" android:layout_height="36dp" android:gravity="center"
+                            android:text="5%" android:textSize="16sp" android:fontFamily="serif" android:textStyle="bold"
+                            android:textColor="#0F6E56" android:background="@drawable/bg_gst_badge" android:backgroundTint="#E1F5EE"/>
+                        <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                            android:orientation="vertical" android:layout_marginStart="12dp">
+                            <TextView android:id="@+id/tvGstTitle1" android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
+                                android:text="@string/correct_price_gst_hint5" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                        </LinearLayout>
+                        <View android:id="@+id/checkGst1" android:layout_width="22dp" android:layout_height="22dp"
+                            android:background="@drawable/bg_radio_unselected"/>
+                    </LinearLayout>
+                    <LinearLayout android:id="@+id/rowGst2" android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical" android:padding="12dp"
+                        android:layout_marginTop="8dp" android:background="@drawable/bg_reason_card_unselected"
+                        android:clickable="true" android:focusable="true">
+                        <TextView android:layout_width="46dp" android:layout_height="36dp" android:gravity="center"
+                            android:text="12%" android:textSize="16sp" android:fontFamily="serif" android:textStyle="bold"
+                            android:textColor="#2A5CA8" android:background="@drawable/bg_gst_badge" android:backgroundTint="#E6EEF9"/>
+                        <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                            android:orientation="vertical" android:layout_marginStart="12dp">
+                            <TextView android:id="@+id/tvGstTitle2" android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
+                                android:text="@string/correct_price_gst_hint12" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                        </LinearLayout>
+                        <View android:id="@+id/checkGst2" android:layout_width="22dp" android:layout_height="22dp"
+                            android:background="@drawable/bg_radio_unselected"/>
+                    </LinearLayout>
+                    <LinearLayout android:id="@+id/rowGst3" android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical" android:padding="12dp"
+                        android:layout_marginTop="8dp" android:background="@drawable/bg_reason_card_unselected"
+                        android:clickable="true" android:focusable="true">
+                        <TextView android:layout_width="46dp" android:layout_height="36dp" android:gravity="center"
+                            android:text="18%" android:textSize="16sp" android:fontFamily="serif" android:textStyle="bold"
+                            android:textColor="#854F0B" android:background="@drawable/bg_gst_badge" android:backgroundTint="#FAEEDA"/>
+                        <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                            android:orientation="vertical" android:layout_marginStart="12dp">
+                            <TextView android:id="@+id/tvGstTitle3" android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
+                                android:text="@string/correct_price_gst_hint18" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                        </LinearLayout>
+                        <View android:id="@+id/checkGst3" android:layout_width="22dp" android:layout_height="22dp"
+                            android:background="@drawable/bg_radio_unselected"/>
+                    </LinearLayout>
+                    <LinearLayout android:id="@+id/rowGst4" android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:gravity="center_vertical" android:padding="12dp"
+                        android:layout_marginTop="8dp" android:background="@drawable/bg_reason_card_unselected"
+                        android:clickable="true" android:focusable="true">
+                        <TextView android:layout_width="46dp" android:layout_height="36dp" android:gravity="center"
+                            android:text="28%" android:textSize="16sp" android:fontFamily="serif" android:textStyle="bold"
+                            android:textColor="#6B4A9C" android:background="@drawable/bg_gst_badge" android:backgroundTint="#EEE6F6"/>
+                        <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                            android:orientation="vertical" android:layout_marginStart="12dp">
+                            <TextView android:id="@+id/tvGstTitle4" android:layout_width="match_parent" android:layout_height="wrap_content"
+                                android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
+                            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
+                                android:text="@string/correct_price_gst_hint28" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                        </LinearLayout>
+                        <View android:id="@+id/checkGst4" android:layout_width="22dp" android:layout_height="22dp"
+                            android:background="@drawable/bg_radio_unselected"/>
+                    </LinearLayout>
+                    <TextView android:id="@+id/tvGstSplit" android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp" android:textSize="11sp" android:textColor="#9A8F76" android:lineSpacingExtra="2dp"/>
+                    <TextView android:id="@+id/tvPriceAdvToggle" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp" android:paddingVertical="4dp" android:clickable="true" android:focusable="true"
+                        android:text="@string/correct_price_adv_show" android:textSize="12sp" android:textColor="#854F0B"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                    <LinearLayout android:id="@+id/llPriceAdv" android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:visibility="gone">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="horizontal">
+                            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                                android:orientation="vertical" android:layout_marginStart="0dp">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/correct_price_label_cgst"
+                                    android:textSize="11sp" android:fontFamily="@font/googlesans_bold" android:textColor="#5C4A22"/>
+                                <LinearLayout android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="4dp"
+                                    android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="10dp"
+                                    android:background="@drawable/bg_inv_field_light_grey">
+                                    <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
+                                        <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_green"/>
+                                        <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_percent" app:tint="#0F6E56" android:contentDescription="@null"/>
+                                    </FrameLayout>
+                                    <EditText android:id="@+id/etCgstBox" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                                        android:layout_marginStart="10dp" android:background="@android:color/transparent" android:inputType="numberDecimal"
+                                        android:textSize="15sp" android:textColor="#1A1A18" android:importantForAutofill="no"
+                                        android:hint="0" android:textColorHint="#A99E88"/>
+                                </LinearLayout>
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                                android:orientation="vertical" android:layout_marginStart="10dp">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/correct_price_label_sgst"
+                                    android:textSize="11sp" android:fontFamily="@font/googlesans_bold" android:textColor="#5C4A22"/>
+                                <LinearLayout android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="4dp"
+                                    android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="10dp"
+                                    android:background="@drawable/bg_inv_field_light_grey">
+                                    <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
+                                        <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_gold"/>
+                                        <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_percent" app:tint="#8A6526" android:contentDescription="@null"/>
+                                    </FrameLayout>
+                                    <EditText android:id="@+id/etSgstBox" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                                        android:layout_marginStart="10dp" android:background="@android:color/transparent" android:inputType="numberDecimal"
+                                        android:textSize="15sp" android:textColor="#1A1A18" android:importantForAutofill="no"
+                                        android:hint="0" android:textColorHint="#A99E88"/>
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="horizontal">
+                            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                                android:orientation="vertical" android:layout_marginStart="0dp">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/correct_price_label_igst"
+                                    android:textSize="11sp" android:fontFamily="@font/googlesans_bold" android:textColor="#5C4A22"/>
+                                <LinearLayout android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="4dp"
+                                    android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="10dp"
+                                    android:background="@drawable/bg_inv_field_light_grey">
+                                    <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
+                                        <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_purple"/>
+                                        <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_percent" app:tint="#7A4FA3" android:contentDescription="@null"/>
+                                    </FrameLayout>
+                                    <EditText android:id="@+id/etIgstBox" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                                        android:layout_marginStart="10dp" android:background="@android:color/transparent" android:inputType="numberDecimal"
+                                        android:textSize="15sp" android:textColor="#1A1A18" android:importantForAutofill="no"
+                                        android:hint="0" android:textColorHint="#A99E88"/>
+                                </LinearLayout>
+                            </LinearLayout>
+                            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                                android:orientation="vertical" android:layout_marginStart="10dp">
+                                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/correct_price_label_cess"
+                                    android:textSize="11sp" android:fontFamily="@font/googlesans_bold" android:textColor="#5C4A22"/>
+                                <LinearLayout android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="4dp"
+                                    android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="10dp"
+                                    android:background="@drawable/bg_inv_field_light_grey">
+                                    <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
+                                        <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_blue"/>
+                                        <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_percent" app:tint="#2A5CA8" android:contentDescription="@null"/>
+                                    </FrameLayout>
+                                    <EditText android:id="@+id/etCessBox" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                                        android:layout_marginStart="10dp" android:background="@android:color/transparent" android:inputType="numberDecimal"
+                                        android:textSize="15sp" android:textColor="#1A1A18" android:importantForAutofill="no"
+                                        android:hint="0" android:textColorHint="#A99E88"/>
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- STEP 3 · REASON -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:background="@drawable/bg_addp_card" android:layout_marginTop="12dp">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:background="@drawable/bg_inv_items_header" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
+            <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring_champagne"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_gravity="center" android:text="4" android:textColor="#FFFFFF"
+                    android:textSize="13sp" android:fontFamily="@font/googlesans_bold"/>
+            </FrameLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                android:orientation="vertical" android:layout_marginStart="10dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/correct_qty_step3_title" android:textColor="#5C4423" android:textSize="15sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/correct_qty_step3_sub" android:textColor="#8A6526" android:textSize="11sp"/>
+            </LinearLayout>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:background="@drawable/bg_pill_grey_soft" android:paddingHorizontal="10dp" android:paddingVertical="3dp"
+            android:text="@string/correct_qty_optional" android:textColor="#8A8272" android:textSize="10sp"
+            android:fontFamily="@font/googlesans_semibold"/>
+        </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="16dp">
+            <LinearLayout android:id="@+id/rowReason0" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:background="@drawable/bg_reason_card_unselected" android:padding="13dp"
+                android:layout_marginTop="0dp" android:clickable="true" android:focusable="true">
+                <FrameLayout android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_circle_soft_teal">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center"
+                        android:text="✎" android:textColor="#0F6E56" android:textSize="20sp" android:fontFamily="@font/googlesans_bold"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:layout_marginStart="12dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_price_reason_price"
+                        android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
+                        android:text="@string/correct_price_reason_price_desc" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                </LinearLayout>
+                <View android:id="@+id/checkReason0" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/rowReason1" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:background="@drawable/bg_reason_card_unselected" android:padding="13dp"
+                android:layout_marginTop="10dp" android:clickable="true" android:focusable="true">
+                <FrameLayout android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_circle_soft_gold">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center"
+                        android:text="!" android:textColor="#854F0B" android:textSize="20sp" android:fontFamily="@font/googlesans_bold"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:layout_marginStart="12dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_price_reason_gst"
+                        android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
+                        android:text="@string/correct_price_reason_gst_desc" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                </LinearLayout>
+                <View android:id="@+id/checkReason1" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/rowReason2" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:background="@drawable/bg_reason_card_unselected" android:padding="13dp"
+                android:layout_marginTop="10dp" android:clickable="true" android:focusable="true">
+                <FrameLayout android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_circle_soft_blue">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center"
+                        android:text="↓" android:textColor="#2A5CA8" android:textSize="20sp" android:fontFamily="@font/googlesans_bold"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:layout_marginStart="12dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_price_reason_discount"
+                        android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
+                        android:text="@string/correct_price_reason_discount_desc" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                </LinearLayout>
+                <View android:id="@+id/checkReason2" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/rowReason3" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:background="@drawable/bg_reason_card_unselected" android:padding="13dp"
+                android:layout_marginTop="10dp" android:clickable="true" android:focusable="true">
+                <FrameLayout android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_circle_soft_purple">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center"
+                        android:text="↑" android:textColor="#6B4A9C" android:textSize="20sp" android:fontFamily="@font/googlesans_bold"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:layout_marginStart="12dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_price_reason_wrong"
+                        android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
+                        android:text="@string/correct_price_reason_wrong_desc" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                </LinearLayout>
+                <View android:id="@+id/checkReason3" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
+            </LinearLayout>
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- STEP 4 · WHAT WILL CHANGE -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:background="@drawable/bg_addp_card" android:layout_marginTop="12dp">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:background="@drawable/bg_inv_customer_header" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
+            <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_gravity="center" android:text="5" android:textColor="#FFFFFF"
+                    android:textSize="13sp" android:fontFamily="@font/googlesans_bold"/>
+            </FrameLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                android:orientation="vertical" android:layout_marginStart="10dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/correct_qty_step4_title" android:textColor="#123B31" android:textSize="15sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/correct_qty_step4_sub" android:textColor="#3E6F62" android:textSize="11sp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="16dp">
+                    <TextView android:id="@+id/tvQtyMsg" android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:textSize="13sp" android:textColor="#8A8272" android:lineSpacingExtra="2dp"/>
+                    <LinearLayout android:id="@+id/llQtyOk" android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:visibility="gone">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/correct_qty_bill_changes" android:textSize="11sp"
+                            android:fontFamily="@font/googlesans_bold" android:textColor="#5C4A22"/>
+                        <TextView android:id="@+id/tvQtyBig" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp" android:fontFamily="serif" android:textStyle="bold" android:textSize="26sp"/>
+                        <TextView android:id="@+id/tvQtyLines" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:textSize="13sp" android:textColor="#1A1A18" android:lineSpacingExtra="4dp"/>
+                        <TextView android:id="@+id/tvQtySay" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp" android:background="@drawable/bg_amber_note" android:padding="12dp"
+                            android:textSize="12.5sp" android:textColor="#5C4A22" android:lineSpacingExtra="2dp"/>
+                        <TextView android:id="@+id/tvQtyAccToggle" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp" android:padding="12dp" android:clickable="true" android:focusable="true"
+                            android:background="@drawable/bg_acc_bar" android:gravity="center_vertical"
+                            android:drawableEnd="@drawable/ic_lc_chevron_right" android:drawableTint="#854F0B"
+                            android:text="@string/correct_qty_accountant_show" android:textSize="12.5sp" android:textColor="#854F0B"
+                            android:fontFamily="@font/googlesans_semibold"/>
+                        <LinearLayout android:id="@+id/llQtyAcc" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="vertical" android:visibility="gone"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Footer: floating capsule -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:paddingHorizontal="18dp" android:paddingTop="6dp" android:paddingBottom="12dp"
+        android:clipChildren="false" android:clipToPadding="false">
+        <View android:layout_width="34dp" android:layout_height="3dp" android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="12dp" android:background="@drawable/bg_gold_accent_tick"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:background="@drawable/bg_addp_footer_capsule" android:paddingStart="20dp" android:paddingEnd="8dp"
+            android:paddingVertical="8dp" android:elevation="3dp" android:baselineAligned="false">
+            <LinearLayout android:id="@+id/btnQtyCancel" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical" android:clickable="true" android:focusable="true">
+                <ImageView android:layout_width="13dp" android:layout_height="13dp" android:src="@drawable/ic_close"
+                    app:tint="#B0A895" android:layout_marginEnd="6dp" android:contentDescription="@null"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/cancel"
+                    android:textColor="#8A8272" android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold"/>
+            </LinearLayout>
+            <LinearLayout android:id="@+id/btnQtySave" android:layout_width="0dp" android:layout_weight="1" android:layout_height="50dp"
+                android:layout_marginStart="14dp" android:orientation="horizontal" android:gravity="center"
+                android:background="@drawable/bg_addp_save_pill_sheen" android:clickable="true" android:focusable="true">
+                <FrameLayout android:layout_width="20dp" android:layout_height="20dp" android:layout_marginEnd="8dp">
+                    <View android:layout_width="20dp" android:layout_height="20dp" android:background="@drawable/bg_check_badge_translucent"/>
+                    <ImageView android:layout_width="11dp" android:layout_height="11dp" android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_check" app:tint="#FFFFFF" android:contentDescription="@null"/>
+                </FrameLayout>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/correct_qty_review_save"
+                    android:textColor="#FFFFFF" android:textSize="15sp" android:fontFamily="@font/googlesans_semibold"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Profit Analytics > Scrap tab. Cards (same look as Reports): money lost,
+  loss over time, how often you scrap (with rising/falling trend), products
+  scrapped most (reason dropdown), recent entries, share button.
+-->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F0E6"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+<androidx.core.widget.NestedScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:clipToPadding="false">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="2dp"
+        android:paddingBottom="104dp">
+
+        <TextView
+            android:id="@+id/tvScrapOffline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_growth_positive"
+            android:padding="12dp"
+            android:text="@string/scrap_offline_note"
+            android:textSize="12.5sp"
+            android:textColor="#8A6526"
+            android:visibility="gone"/>
+
+        <LinearLayout
+            android:id="@+id/cardLoss"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_addp_card"
+            android:clipToPadding="false">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_inv_customer_header"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="13dp">
+                <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                    <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                    <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_alert_triangle" app:tint="#FFFFFF" android:contentDescription="@null"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="10dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_loss_title" android:textSize="15sp" android:textStyle="bold" android:textColor="#123B31"/>
+                    <TextView
+                        android:id="@+id/tvLossCaption"
+                        android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_loss_caption" android:textSize="10.5sp" android:textColor="#0F6E56" android:layout_marginTop="1dp"/>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="15dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center_horizontal" android:padding="14dp" android:background="@drawable/bg_inv_subcard_accent_red">
+                    <TextView android:id="@+id/tvScrapLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/scrap_lost_label" android:textSize="11sp" android:textStyle="bold" android:textColor="#B23A3A"/>
+                    <TextView android:id="@+id/tvScrapTotal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/dash" android:textSize="32sp" android:fontFamily="serif" android:textStyle="bold" android:textColor="#8E2A2A" android:includeFontPadding="false"/>
+                    <TextView android:id="@+id/tvScrapSub" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/dash" android:textSize="11sp" android:textColor="#8A5A5A"/>
+                    <TextView android:id="@+id/tvScrapDelta" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:paddingHorizontal="11dp" android:paddingVertical="4dp" android:textSize="11sp" android:textStyle="bold" android:visibility="gone"/>
+                </LinearLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:layout_marginTop="10dp">
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginEnd="8dp" android:orientation="vertical" android:padding="12dp" android:background="@drawable/bg_inv_subcard_accent_amber">
+                    <TextView android:id="@+id/tvShareLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_share_label" android:textSize="10.5sp" android:textStyle="bold" android:textColor="#5E5A4E"/>
+                    <TextView android:id="@+id/tvShareValue" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/dash" android:textSize="17sp" android:fontFamily="serif" android:textStyle="bold" android:textColor="#8A6526" android:includeFontPadding="false" android:singleLine="true" app:autoSizeTextType="uniform" app:autoSizeMinTextSize="11sp" app:autoSizeMaxTextSize="17sp"/>
+                    <TextView android:id="@+id/tvShareSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/dash" android:textSize="10.5sp" android:textColor="#8A8578" android:maxLines="2"/>
+                </LinearLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"  android:orientation="vertical" android:padding="12dp" android:background="@drawable/bg_inv_subcard_accent_blue">
+                    <TextView android:id="@+id/tvEventsLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_events_label" android:textSize="10.5sp" android:textStyle="bold" android:textColor="#5E5A4E"/>
+                    <TextView android:id="@+id/tvEventsValue" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/dash" android:textSize="17sp" android:fontFamily="serif" android:textStyle="bold" android:textColor="#3A5FB2" android:includeFontPadding="false" android:singleLine="true" app:autoSizeTextType="uniform" app:autoSizeMinTextSize="11sp" app:autoSizeMaxTextSize="17sp"/>
+                    <TextView android:id="@+id/tvEventsSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/dash" android:textSize="10.5sp" android:textColor="#8A8578" android:maxLines="2"/>
+                </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <TextView android:id="@+id/tvScrapEmpty" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:gravity="center" android:padding="18dp" android:text="@string/scrap_empty" android:textSize="13sp" android:textColor="#16734A" android:background="@drawable/bg_inv_subcard_accent_green" android:visibility="gone"/>
+
+        <LinearLayout
+            android:id="@+id/cardTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_addp_card"
+            android:clipToPadding="false">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_status_header_amber"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="13dp">
+                <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                    <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring_champagne"/>
+                    <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_si_chart_columns" app:tint="#FFFFFF" android:contentDescription="@null"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="10dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_time_title" android:textSize="15sp" android:textStyle="bold" android:textColor="#6B4A20"/>
+                    <TextView
+                        android:id="@+id/tvTimeCaption"
+                        android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_time_caption" android:textSize="10.5sp" android:textColor="#8A6526" android:layout_marginTop="1dp"/>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="15dp">
+                <!-- Back / period / next (same as the Sales trend card) -->
+                <LinearLayout
+                    android:id="@+id/scrapPeriodNav"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="4dp"
+                    android:layout_marginBottom="12dp">
+                    <TextView
+                        android:id="@+id/btnScrapPrev"
+                        android:layout_width="48dp"
+                        android:layout_height="44dp"
+                        android:gravity="center"
+                        android:text="‹"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="#0F6E56"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:contentDescription="@string/reports_nav_older"/>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal">
+                        <TextView
+                            android:id="@+id/tvScrapPeriodTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/dash"
+                            android:textSize="15sp"
+                            android:textColor="#1A1A18"
+                            android:fontFamily="@font/googlesans_semibold"/>
+                        <TextView
+                            android:id="@+id/tvScrapPeriodSub"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/dash"
+                            android:textSize="10.5sp"
+                            android:textColor="#8A8578"
+                            android:layout_marginTop="1dp"/>
+                    </LinearLayout>
+                    <TextView
+                        android:id="@+id/btnScrapNext"
+                        android:layout_width="48dp"
+                        android:layout_height="44dp"
+                        android:gravity="center"
+                        android:text="›"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:textColor="#0F6E56"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:contentDescription="@string/reports_nav_newer"/>
+                </LinearLayout>
+
+                <com.github.mikephil.charting.charts.BarChart android:id="@+id/scrapChart" android:layout_width="match_parent" android:layout_height="200dp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/cardFreq"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_addp_card"
+            android:clipToPadding="false">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_inv_customer_header"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="13dp">
+                <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                    <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                    <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_si_trend_up" app:tint="#FFFFFF" android:contentDescription="@null"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="10dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_freq_title" android:textSize="15sp" android:textStyle="bold" android:textColor="#123B31"/>
+                    <TextView
+                        android:id="@+id/tvFreqCaption"
+                        android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_freq_caption" android:textSize="10.5sp" android:textColor="#0F6E56" android:layout_marginTop="1dp"/>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="16dp" android:paddingTop="14dp" android:paddingBottom="8dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:id="@+id/tvFreqFace" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="40sp" android:includeFontPadding="false"/>
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:orientation="vertical">
+                        <TextView android:id="@+id/tvFreqHeadline" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="17sp" android:textStyle="bold"/>
+                        <TextView android:id="@+id/tvFreqSummary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:textSize="12.5sp" android:textColor="#6E6A60"/>
+                    </LinearLayout>
+                </LinearLayout>
+                <FrameLayout android:id="@+id/flFreqMeter" android:layout_width="match_parent" android:layout_height="20dp" android:layout_marginTop="14dp">
+                    <View android:layout_width="match_parent" android:layout_height="10dp" android:layout_gravity="center_vertical" android:background="@drawable/bg_scrap_meter"/>
+                    <View android:id="@+id/vFreqMarker" android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="start|center_vertical"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="5dp">
+                    <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/scrap_meter_less" android:textSize="10.5sp" android:textColor="#6E6A60"/>
+                    <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:gravity="center" android:text="@string/scrap_meter_same" android:textSize="10.5sp" android:textColor="#6E6A60"/>
+                    <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:gravity="end" android:text="@string/scrap_meter_more" android:textSize="10.5sp" android:textColor="#6E6A60"/>
+                </LinearLayout>
+                <LinearLayout android:id="@+id/llFreqProducts" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical" android:visibility="gone"/>
+                <TextView android:id="@+id/tvFreqHint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/scrap_freq_dots_hint" android:textSize="10.5sp" android:textColor="#9A8F79" android:visibility="gone"/>
+                <LinearLayout android:id="@+id/btnFreqProducts" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minHeight="44dp" android:layout_gravity="end" android:gravity="center_vertical" android:clickable="true" android:focusable="true">
+                    <TextView android:id="@+id/tvFreqBtnText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/scrap_freq_see_products" android:textSize="13sp" android:textColor="#8A6526" android:fontFamily="@font/googlesans_semibold"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/cardProducts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_addp_card"
+            android:clipToPadding="false">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_status_header_amber"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="13dp">
+                <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                    <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring_champagne"/>
+                    <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_alert_triangle" app:tint="#FFFFFF" android:contentDescription="@null"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="10dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_products_title" android:textSize="15sp" android:textStyle="bold" android:textColor="#6B4A20"/>
+                    <TextView
+                        android:id="@+id/tvProductsCaption"
+                        android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_products_caption" android:textSize="10.5sp" android:textColor="#8A6526" android:layout_marginTop="1dp"/>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="15dp">
+                <!-- Reason dropdown: same white, amber-bordered look as the Best Sellers selector -->
+                <LinearLayout android:id="@+id/rowScrapReason" android:layout_width="match_parent" android:layout_height="52dp" android:layout_marginBottom="10dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/bg_pick_selector" android:paddingStart="14dp" android:paddingEnd="12dp" android:clickable="true" android:focusable="true">
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="@string/scrap_reason_label" android:textSize="10.5sp" android:textColor="#8A8578"/>
+                        <TextView android:id="@+id/tvScrapReasonValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:includeFontPadding="false" android:text="@string/scrap_all_reasons" android:textSize="14sp" android:textColor="#123B31" android:fontFamily="@font/googlesans_semibold"/>
+                    </LinearLayout>
+                    <TextView android:id="@+id/tvScrapReasonCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginEnd="8dp" android:textSize="14sp" android:fontFamily="serif" android:textStyle="bold" android:textColor="#8E2A2A"/>
+                    <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/ic_chevron_down" app:tint="#123B31" android:contentDescription="@null"/>
+                </LinearLayout>
+                <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvScrapProducts" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false"/>
+                <LinearLayout android:id="@+id/tvScrapMore" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:layout_marginTop="8dp" android:orientation="horizontal" android:gravity="center" android:background="@drawable/bg_growth_positive" android:clickable="true" android:focusable="true" android:visibility="gone">
+                    <TextView android:id="@+id/tvScrapMoreText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="@string/dash" android:textSize="13sp" android:textColor="#8A6526" android:fontFamily="@font/googlesans_semibold"/>
+                    <ImageView android:id="@+id/ivScrapMoreChevron" android:layout_width="18dp" android:layout_height="18dp" android:layout_marginStart="6dp" android:src="@drawable/ic_chevron_down" app:tint="#8A6526" android:contentDescription="@null"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/cardRecent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_addp_card"
+            android:clipToPadding="false">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_inv_customer_header"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="13dp">
+                <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                    <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                    <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_clock" app:tint="#FFFFFF" android:contentDescription="@null"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginStart="10dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_recent_title" android:textSize="15sp" android:textStyle="bold" android:textColor="#123B31"/>
+                    <TextView
+                        android:id="@+id/tvRecentCaption"
+                        android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_recent_caption" android:textSize="10.5sp" android:textColor="#0F6E56" android:layout_marginTop="1dp"/>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="15dp">
+                <LinearLayout android:id="@+id/llRecent" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"/>
+                <LinearLayout android:id="@+id/btnRecentMore" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:layout_marginTop="8dp" android:orientation="horizontal" android:gravity="center" android:background="@drawable/bg_growth_positive" android:clickable="true" android:focusable="true" android:visibility="gone">
+                    <TextView android:id="@+id/tvRecentMoreText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="@string/dash" android:textSize="13sp" android:textColor="#8A6526" android:fontFamily="@font/googlesans_semibold"/>
+                    <ImageView android:id="@+id/ivRecentMoreChevron" android:layout_width="18dp" android:layout_height="18dp" android:layout_marginStart="6dp" android:src="@drawable/ic_chevron_down" app:tint="#8A6526" android:contentDescription="@null"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
+
+<LinearLayout
+    android:id="@+id/btnScrapShare"
+    android:layout_width="match_parent"
+    android:layout_height="52dp"
+    android:layout_gravity="bottom"
+    android:layout_marginHorizontal="20dp"
+    android:layout_marginBottom="18dp"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:background="@drawable/bg_scrap_share_btn"
+    android:elevation="10dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:visibility="gone">
+    <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@drawable/ic_lc_file_text" app:tint="#FFFFFF" android:contentDescription="@null"/>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="@string/scrap_share_button" android:textSize="14sp" android:textColor="#FFFFFF" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false"/>
+</LinearLayout>
+
+</FrameLayout>

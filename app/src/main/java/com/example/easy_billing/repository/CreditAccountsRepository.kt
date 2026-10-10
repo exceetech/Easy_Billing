@@ -60,7 +60,7 @@ class CreditAccountsRepository(context: Context) {
     suspend fun updateDue(accountId: Int, value: Double, shopId: Int) =
         db.creditAccountDao().updateDue(accountId, value, shopId)
 
-    suspend fun insertTransaction(tx: CreditTransaction) =
+    suspend fun insertTransaction(tx: CreditTransaction): Long =
         db.creditTransactionDao().insert(tx)
 
     suspend fun deactivateRemote(token: String, serverId: Int) =

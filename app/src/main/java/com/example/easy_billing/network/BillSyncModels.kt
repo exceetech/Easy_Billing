@@ -46,7 +46,9 @@ data class BillPaymentStatusDto(
 
 data class CreatePaymentLinkRequest(
     val customer_name: String? = null,
-    val customer_phone: String? = null
+    val customer_phone: String? = null,
+    // Split bills: ask for only the UPI part. Null = the whole bill.
+    val amount: Double? = null
 )
 
 data class CreatePaymentLinkResponse(

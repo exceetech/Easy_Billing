@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One "Recent scrap" timeline entry: time | dot on a line | name + qty/reason | loss -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="44dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="end"
+        android:paddingTop="2dp">
+        <TextView android:id="@+id/tvRecTime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="12sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18" android:includeFontPadding="false"/>
+        <TextView android:id="@+id/tvRecAmPm" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:textSize="10.5sp" android:textColor="#8A8578" android:includeFontPadding="false"/>
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="22dp"
+        android:layout_height="match_parent"
+        android:layout_marginStart="6dp">
+        <View android:id="@+id/vRecLine" android:layout_width="2dp" android:layout_height="match_parent" android:layout_gravity="top|center_horizontal" android:layout_marginTop="18dp" android:background="#EAD9D9"/>
+        <View android:id="@+id/vRecDot" android:layout_width="16dp" android:layout_height="16dp" android:layout_gravity="top|center_horizontal" android:layout_marginTop="2dp"/>
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/llRecText"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:paddingBottom="28dp"
+        android:orientation="vertical">
+        <TextView android:id="@+id/tvRecName" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="13sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18" android:singleLine="true" android:ellipsize="end"/>
+        <TextView android:id="@+id/tvRecSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:textSize="10.5sp" android:textColor="#8A8578"/>
+    </LinearLayout>
+
+    <TextView android:id="@+id/tvRecAmount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:textSize="13.5sp" android:fontFamily="serif" android:textStyle="bold" android:textColor="#8E2A2A"/>
+</LinearLayout>

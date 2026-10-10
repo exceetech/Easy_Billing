@@ -99,14 +99,14 @@ class BillHistoryAdapter(
         holder.tvBillNumber.text = highlightText(invoiceLabel)
 
         // Caption — short date + payment method, e.g. "12 Apr · Cash"
-        val caption = "${formatDate(bill.created_at)} · ${bill.payment_method}"
+        val caption = "${formatDate(bill.created_at)} · ${com.example.easy_billing.util.PaymentMethodText.label(bill.payment_method)}"
         holder.tvBillDate.text = highlightText(caption)
 
         // Amount
         holder.tvBillAmount.text = CurrencyHelper.format(context, bill.total_amount)
 
         val isCredit = bill.payment_method.contains("credit", ignoreCase = true)
-        val isUpi = bill.payment_method.equals("UPI", ignoreCase = true)
+        val isUpi = com.example.easy_billing.util.PaymentMethodText.hasUpi(bill.payment_method)
 
         // Status caption text mirrors purchase-history's plain lowercase style.
         // UPI is the only payment method with a real, webhook-confirmed
@@ -172,8 +172,11 @@ class BillHistoryAdapter(
             val date = parsers.firstNotNullOfOrNull { fmt ->
                 runCatching { fmt.parse(raw.substring(0, minOf(raw.length, 19))) }.getOrNull()
             }
-            if (date != null)
-                SimpleDateFormat("dd MMM", Locale.getDefault()).format(date)
+            if (date != null) {
+                val day = SimpleDateFormat("dd MMM", Locale.getDefault()).format(date)
+                // Date-only values carry no time, so show the time only when there is one.
+                if (raw.length >= 16) day + ", " + SimpleDateFormat("hh:mm a", Locale.getDefault()).format(date) else day
+            }
             else raw.substring(0, minOf(raw.length, 10))
         } catch (e: Exception) {
             raw.substring(0, minOf(raw.length, 10))

@@ -1,0 +1,2768 @@
+package com.example.easy_billing
+
+import androidx.room.withTransaction
+import com.example.easy_billing.util.appNow
+
+import com.example.easy_billing.util.AppTime
+
+import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.MotionEvent
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.ImageView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import android.os.Build
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowInsets
+import android.view.WindowInsetsController
+import android.view.animation.AnimationUtils
+import android.widget.*
+import android.transition.AutoTransition
+import android.transition.TransitionManager
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.easy_billing.adapter.InvoiceAdapter
+import com.example.easy_billing.db.*
+import com.example.easy_billing.model.CartItem
+import com.example.easy_billing.network.CreateCreditAccountRequest
+import com.example.easy_billing.network.CreateSaleRequest
+import com.example.easy_billing.network.RetrofitClient
+import com.example.easy_billing.network.SaleItemDto
+import com.example.easy_billing.repository.InvoiceRepository
+import com.example.easy_billing.sync.SyncManager
+import com.example.easy_billing.util.CurrencyHelper
+import com.example.easy_billing.util.GstBillingCalculator
+import com.example.easy_billing.util.GstEngine
+import com.example.easy_billing.util.InvoicePdfGenerator
+import com.example.easy_billing.util.UqcMapper
+import com.google.android.material.switchmaterial.SwitchMaterial
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
+import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.*
+
+/**
+ * GST-aware invoice screen.
+ *
+ *   • Invoice-type selector (B2B / B2C) lives in-screen — no
+ *     pre-entry popup.
+ *   • Customer fields are optional for B2C and mandatory for
+ *     B2B (Customer Name, Business Name, Phone, GST, State).
+ *   • Tax math goes through [GstBillingCalculator] which honours
+ *     both the Composition and Normal GST schemes and resolves
+ *     intra- vs inter-state purely from the seller / buyer state
+ *     codes.
+ *   • The legacy `bills` / `bill_items` tables are still written
+ *     so existing bill history, reports, inventory and sync
+ *     logic continue to operate untouched. The new GST-aware
+ *     rows are added in `gst_sales_invoice_table` /
+ *     `gst_sales_items_table`.
+ */
+class InvoiceActivity : AppCompatActivity() {
+
+    companion object {
+    }
+
+    // Repository for the pure I/O functions only (store info, billing
+    // settings, customer lookup/upsert, print reads, credit-picker/add-
+    // customer CRUD). saveBill() still calls db/RetrofitClient directly —
+    // see InvoiceRepository's class doc for why that's excluded.
+    private val repository by lazy { InvoiceRepository(this) }
+
+    // Reactive LIVE / OFFLINE status for the header pill.
+    private var liveStatusCb: android.net.ConnectivityManager.NetworkCallback? = null
+    private var invDotAnim: android.animation.ObjectAnimator? = null
+
+    // ---- Header / scheme ----
+    private lateinit var tvStoreName: TextView
+    private lateinit var tvStoreMonogram: TextView
+    private lateinit var tvBillInfo: TextView
+    private lateinit var tvSchemeBadge: TextView
+
+    // ---- Type selector ----
+    private lateinit var switchBusinessCustomer: com.google.android.material.materialswitch.MaterialSwitch
+
+    // ---- Customer card ----
+    private lateinit var cardCustomer: View
+    private lateinit var tvCustomerRequirement: TextView
+    private lateinit var etCustomerName: EditText
+    // Wraps tilBusinessName + tilCustomerGst as one visually separated
+    // sub-card (green accent border) — shown/hidden as a unit alongside
+    // the two fields it contains, so B2C never sees an empty GST box.
+    private lateinit var groupBusinessGst: View
+    private lateinit var tilBusinessName: View
+    private lateinit var etBusinessName: EditText
+    private lateinit var etCustomerPhone: EditText
+    private lateinit var tilCustomerGst: View
+    private lateinit var etCustomerGst: EditText
+    private lateinit var tilCustomerState: View
+    private lateinit var rowCustomerState: View
+    private lateinit var etCustomerState: AutoCompleteTextView
+
+    // ---- GST summary ----
+    private lateinit var cardGstSummary: View
+    private lateinit var tvSupplyTypeBadge: TextView
+    private lateinit var tvSchemeLine: TextView
+    private lateinit var tvSupplyExplain: TextView
+
+    // ---- Tax breakdown ----
+    private lateinit var cardTaxBreakdown: View
+    private lateinit var rowCgst: View
+    private lateinit var rowSgst: View
+    private lateinit var rowIgst: View
+    private lateinit var rowCess: View
+    private lateinit var tvCgstAmount: TextView
+    private lateinit var tvSgstAmount: TextView
+    private lateinit var tvIgstAmount: TextView
+    private lateinit var tvCessAmount: TextView
+    private lateinit var tvCgstLabel: TextView
+    private lateinit var tvSgstLabel: TextView
+    private lateinit var tvIgstLabel: TextView
+    private lateinit var tvCessLabel: TextView
+    private lateinit var tvCgstRate: TextView
+    private lateinit var tvSgstRate: TextView
+    private lateinit var tvIgstRate: TextView
+    private lateinit var tvCessRate: TextView
+    private lateinit var tvTotalTax: TextView
+    private lateinit var tvCompositionNote: TextView
+
+    // ---- Totals ----
+    private lateinit var tvSubtotal: TextView
+    private lateinit var tvChargesSubtotal: TextView
+    private lateinit var tvNetAmount: TextView
+    private lateinit var tvGst: TextView
+    private lateinit var tvGstPercent: TextView
+    private lateinit var tvTotal: TextView
+    private lateinit var rowInvRoundOff: View
+    private lateinit var tvInvRoundOff: TextView
+    /** Mirrors the "Round off" toggle in Invoice Design (app_settings). */
+    private var roundOffEnabled: Boolean = false
+    private lateinit var etDiscount: EditText
+    private lateinit var tvAddExtraDiscount: View
+    private lateinit var rowExtraDiscount: View
+    private lateinit var rgPaymentMethod: RadioGroup
+    private lateinit var tvPaymentMethodHelper: TextView
+    private lateinit var layoutBillSavedBanner: View
+    private lateinit var tvBillSavedTitle: TextView
+    private lateinit var tvBillSavedSubtitle: TextView
+    private lateinit var tvConfirmTitle: TextView
+    private lateinit var tvConfirmSubtitle: TextView
+    private lateinit var btnConfirm: View
+    private lateinit var btnPrint: View
+    private lateinit var btnSendToCustomer: View
+    private lateinit var btnShowQr: View
+    private lateinit var btnClose: View
+
+    // ---- State ----
+    private lateinit var items: MutableList<CartItem>
+    private var savedBillId: Int = -1
+    private var isBillSaved = false
+
+    /**
+     * Set when the sale is on credit, consumed by [saveBill] after the bill row
+     * is inserted. Held rather than written immediately so a bill that fails to
+     * save can't leave a debt behind. Cleared as soon as it is applied, so a
+     * retry can't apply it twice.
+     */
+    private var pendingCreditAccount: CreditAccount? = null
+
+    /**
+     * Payment lines chosen in the Split sheet (cash + UPI + card + credit). Null unless Split is the
+     * selected method. Always re-checked against the live bill total before the bill is saved.
+     */
+    private var splitLines: List<com.example.easy_billing.util.PayLine>? = null
+    private var isUpdating = false
+    private var billNumber: String = " "
+
+    private var defaultGstFallback: Double = 0.0
+    private var gstScheme: String = GstBillingCalculator.SCHEME_NORMAL
+    private var sellerStateCode: String = ""
+    private var sellerGstin: String = ""
+    private var sellerName: String = ""
+
+    private var invoiceType: String = "B2C"
+
+    // ---- GST Options section (collapsible; whole card hidden on B2C) ----
+    private lateinit var cardGstOptions: View
+    private lateinit var rowGstOptionsHeader: View
+    private lateinit var tvGstOptionsToggle: android.widget.ImageView
+    private lateinit var layoutGstOptionsBody: View
+    private lateinit var switchReverseCharge: com.google.android.material.materialswitch.MaterialSwitch
+    private lateinit var spinnerGstrInvoiceType: AutoCompleteTextView
+    private lateinit var switchEcommerce: com.google.android.material.materialswitch.MaterialSwitch
+    private lateinit var layoutEcommerceFields: View
+    private lateinit var etEcommerceGstin: EditText
+    private lateinit var etEcommerceOperatorName: EditText
+    private lateinit var spinnerEcoNatureOfSupply: AutoCompleteTextView
+    private lateinit var spinnerEcoDocumentType: AutoCompleteTextView
+    private lateinit var spinnerEcoRole: AutoCompleteTextView
+    private lateinit var etEcoSupplierGstin: EditText
+    private lateinit var etEcoSupplierName: EditText
+    private lateinit var etEcoRecipientGstin: EditText
+    private lateinit var etEcoRecipientName: EditText
+
+    // Re-used after each calculate() — drives both the persistence
+    // step and the bill-summary widgets at the bottom of the screen.
+    @Volatile
+    private var lastBreakdown: GstBillingCalculator.BillBreakdown? = null
+
+    /** Adapter is rebuilt only once; mode flips go through [InvoiceAdapter.updateMode]. */
+    private lateinit var invoiceAdapter: InvoiceAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_invoice)
+        com.example.easy_billing.util.UserEventLogger.logAction("Invoice", "opened")
+
+        bindViews()
+
+        @Suppress("UNCHECKED_CAST")
+        items = (intent.getSerializableExtra("CART_ITEMS") as? List<CartItem>)
+            ?.toMutableList() ?: mutableListOf()
+
+        val rvItems = findViewById<RecyclerView>(R.id.rvInvoiceItems)
+        rvItems.layoutManager = LinearLayoutManager(this)
+        invoiceAdapter = InvoiceAdapter(
+            items       = items,
+            supplyType  = InvoiceAdapter.SUPPLY_INTRASTATE,
+            gstScheme   = gstScheme,
+            onItemClick = { item -> showLineDiscountDialog(item) }
+        )
+        rvItems.adapter = invoiceAdapter
+
+        // Item-count pill in the Line Items header banner.
+        findViewById<TextView?>(R.id.tvItemCount)?.text =
+            if (items.size == 1) "1 item" else "${items.size} items"
+
+        // Per-row "fall in" animation when the screen first appears.
+        rvItems.layoutAnimation = AnimationUtils.loadLayoutAnimation(
+            this, R.anim.layout_animation_fall_down
+        )
+        rvItems.scheduleLayoutAnimation()
+
+        val date = AppTime.nowBillStamp()   // app-timezone wall clock (matches backend)
+        tvBillInfo.text = date
+
+        // Premium polish — staggered card reveal + press scaling on
+        // anything tappable. Set up *once* per onCreate.
+        playEntryAnimations()
+        attachPressFeedback(btnConfirm, scaleTo = 0.97f)
+        attachPressFeedback(btnPrint,   scaleTo = 0.96f)
+        attachPressFeedback(btnSendToCustomer, scaleTo = 0.96f)
+        attachPressFeedback(btnClose,   scaleTo = 0.96f)
+
+        wireInvoiceTypeSelector()
+        wireGstOptionsSection()
+        applyInvoiceTypeUi("B2C")
+
+        etDiscount.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) = recalculate()
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        // Re-run totals when the buyer state changes (intra ↔ inter).
+        etCustomerState.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) = recalculate()
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+        etCustomerGst.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) = recalculate()
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        // Phone-first customer lookup: a complete mobile number fetches the
+        // saved customer (local-first, then server) and auto-fills details.
+        // Works for both B2B and B2C.
+        etCustomerPhone.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                val phone = s?.toString()?.trim().orEmpty()
+                if (phone.length == 10) lookupCustomerByPhone(phone)
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
+        rgPaymentMethod.setOnCheckedChangeListener { _, checkedId ->
+            if (checkedId != R.id.rbSplit) splitLines = null
+            updatePaymentMethodCues()
+        }
+        // A tap on Split (also when it is already selected) opens the sheet to set / change the amounts.
+        findViewById<View>(R.id.rbSplit)?.setOnClickListener {
+            if (!isBillSaved) openSplitSheet()
+        }
+        updatePaymentMethodCues()
+
+        loadStoreInfo()
+        loadBillingSettings()
+        recalculate()
+
+        btnConfirm.setOnClickListener {
+            if (isBillSaved) {
+                setResult(RESULT_OK)
+                finish()
+                return@setOnClickListener
+            }
+            val ecomPart = if (invoiceType == "ECOMMERCE") {
+                ", ecom_gstin=${etEcommerceGstin.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "ecom_operator=${etEcommerceOperatorName.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}"
+            } else ""
+            com.example.easy_billing.util.UserEventLogger.logAction(
+                "Invoice",
+                "confirm_clicked: invoice_type=$invoiceType, payment_method=${getPaymentMethod()}, " +
+                    "customer_name=${etCustomerName.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "customer_phone=${etCustomerPhone.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "customer_gstin=${etCustomerGst.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}, " +
+                    "discount=${etDiscount.text?.toString()?.trim()?.ifEmpty { "-" } ?: "-"}" +
+                    ecomPart
+            )
+            if (!validateB2BFields()) return@setOnClickListener
+            if (!validateEcommerceFields()) return@setOnClickListener
+            if (isSplitSelected() && !splitMatchesTotal()) {
+                // The cart or discount changed after the split was entered.
+                Toast.makeText(this, R.string.invoice_split_total_changed, Toast.LENGTH_LONG).show()
+                openSplitSheet()
+                return@setOnClickListener
+            }
+            if (needsCreditCustomer()) {
+                handleCreditFlow()
+            } else {
+                // Drop any customer left over from a credit attempt that failed
+                // to save — otherwise switching to Cash and confirming would
+                // put the debt on them anyway.
+                pendingCreditAccount = null
+                saveBill()
+            }
+        }
+        btnPrint.setOnClickListener { generatePdfAndPrint() }
+        btnClose.setOnClickListener {
+            com.example.easy_billing.util.UserEventLogger.logAction("Invoice", "close_clicked: bill_saved=$isBillSaved")
+            setResult(if (isBillSaved) RESULT_OK else RESULT_CANCELED)
+            finish()
+        }
+        // Print and Send-to-customer only make sense once a bill actually
+        // exists — both stay hidden entirely until saveBill() succeeds
+        // (see the post-save block), instead of being shown-but-dimmed.
+        btnPrint.visibility = View.GONE
+        btnSendToCustomer.visibility = View.GONE
+        btnSendToCustomer.setOnClickListener { showSendToCustomerOptions() }
+
+        // "+ Add extra discount on the whole bill" — reveals the
+        // bill-level discount field only when tapped; the per-item
+        // discount chips (InvoiceAdapter) stay available regardless and
+        // both mechanisms deliberately coexist.
+        tvAddExtraDiscount.setOnClickListener {
+            rowExtraDiscount.visibility = View.VISIBLE
+            tvAddExtraDiscount.visibility = View.GONE
+            etDiscount.requestFocus()
+        }
+
+        // Show QR — stays hidden until a UPI bill is actually saved (see
+        // saveBill()'s post-save block), then lets the cashier re-open the
+        // scan-to-pay dialog as many times as needed: first attempt
+        // failed, dialog got closed, customer wants to scan again, etc.
+        btnShowQr.setOnClickListener { reopenQrDialog() }
+    }
+
+    // ================= BIND =================
+
+    private fun bindViews() {
+        tvStoreName       = findViewById(R.id.tvStoreName)
+        tvStoreMonogram   = findViewById(R.id.tvStoreMonogram)
+        tvBillInfo        = findViewById(R.id.tvBillInfo)
+        tvSchemeBadge     = findViewById(R.id.tvSchemeBadge)
+
+        switchBusinessCustomer = findViewById(R.id.switchBusinessCustomer)
+
+        cardCustomer          = findViewById(R.id.cardCustomer)
+        tvCustomerRequirement = findViewById(R.id.tvCustomerRequirement)
+        etCustomerName        = findViewById(R.id.etCustomerName)
+        groupBusinessGst      = findViewById(R.id.groupBusinessGst)
+        tilBusinessName       = findViewById(R.id.tilBusinessName)
+        etBusinessName        = findViewById(R.id.etBusinessName)
+        etCustomerPhone       = findViewById(R.id.etCustomerPhone)
+        tilCustomerGst        = findViewById(R.id.tilCustomerGst)
+        etCustomerGst         = findViewById(R.id.etCustomerGst)
+        tilCustomerState      = findViewById(R.id.tilCustomerState)
+        rowCustomerState      = findViewById(R.id.rowCustomerState)
+        etCustomerState       = findViewById(R.id.etCustomerState)
+
+        cardGstSummary    = findViewById(R.id.cardGstSummary)
+        tvSupplyTypeBadge = findViewById(R.id.tvSupplyTypeBadge)
+        tvSchemeLine      = findViewById(R.id.tvSchemeLine)
+        tvSupplyExplain   = findViewById(R.id.tvSupplyExplain)
+
+        cardTaxBreakdown  = findViewById(R.id.cardTaxBreakdown)
+        rowCgst           = findViewById(R.id.rowCgst)
+        rowSgst           = findViewById(R.id.rowSgst)
+        rowIgst           = findViewById(R.id.rowIgst)
+        rowCess           = findViewById(R.id.rowCess)
+        tvCgstAmount      = findViewById(R.id.tvCgstAmount)
+        tvSgstAmount      = findViewById(R.id.tvSgstAmount)
+        tvIgstAmount      = findViewById(R.id.tvIgstAmount)
+        tvCessAmount      = findViewById(R.id.tvCessAmount)
+        tvCgstLabel       = findViewById(R.id.tvCgstLabel)
+        tvSgstLabel       = findViewById(R.id.tvSgstLabel)
+        tvIgstLabel       = findViewById(R.id.tvIgstLabel)
+        tvCessLabel       = findViewById(R.id.tvCessLabel)
+        tvCgstRate        = findViewById(R.id.tvCgstRate)
+        tvSgstRate        = findViewById(R.id.tvSgstRate)
+        tvIgstRate        = findViewById(R.id.tvIgstRate)
+        tvCessRate        = findViewById(R.id.tvCessRate)
+        tvTotalTax        = findViewById(R.id.tvTotalTax)
+        tvCompositionNote = findViewById(R.id.tvCompositionNote)
+
+        tvSubtotal        = findViewById(R.id.tvSubtotal)
+        tvChargesSubtotal = findViewById(R.id.tvChargesSubtotal)
+        tvNetAmount       = findViewById(R.id.tvNetAmount)
+        tvGst          = findViewById(R.id.tvGst)
+        tvGstPercent   = findViewById(R.id.tvGstPercent)
+        tvTotal        = findViewById(R.id.tvTotal)
+        rowInvRoundOff = findViewById(R.id.rowInvRoundOff)
+        tvInvRoundOff  = findViewById(R.id.tvInvRoundOff)
+        etDiscount     = findViewById(R.id.etDiscount)
+        tvAddExtraDiscount = findViewById(R.id.tvAddExtraDiscount)
+        rowExtraDiscount   = findViewById(R.id.rowExtraDiscount)
+        rgPaymentMethod       = findViewById(R.id.rgPaymentMethod)
+        tvPaymentMethodHelper = findViewById(R.id.tvPaymentMethodHelper)
+        layoutBillSavedBanner = findViewById(R.id.layoutBillSavedBanner)
+        tvBillSavedTitle      = findViewById(R.id.tvBillSavedTitle)
+        tvBillSavedSubtitle   = findViewById(R.id.tvBillSavedSubtitle)
+        tvConfirmTitle        = findViewById(R.id.tvConfirmTitle)
+        tvConfirmSubtitle     = findViewById(R.id.tvConfirmSubtitle)
+        btnConfirm            = findViewById(R.id.btnConfirm)
+        btnPrint       = findViewById(R.id.btnPrint)
+        btnSendToCustomer = findViewById(R.id.btnSendToCustomer)
+        btnShowQr = findViewById(R.id.btnShowQr)
+        btnClose       = findViewById(R.id.btnClose)
+
+        setupStateDropdown()
+
+        // ---- GST Options section ----
+        cardGstOptions         = findViewById(R.id.cardGstOptions)
+        rowGstOptionsHeader    = findViewById(R.id.rowGstOptionsHeader)
+        tvGstOptionsToggle     = findViewById(R.id.tvGstOptionsToggle)
+        layoutGstOptionsBody   = findViewById(R.id.layoutGstOptionsBody)
+        switchReverseCharge    = findViewById(R.id.switchReverseCharge)
+        spinnerGstrInvoiceType = findViewById(R.id.spinnerGstrInvoiceType)
+        switchEcommerce        = findViewById(R.id.switchEcommerce)
+        layoutEcommerceFields  = findViewById(R.id.layoutEcommerceFields)
+        etEcommerceGstin       = findViewById(R.id.etEcommerceGstin)
+        etEcommerceOperatorName= findViewById(R.id.etEcommerceOperatorName)
+        spinnerEcoNatureOfSupply = findViewById(R.id.spinnerEcoNatureOfSupply)
+        spinnerEcoDocumentType   = findViewById(R.id.spinnerEcoDocumentType)
+        spinnerEcoRole           = findViewById(R.id.spinnerEcoRole)
+        etEcoSupplierGstin       = findViewById(R.id.etEcoSupplierGstin)
+        etEcoSupplierName        = findViewById(R.id.etEcoSupplierName)
+        etEcoRecipientGstin      = findViewById(R.id.etEcoRecipientGstin)
+        etEcoRecipientName       = findViewById(R.id.etEcoRecipientName)
+    }
+
+    /**
+     * Wires the customer-state field as an exposed dropdown showing
+     * every Indian state (mirrors the pattern in PurchaseActivity).
+     * Tapping the field opens the list; tapping a row populates the
+     * input — and our existing TextWatcher on it triggers
+     * [recalculate] so the intra/inter supply type updates instantly.
+     */
+    private fun setupStateDropdown() {
+        // Tap opens a styled popup sheet (matches "Place of supply" in
+        // Add Import Service) instead of the default autocomplete list.
+        etCustomerState.isFocusable = false
+        etCustomerState.isFocusableInTouchMode = false
+        etCustomerState.isClickable = false
+        rowCustomerState.setOnClickListener { showStatePopup(etCustomerState) }
+    }
+
+    private fun dpPx(v: Int): Int =
+        (v * resources.displayMetrics.density).toInt()
+
+    /** State picker styled like the Import-Service "Place of supply" sheet. */
+    private fun showStatePopup(anchor: android.widget.TextView) {
+        showChooserPopup(anchor, GstEngine.INDIA_STATES.values.toList())
+    }
+
+    /** Generic picker sheet matching the Import-Service "Place of supply" popup. */
+    private fun showChooserPopup(
+        anchor: android.widget.TextView,
+        options: List<String>,
+        onPick: (String) -> Unit = {}
+    ) {
+        val states = options
+        val current = anchor.text?.toString()?.trim().orEmpty()
+
+        val container = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setBackgroundResource(R.drawable.bg_pos_dropdown)
+            setPadding(dpPx(5), dpPx(5), dpPx(5), dpPx(5))
+        }
+        val scroll = android.widget.ScrollView(this).apply { addView(container) }
+
+        // Anchor to the field BOX (parent) so the sheet drops from the
+        // full-width field, not the inner value view.
+        val box = (anchor.parent as? android.view.View) ?: anchor
+
+        // Size to content like the "Place of supply" sheet; cap tall lists
+        // (e.g. states) so they scroll instead of running off-screen.
+        val sheetHeight = minOf(options.size * dpPx(44) + dpPx(10), dpPx(320))
+
+        val popup = android.widget.PopupWindow(
+            scroll, box.width,
+            sheetHeight, true
+        ).apply {
+            elevation = dpPx(10).toFloat()
+            setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
+        }
+
+        states.forEach { opt ->
+            val isSel = opt.equals(current, ignoreCase = true)
+            val row = android.widget.LinearLayout(this).apply {
+                orientation = android.widget.LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    android.widget.LinearLayout.LayoutParams.MATCH_PARENT, dpPx(44)
+                )
+                setPadding(dpPx(12), 0, dpPx(12), 0)
+                isClickable = true
+                if (isSel) setBackgroundResource(R.drawable.bg_pos_row_selected)
+            }
+            val label = android.widget.TextView(this).apply {
+                text = opt
+                textSize = 14f
+                setTextColor(android.graphics.Color.parseColor(if (isSel) "#185FA5" else "#1A1A18"))
+                layoutParams = android.widget.LinearLayout.LayoutParams(
+                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f
+                )
+            }
+            row.addView(label)
+            if (isSel) {
+                row.addView(android.widget.ImageView(this).apply {
+                    setImageResource(R.drawable.ic_lucide_check)
+                    setColorFilter(android.graphics.Color.parseColor("#185FA5"))
+                    layoutParams = android.widget.LinearLayout.LayoutParams(dpPx(16), dpPx(16))
+                })
+            }
+            row.setOnClickListener {
+                anchor.text = opt
+                popup.dismiss()
+                onPick(opt)
+            }
+            container.addView(row)
+        }
+
+        popup.showAsDropDown(box, 0, dpPx(6))
+    }
+
+    /**
+     * Wires the collapsible "GST Options" section and the inner
+     * e-commerce fields toggle.
+     *
+     *   • Tapping the header row expands / collapses the body with
+     *     an animated transition.
+     *   • The GSTR invoice-type dropdown is populated from the four
+     *     valid GSTR-1 values.
+     *   • Toggling the e-commerce switch reveals the GSTIN and
+     *     operator-name fields.
+     */
+    private fun wireGstOptionsSection() {
+        // Populate the GSTR invoice-type dropdown.
+        val invoiceTypes = listOf(
+            getString(R.string.purchase_invoice_type_regular),
+            getString(R.string.purchase_invoice_type_sez_with_payment),
+            getString(R.string.purchase_invoice_type_sez_without_payment),
+            getString(R.string.purchase_invoice_type_deemed_exp)
+        )
+        val typeAdapter = ArrayAdapter(
+            this, android.R.layout.simple_dropdown_item_1line, invoiceTypes
+        )
+        spinnerGstrInvoiceType.setAdapter(typeAdapter)
+        spinnerGstrInvoiceType.setText(getString(R.string.purchase_invoice_type_regular), false)
+
+        val natureAdapter = ArrayAdapter(
+            this, android.R.layout.simple_dropdown_item_1line, listOf("B2B", "B2C", "URP2B")
+        )
+        spinnerEcoNatureOfSupply.setAdapter(natureAdapter)
+        spinnerEcoNatureOfSupply.setText("B2C", false)
+
+        val docAdapter = ArrayAdapter(
+            this, android.R.layout.simple_dropdown_item_1line,
+            listOf(
+                getString(R.string.invoice_document_type_invoice),
+                getString(R.string.purchase_return_doctype_credit),
+                getString(R.string.purchase_return_doctype_debit)
+            )
+        )
+        spinnerEcoDocumentType.setAdapter(docAdapter)
+        spinnerEcoDocumentType.setText(getString(R.string.invoice_document_type_invoice), false)
+
+        val roleAdapter = ArrayAdapter(
+            this, android.R.layout.simple_dropdown_item_1line, listOf("Supplier", "E-Commerce Operator")
+        )
+        spinnerEcoRole.setAdapter(roleAdapter)
+        spinnerEcoRole.setText("Supplier", false)
+
+        // Tap opens the styled chooser sheet (matches "Place of supply").
+        spinnerGstrInvoiceType.setOnClickListener {
+            showChooserPopup(it as android.widget.TextView, invoiceTypes)
+        }
+        spinnerEcoNatureOfSupply.setOnClickListener {
+            showChooserPopup(it as android.widget.TextView, listOf("B2B", "B2C", "URP2B"))
+        }
+        spinnerEcoDocumentType.setOnClickListener {
+            showChooserPopup(it as android.widget.TextView, listOf("Invoice", "Credit Note", "Debit Note"))
+        }
+        spinnerEcoRole.setOnClickListener {
+            showChooserPopup(it as android.widget.TextView, listOf("Supplier", "E-Commerce Operator")) {
+                autofillEcoFields()
+            }
+        }
+
+        // Collapse/expand toggle.
+        tvGstOptionsToggle.contentDescription = getString(R.string.invoice_expand_gst_options)
+        rowGstOptionsHeader.setOnClickListener {
+            val expanding = layoutGstOptionsBody.visibility != View.VISIBLE
+            // No layout transition here — animating the card resize made the
+            // rounded-corner background redraw with a visible lag on collapse.
+            layoutGstOptionsBody.visibility = if (expanding) View.VISIBLE else View.GONE
+            tvGstOptionsToggle.contentDescription = if (expanding) getString(R.string.invoice_collapse_gst_options) else getString(R.string.invoice_expand_gst_options)
+            tvGstOptionsToggle.animate()
+                .rotation(if (expanding) 180f else 0f)
+                .setDuration(200L)
+                .start()
+        }
+
+        // E-commerce toggle → show/hide fields + autofill from store / customer.
+        switchEcommerce.setOnCheckedChangeListener { _, isChecked ->
+            (layoutEcommerceFields.parent as? ViewGroup)?.let { parent ->
+                TransitionManager.beginDelayedTransition(
+                    parent,
+                    AutoTransition().setDuration(200L)
+                )
+            }
+            layoutEcommerceFields.visibility = if (isChecked) View.VISIBLE else View.GONE
+            if (isChecked) autofillEcoFields()
+        }
+    }
+
+    /**
+     * Pre-fills the e-commerce GST fields, leaving every field editable so the
+     * cashier can override an autofilled value.
+     *
+     *   • Document type → always "Invoice".
+     *   • Nature of supply → taken from the B2C / B2B selector at the top.
+     *   • Role = Supplier → Supplier GSTIN/Name = this shop (GST profile),
+     *     Recipient GSTIN/Name = the customer just entered.
+     *   • Role = E-Commerce Operator → supplier & recipient left blank.
+     */
+    private fun autofillEcoFields() {
+        if (!switchEcommerce.isChecked) return
+
+        spinnerEcoDocumentType.setText("Invoice", false)
+        spinnerEcoNatureOfSupply.setText(invoiceType, false)
+
+        if (spinnerEcoRole.text.toString().equals("Supplier", ignoreCase = true)) {
+            etEcoSupplierGstin.setText(sellerGstin)
+            etEcoSupplierName.setText(
+                sellerName.ifBlank { tvStoreName.text?.toString().orEmpty() }
+            )
+            etEcoRecipientGstin.setText(etCustomerGst.text?.toString()?.trim().orEmpty())
+            val recipientName = etBusinessName.text?.toString()?.trim().orEmpty()
+                .ifBlank { etCustomerName.text?.toString()?.trim().orEmpty() }
+            etEcoRecipientName.setText(recipientName)
+        } else {
+            etEcoSupplierGstin.setText("")
+            etEcoSupplierName.setText("")
+            etEcoRecipientGstin.setText("")
+            etEcoRecipientName.setText("")
+        }
+    }
+
+    private fun wireInvoiceTypeSelector() {
+        switchBusinessCustomer.setOnCheckedChangeListener { _, isChecked ->
+            invoiceType = if (isChecked) "B2B" else "B2C"
+
+            // Clear all customer detail boxes when toggling B2C ⇄ B2B.
+            etCustomerName.setText("")
+            etBusinessName.setText("")
+            etCustomerPhone.setText("")
+            etCustomerGst.setText("")
+            etCustomerState.setText("")
+
+            applyInvoiceTypeUi(invoiceType)
+            recalculate()
+            autofillEcoFields()
+        }
+    }
+
+    private fun applyInvoiceTypeUi(type: String) {
+        val isB2B = type == "B2B"
+
+        // Animate the field reveal so the new rows slide/fade in
+        // instead of snapping to visible.
+        (cardCustomer as? ViewGroup)?.let { parent ->
+            TransitionManager.beginDelayedTransition(
+                parent,
+                AutoTransition().setDuration(260L)
+            )
+        }
+
+        groupBusinessGst.visibility = if (isB2B) View.VISIBLE else View.GONE
+        tilBusinessName.visibility  = if (isB2B) View.VISIBLE else View.GONE
+        tilCustomerGst.visibility   = if (isB2B) View.VISIBLE else View.GONE
+        // State stays available on B2C as well. Without it a B2C bill is
+        // stamped with the shop's own state (see finalStateCode in saveBill),
+        // so a genuine inter-state sale is filed as local — it lands in B2CS
+        // and can never reach GSTR-1 Table 5 (B2CL). Optional on B2C, but it
+        // has to be *possible* to enter.
+        tilCustomerState.visibility = View.VISIBLE
+
+        // GST Options (reverse charge / e-commerce / GSTR invoice type) only
+        // matters for a B2B sale — hidden entirely for B2C instead of just
+        // being collapsed, so a cash-counter B2C sale never even sees it.
+        cardGstOptions.visibility = if (isB2B) View.VISIBLE else View.GONE
+
+        tvCustomerRequirement.text = if (isB2B) getString(R.string.invoice_required) else getString(R.string.invoice_optional)
+        tvCustomerRequirement.setBackgroundResource(
+            if (isB2B) R.drawable.bg_pill_red else R.drawable.bg_pill_green
+        )
+        tvCustomerRequirement.setTextColor(
+            if (isB2B) 0xFFB91C1C.toInt() else 0xFF16A34A.toInt()
+        )
+    }
+
+    // ================= ANIMATION HELPERS =================
+
+    /**
+     * Stagger the section cards into place as the screen opens.
+     * Each card slides up + fades from 0 → 1 with a small per-card
+     * delay so the eye walks down the screen.
+     */
+    private fun playEntryAnimations() {
+        val targets = listOfNotNull(
+            findViewById(R.id.heroCard),
+            findViewById(R.id.cardCustomer),
+            findViewById(R.id.itemsCard),
+            findViewById(R.id.cardGstSummary),
+            findViewById(R.id.cardTaxBreakdown),
+            findViewById(R.id.totalsCard)
+        ) as List<View>
+
+        targets.forEachIndexed { index, view ->
+            view.alpha = 0f
+            view.translationY = 36f
+            view.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setStartDelay(60L + index * 70L)
+                .setDuration(420L)
+                .setInterpolator(android.view.animation.DecelerateInterpolator(1.6f))
+                .start()
+        }
+    }
+
+    /**
+     * Hover/press feedback — scales the view to [scaleTo] on
+     * ACTION_DOWN and back to 1.0 on UP/CANCEL. Doesn't consume
+     * the touch event so the underlying click still fires.
+     */
+    @Suppress("ClickableViewAccessibility")
+    private fun attachPressFeedback(view: View, scaleTo: Float) {
+        view.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    v.animate()
+                        .scaleX(scaleTo).scaleY(scaleTo)
+                        .setDuration(110L)
+                        .start()
+                }
+                MotionEvent.ACTION_UP,
+                MotionEvent.ACTION_CANCEL -> {
+                    v.animate()
+                        .scaleX(1f).scaleY(1f)
+                        .setDuration(140L)
+                        .start()
+                }
+            }
+            false
+        }
+    }
+
+    /** Brief "pop" animation to call attention to the active chip. */
+    override fun onResume() {
+        super.onResume()
+        com.example.easy_billing.util.SessionTimeoutGuard.start(this)
+        updateLiveStatus()
+        // Reflect the "Round off" toggle from Invoice Design (may have changed).
+        roundOffEnabled = getSharedPreferences("app_settings", MODE_PRIVATE)
+            .getBoolean("round_off", false)
+        if (::tvTotal.isInitialized) recalculate()
+        // Owner switched UPI off in Settings > Payments: hide the UPI choice
+        // (unless this bill already is a UPI bill).
+        findViewById<View>(R.id.rbUpi)?.let { rb ->
+            val upiOn = com.example.easy_billing.util.UpiSettings.isEnabled(this)
+            rb.visibility = if (upiOn || (rb as? android.widget.RadioButton)?.isChecked == true)
+                View.VISIBLE else View.GONE
+        }
+        if (liveStatusCb == null) {
+            liveStatusCb = com.example.easy_billing.util.NetworkUtils
+                .registerCallback(this) { runOnUiThread { updateLiveStatus() } }
+        }
+    }
+
+    /**
+     * Round-off (floor to whole rupee) computed in integer paise to avoid
+     * floating-point drift. Returns 0 when the toggle is off.
+     */
+    private fun roundOffAmount(payable: Double): Double {
+        if (!roundOffEnabled) return 0.0
+        val paise = Math.round(payable * 100.0)
+        val flooredPaise = (paise / 100L) * 100L
+        return (paise - flooredPaise) / 100.0
+    }
+
+    override fun onPause() {
+        super.onPause()
+        com.example.easy_billing.util.SessionTimeoutGuard.stop(this)
+        com.example.easy_billing.util.NetworkUtils.unregister(this, liveStatusCb)
+        liveStatusCb = null
+    }
+
+    // Defensive backstop in case onPause is ever skipped by a future edit —
+    // stop() is safe to call even if the guard was already stopped.
+    override fun onDestroy() {
+        com.example.easy_billing.util.SessionTimeoutGuard.stop(this)
+        super.onDestroy()
+    }
+
+    /** Paints the header pill LIVE (internet) or OFFLINE. */
+    private fun updateLiveStatus() {
+        val online = com.example.easy_billing.util.NetworkUtils.isOnline(this)
+        com.example.easy_billing.util.NetworkUtils.applyStatus(
+            findViewById(R.id.containerInvStatus), findViewById(R.id.tvInvStatus), online
+        )
+        invDotAnim = com.example.easy_billing.util.NetworkUtils.blinkDot(
+            findViewById(R.id.viewInvDot), invDotAnim, online
+        )
+    }
+
+    private fun popChip(view: View) {
+        view.animate()
+            .scaleX(1.08f).scaleY(1.08f)
+            .setDuration(110L)
+            .withEndAction {
+                view.animate()
+                    .scaleX(1f).scaleY(1f)
+                    .setDuration(140L)
+                    .start()
+            }
+            .start()
+    }
+
+    /** Animates the grand-total number when it changes. */
+    private fun pulseTotal() {
+        tvTotal.animate()
+            .scaleX(1.06f).scaleY(1.06f)
+            .setDuration(120L)
+            .withEndAction {
+                tvTotal.animate()
+                    .scaleX(1f).scaleY(1f)
+                    .setDuration(160L)
+                    .start()
+            }
+            .start()
+    }
+
+    // ================= CALCULATION =================
+
+    /**
+     * Recompute the tax breakdown and refresh every UI surface
+     * that depends on it — the per-tax rows, the totals card,
+     * and the supply-type badge.
+     *
+     * Always runs on the main thread; the calculator itself is
+     * pure CPU and doesn't touch the DB.
+     */
+    // ---------------- FULL-SCREEN (immersive, like other activities) ----------------
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) hideSystemUI()
+    }
+
+    private fun hideSystemUI() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            window.setDecorFitsSystemWindows(false)
+            window.insetsController?.let { controller ->
+                controller.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
+                controller.systemBarsBehavior =
+                    WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
+        }
+    }
+
+    /**
+     * Paints one tax tile. Active → white tile, gold label, ink amount and
+     * effective rate; inactive → muted tile with "—" / "n/a".
+     */
+    private fun bindTaxTile(
+        tile: View, label: TextView, amount: TextView, rate: TextView,
+        active: Boolean, taxAmount: Double, subtotal: Double, nominalPct: Double? = null
+    ) {
+        tile.alpha = if (active) 1f else 0.55f
+        if (active) {
+            tile.setBackgroundResource(R.drawable.bg_inv_tax_tile)
+            label.setTextColor(0xFF8A6526.toInt())
+            amount.setTextColor(0xFF18181B.toInt())
+            amount.text = CurrencyHelper.format(this, taxAmount)
+            // Show the actual configured rate (e.g. "6%"), not amount/subtotal
+            // re-derived from paisa-rounded totals — that re-derivation is
+            // what turned an exact 6% into a displayed "6.02%".
+            val pct = nominalPct ?: (if (subtotal > 0) taxAmount / subtotal * 100.0 else 0.0)
+            val pretty = if (pct % 1.0 == 0.0) pct.toInt().toString()
+                         else String.format("%.2f", pct).trimEnd('0').trimEnd('.')
+            rate.setTextColor(0xFFB0A48C.toInt())
+            rate.text = "$pretty%"
+        } else {
+            tile.setBackgroundResource(R.drawable.bg_inv_tax_tile_muted)
+            label.setTextColor(0xFFB7AB91.toInt())
+            amount.setTextColor(0xFFB7AB91.toInt())
+            amount.text = getString(R.string.dash)
+            rate.setTextColor(0xFFB7AB91.toInt())
+            rate.text = getString(R.string.invoice_not_applicable)
+        }
+    }
+
+    private fun recalculate() {
+
+        if (isUpdating) return
+
+        val customerStateCode = resolveBuyerStateCode()
+
+        val rawDiscount = etDiscount.text.toString().toDoubleOrNull() ?: 0.0
+
+        // Discount is applied PRE-TAX inside the calculator (reduces the
+        // taxable value → reduces GST). grandTotal is already net of it.
+        val breakdown = GstBillingCalculator.calculate(
+            items           = items,
+            gstScheme       = gstScheme,
+            sellerStateCode = sellerStateCode,
+            buyerStateCode  = customerStateCode,
+            billDiscount    = rawDiscount
+        )
+        lastBreakdown = breakdown
+
+        // A discount can't exceed the goods value (gross subtotal).
+        if (rawDiscount > breakdown.subtotal) {
+            isUpdating = true
+            etDiscount.setText(breakdown.subtotal.toInt().toString())
+            etDiscount.setSelection(etDiscount.text.length)
+            isUpdating = false
+            Toast.makeText(this, R.string.invoice_discount_exceeds_subtotal, Toast.LENGTH_SHORT).show()
+        }
+
+        val payable = breakdown.grandTotal
+        val roundOff = roundOffAmount(payable)
+        val finalTotal = (payable - roundOff).coerceAtLeast(0.0)
+
+        tvSubtotal.text        = CurrencyHelper.format(this, breakdown.taxableValue)
+        tvChargesSubtotal.text = CurrencyHelper.format(this, breakdown.subtotal)
+        tvNetAmount.text       = CurrencyHelper.format(this, breakdown.taxableValue)
+        tvGst.text             = CurrencyHelper.format(this, breakdown.totalTax)
+
+        if (roundOffEnabled) {
+            rowInvRoundOff.visibility = View.VISIBLE
+            tvInvRoundOff.text = if (roundOff > 0.0)
+                "− ${CurrencyHelper.format(this, roundOff)}"
+            else CurrencyHelper.format(this, 0.0)
+        } else {
+            rowInvRoundOff.visibility = View.GONE
+        }
+
+        val newTotalText = CurrencyHelper.format(this, finalTotal)
+        if (tvTotal.text?.toString() != newTotalText) {
+            tvTotal.text = newTotalText
+            pulseTotal()
+        }
+
+        // Tax breakdown card.
+        val isComposition = breakdown.gstScheme.equals(
+            GstBillingCalculator.SCHEME_COMPOSITION, ignoreCase = true
+        )
+        val isInter = breakdown.supplyType == "interstate"
+        val isIntra = breakdown.supplyType == "intrastate"
+
+        tvCompositionNote.visibility = if (isComposition) View.VISIBLE else View.GONE
+
+        // Tiles stay visible; the side that doesn't apply is muted.
+        val cgstOn = !isComposition && isIntra
+        val sgstOn = !isComposition && isIntra
+        val igstOn = !isComposition && isInter
+        // Taxable-weighted average of each line's own configured rate —
+        // stays exactly "6" when every line is 6%, instead of re-deriving
+        // the percentage from rounded rupee totals.
+        fun nominalRate(pctOf: (GstBillingCalculator.LineBreakdown) -> Double): Double {
+            val base = breakdown.lines.sumOf { it.taxableAmount }
+            return if (base > 0.0) breakdown.lines.sumOf { pctOf(it) * it.taxableAmount } / base else 0.0
+        }
+        val nominalCgst = nominalRate { it.cgstPercentage }
+        val nominalSgst = nominalRate { it.sgstPercentage }
+        val nominalIgst = nominalRate { it.igstPercentage }
+        val nominalCess = nominalRate { it.cessPercentage }
+
+        bindTaxTile(rowCgst, tvCgstLabel, tvCgstAmount, tvCgstRate, cgstOn, breakdown.totalCgst, breakdown.taxableValue, nominalCgst)
+        bindTaxTile(rowSgst, tvSgstLabel, tvSgstAmount, tvSgstRate, sgstOn, breakdown.totalSgst, breakdown.taxableValue, nominalSgst)
+        bindTaxTile(rowIgst, tvIgstLabel, tvIgstAmount, tvIgstRate, igstOn, breakdown.totalIgst, breakdown.taxableValue, nominalIgst)
+        val cessOn = breakdown.totalCess > 0.0
+        bindTaxTile(rowCess, tvCessLabel, tvCessAmount, tvCessRate, cessOn, breakdown.totalCess, breakdown.taxableValue, nominalCess)
+
+        tvTotalTax.text   = CurrencyHelper.format(this, breakdown.totalTax)
+
+        // Effective GST percent indicator — the taxable-weighted average of
+        // each line's own configured total rate (cgst+sgst+igst+cess), not
+        // totalTax/taxableValue re-derived from paisa-rounded rupee totals.
+        // The latter is what turned a flat 18% bill into "(18.1%)".
+        val effectivePct = run {
+            val base = breakdown.lines.sumOf { it.taxableAmount }
+            if (base > 0.0) {
+                breakdown.lines.sumOf {
+                    (it.cgstPercentage + it.sgstPercentage + it.igstPercentage + it.cessPercentage) * it.taxableAmount
+                } / base
+            } else 0.0
+        }
+        val effectivePctText = if (effectivePct % 1.0 == 0.0) effectivePct.toInt().toString()
+                               else "%.1f".format(effectivePct)
+        tvGstPercent.text = "($effectivePctText%)"
+
+        // Supply-type badge + scheme line.
+        tvSupplyTypeBadge.text = when {
+            isComposition -> getString(R.string.invoice_supply_composition)
+            isInter       -> getString(R.string.invoice_supply_interstate)
+            else          -> getString(R.string.invoice_supply_intrastate)
+        }
+        tvSchemeLine.text = "Scheme: ${breakdown.gstScheme.ifBlank { "—" }}"
+        tvSupplyExplain.text = when {
+            isComposition -> getString(R.string.invoice_composition_explain)
+            isInter       -> getString(R.string.invoice_interstate_explain)
+            else          -> getString(R.string.invoice_intrastate_explain)
+        }
+
+        // Tell the line-item adapter which GST columns to light up.
+        if (::invoiceAdapter.isInitialized) {
+            invoiceAdapter.updateMode(
+                supplyType = breakdown.supplyType,
+                gstScheme  = breakdown.gstScheme
+            )
+            // Feed per-line discounted values so rows strike the original
+            // amount and show the discounted amount + recalculated tax.
+            invoiceAdapter.updateBreakdown(breakdown.lines)
+        }
+    }
+
+    /**
+     * B2CL threshold applicable to a bill written right now.
+     *
+     * Notification 12/2024-Central Tax (10 Jul 2024) cut the inter-state B2C
+     * invoice-reporting limit from Rs 2.5 lakh to Rs 1 lakh with effect from
+     * 1 Aug 2024. Mirrors b2cl_threshold_for() in the server's gst_routes.py —
+     * date-aware rather than hardcoded so a back-dated bill still gets the
+     * limit that actually applied to it.
+     */
+    private fun b2clThresholdNow(): Double {
+        val cutover = java.util.Calendar.getInstance().apply {
+            clear(); set(2024, java.util.Calendar.AUGUST, 1)
+        }.timeInMillis
+        return if (appNow() >= cutover) 100_000.0 else 250_000.0
+    }
+
+    /**
+     * Pick the buyer state in this priority:
+     *   1. Customer-state text input (B2B field).
+     *   2. First two characters of the customer's GSTIN.
+     *   3. Empty (B2C default).
+     */
+    private fun resolveBuyerStateCode(): String? {
+        val nameInput  = etCustomerState.text?.toString()?.trim().orEmpty()
+        if (nameInput.isNotEmpty()) {
+            GstEngine.getStateCodeFromName(nameInput)?.let { return it }
+            // If user typed a 2-digit code already, accept it.
+            if (nameInput.length == 2 && nameInput.all { it.isDigit() }) return nameInput
+        }
+        val gstin = etCustomerGst.text?.toString()?.trim().orEmpty()
+        if (gstin.length >= 2) return gstin.substring(0, 2)
+        return null
+    }
+
+    // ================= VALIDATION =================
+
+    private fun validateB2BFields(): Boolean {
+        if (invoiceType != "B2B") return true
+
+        val name     = etCustomerName.text.toString().trim()
+        val business = etBusinessName.text.toString().trim()
+        val phone    = etCustomerPhone.text.toString().trim()
+        val gstin    = etCustomerGst.text.toString().trim()
+        val state    = etCustomerState.text.toString().trim()
+
+        val missing = mutableListOf<String>()
+        if (name.isEmpty())     missing.add(getString(R.string.invoice_field_customer_name))
+        if (business.isEmpty()) missing.add(getString(R.string.invoice_field_business_name))
+        if (phone.isEmpty())    missing.add(getString(R.string.invoice_field_phone_number))
+        if (gstin.isEmpty())    missing.add(getString(R.string.invoice_field_gst_number))
+        if (state.isEmpty())    missing.add(getString(R.string.invoice_field_state))
+
+        if (missing.isNotEmpty()) {
+            Toast.makeText(
+                this,
+                "Required for B2B: ${missing.joinToString(", ")}",
+                Toast.LENGTH_LONG
+            ).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("Invoice", "buyer_details_missing")
+            return false
+        }
+        if (gstin.length != 15) {
+            Toast.makeText(this, R.string.invoice_gstin_length, Toast.LENGTH_LONG).show()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("Invoice", "buyer_details_missing")
+            return false
+        }
+
+        return true
+    }
+
+    /**
+     * E-commerce validation — runs for BOTH B2C and B2B (B2C e-commerce
+     * sales are common). When the toggle is on the operator's GSTIN is
+     * mandatory and must be 15 characters, since TCS is attributed to it.
+     */
+    private fun validateEcommerceFields(): Boolean {
+        if (!switchEcommerce.isChecked) return true
+
+        val ecoGstin = etEcommerceGstin.text.toString().trim()
+        if (ecoGstin.isEmpty()) {
+            Toast.makeText(this, R.string.invoice_eco_gstin_required, Toast.LENGTH_LONG).show()
+            etEcommerceGstin.requestFocus()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("Invoice", "eco_gstin_missing")
+            return false
+        }
+        if (ecoGstin.length != 15) {
+            Toast.makeText(this, R.string.invoice_eco_gstin_length, Toast.LENGTH_LONG).show()
+            etEcommerceGstin.requestFocus()
+            com.example.easy_billing.util.UserEventLogger.logValidationFailed("Invoice", "eco_gstin_missing")
+            return false
+        }
+        return true
+    }
+
+    // ================= SAVE BILL =================
+
+    /** Enable/disable a control and dim it so the state reads visually. */
+    private fun setCosmeticEnabled(view: View, enabled: Boolean) {
+        view.isEnabled = enabled
+        view.alpha = if (enabled) 1f else 0.45f
+
+        // btnConfirm specifically swaps its arrow icon for a spinner while
+        // saving — disabling alone gave no feedback that the tap registered,
+        // so on a slow save a cashier could tap again or navigate away.
+        if (view.id == R.id.btnConfirm) {
+            findViewById<View?>(R.id.ivConfirmArrow)?.visibility = if (enabled) View.VISIBLE else View.GONE
+            findViewById<View?>(R.id.progressConfirm)?.visibility = if (enabled) View.GONE else View.VISIBLE
+        }
+    }
+
+    /**
+     * Locks the payment-method chips once the invoice is generated —
+     * changing it afterwards would desync the saved bill's paymentMethod
+     * from what "Send to customer" reads (UPI vs everything else decides
+     * whether a pay-link gets attached). Setting isEnabled on the
+     * RadioGroup alone doesn't disable its children in Android, so each
+     * chip is walked individually.
+     */
+    private fun setPaymentMethodLocked(locked: Boolean) {
+        setCosmeticEnabled(rgPaymentMethod, !locked)
+        for (i in 0 until rgPaymentMethod.childCount) {
+            rgPaymentMethod.getChildAt(i)?.isEnabled = !locked
+        }
+    }
+
+    private fun saveBill() {
+
+        if (isBillSaved) return
+
+        // Resolved before anything is written. The GST invoice row is stamped
+        // with this id, and it used to default to 1 — filing the invoice under
+        // another shop. Checked here rather than at the point of use because by
+        // then the bill row already exists, and a bill without its GST invoice
+        // is worse than a bill that didn't save.
+        val billShopId = currentShopIdOrNull()
+        if (billShopId == null) {
+            Toast.makeText(
+                this,
+                R.string.invoice_no_shop_save,
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
+        // A B2C bill above the B2CL threshold has to be reported invoice-wise
+        // in GSTR-1 Table 5, which needs the buyer identified. Left blank, the
+        // state falls back to the shop's own (see finalStateCode below), so a
+        // genuine inter-state sale is filed as local and can never reach B2CL.
+        // Block here, while the bill is still open and editable.
+        if (invoiceType != "B2B" && (lastBreakdown?.grandTotal ?: 0.0) > b2clThresholdNow()) {
+            val missingName  = etCustomerName.text?.toString()?.trim().isNullOrBlank()
+            val missingState = resolveBuyerStateCode().orEmpty().isBlank()
+            if (missingName || missingState) {
+                val needed = when {
+                    missingName && missingState -> getString(R.string.invoice_missing_customer_name_and_state)
+                    missingName                 -> getString(R.string.invoice_missing_customer_name)
+                    else                        -> getString(R.string.invoice_missing_customer_state)
+                }
+                Toast.makeText(
+                    this,
+                    "Bills above ${CurrencyHelper.getCurrencySymbol(this)}${"%,.0f".format(b2clThresholdNow())} need $needed for GST filing.",
+                    Toast.LENGTH_LONG
+                ).show()
+                if (missingName) etCustomerName.requestFocus() else etCustomerState.requestFocus()
+                return
+            }
+        }
+
+        // ── Payment lines: checked against the live total BEFORE anything is written ──
+        val payTotal = currentPayableTotal()
+        val payLines: List<com.example.easy_billing.util.PayLine> = when {
+            payTotal <= 0.0 -> emptyList()
+            isSplitSelected() -> {
+                if (!splitMatchesTotal()) {
+                    Toast.makeText(this, R.string.invoice_split_total_changed, Toast.LENGTH_LONG).show()
+                    openSplitSheet()
+                    return
+                }
+                com.example.easy_billing.util.PaymentSplit.merge(splitLines.orEmpty())
+            }
+            else -> listOf(com.example.easy_billing.util.PayLine(getPaymentMethod(), payTotal))
+        }
+        val (moneyLines, creditPortion) = com.example.easy_billing.util.PaymentSplit.separateCredit(payLines)
+        val creditAccountForSale = pendingCreditAccount
+        if (creditPortion > 0.0 && creditAccountForSale == null) {
+            // Cannot happen through the buttons (they ask for the customer first); refuse rather than lose the debt.
+            Toast.makeText(this, R.string.invoice_no_shop_credit_record, Toast.LENGTH_LONG).show()
+            return
+        }
+        val methodString = com.example.easy_billing.util.PaymentMethodText.encode(payLines, getPaymentMethod())
+
+        isBillSaved = true
+        setCosmeticEnabled(btnConfirm, false)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+
+            try {
+                val db = AppDatabase.getDatabase(this@InvoiceActivity)
+                val date = AppTime.nowBillStamp()   // app-timezone wall clock (matches backend)
+
+                // 1. Stock validation — preserve existing flow.
+                for (cartItem in items) {
+                    val product = cartItem.product
+                    if (product.trackInventory) {
+                        val inventory = db.inventoryDao().getInventory(product.id)
+                        if (inventory != null && inventory.currentStock < cartItem.quantity) {
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(
+                                    this@InvoiceActivity,
+                                    "Out of stock: ${product.name}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                            isBillSaved = false
+                            withContext(Dispatchers.Main) { setCosmeticEnabled(btnConfirm, true) }
+                            return@launch
+                        }
+                    }
+                }
+
+                // 1b. Inventory deduction — moved up from its old "step 8"
+                // position as part of the moving-average redesign. This has
+                // to run BEFORE billItemsTmp is built (step 3) so
+                // InventoryManager.reduceStock can hand back the exact
+                // average cost it used AT THE MOMENT OF THIS SALE, before
+                // its own mutation can touch it (mutation zeroes averageCost
+                // if the sale drains stock to exactly 0 — reading it any
+                // later would silently record ₹0 as the cost of a real
+                // sale). Stock availability was already confirmed in step 1
+                // above, so it's safe to actually mutate here.
+                //
+                // BillItem.costPriceUsed = this average-at-sale value, NOT
+                // a per-batch FIFO cost. Under the moving-average redesign
+                // (Phase 1), a sale is defined to remove inventory VALUE at
+                // exactly averageCost × quantity — that's what "frozen"
+                // means. Recording anything else on the bill (e.g. a
+                // multi-batch sale's blended per-batch cost, which was
+                // tried and reverted) would make the bill's own cost figure
+                // disagree with how much the inventory ledger actually
+                // dropped for that same sale.
+                //
+                // Keyed by cart position, not productId — if the same
+                // product ever appears as two separate cart lines, each
+                // line's own cost must stay attached to that line, not
+                // overwrite the other's.
+                val costAtSaleByIndex = mutableMapOf<Int, Double>()
+                // Stage 3A: which purchase bill(s) each cart line's units came from.
+                val allocSlicesByIndex = mutableMapOf<Int, MutableList<com.example.easy_billing.correction.FifoAllocator.Slice>>()
+                for ((idx, cartItem) in items.withIndex()) {
+                    val product = cartItem.product
+                    if (product.trackInventory) {
+                        val inventory = db.inventoryDao().getInventory(product.id)
+                        if (inventory != null) {
+                            val lineSlices = mutableListOf<com.example.easy_billing.correction.FifoAllocator.Slice>()
+                            val costRemoved = InventoryManager.reduceStock(
+                                db = db,
+                                productId = product.id,
+                                quantity = cartItem.quantity,
+                                allocationSink = lineSlices
+                            )
+                            allocSlicesByIndex[idx] = lineSlices
+                            costAtSaleByIndex[idx] = costRemoved
+                        }
+                    }
+                }
+
+                // 2. Resolve breakdown & customer state.
+                //    Discount is applied PRE-TAX inside the calculator; the
+                //    returned per-line taxable/tax and grandTotal are already
+                //    net of it, so all downstream records (BillItem, GST
+                //    invoice, GST records, GSTR-1, returns) stay consistent.
+                val storeInfo = db.storeInfoDao().get()
+                val customerStateCode = resolveBuyerStateCode().orEmpty()
+                val userDiscount = etDiscount.text.toString().toDoubleOrNull() ?: 0.0
+                val breakdown = GstBillingCalculator.calculate(
+                    items           = items,
+                    gstScheme       = gstScheme,
+                    sellerStateCode = sellerStateCode,
+                    buyerStateCode  = customerStateCode.ifBlank { null },
+                    billDiscount    = userDiscount
+                )
+
+                // Round-off is a post-tax rounding of the final payable only.
+                val discount = breakdown.discount
+                val roundOff = roundOffAmount(breakdown.grandTotal)
+                val total    = (breakdown.grandTotal - roundOff).coerceAtLeast(0.0)
+
+                val customerName     = etCustomerName.text.toString().trim().ifBlank { null }
+                val businessName     = etBusinessName.text.toString().trim().ifBlank { null }
+                val customerPhone    = etCustomerPhone.text.toString().trim().ifBlank { null }
+                val customerGstin    = etCustomerGst.text.toString().trim().ifBlank { null }
+                val customerStateRaw = etCustomerState.text.toString().trim().ifBlank { null }
+
+                // ── Final state name + code, always a consistent pair ──
+                // Code: buyer's resolved code, else the shop's own state
+                //       (B2C local sale with no state entered).
+                // Name: as typed by the user, else looked up from the
+                //       final code so name and code never disagree.
+                val finalStateCode = customerStateCode
+                    .ifBlank { sellerStateCode }
+                    .ifBlank { null }
+                val finalStateName = customerStateRaw
+                    ?: finalStateCode?.let { GstEngine.INDIA_STATES[it] }
+
+                // ── Read new GSTR-1 invoice-level fields (v23) ──
+                val reverseCharge        = if (switchReverseCharge.isChecked) "Y" else "N"
+                val gstrInvoiceType      = spinnerGstrInvoiceType.text.toString()
+                    .ifBlank { "Regular" }
+                val ecommerceEnabled     = switchEcommerce.isChecked
+                val ecommerceGstin       = if (ecommerceEnabled)
+                    etEcommerceGstin.text.toString().trim().ifBlank { null } else null
+                val ecommerceOperatorName= if (ecommerceEnabled)
+                    etEcommerceOperatorName.text.toString().trim().ifBlank { null } else null
+
+                val ecoNatureOfSupply = if (ecommerceEnabled) spinnerEcoNatureOfSupply.text.toString().ifBlank { "B2C" } else null
+                val ecoDocumentType   = if (ecommerceEnabled) spinnerEcoDocumentType.text.toString().ifBlank { "Invoice" } else null
+                val ecoSupplierGstin  = if (ecommerceEnabled) etEcoSupplierGstin.text.toString().trim().ifBlank { null } else null
+                val ecoSupplierName   = if (ecommerceEnabled) etEcoSupplierName.text.toString().trim().ifBlank { null } else null
+                val ecoRecipientGstin = if (ecommerceEnabled) etEcoRecipientGstin.text.toString().trim().ifBlank { null } else null
+                val ecoRecipientName  = if (ecommerceEnabled) etEcoRecipientName.text.toString().trim().ifBlank { null } else null
+                val ecoRole           = if (ecommerceEnabled) spinnerEcoRole.text.toString().ifBlank { "Supplier" } else null
+
+                // ── Build per-item GSTR-1 enrichments from product master ──
+                val enrichments = items.mapIndexed { idx, ci ->
+                    val p = ci.product
+                    val line = breakdown.lines.getOrNull(idx)
+                    val cessAmt = line?.cessAmount ?: (if (p.cessRate > 0)
+                        GstBillingCalculator.round2Pub(ci.quantity * p.price * p.cessRate / 100.0)
+                    else 0.0)
+                    GstEngine.SalesRecordEnrichment(
+                        cessRate       = line?.cessPercentage ?: p.cessRate,
+                        cessAmount     = cessAmt,
+                        uqc            = UqcMapper.resolve(p.unit, p.officialUqc),
+                        hsnDescription = p.hsnDescription,
+                        supplyClassification = p.supplyClassification
+                    )
+                }
+
+                // 3. Build legacy bill items (preserves bill_items shape).
+                val billItemsTmp = mutableListOf<BillItem>()
+                for ((idx, cartItem) in items.withIndex()) {
+                    val product  = cartItem.product
+                    val quantity = cartItem.quantity
+                    val line     = breakdown.lines[idx]
+                    // Average cost AT THE TIME OF SALE, captured in step 1b
+                    // above (before reduceStock's own mutation could zero it
+                    // out on a stock-to-0 sale). Falls back to a fresh
+                    // averageCost read for a non-tracked product (never
+                    // touched step 1b) or the rare case the map has no
+                    // entry for it.
+                    val lineCost = costAtSaleByIndex[idx] ?: run {
+                        val avgCost = if (product.trackInventory) {
+                            db.inventoryDao().getInventory(product.id)?.averageCost ?: 0.0
+                        } else 0.0
+                        avgCost * quantity
+                    }
+
+                    val effectiveRate =
+                        line.cgstPercentage + line.sgstPercentage + line.igstPercentage
+
+                    billItemsTmp.add(
+                        BillItem(
+                            billId        = 0,
+                            productId     = product.id,
+                            productName   = product.name,
+                            variant       = product.variant,
+                            unit          = product.unit ?: "unit",
+                            price         = line.sellingPrice,
+                            quantity      = quantity,
+                            subTotal      = line.taxableAmount,
+                            costPriceUsed = lineCost,
+                            profit        = line.taxableAmount - lineCost,
+                            hsnCode       = product.hsnCode ?: "",
+                            gstRate       = effectiveRate,
+                            cgstAmount    = line.cgstAmount,
+                            sgstAmount    = line.sgstAmount,
+                            igstAmount    = line.igstAmount,
+                            taxableValue  = line.taxableAmount,
+                            discountAmount = cartItem.discountAmount,
+                            isSynced      = false
+                        )
+                    )
+                }
+
+                // Which credit account (if any) this bill is being charged to.
+                // Stored on the bill itself so a later credit note, debit note
+                // or cancellation can find the account — the bill number and
+                // amount alone never could. Only for actual credit sales.
+                val billCreditAccountId =
+                    creditAccountForSale?.id?.takeIf { com.example.easy_billing.util.PaymentMethodText.hasCredit(methodString) }
+
+                // 4. Persist legacy `bills` row.
+                val finalBill = Bill(
+                    billNumber     = billNumber,
+                    date           = date,
+                    subTotal       = breakdown.subtotal,
+                    gst            = breakdown.totalTax,
+                    discount       = discount,
+                    total          = total,
+                    paymentMethod  = methodString,
+                    customerType   = invoiceType,
+                    customerGstin  = customerGstin,
+                    placeOfSupply  = customerStateCode.ifBlank { sellerStateCode },
+                    supplyType     = breakdown.supplyType,
+                    cgstAmount     = breakdown.totalCgst,
+                    sgstAmount     = breakdown.totalSgst,
+                    igstAmount     = breakdown.totalIgst,
+                    isSynced       = false,
+                    creditAccountId = billCreditAccountId
+                )
+                // Stage 3A: bill + items + allocations land together or not at all.
+                val billId = db.withTransaction {
+                    val newBillId = db.billDao().insertBill(finalBill).toInt()
+                    val finalBillItems = billItemsTmp.map { it.copy(billId = newBillId) }
+                    val itemIds = db.billItemDao().insertAllReturningIds(finalBillItems)
+                    for ((idx, itemId) in itemIds.withIndex()) {
+                        val slices = allocSlicesByIndex[idx] ?: continue
+                        com.example.easy_billing.db.AllocationRecorder.save(
+                            db = db,
+                            sourceType = com.example.easy_billing.db.AllocationSource.SALE,
+                            sourceId = newBillId,
+                            sourceLineId = itemId.toInt(),
+                            productId = finalBillItems[idx].productId,
+                            slices = slices
+                        )
+                    }
+
+                    // ── Money Book + the credit part: same transaction as the bill ──
+                    // The lines were checked against the live total before saving; if the total
+                    // moved since, stop here so the bill and its money can never disagree.
+                    check(com.example.easy_billing.util.PaymentSplit.toPaise(total) ==
+                        com.example.easy_billing.util.PaymentSplit.toPaise(payTotal)) { "Bill total changed while saving" }
+                    com.example.easy_billing.repository.MoneyBook(db.moneyEntryDao()).recordLines(
+                        direction = com.example.easy_billing.util.MoneyDirection.IN,
+                        lines = moneyLines,
+                        reason = com.example.easy_billing.util.MoneyReason.SALE,
+                        sourceType = com.example.easy_billing.util.MoneySource.BILL,
+                        sourceId = newBillId,
+                        partyName = customerName ?: creditAccountForSale?.name.orEmpty(),
+                        // A UPI-only bill is "pending" until the payment is confirmed (QR / link /
+                        // Mark as paid), exactly like its bill status. A UPI part of a split bill is
+                        // taken as received: the owner entered it as collected.
+                        status = if (com.example.easy_billing.util.PaymentMethodText.isPureUpi(methodString))
+                            com.example.easy_billing.util.MoneyStatus.PENDING
+                        else com.example.easy_billing.util.MoneyStatus.RECEIVED
+                    )
+                    if (creditPortion > 0.0 && creditAccountForSale != null) {
+                        db.creditAccountDao().addToDue(creditAccountForSale.id, creditPortion, billShopId)
+                        db.creditTransactionDao().insert(
+                            CreditTransaction(
+                                accountId = creditAccountForSale.id,
+                                shopId    = billShopId,
+                                amount    = creditPortion,     // only the part left on credit
+                                type      = "ADD",
+                                billId    = newBillId,
+                                sourceDoc = "SALE:$newBillId"
+                            )
+                        )
+                    }
+                    newBillId
+                }
+                val finalBillItems = billItemsTmp.map { it.copy(billId = billId) }
+
+                // ── Credit sale: the debt goes on only now the bill exists ──
+                // Applied as a delta so a concurrent payment or sync can't be
+                // overwritten, and cleared immediately so a retry of this bill
+                // can never charge the customer twice.
+                //
+                // referenceInvoice is left unset on purpose: `billNumber` is
+                // still the placeholder " " at this point — the real invoice
+                // number is assigned by the server and written back later by
+                // SyncManager.updateBillNumber — so recording it here would
+                // store a blank.
+                // Checked against the bill actually being written, not against
+                // the radio button: the bill is the record of what was agreed,
+                // and reading it here is also the only thread-safe option from
+                // inside this coroutine.
+                // The debt (credit part of the bill) was written inside the transaction above.
+                if (creditPortion > 0.0 && creditAccountForSale != null) {
+                    pendingCreditAccount = null
+                    SyncManager(this@InvoiceActivity).syncCredit()
+                }
+
+                // 5. Persist new GST-aware invoice + items (the spec's new tables).
+                // Validated at the top of saveBill — never a fallback value.
+                val shopId = billShopId.toString()
+
+                val nowMillis = appNow()
+                val gstInvoice = GstSalesInvoice(
+                    billId                = billId,
+                    shopId                = shopId,
+                    invoiceType           = invoiceType,
+                    gstScheme             = breakdown.gstScheme,
+                    customerName          = customerName,
+                    businessName          = businessName,
+                    customerPhone         = customerPhone,
+                    customerGst           = customerGstin,
+                    customerState         = finalStateName,
+                    subtotal              = breakdown.taxableValue,   // NET taxable, so subtotal + tax == grandTotal
+                    totalCgst             = breakdown.totalCgst,
+                    totalSgst             = breakdown.totalSgst,
+                    totalIgst             = breakdown.totalIgst,
+                    totalTax              = breakdown.totalTax,
+                    grandTotal            = breakdown.grandTotal,
+                    syncStatus            = "pending",
+                    // ── GSTR-1 v23 fields ──
+                    invoiceNumber         = billNumber,
+                    invoiceDate           = nowMillis,
+                    reverseCharge         = reverseCharge,
+                    gstrInvoiceType       = gstrInvoiceType,
+                    customerStateCode     = finalStateCode,
+                    ecommerceGstin        = ecommerceGstin,
+                    ecommerceOperatorName = ecommerceOperatorName,
+                    // ── New ECO fields (Table 14/15) ──
+                    ecoNatureOfSupply     = ecoNatureOfSupply,
+                    ecoDocumentType       = ecoDocumentType,
+                    ecoSupplierGstin      = ecoSupplierGstin,
+                    ecoSupplierName       = ecoSupplierName,
+                    ecoRecipientGstin     = ecoRecipientGstin,
+                    ecoRecipientName      = ecoRecipientName,
+                    ecoRole               = ecoRole
+                )
+                val gstInvoiceId = db.gstSalesInvoiceDao().insert(gstInvoice).toInt()
+                val gstItems = GstBillingCalculator.toInvoiceItems(gstInvoiceId, breakdown, enrichments)
+                db.gstSalesInvoiceItemDao().insertAll(gstItems)
+
+                // 5b. Upsert the customer master (phone-keyed). The invoice
+                // keeps its own snapshot above; this only powers future
+                // lookups/auto-fill. Skipped for anonymous B2C (no phone).
+                upsertCustomerMaster(
+                    phone        = customerPhone,
+                    name         = customerName,
+                    businessName = businessName,
+                    gstin        = customerGstin,
+                    state        = customerStateRaw,
+                    stateCode    = customerStateCode.ifBlank { null },
+                    type         = invoiceType
+                )
+
+                // 6. Legacy GstSalesRecord (per-line) write — REMOVED (Report 3, C3).
+                // gst_sales_invoice(+items), written just above (step 5), is the
+                // single GST-sales source of truth now; the legacy table and its
+                // build path (GstEngine.buildSalesRecords) have been deleted.
+
+                savedBillId = billId
+
+                // 7. Backend profit pulse — preserve existing flow.
+                try {
+                    val token = getSharedPreferences("auth", MODE_PRIVATE)
+                        .getString("TOKEN", null)
+                    if (!token.isNullOrEmpty()) {
+                        val saleItems = items.mapIndexed { idx, ci ->
+                            val product = ci.product
+                            // Cost per unit AT THE MOMENT OF SALE (captured in step 1b).
+                            // Re-reading inventory.averageCost here is wrong: a sale that
+                            // empties the shelf zeroes the average, so the server would
+                            // record a cost of 0 and show the whole sale as profit.
+                            val avgCost = costAtSaleByIndex[idx]
+                                ?.let { if (ci.quantity > 0.0) it / ci.quantity else 0.0 }
+                                ?: if (product.trackInventory) {
+                                    db.inventoryDao().getInventory(product.id)?.averageCost ?: 0.0
+                                } else 0.0
+                            // Send the DISCOUNTED per-unit price (the line's net
+                            // taxable ÷ qty) so backend profit reflects the bill
+                            // discount and matches the local per-item profit.
+                            val netTaxable = breakdown.lines.getOrNull(idx)?.taxableAmount
+                                ?: (product.price * ci.quantity)
+                            val discountedUnitPrice = if (ci.quantity > 0.0)
+                                GstBillingCalculator.round2Pub(netTaxable / ci.quantity)
+                            else product.price
+                            SaleItemDto(
+                                product_id    = product.serverId ?: product.id,
+                                quantity      = ci.quantity,
+                                selling_price = discountedUnitPrice,
+                                cost_price    = avgCost,
+                                product_name  = product.name,
+                                variant       = product.variant
+                            )
+                        }
+                        val deviceId = getSharedPreferences("auth", MODE_PRIVATE)
+                            .getString("DEVICE_ID", "") ?: ""
+                        val tempId = "LOCAL-$deviceId-$billId"
+
+                        RetrofitClient.api.createSale(
+                            token,
+                            CreateSaleRequest(
+                                items = saleItems,
+                                bill_number = tempId,
+                                client_bill_id = billId,
+                                client_device_id = deviceId
+                            )
+                        )
+
+                        // Report 5 fix: mark the pulse as delivered so
+                        // SyncManager.syncSalePulse() doesn't redundantly
+                        // re-push it later. If this call above throws, we
+                        // never reach here — the flag stays false (its
+                        // Room default), and SyncManager will backfill it
+                        // once the bill itself has synced.
+                        db.billDao().markSalePulseSynced(billId)
+                    }
+                } catch (e: Exception) {
+                    // Previously: silently dropped. Now the bill's
+                    // sale_pulse_synced flag simply stays false (default),
+                    // and SyncManager.syncSalePulse() retries this on the
+                    // next sync pass instead of losing it forever.
+                    e.printStackTrace()
+                }
+
+                // 8. Inventory deduction — moved to step 1b (above, before
+                // billItemsTmp is built) as part of the moving-average
+                // redesign, so BillItem.costPriceUsed can record the true
+                // FIFO-consumed cost instead of a stale pre-sale snapshot.
+                // Nothing left to do here.
+
+                // 9. Backend bill creation — single code path.
+                //
+                // Previously this block posted the bill to /bills/create
+                // itself, while SyncManager.syncBills() (Dashboard /
+                // periodic sync) could post the SAME still-unsynced bill
+                // again → two backend rows per sale. It also hardcoded
+                // invoice_type = "B2C" and customer_state = null,
+                // clobbering B2B/state data on the backend.
+                //
+                // Now there is exactly ONE writer: SyncManager.syncBills(),
+                // which posts every unsynced bill with the full GST
+                // snapshot (invoice type, state, scheme) and marks it
+                // synced. It is internally mutex-guarded, so a concurrent
+                // Dashboard sync can never double-post.
+                //
+                // Bug fix: syncBills() refuses to push a bill whose
+                // product doesn't have a serverId yet (see SyncManager.
+                // syncBills()'s "blocked — product has no serverId yet"
+                // check) -- that id is only assigned by syncShopProducts().
+                // syncAll() always runs products before bills, but this
+                // save path used to call syncBills() alone, so a bill
+                // using a just-created/not-yet-uploaded product was
+                // silently skipped every single time and never reached
+                // the server (so it never appeared in Bill History,
+                // which reads from the server only) -- it sat stuck
+                // until the user happened to open Dashboard, which runs
+                // the full pipeline. Calling syncShopProducts() here
+                // first closes that gap: today's new product gets its
+                // serverId immediately, then syncBills() can push the
+                // bill that references it in the very same save.
+                try {
+                    SyncManager(this@InvoiceActivity).syncShopProducts()
+                } catch (_: Exception) {
+                    // offline safe — product stays unsynced and the next
+                    // sync pass (here or elsewhere) will retry it, same
+                    // as before this fix.
+                }
+                try {
+                    SyncManager(this@InvoiceActivity).syncBills()
+                } catch (_: Exception) {
+                    // offline safe — bill stays flagged unsynced and the
+                    // next sync cycle will push it exactly once.
+                }
+
+                // 10. Push the new GST invoice batch — best effort.
+                try {
+                    SyncManager(this@InvoiceActivity).syncGstInvoices()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+                withContext(Dispatchers.Main) {
+                    // Invoice generated → reveal Print + Send to customer
+                    // (hidden until now), lock Generate + both discount
+                    // mechanisms.
+                    btnPrint.visibility = View.VISIBLE
+                    btnSendToCustomer.visibility = View.VISIBLE
+                    setCosmeticEnabled(btnPrint, true)
+                    setCosmeticEnabled(btnSendToCustomer, true)
+                    // Restore the arrow (clears the spinner) and transform
+                    // the primary button into "Start next bill →"
+                    setCosmeticEnabled(btnConfirm, true)
+                    layoutBillSavedBanner.visibility = View.VISIBLE
+                    tvConfirmTitle.text = getString(R.string.invoice_btn_start_next_bill)
+                    tvConfirmSubtitle.text = getString(R.string.invoice_sub_ready_next)
+                    btnConfirm.isEnabled = true
+                    btnConfirm.alpha = 1f
+                    setCosmeticEnabled(etDiscount, false)
+                    tvAddExtraDiscount.isEnabled = false
+                    rowExtraDiscount.isEnabled = false
+                    // Per-item discount chips read as locked too (visual
+                    // only — InvoiceAdapter already toasts on tap).
+                    invoiceAdapter.setBillLocked(true)
+                    setPaymentMethodLocked(true)
+                    Toast.makeText(this@InvoiceActivity, R.string.invoice_bill_saved, Toast.LENGTH_SHORT).show()
+
+                    // UPI bill → show the scan-to-pay QR immediately, on
+                    // EVERY device (SIM or not) — it needs nothing sent
+                    // anywhere, just displayed, so it's the one UPI path
+                    // that always gets automatic paid/pending tracking.
+                    // "Send to customer" (SMS) stays available separately
+                    // as the secondary "pay later" option, SIM-gated.
+                    if (methodString == "UPI") {
+                        setCosmeticEnabled(btnShowQr, true)
+                        btnShowQr.visibility = View.VISIBLE
+                        // The activity's own `billNumber` field is never
+                        // actually populated (stays " " / blank) — the
+                        // real formatted bill number only exists on the
+                        // saved Room row, same place "Send to customer"
+                        // reads it from via repository.getBillById().
+                        lifecycleScope.launch {
+                            val savedBill = withContext(Dispatchers.IO) {
+                                repository.getBillById(savedBillId)
+                            }
+                            val realBillNumber = savedBill?.billNumber.orEmpty()
+                            if (realBillNumber.isNotBlank()) {
+                                showQrPaymentDialog(realBillNumber, total)
+                            }
+                        }
+                    }
+                }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                isBillSaved = false
+                com.example.easy_billing.util.UserEventLogger.logError(
+                    "Invoice", "bill_save_failed: ${e.javaClass.simpleName}"
+                )
+                withContext(Dispatchers.Main) {
+                    setCosmeticEnabled(btnConfirm, true)
+                    Toast.makeText(
+                        this@InvoiceActivity,
+                        getString(R.string.invoice_error_saving_bill),
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
+
+    // ================= CUSTOMER LOOKUP (phone-first) =================
+
+    /**
+     * Shop for customer lookups and writes. Null when none is signed in —
+     * never a fallback, which used to mean reading and writing shop 1's
+     * customer records.
+     */
+    private fun shopIdInt(): Int? = currentShopIdOrNull()
+
+    /**
+     * Looks a customer up by phone AND the currently selected invoice type
+     * — local DB first, then the server if online — and auto-fills the
+     * form. B2C and B2B are kept as SEPARATE records, so a B2C lookup only
+     * ever returns the B2C row (name only) and a B2B lookup returns the
+     * B2B row (full details). Never blocks the cashier.
+     */
+    private fun lookupCustomerByPhone(phone: String) {
+        lifecycleScope.launch {
+            // No shop, no lookup. Silent by design — this runs as the cashier
+            // types a phone number and must never block them; the save paths
+            // are where the missing shop is reported.
+            val shopId = shopIdInt() ?: return@launch
+            val type = invoiceType
+
+            var found = withContext(Dispatchers.IO) {
+                repository.getCustomerByPhoneAndType(phone, type, shopId)
+            }
+
+            if (found == null) {
+                val token = getSharedPreferences("auth", MODE_PRIVATE)
+                    .getString("TOKEN", null)
+                if (!token.isNullOrEmpty()) {
+                    runCatching {
+                        val resp = withContext(Dispatchers.IO) {
+                            repository.getCustomerByPhoneRemote(token, phone, type)
+                        }
+                        resp.customer?.let { r ->
+                            val local = com.example.easy_billing.db.Customer(
+                                serverId      = r.id,
+                                shopId        = shopId,
+                                phone         = r.phone,
+                                name          = r.name.orEmpty(),
+                                customerType  = r.customer_type ?: type,
+                                businessName  = r.business_name,
+                                gstin         = r.gstin,
+                                state         = r.state,
+                                stateCode     = r.state_code,
+                                updatedAt     = if (r.updated_at > 0) r.updated_at else appNow()
+                            )
+                            withContext(Dispatchers.IO) { repository.insertCustomer(local) }
+                            found = local
+                        }
+                    }
+                }
+            }
+
+            val c = found ?: return@launch
+            withContext(Dispatchers.Main) {
+                // Type already matches the selection; B2C rows carry only a
+                // name, B2B rows carry the full details.
+                if (c.name.isNotBlank()) etCustomerName.setText(c.name)
+                // State is filled for B2C too. The customer master already
+                // stores it for every type, and a B2C bill without it gets
+                // stamped with the shop's own state — filing a genuine
+                // inter-state sale as local (it can never reach B2CL).
+                c.state?.takeIf { it.isNotBlank() }?.let { etCustomerState.setText(it) }
+                if (type.equals("B2B", true)) {
+                    c.businessName?.takeIf { it.isNotBlank() }?.let { etBusinessName.setText(it) }
+                    c.gstin?.takeIf { it.isNotBlank() }?.let { etCustomerGst.setText(it) }
+                }
+            }
+        }
+    }
+
+    /**
+     * Upserts the customer master from the form on bill save, keyed by
+     * (shopId, phone, type). B2C and B2B are SEPARATE records — saving a
+     * B2C bill never touches the B2B record for the same number, and vice
+     * versa. A blank phone (quick anonymous B2C) creates no record.
+     */
+    private suspend fun upsertCustomerMaster(
+        phone: String?,
+        name: String?,
+        businessName: String?,
+        gstin: String?,
+        state: String?,
+        stateCode: String?,
+        type: String
+    ) {
+        val ph = phone?.trim().orEmpty()
+        if (ph.isEmpty()) return
+        // Callers reach here only from saveBill, which already refuses without
+        // a shop — this is the belt to that braces, so a customer record can
+        // never be filed under a fallback id.
+        val shopId = shopIdInt() ?: return
+        val now = appNow()
+
+        val newName       = name?.trim().orEmpty()
+        val newBusiness   = businessName?.trim()?.ifBlank { null }
+        val newGstin      = gstin?.trim()?.ifBlank { null }
+        val newState      = state?.trim()?.ifBlank { null }
+        val newStateCode  = stateCode?.trim()?.ifBlank { null }
+
+        val existing = repository.getCustomerByPhoneAndType(ph, type, shopId)
+        if (existing == null) {
+            repository.insertCustomer(
+                com.example.easy_billing.db.Customer(
+                    shopId       = shopId,
+                    phone        = ph,
+                    name         = newName,
+                    customerType = type,
+                    businessName = newBusiness,
+                    gstin        = newGstin,
+                    state        = newState,
+                    stateCode    = newStateCode,
+                    createdAt    = now,
+                    updatedAt    = now
+                )
+            )
+        } else {
+            // Update only this (phone, type) record. Blank fields don't
+            // overwrite saved values.
+            val merged = existing.copy(
+                name         = newName.ifBlank { existing.name },
+                businessName = newBusiness ?: existing.businessName,
+                gstin        = newGstin ?: existing.gstin,
+                state        = newState ?: existing.state,
+                stateCode    = newStateCode ?: existing.stateCode,
+                updatedAt    = now,
+                serverId     = null   // re-flag for sync so the edit propagates
+            )
+            if (merged.copy(updatedAt = existing.updatedAt, serverId = existing.serverId) != existing) {
+                repository.updateCustomer(merged)
+            }
+        }
+    }
+
+    // ================= PRINT =================
+
+    private fun generatePdfAndPrint() {
+        if (savedBillId == -1) {
+            Toast.makeText(this, R.string.invoice_save_bill_first, Toast.LENGTH_SHORT).show()
+            return
+        }
+        lifecycleScope.launch(Dispatchers.IO) {
+            val bill = repository.getBillById(savedBillId)
+            val billItems = repository.getItemsForBill(savedBillId)
+            val storeInfo = repository.getStoreInfo()
+            // GST invoice saved with THIS bill — drives the print layout
+            // (GST mode) and supplies the captured B2B/B2C customer details.
+            val savedInvoice = repository.getGstInvoiceByBillId(savedBillId)
+            val printerLayout = com.example.easy_billing.db.AppDatabase.getDatabase(this@InvoiceActivity)
+                .billingSettingsDao().get()?.printerLayout ?: "80mm"
+            val payBreakdown = com.example.easy_billing.util.BillPaymentText.breakdown(this@InvoiceActivity, bill)
+            withContext(Dispatchers.Main) {
+                InvoicePdfGenerator.generatePdfFromBill(
+                    context = this@InvoiceActivity, 
+                    payBreakdown = payBreakdown,
+                    bill = bill, 
+                    billItems = billItems, 
+                    storeInfo = storeInfo,
+                    gstScheme = savedInvoice?.gstScheme, 
+                    gstInvoice = savedInvoice, 
+                    printerLayout = printerLayout,
+                    totalCess = lastBreakdown?.totalCess ?: 0.0
+                )
+            }
+        }
+    }
+
+    // ================= UPI: SCAN-TO-PAY QR =================
+    // Shown right after every UPI bill is saved, on ANY device — unlike
+    // the SMS payment link, a QR code needs nothing sent anywhere, it
+    // just needs to be visible on screen, so this is the one UPI path
+    // that always gets automatic paid/pending tracking regardless of
+    // whether the device has a SIM. Replaces the old no-SIM "mark as
+    // paid now or later" prompt entirely — that manual fallback is no
+    // longer needed since this covers every device.
+
+    private var qrPollJob: kotlinx.coroutines.Job? = null
+
+    /** btnShowQr's click target — re-fetches the saved bill so it always
+     *  uses the current total (matters if a discount was ever editable
+     *  post-save; harmless if not) and re-opens the QR dialog on demand. */
+    private fun reopenQrDialog() {
+        if (savedBillId == -1) return
+        lifecycleScope.launch {
+            // Pull first so a payment that landed while this screen sat
+            // idle (webhook fired minutes ago, cashier only just tapped
+            // the button again) is reflected before deciding anything —
+            // same reasoning as sendToCustomer()'s pre-send pull.
+            try {
+                withContext(Dispatchers.IO) { SyncManager(this@InvoiceActivity).pullPaymentStatus() }
+            } catch (_: Exception) {
+                // offline/best-effort — falls back to whatever's cached locally
+            }
+
+            val savedBill = withContext(Dispatchers.IO) { repository.getBillById(savedBillId) } ?: return@launch
+
+            if (savedBill.paymentStatus == "paid") {
+                // Already paid — no reason to burn a fresh single-use QR
+                // code on a bill that's settled. Also stops the button
+                // from offering a live QR for money already collected.
+                Toast.makeText(this@InvoiceActivity, R.string.qr_already_paid, Toast.LENGTH_SHORT).show()
+                setCosmeticEnabled(btnShowQr, false)
+                return@launch
+            }
+
+            val realBillNumber = savedBill.billNumber
+            if (realBillNumber.isNotBlank()) {
+                showQrPaymentDialog(realBillNumber, savedBill.total)
+            }
+        }
+    }
+
+    private fun showQrPaymentDialog(billNumber: String, amount: Double) {
+        if (billNumber.isBlank()) return
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_qr_payment, null)
+        val tvBillInfo = dialogView.findViewById<TextView>(R.id.tvQrBillInfo)
+        val ivQr = dialogView.findViewById<ImageView>(R.id.ivQrCode)
+        val progressQr = dialogView.findViewById<View>(R.id.progressQrLoading)
+        val tvQrStatus = dialogView.findViewById<TextView>(R.id.tvQrStatus)
+        val btnClose = dialogView.findViewById<View>(R.id.btnQrClose)
+
+        val amountText = com.example.easy_billing.util.CurrencyHelper.format(this, amount)
+        tvBillInfo.text = "${billNumber.trim()} · $amountText"
+
+        val dialog = AlertDialog.Builder(this).setView(dialogView).create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        fun stopPolling() {
+            qrPollJob?.cancel()
+            qrPollJob = null
+        }
+
+        btnClose.setOnClickListener {
+            stopPolling()
+            dialog.dismiss()
+        }
+        dialog.setOnDismissListener { stopPolling() }
+
+        dialog.show()
+
+        // Pulled out so a failure (network hiccup, backend hiccup, whatever)
+        // can be retried from the same dialog instead of forcing the
+        // cashier to close it and lose the bill's QR entirely — nothing
+        // upstream re-triggers showQrPaymentDialog after the initial call.
+        fun loadQr() {
+            progressQr.visibility = View.VISIBLE
+            ivQr.visibility = View.GONE
+            tvQrStatus.text = ""
+
+            lifecycleScope.launch {
+                val qr = com.example.easy_billing.repository.PosPaymentRepository.createQrCode(this@InvoiceActivity, billNumber)
+                if (qr == null) {
+                    progressQr.visibility = View.GONE
+                    tvQrStatus.text = getString(R.string.qr_payment_failed_retry)
+                    return@launch
+                }
+
+                val bitmap = withContext(Dispatchers.IO) {
+                    try {
+                        val stream = java.net.URL(qr.qr_image_url).openStream()
+                        android.graphics.BitmapFactory.decodeStream(stream)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        null
+                    }
+                }
+
+                progressQr.visibility = View.GONE
+                if (bitmap != null) {
+                    ivQr.setImageBitmap(bitmap)
+                    ivQr.visibility = View.VISIBLE
+                    tvQrStatus.text = getString(R.string.qr_payment_waiting)
+                    startQrPaymentPolling(billNumber, dialog, tvQrStatus, qr.close_by)
+                } else {
+                    tvQrStatus.text = getString(R.string.qr_payment_failed_retry)
+                }
+            }
+        }
+
+        tvQrStatus.setOnClickListener { loadQr() }
+        loadQr()
+    }
+
+    /** Checks payment_status every few seconds while the QR dialog is open, auto-closing it once paid.
+     *  [closeByEpochSeconds] is Razorpay's own expiry for this QR (echoed back by create-qr) — once
+     *  that passes, Razorpay has already killed the code server-side, so polling forever afterward
+     *  would never see "paid" and would just drain battery/network. Stops and shows an expired,
+     *  tap-to-retry state instead. */
+    private fun startQrPaymentPolling(
+        billNumber: String,
+        dialog: androidx.appcompat.app.AlertDialog,
+        tvQrStatus: TextView,
+        closeByEpochSeconds: Long? = null
+    ) {
+        qrPollJob = lifecycleScope.launch {
+            while (true) {
+                if (closeByEpochSeconds != null && System.currentTimeMillis() / 1000 >= closeByEpochSeconds) {
+                    tvQrStatus.text = getString(R.string.qr_payment_expired_retry)
+                    break
+                }
+
+                kotlinx.coroutines.delay(4000)
+                try {
+                    SyncManager(this@InvoiceActivity).pullPaymentStatus()
+                } catch (_: Exception) {
+                    // offline/best-effort — just retry on the next tick
+                }
+                val bill = withContext(Dispatchers.IO) {
+                    com.example.easy_billing.db.AppDatabase.getDatabase(this@InvoiceActivity).billDao().getByBillNumber(billNumber)
+                }
+                if (bill?.paymentStatus == "paid") {
+                    tvQrStatus.text = getString(R.string.qr_payment_success)
+                    setCosmeticEnabled(btnShowQr, false)
+                    kotlinx.coroutines.delay(1200)
+                    if (dialog.isShowing) dialog.dismiss()
+                    Toast.makeText(this@InvoiceActivity, getString(R.string.qr_payment_success), Toast.LENGTH_SHORT).show()
+                    break
+                }
+            }
+        }
+    }
+
+    // ================= SEND TO CUSTOMER =================
+    // WhatsApp wa.me deep link — see CustomerShareHelper's doc comment.
+    // No runtime permission and no SIM check needed.
+
+    private fun showSendToCustomerOptions() {
+        if (savedBillId == -1) {
+            Toast.makeText(this, R.string.invoice_save_bill_first, Toast.LENGTH_SHORT).show()
+            return
+        }
+        sendToCustomer()
+    }
+
+    private fun sendToCustomer() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            // Staying on this screen after Generate Invoice means the
+            // periodic sync that would normally pull a Razorpay webhook's
+            // "paid" flip onto this bill's local row never runs — without
+            // this, a UPI bill paid moments ago (while still on this
+            // exact screen) would read back as "unpaid" here and send a
+            // redundant/stale payment link. This is a cheap delta pull
+            // (SyncManager.pullPaymentStatus), safe to call every send.
+            try {
+                SyncManager(this@InvoiceActivity).pullPaymentStatus()
+            } catch (_: Exception) {
+                // offline/best-effort — falls back to whatever payment_status
+                // is already cached locally, same as before this call existed.
+            }
+
+            val bill = repository.getBillById(savedBillId)
+            val billItems = repository.getItemsForBill(savedBillId)
+            val storeInfo = repository.getStoreInfo()
+            val savedInvoice = repository.getGstInvoiceByBillId(savedBillId)
+            val printerLayout = com.example.easy_billing.db.AppDatabase.getDatabase(this@InvoiceActivity)
+                .billingSettingsDao().get()?.printerLayout ?: "80mm"
+
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@InvoiceActivity, getString(R.string.send_to_customer_sending), Toast.LENGTH_SHORT).show()
+            }
+
+            if (bill == null) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@InvoiceActivity, R.string.invoice_save_bill_first, Toast.LENGTH_SHORT).show()
+                }
+                return@launch
+            }
+
+            val customerName = etCustomerName.text?.toString()?.trim().orEmpty().ifBlank { savedInvoice?.customerName }
+            val customerPhone = etCustomerPhone.text?.toString()?.trim().orEmpty().ifBlank { savedInvoice?.customerPhone }
+
+            withContext(Dispatchers.Main) {
+                com.example.easy_billing.util.CustomerShareHelper.sendToCustomer(
+                    context = this@InvoiceActivity,
+                    bill = bill,
+                    billItems = billItems,
+                    storeInfo = storeInfo,
+                    gstScheme = savedInvoice?.gstScheme,
+                    gstInvoice = savedInvoice,
+                    printerLayout = printerLayout,
+                    customerName = customerName,
+                    customerPhone = customerPhone,
+                    totalCess = lastBreakdown?.totalCess ?: 0.0
+                )
+            }
+        }
+    }
+
+    // ================= STORE INFO =================
+
+    private fun loadStoreInfo() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            var store = repository.getStoreInfo()
+            if (store == null) {
+                store = StoreInfo(
+                    name = getString(R.string.invoice_default_store_name),
+                    address = "",
+                    phone = "",
+                    gstin = "",
+                    isSynced = false
+                )
+                repository.insertStoreInfo(store)
+            }
+            applyStoreInfo(store)
+
+            val token = getSharedPreferences("auth", MODE_PRIVATE)
+                .getString("TOKEN", null) ?: return@launch
+            try {
+                val response = repository.getStoreSettingsRemote(token)
+                val updated = StoreInfo(
+                    name     = response.shop_name ?: "",
+                    address  = response.store_address ?: "",
+                    phone    = response.phone ?: "",
+                    gstin    = response.store_gstin ?: "",
+                    isSynced = true
+                )
+                repository.insertStoreInfo(updated)
+                val refreshed = repository.getStoreInfo()
+                refreshed?.let { applyStoreInfo(it) }
+            } catch (_: Exception) {
+                // offline ignore
+            }
+
+            // Pull the GST profile so we know the scheme (Normal vs Composition).
+            val profile = repository.getGstProfile()
+            if (profile != null) {
+                val scheme = if (profile.gstScheme.contains("compos", ignoreCase = true))
+                    GstBillingCalculator.SCHEME_COMPOSITION
+                else
+                    GstBillingCalculator.SCHEME_NORMAL
+                withContext(Dispatchers.Main) {
+                    gstScheme = scheme
+                    sellerStateCode = profile.stateCode.ifBlank { sellerStateCode }
+                    sellerGstin     = profile.gstin.ifBlank { sellerGstin }
+                    sellerName      = profile.tradeName.ifBlank { profile.legalName }
+                        .ifBlank { sellerName }
+                    tvSchemeBadge.text = scheme.uppercase()
+                    recalculate()
+                }
+            }
+        }
+    }
+
+    // Matches the drawer avatar's initials logic (DashboardActivity.storeInitials)
+    // so the monogram is identical everywhere it appears.
+    private fun storeInitials(name: String): String {
+        val words = name.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
+        return when {
+            words.isEmpty() -> "EB"
+            words.size == 1 -> words[0].take(2).uppercase()
+            else -> (words[0].take(1) + words[1].take(1)).uppercase()
+        }
+    }
+
+    private fun applyStoreInfo(store: StoreInfo) {
+        runOnUiThread {
+            val resolvedName = store.name.ifBlank { getString(R.string.invoice_default_store_name) }
+            tvStoreName.text = resolvedName
+            tvStoreMonogram.text = storeInitials(resolvedName)
+            if (sellerName.isBlank()) sellerName = resolvedName
+            sellerStateCode = store.stateCode.ifBlank {
+                GstEngine.getStateCode(store.gstin)
+            }
+            sellerGstin = store.gstin
+            if (store.gstScheme.isNotBlank()) {
+                gstScheme = if (store.gstScheme.contains("compos", ignoreCase = true))
+                    GstBillingCalculator.SCHEME_COMPOSITION
+                else
+                    GstBillingCalculator.SCHEME_NORMAL
+            }
+            tvSchemeBadge.text = gstScheme.uppercase()
+            recalculate()
+        }
+    }
+
+    // ================= BILLING SETTINGS =================
+
+    private fun loadBillingSettings() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val local = repository.getBillingSettings()
+            withContext(Dispatchers.Main) {
+                local?.let {
+                    defaultGstFallback = it.defaultGst.toDouble()
+                    recalculate()
+                }
+            }
+            val token = getSharedPreferences("auth", MODE_PRIVATE)
+                .getString("TOKEN", null) ?: return@launch
+            try {
+                val response = repository.getBillingSettingsRemote(token)
+                val updated = BillingSettings(
+                    defaultGst    = response.default_gst,
+                    printerLayout = response.printer_layout
+                )
+                repository.insertBillingSettings(updated)
+                withContext(Dispatchers.Main) {
+                    defaultGstFallback = updated.defaultGst.toDouble()
+                    recalculate()
+                }
+            } catch (_: Exception) {
+                // offline → ignore
+            }
+        }
+    }
+
+    private fun updatePaymentMethodCues() {
+        if (isBillSaved) return
+        // The helper line is only used to show the amounts of a split.
+        tvPaymentMethodHelper.visibility =
+            if (rgPaymentMethod.checkedRadioButtonId == R.id.rbSplit) View.VISIBLE else View.GONE
+        when (rgPaymentMethod.checkedRadioButtonId) {
+            R.id.rbCash -> {
+                tvPaymentMethodHelper.text = getString(R.string.invoice_payment_helper_cash)
+                tvConfirmSubtitle.text = getString(R.string.invoice_sub_cash)
+            }
+            R.id.rbUpi -> {
+                tvPaymentMethodHelper.text = getString(R.string.invoice_payment_helper_upi)
+                tvConfirmSubtitle.text = getString(R.string.invoice_sub_upi)
+            }
+            R.id.rbBank -> {
+                tvPaymentMethodHelper.text = getString(R.string.invoice_payment_helper_bank)
+                tvConfirmSubtitle.text = getString(R.string.invoice_sub_bank)
+            }
+            R.id.rbCard -> {
+                tvPaymentMethodHelper.text = getString(R.string.invoice_payment_helper_card)
+                tvConfirmSubtitle.text = getString(R.string.invoice_sub_card)
+            }
+            R.id.rbCredit -> {
+                tvPaymentMethodHelper.text = getString(R.string.invoice_payment_helper_credit)
+                tvConfirmSubtitle.text = getString(R.string.invoice_sub_credit)
+            }
+            R.id.rbSplit -> {
+                val summary = splitSummary()
+                tvPaymentMethodHelper.text =
+                    if (summary.isNotEmpty()) summary else getString(R.string.invoice_payment_helper_split)
+                tvConfirmSubtitle.text =
+                    if (summary.isNotEmpty()) summary else getString(R.string.invoice_sub_split)
+            }
+            else -> {
+                tvPaymentMethodHelper.text = getString(R.string.invoice_payment_helper_cash)
+                tvConfirmSubtitle.text = getString(R.string.invoice_sub_cash)
+            }
+        }
+    }
+
+    // ================= SPLIT PAYMENT =================
+
+    private fun isSplitSelected() = rgPaymentMethod.checkedRadioButtonId == R.id.rbSplit
+
+    /** The amount the customer has to settle right now (after discount and round-off). */
+    private fun currentPayableTotal(): Double {
+        val grand = lastBreakdown?.grandTotal ?: return 0.0
+        return (grand - roundOffAmount(grand)).coerceAtLeast(0.0)
+    }
+
+    /** True when the chosen split lines add up exactly to the live bill total. */
+    private fun splitMatchesTotal(): Boolean {
+        val lines = splitLines ?: return false
+        val total = currentPayableTotal()
+        if (total <= 0.0) return true
+        return com.example.easy_billing.util.PaymentSplit.validate(
+            total, lines,
+            com.example.easy_billing.util.MoneyMode.COUNTER + com.example.easy_billing.util.MoneyMode.CREDIT
+        ) == com.example.easy_billing.util.SplitCheck.Ok
+    }
+
+    /** The customer picker is needed when any part of the bill goes on credit. */
+    private fun needsCreditCustomer(): Boolean =
+        if (isSplitSelected())
+            com.example.easy_billing.util.PaymentSplit.separateCredit(splitLines.orEmpty()).second > 0.0
+        else getPaymentMethod() == "CREDIT"
+
+    private fun splitSummary(): String =
+        splitLines.orEmpty().joinToString(" + ") {
+            "${com.example.easy_billing.util.PaymentLinesSheet.modeLabel(this, it.mode)} " +
+                CurrencyHelper.format(this, it.amount)
+        }
+
+    private fun openSplitSheet() {
+        if (isBillSaved) return
+        val total = currentPayableTotal()
+        if (total <= 0.0) {
+            Toast.makeText(this, R.string.invoice_split_zero_total, Toast.LENGTH_SHORT).show()
+            findViewById<android.widget.RadioButton>(R.id.rbCash)?.isChecked = true
+            return
+        }
+        val modes = buildList {
+            add(com.example.easy_billing.util.MoneyMode.CASH)
+            if (com.example.easy_billing.util.UpiSettings.isEnabled(this@InvoiceActivity))
+                add(com.example.easy_billing.util.MoneyMode.UPI)
+            add(com.example.easy_billing.util.MoneyMode.CARD)
+            add(com.example.easy_billing.util.MoneyMode.BANK)
+            add(com.example.easy_billing.util.MoneyMode.CREDIT)
+        }
+        // Re-open with the old amounts only if they still add up; otherwise start fresh.
+        val start = if (splitMatchesTotal()) splitLines.orEmpty() else emptyList()
+        com.example.easy_billing.util.PaymentLinesSheet.show(
+            activity = this,
+            title = getString(R.string.invoice_split_title),
+            total = total,
+            modes = modes,
+            initial = start,
+            defaultMode = com.example.easy_billing.util.MoneyMode.CASH,
+            onConfirm = { lines ->
+                splitLines = lines
+                updatePaymentMethodCues()
+            },
+            onCancel = {
+                // No split chosen yet: go back to Cash instead of leaving an empty Split selected.
+                if (splitLines == null) findViewById<android.widget.RadioButton>(R.id.rbCash)?.isChecked = true
+            }
+        )
+    }
+
+    private fun getPaymentMethod(): String = when (rgPaymentMethod.checkedRadioButtonId) {
+        R.id.rbCash   -> "CASH"
+        R.id.rbUpi    -> "UPI"
+        R.id.rbCard   -> "CARD"
+        R.id.rbBank   -> "BANK"
+        R.id.rbCredit -> "CREDIT"
+        else          -> "CASH"
+    }
+
+    // ================= CREDIT =================
+
+    private fun showLineDiscountDialog(item: CartItem) {
+        if (isBillSaved) {
+            Toast.makeText(this, R.string.invoice_cannot_modify_after_save, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val v = layoutInflater.inflate(R.layout.dialog_line_discount, null)
+        val et         = v.findViewById<EditText>(R.id.etDiscountAmount)
+        val unitPrefix = v.findViewById<TextView>(R.id.tvUnitPrefix)
+        unitPrefix.text = CurrencyHelper.getCurrencySymbol(this)
+        val unitSuffix = v.findViewById<TextView>(R.id.tvUnitSuffix)
+        val modePct = v.findViewById<TextView>(R.id.tvModePercent)
+        val modeAmt = v.findViewById<TextView>(R.id.tvModeAmount)
+        val presets = listOf(
+            v.findViewById<TextView>(R.id.tvPreset1),
+            v.findViewById<TextView>(R.id.tvPreset2),
+            v.findViewById<TextView>(R.id.tvPreset3),
+            v.findViewById<TextView>(R.id.tvPreset4)
+        )
+        val tvOrig = v.findViewById<TextView>(R.id.tvDiscOrig)
+        val tvNew  = v.findViewById<TextView>(R.id.tvDiscNew)
+        val tvSave = v.findViewById<TextView>(R.id.tvDiscSave)
+
+        val gross = GstBillingCalculator.round2Pub(item.product.price * item.quantity)
+        val qtyStr = if (item.quantity % 1 == 0.0) item.quantity.toInt().toString()
+                     else item.quantity.toString()
+        v.findViewById<TextView>(R.id.tvDiscProduct).text = item.product.name
+        v.findViewById<TextView>(R.id.tvDiscLineTotal).text =
+            "$qtyStr × ${CurrencyHelper.format(this, item.product.price)} = ${CurrencyHelper.format(this, gross)}"
+
+        tvOrig.paintFlags = tvOrig.paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
+
+        var isPercent = true
+        val pctPresets = listOf(5, 10, 15, 20)
+        val amtPresets = listOf(10, 25, 50, 100)
+
+        fun currentAmount(): Double {
+            val raw = et.text.toString().toDoubleOrNull() ?: 0.0
+            val amt = if (isPercent) gross * raw / 100.0 else raw
+            return GstBillingCalculator.round2Pub(amt.coerceIn(0.0, gross))
+        }
+        fun refreshPreview() {
+            val d = currentAmount()
+            tvOrig.text = CurrencyHelper.format(this, gross)
+            tvNew.text  = CurrencyHelper.format(this, GstBillingCalculator.round2Pub(gross - d))
+            val pct = if (gross > 0) d / gross * 100.0 else 0.0
+            val pctStr = if (pct % 1.0 == 0.0) pct.toInt().toString() else String.format("%.1f", pct)
+            tvSave.text = "${CurrencyHelper.format(this, d)} · $pctStr%"
+        }
+        fun styleToggle() {
+            val on = modePct.takeIf { isPercent } ?: modeAmt
+            val off = if (isPercent) modeAmt else modePct
+            on.setBackgroundResource(R.drawable.bg_disc_toggle_on); on.setTextColor(0xFFFFFFFF.toInt())
+            off.setBackgroundColor(0x00000000); off.setTextColor(0xFF8A8272.toInt())
+        }
+        fun applyMode(pct: Boolean) {
+            isPercent = pct
+            // Percent → suffix on the right; Amount → ₹ prefix on the left.
+            unitSuffix.visibility = if (pct) View.VISIBLE else View.GONE
+            unitPrefix.visibility = if (pct) View.GONE else View.VISIBLE
+            val vals = if (pct) pctPresets else amtPresets
+            presets.forEachIndexed { i, p ->
+                p.text = if (pct) "${vals[i]}%" else CurrencyHelper.format(this, vals[i].toDouble())
+            }
+            styleToggle(); refreshPreview()
+        }
+
+        et.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
+            override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                val typed = s?.toString()?.toDoubleOrNull() ?: 0.0
+                val maxAllowed = if (isPercent) 100.0 else gross
+                if (typed > maxAllowed) {
+                    et.removeTextChangedListener(this)
+                    val capStr = if (maxAllowed % 1.0 == 0.0) maxAllowed.toInt().toString() else String.format("%.2f", maxAllowed)
+                    et.setText(capStr)
+                    et.setSelection(et.text?.length ?: 0)
+                    et.addTextChangedListener(this)
+                }
+                refreshPreview()
+            }
+        })
+        modePct.setOnClickListener { applyMode(true) }
+        modeAmt.setOnClickListener { applyMode(false) }
+        presets.forEachIndexed { i, p ->
+            p.setOnClickListener {
+                val vals = if (isPercent) pctPresets else amtPresets
+                et.setText(vals[i].toString())
+                et.setSelection(et.text.length)
+            }
+        }
+
+        if (item.discountAmount > 0.0) {
+            applyMode(false)
+            et.setText(GstBillingCalculator.round2Pub(item.discountAmount).let {
+                if (it % 1.0 == 0.0) it.toInt().toString() else it.toString()
+            })
+        } else {
+            applyMode(true)
+        }
+        refreshPreview()
+
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(this).setView(v).create()
+        dialog.window?.setBackgroundDrawable(
+            android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT)
+        )
+
+        v.findViewById<View>(R.id.btnApplyDiscount).setOnClickListener {
+            item.discountAmount = currentAmount()
+            recalculate()
+            dialog.dismiss()
+        }
+        v.findViewById<View>(R.id.btnRemoveDiscount).setOnClickListener {
+            item.discountAmount = 0.0
+            recalculate()
+            dialog.dismiss()
+        }
+        v.findViewById<View>(R.id.btnCloseDiscount).setOnClickListener { dialog.dismiss() }
+
+        dialog.show()
+        // Same percentage-of-screen-width + capped-max sizing used
+        // everywhere else in the app (ui/ThemedDropdown.kt) — this used
+        // to be a flat 430dp regardless of phone width. See
+        // phone_compatibility_plan.md Phase 2.
+        dialog.window?.setLayout(
+            minOf(
+                (resources.displayMetrics.widthPixels * 0.92f).toInt(),
+                (430 * resources.displayMetrics.density).toInt()
+            ),
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+    }
+
+    /**
+     * The signed-in shop. Never falls back to a real id.
+     *
+     * A default of 1 meant a missing id silently addressed shop 1 — listing and
+     * charging another shop's customers. -1 matches no row, and every caller
+     * checks it before touching credit data.
+     */
+    private fun currentShopIdOrNull(): Int? =
+        getSharedPreferences("auth", MODE_PRIVATE)
+            .getInt("SHOP_ID", -1)
+            .takeIf { it > 0 }
+
+    private fun handleCreditFlow() {
+        // Checked before the sheet opens, so the customer list can only ever be
+        // this shop's. Previously the list loaded with a default of 1 and the
+        // refusal came later, at save — showing the wrong names first.
+        if (currentShopIdOrNull() == null) {
+            Toast.makeText(
+                this,
+                R.string.invoice_no_shop_credit_sale,
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
+        val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.dialog_customer_picker, null)
+
+        val etSearch = view.findViewById<EditText>(R.id.etSearchCustomer)
+        val rvCustomers = view.findViewById<RecyclerView>(R.id.rvCustomers)
+        val btnNew = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnNewCustomer)
+
+        rvCustomers.layoutManager = LinearLayoutManager(this)
+
+        val handler = android.os.Handler(android.os.Looper.getMainLooper())
+        var runnable: Runnable? = null
+
+        lifecycleScope.launch {
+            // Guarded above, so this is the real shop id — never a fallback.
+            val shopId = currentShopIdOrNull() ?: return@launch
+            val allCustomers = repository.getAllCreditAccounts(shopId)
+            var currentList = allCustomers.toMutableList()
+
+            val adapter = CreditAdapter(currentList) { customer ->
+                dialog.dismiss()
+                addCreditAndSaveBill(customer)
+            }
+            rvCustomers.adapter = adapter
+            view.findViewById<android.widget.TextView>(R.id.tvAccountCount)?.text =
+                if (allCustomers.size == 1) getString(R.string.invoice_account_count_singular) else "${allCustomers.size} accounts"
+
+            fun updateList(data: List<CreditAccount>) {
+                currentList.clear(); currentList.addAll(data)
+                adapter.notifyDataSetChanged()
+            }
+
+            etSearch.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    runnable?.let { handler.removeCallbacks(it) }
+                    runnable = Runnable {
+                        val query = s?.toString()?.trim()?.take(50) ?: ""
+                        val result = if (query.isEmpty()) allCustomers else allCustomers.filter {
+                            it.name.contains(query, true) || it.phone.contains(query)
+                        }
+                        updateList(result)
+                    }
+                    handler.postDelayed(runnable!!, 300)
+                }
+                override fun afterTextChanged(s: Editable?) {}
+            })
+        }
+
+        btnNew.setOnClickListener {
+            dialog.dismiss(); showAddCustomerDialog()
+        }
+        dialog.setContentView(view)
+        (view.parent as? android.view.View)?.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        dialog.show()
+    }
+
+    /**
+     * Marks this bill as being sold on credit, then saves it.
+     *
+     * The debt is NOT written here. It used to be — before saveBill ran — which
+     * meant the customer was charged even when the bill then failed, and there
+     * were two ways to reach that:
+     *
+     *  * saveBill rejects the sale (out of stock, or any exception) and clears
+     *    isBillSaved so the user can retry. The debt from the failed attempt
+     *    stayed, and each retry added another.
+     *  * a double-tap on a row in the customer sheet ran this twice while
+     *    saveBill's own isBillSaved guard let only one bill through.
+     *
+     * So the account is only remembered here; [saveBill] applies the debt once
+     * the bill row actually exists.
+     */
+    private fun addCreditAndSaveBill(account: CreditAccount) {
+        // Refuse rather than half-complete: without a real shop id the debt
+        // can't be recorded against anyone, and a credit sale that doesn't
+        // record the debt is worth failing loudly for.
+        if (currentShopIdOrNull() == null) {
+            Toast.makeText(
+                this,
+                R.string.invoice_no_shop_credit_record,
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+
+        pendingCreditAccount = account
+        saveBill()
+    }
+
+    private fun showAddCustomerDialog() {
+        val view = layoutInflater.inflate(R.layout.dialog_add_customer, null)
+        val etName  = view.findViewById<EditText>(R.id.etName)
+        val etPhone = view.findViewById<EditText>(R.id.etPhone)
+        val btnSave   = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnSave)
+        val btnCancel = view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnCancel)
+
+        val dialog = AlertDialog.Builder(this).setView(view).setCancelable(true).create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        btnCancel.setOnClickListener { dialog.dismiss() }
+        btnSave.setOnClickListener {
+            val name = etName.text.toString().trim()
+            val phone = etPhone.text.toString().trim()
+            if (name.isEmpty() || phone.isEmpty()) {
+                Toast.makeText(this, R.string.invoice_enter_all_fields, Toast.LENGTH_SHORT).show()
+                com.example.easy_billing.util.UserEventLogger.logValidationFailed("Invoice", "add_customer_fields_missing")
+                return@setOnClickListener
+            }
+            lifecycleScope.launch(Dispatchers.IO) {
+                // Same rule as the credit sale above: without a real shop id
+                // this would file a customer into shop 1's books.
+                val shopId = currentShopIdOrNull() ?: run {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            this@InvoiceActivity,
+                            R.string.invoice_no_shop_add_customer,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                    return@launch
+                }
+
+                val existing = repository.getCreditAccountByPhone(phone, shopId)
+                if (existing != null) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@InvoiceActivity, R.string.invoice_customer_already_exists, Toast.LENGTH_SHORT).show()
+                    }
+                    return@launch
+                }
+                val token = getSharedPreferences("auth", MODE_PRIVATE).getString("TOKEN", null)
+                if (token == null) {
+                    repository.insertCreditAccount(
+                        CreditAccount(name = name, phone = phone, isSynced = false, shopId = shopId)
+                    )
+                    return@launch
+                }
+                try {
+                    val response = repository.createCreditAccountRemote(
+                        token, CreateCreditAccountRequest(name, phone)
+                    )
+                    repository.insertCreditAccount(
+                        CreditAccount(
+                            name = response.name, phone = response.phone,
+                            dueAmount = response.due_amount, serverId = response.id,
+                            isSynced = true, shopId = shopId
+                        )
+                    )
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    com.example.easy_billing.util.UserEventLogger.logError(
+                        "Invoice", "credit_account_create_failed: ${e.javaClass.simpleName}"
+                    )
+                    repository.insertCreditAccount(
+                        CreditAccount(name = name, phone = phone, isSynced = false, shopId = shopId)
+                    )
+                }
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@InvoiceActivity, R.string.invoice_customer_added, Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
+                }
+            }
+        }
+        dialog.show()
+    }
+}

@@ -22,10 +22,74 @@ class ProfitActivity : AppCompatActivity() {
     private lateinit var tvTabOverview: TextView
     private lateinit var tvTabTrend: TextView
     private lateinit var tabOverviewIndicator: android.view.View
+    private lateinit var tabNavScrap: android.widget.LinearLayout
+    private lateinit var tvTabScrap: TextView
+    private lateinit var tabScrapIndicator: android.view.View
     private lateinit var tabTrendIndicator: android.view.View
 
-    private lateinit var overviewFragment: ProfitOverviewFragment
-    private lateinit var trendFragment: ProfitTrendFragment
+    private lateinit var profitPager: androidx.viewpager2.widget.ViewPager2
+
+    // Pages are created lazily by the pager, so the fragments are captured
+    // by a lifecycle callback (below) and may be null until then.
+    private var overviewFragment: ProfitOverviewFragment? = null
+    private var trendFragment: ProfitTrendFragment? = null
+    private var scrapFragment: ProfitScrapFragment? = null
+
+    // Current shared date filter, re-applied to a page whenever it is (re)created.
+    private var currentFilter = "all"
+    private var currentStart: String? = null
+    private var currentEnd: String? = null
+
+    private fun applyToPages(filter: String, start: String? = null, end: String? = null) {
+        currentFilter = filter
+        currentStart = start
+        currentEnd = end
+        overviewFragment?.applyFilter(filter, start, end)
+        trendFragment?.applyFilter(filter, start, end)
+        scrapFragment?.applyFilter(filter, start, end)
+    }
+
+    private val pageCallbacks = object : androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks() {
+        override fun onFragmentViewCreated(
+            fm: androidx.fragment.app.FragmentManager,
+            f: androidx.fragment.app.Fragment,
+            v: android.view.View,
+            savedInstanceState: Bundle?
+        ) {
+            when (f) {
+                is ProfitOverviewFragment -> {
+                    overviewFragment = f
+                    if (currentFilter != "all") f.applyFilter(currentFilter, currentStart, currentEnd)
+                }
+                is ProfitTrendFragment -> {
+                    trendFragment = f
+                    f.applyFilter(currentFilter, currentStart, currentEnd)
+                }
+                is ProfitScrapFragment -> {
+                    scrapFragment = f
+                    f.applyFilter(currentFilter, currentStart, currentEnd)
+                }
+            }
+        }
+    }
+
+    private val destroyCallbacks = object : androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks() {
+        override fun onFragmentViewDestroyed(
+            fm: androidx.fragment.app.FragmentManager,
+            f: androidx.fragment.app.Fragment
+        ) {
+            if (f === overviewFragment) overviewFragment = null
+            if (f === trendFragment) trendFragment = null
+            if (f === scrapFragment) scrapFragment = null
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("pf", currentFilter)
+        outState.putString("ps", currentStart)
+        outState.putString("pe", currentEnd)
+    }
 
     // ================= SHARED DATE FILTER (moved from ProfitOverviewFragment) =================
     private lateinit var btnToday: com.google.android.material.chip.Chip
@@ -90,65 +154,42 @@ class ProfitActivity : AppCompatActivity() {
         tvTabTrend = findViewById(R.id.tvTabTrend)
         tabOverviewIndicator = findViewById(R.id.tabOverviewIndicator)
         tabTrendIndicator = findViewById(R.id.tabTrendIndicator)
+        tabNavScrap = findViewById(R.id.tabNavScrap)
+        tvTabScrap = findViewById(R.id.tvTabScrap)
+        tabScrapIndicator = findViewById(R.id.tabScrapIndicator)
+
+        if (savedInstanceState != null) {
+            currentFilter = savedInstanceState.getString("pf") ?: "all"
+            currentStart = savedInstanceState.getString("ps")
+            currentEnd = savedInstanceState.getString("pe")
+        }
+        supportFragmentManager.registerFragmentLifecycleCallbacks(pageCallbacks, false)
+        supportFragmentManager.registerFragmentLifecycleCallbacks(destroyCallbacks, false)
 
         setupDateFilters()
 
-        if (savedInstanceState == null) {
-            overviewFragment = ProfitOverviewFragment()
-            trendFragment = ProfitTrendFragment()
-            supportFragmentManager.beginTransaction()
-                .add(R.id.profitFragmentContainer, overviewFragment, TAG_OVERVIEW)
-                .add(R.id.profitFragmentContainer, trendFragment, TAG_TREND)
-                .hide(trendFragment)
-                .commit()
-            // Force the transaction (and both fragments' onViewCreated,
-            // which each still do their own first load -- Overview
-            // defaults to "all", Trend to "today") to run synchronously
-            // before we push the shared "all" filter into both, so
-            // neither fragment is asked to apply a filter before its view
-            // exists. Trend's independent "today" default gets overwritten
-            // here to bring it in sync with Overview's "all" -- this one
-            // extra call is a small, one-time cost (not a repeating
-            // double-load) in exchange for both tabs reliably starting on
-            // the same period.
-            supportFragmentManager.executePendingTransactions()
-            overviewFragment.applyFilter("all")
-            trendFragment.applyFilter("all")
-        } else {
-            overviewFragment = supportFragmentManager
-                .findFragmentByTag(TAG_OVERVIEW) as ProfitOverviewFragment
-            trendFragment = supportFragmentManager
-                .findFragmentByTag(TAG_TREND) as ProfitTrendFragment
-            // Chips restore their own `isChecked` from saved state
-            // automatically (default View behavior), so whichever chip the
-            // user had selected is already checked here -- just repaint
-            // colors to match so nothing looks stale post-rotation.
-            refreshChipColors()
+        // Swipeable pages, same as the Reports screen: Overview <-> Trend.
+        profitPager = findViewById(R.id.profitPager)
+        profitPager.adapter = object : androidx.viewpager2.adapter.FragmentStateAdapter(this) {
+            override fun getItemCount() = 3
+            override fun createFragment(position: Int): androidx.fragment.app.Fragment =
+                when (position) {
+                    0 -> ProfitOverviewFragment()
+                    1 -> ProfitTrendFragment()
+                    else -> ProfitScrapFragment()
+                }
         }
+        profitPager.offscreenPageLimit = 2
+        profitPager.registerOnPageChangeCallback(object : androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                setActiveTab(position)
+            }
+        })
+        setActiveTab(profitPager.currentItem)
 
-        setActiveTab(isOverview = true)
-
-        tabNavTrend.setOnClickListener {
-            // Smooth crossfade, not a hard cut or a side-slide — this is a
-            // tab switch, not drilling into a new screen. Both directions
-            // use the identical transaction shape (just swapped), so
-            // there's no asymmetry between going to Trend and coming back.
-            supportFragmentManager.beginTransaction()
-                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                .hide(overviewFragment)
-                .show(trendFragment)
-                .commit()
-            setActiveTab(isOverview = false)
-        }
-
-        tabNavOverview.setOnClickListener {
-            supportFragmentManager.beginTransaction()
-                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                .hide(trendFragment)
-                .show(overviewFragment)
-                .commit()
-            setActiveTab(isOverview = true)
-        }
+        tabNavTrend.setOnClickListener { profitPager.setCurrentItem(1, true) }
+        tabNavOverview.setOnClickListener { profitPager.setCurrentItem(0, true) }
+        tabNavScrap.setOnClickListener { profitPager.setCurrentItem(2, true) }
     }
 
     // ================= SHARED DATE FILTER =================
@@ -174,29 +215,38 @@ class ProfitActivity : AppCompatActivity() {
 
         btnToday.setOnClickListener {
             selectDateChip(btnToday)
-            overviewFragment.applyFilter("today")
-            trendFragment.applyFilter("today")
+            applyToPages("today")
         }
         btnWeek.setOnClickListener {
             selectDateChip(btnWeek)
-            overviewFragment.applyFilter("week")
-            trendFragment.applyFilter("week")
+            applyToPages("week")
         }
         btnMonth.setOnClickListener {
             selectDateChip(btnMonth)
-            overviewFragment.applyFilter("month")
-            trendFragment.applyFilter("month")
+            applyToPages("month")
         }
         btnAll.setOnClickListener {
             selectDateChip(btnAll)
-            overviewFragment.applyFilter("all")
-            trendFragment.applyFilter("all")
+            applyToPages("all")
         }
         btnCustom.setOnClickListener {
+            // The chip toggles itself on tap; keep the current filter's chip highlighted until
+            // a range is actually picked (cancelling the picker changes nothing).
+            selectDateChip(chipFor(currentFilter))
             openDatePicker()
         }
 
+        // After a rotation / restore, highlight the chip of the filter that is really applied.
+        selectDateChip(chipFor(currentFilter))
         refreshChipColors()
+    }
+
+    private fun chipFor(filter: String): com.google.android.material.chip.Chip = when (filter) {
+        "today" -> btnToday
+        "week" -> btnWeek
+        "month" -> btnMonth
+        "custom" -> btnCustom
+        else -> btnAll
     }
 
     private val dateChipPalette = listOf(
@@ -261,8 +311,7 @@ class ProfitActivity : AppCompatActivity() {
             val end = format.format(endDate)
 
             selectDateChip(btnCustom)
-            overviewFragment.applyFilter("custom", start, end)
-            trendFragment.applyFilter("custom", start, end)
+            applyToPages("custom", start, end)
         }
     }
 
@@ -271,27 +320,19 @@ class ProfitActivity : AppCompatActivity() {
      *  underline for the inactive one. Colors/sizes copied exactly from
      *  the previous per-page XML (activity_profit.xml's Overview-active
      *  state and activity_profit_chart.xml's Trend-active state). */
-    private fun setActiveTab(isOverview: Boolean) {
-        if (isOverview) {
-            tvTabOverview.setTextColor(Color.parseColor("#1A1A18"))
-            tvTabOverview.typeface = androidx.core.content.res.ResourcesCompat
-                .getFont(this, R.font.googlesans_semibold)
-            tabOverviewIndicator.setBackgroundColor(Color.parseColor("#0F6E56"))
-
-            tvTabTrend.setTextColor(Color.parseColor("#8C8576"))
-            tvTabTrend.typeface = androidx.core.content.res.ResourcesCompat
-                .getFont(this, R.font.googlesans_medium)
-            tabTrendIndicator.setBackgroundColor(Color.TRANSPARENT)
-        } else {
-            tvTabTrend.setTextColor(Color.parseColor("#1A1A18"))
-            tvTabTrend.typeface = androidx.core.content.res.ResourcesCompat
-                .getFont(this, R.font.googlesans_semibold)
-            tabTrendIndicator.setBackgroundColor(Color.parseColor("#0F6E56"))
-
-            tvTabOverview.setTextColor(Color.parseColor("#8C8576"))
-            tvTabOverview.typeface = androidx.core.content.res.ResourcesCompat
-                .getFont(this, R.font.googlesans_medium)
-            tabOverviewIndicator.setBackgroundColor(Color.TRANSPARENT)
+    private fun setActiveTab(position: Int) {
+        val tabs = listOf(
+            tvTabOverview to tabOverviewIndicator,
+            tvTabTrend to tabTrendIndicator,
+            tvTabScrap to tabScrapIndicator
+        )
+        tabs.forEachIndexed { i, (tv, indicator) ->
+            val active = i == position
+            tv.setTextColor(Color.parseColor(if (active) "#1A1A18" else "#8C8576"))
+            tv.typeface = androidx.core.content.res.ResourcesCompat.getFont(
+                this, if (active) R.font.googlesans_semibold else R.font.googlesans_medium
+            )
+            indicator.setBackgroundColor(Color.parseColor(if (active) "#0F6E56" else "#00000000"))
         }
     }
 
@@ -310,6 +351,8 @@ class ProfitActivity : AppCompatActivity() {
     // Defensive backstop in case onPause is ever skipped by a future edit —
     // stop() is safe to call even if the guard was already stopped.
     override fun onDestroy() {
+        supportFragmentManager.unregisterFragmentLifecycleCallbacks(pageCallbacks)
+        supportFragmentManager.unregisterFragmentLifecycleCallbacks(destroyCallbacks)
         com.example.easy_billing.util.SessionTimeoutGuard.stop(this)
         super.onDestroy()
     }
