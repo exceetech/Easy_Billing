@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Date separator in the ledger.
+
+    Sits INSIDE the white list card — the same card treatment as the credit
+    accounts list — so it carries a white background and the card's inner
+    padding rather than floating on the champagne ground.
+
+    Bound by TransactionAdapter: tvHeader.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:id="@+id/tvHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/today"
+        android:textAllCaps="true"
+        android:textSize="11sp"
+        android:letterSpacing="0.14"
+        android:textColor="#66716B"
+        android:fontFamily="@font/googlesans_semibold"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="13dp"
+        android:paddingBottom="5dp" />
+
+</LinearLayout>

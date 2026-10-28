@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    One ledger entry. Champagne theme, same row shape as the credit-account and
+    import-service lists: status stripe, icon tile, label, right-aligned amount.
+
+    The running balance was already computed by prepareUI and never shown — it
+    is the most useful column in a ledger, so it sits under the amount.
+
+    Bound by TransactionAdapter: viewTxnStripe, ivTxnIcon, tvType, tvDate,
+    tvAmount, tvBalance, viewTxnDivider.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/viewTxnStripe"
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            android:background="#E4DBC6" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="13dp">
+
+            <ImageView
+                android:id="@+id/ivTxnIcon"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:padding="9dp"
+                android:src="@drawable/ic_lc_arrow_up_right"
+                app:tint="#B23A3A"
+                android:background="@drawable/bg_credit_action_tile"
+                android:backgroundTint="#FCEBEB"
+                android:contentDescription="@null" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
+
+                <TextView
+                    android:id="@+id/tvType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/txn_label_credit_sale"
+                    android:textSize="13.5sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:singleLine="true"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tvDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/xml_transaction_time_placeholder"
+                    android:textSize="11sp"
+                    android:textColor="#66716B"
+                    android:singleLine="true"
+                    android:ellipsize="end" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="end"
+                android:layout_marginStart="10dp">
+
+                <TextView
+                    android:id="@+id/tvAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="17sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="serif"
+                    android:includeFontPadding="false"
+                    android:singleLine="true" />
+
+                <TextView
+                    android:id="@+id/tvBalance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="@string/xml_transaction_left_placeholder"
+                    android:textSize="11sp"
+                    android:textColor="#66716B" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/viewTxnDivider"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginHorizontal="14dp"
+        android:background="#E3E8E4" />
+
+</LinearLayout>

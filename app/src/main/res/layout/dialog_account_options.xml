@@ -49,7 +49,7 @@
             android:gravity="center"
             android:text="@string/dialog_account_options_r"
             android:textSize="17sp"
-            android:textColor="#76867C"
+            android:textColor="#66716B"
             android:fontFamily="@font/googlesans_semibold"
             android:background="@drawable/bg_credit_avatar"
             android:backgroundTint="#EEF2F0"
@@ -80,7 +80,7 @@
                 android:layout_marginTop="2dp"
                 android:text=""
                 android:textSize="11.5sp"
-                android:textColor="#7C8782"
+                android:textColor="#66716B"
                 android:singleLine="true"
                 android:ellipsize="end" />
         </LinearLayout>
@@ -109,8 +109,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
                 android:text="@string/dialog_account_options_settled"
-                android:textSize="9.5sp"
-                android:textColor="#7C8782" />
+                android:textSize="11sp"
+                android:textColor="#66716B" />
         </LinearLayout>
     </LinearLayout>
 
@@ -161,7 +161,7 @@
                     android:layout_marginTop="1dp"
                     android:text="@string/dialog_account_options_reduce_what_they_owe"
                     android:textSize="11sp"
-                    android:textColor="#7C8782" />
+                    android:textColor="#66716B" />
             </LinearLayout>
 
             <ImageView
@@ -223,7 +223,7 @@
                     android:layout_marginTop="1dp"
                     android:text="@string/dialog_account_options_clear_the_balance"
                     android:textSize="11sp"
-                    android:textColor="#7C8782" />
+                    android:textColor="#66716B" />
             </LinearLayout>
 
             <ImageView
@@ -279,7 +279,7 @@
                     android:layout_marginTop="1dp"
                     android:text="@string/dialog_account_options_full_history_and_statement"
                     android:textSize="11sp"
-                    android:textColor="#7C8782" />
+                    android:textColor="#66716B" />
             </LinearLayout>
 
             <ImageView

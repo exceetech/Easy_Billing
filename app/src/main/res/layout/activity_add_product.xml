@@ -45,8 +45,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/add_product_section_inventory_label"
-            android:textColor="#B8895A"
-            android:textSize="10sp"
+            android:textColor="#8A6526"
+            android:textSize="11sp"
             android:letterSpacing="0.16"
             android:fontFamily="@font/googlesans_semibold"/>
 
@@ -98,7 +98,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/add_product_new_to_catalog"
                 android:textColor="#0F6E56"
-                android:textSize="10.5sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
                 android:fontFamily="@font/googlesans_semibold"/>
         </LinearLayout>
@@ -178,7 +178,7 @@
                             android:paddingVertical="3dp"
                             android:text="@string/invoice_required"
                             android:textColor="#9B2C2C"
-                            android:textSize="10sp"
+                            android:textSize="11sp"
                             android:fontFamily="@font/googlesans_semibold"/>
                     </LinearLayout>
 
@@ -209,7 +209,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="&#10022;"
-                            android:textColor="#B8895A"
+                            android:textColor="#8A6526"
                             android:textSize="11sp"
                             android:layout_marginEnd="6dp"/>
                         <TextView
@@ -257,8 +257,8 @@
                         android:layout_marginTop="6dp"
                         android:layout_marginBottom="8dp"
                         android:text="@string/add_product_search_subtitle"
-                        android:textSize="10sp"
-                        android:textColor="#B0B9B4"/>
+                        android:textSize="11sp"
+                        android:textColor="#66716B"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -502,7 +502,7 @@
                             android:paddingVertical="3dp"
                             android:text="@string/invoice_required"
                             android:textColor="#9B2C2C"
-                            android:textSize="10sp"
+                            android:textSize="11sp"
                             android:fontFamily="@font/googlesans_semibold"/>
                     </LinearLayout>
 
@@ -571,7 +571,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/add_product_price_mrp_note"
-                                android:textColor="#76867C"
+                                android:textColor="#66716B"
                                 android:textSize="11.5sp"/>
                         </LinearLayout>
                         <com.google.android.material.materialswitch.MaterialSwitch
@@ -641,7 +641,7 @@
                         android:layout_marginEnd="8dp"
                         android:text="@string/invoice_optional"
                         android:textColor="#166534"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:fontFamily="@font/googlesans_semibold"/>
                     <ImageView
                         android:id="@+id/ivMoreOptionsChevron"
@@ -1162,7 +1162,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/add_product_no_input_credit_note"
                             android:textColor="#6C7A72"
-                            android:textSize="10.5sp"
+                            android:textSize="11sp"
                             android:lineSpacingExtra="2dp"/>
                     </LinearLayout>
                 </LinearLayout>
@@ -1220,7 +1220,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/cancel"
-                    android:textColor="#76867C"
+                    android:textColor="#66716B"
                     android:textSize="13.5sp"
                     android:textStyle="bold"
                     android:fontFamily="@font/googlesans_semibold"/>

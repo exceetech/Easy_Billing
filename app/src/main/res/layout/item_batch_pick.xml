@@ -98,7 +98,7 @@
                         android:paddingVertical="1dp"
                         android:background="@drawable/bg_credit_avatar"
                         android:backgroundTint="#E3E8E4"
-                        android:textSize="9.5sp"
+                        android:textSize="11sp"
                         android:textColor="#8A6526"
                         android:visibility="gone"
                         android:text="@string/xml_batch_pick_oldest_tag"/>
@@ -109,8 +109,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:textSize="10sp"
-                    android:textColor="#7C8782"
+                    android:textSize="11sp"
+                    android:textColor="#66716B"
                     android:singleLine="true"
                     android:ellipsize="end"
                     android:text="@string/xml_batch_pick_date_cost_placeholder"/>
@@ -120,7 +120,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:textSize="10sp"
+                    android:textSize="11sp"
                     android:textColor="#8A6526"
                     android:fontFamily="@font/googlesans_medium"
                     android:text="@string/xml_batch_pick_max_reducible_placeholder"/>
@@ -235,7 +235,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:gravity="end"
-            android:textSize="10.5sp"
+            android:textSize="11sp"
             android:textColor="#0F6E56"
             android:fontFamily="@font/googlesans_medium"
             android:visibility="gone"

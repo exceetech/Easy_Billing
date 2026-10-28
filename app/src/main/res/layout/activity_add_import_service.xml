@@ -59,8 +59,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/import_of_services_eyebrow"
-                android:textColor="#B8895A"
-                android:textSize="10sp"
+                android:textColor="#8A6526"
+                android:textSize="11sp"
                 android:letterSpacing="0.16"
                 android:fontFamily="@font/googlesans_semibold" />
 
@@ -111,7 +111,7 @@
             app:tint="#B23A3A"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:visibility="gone"
-            android:contentDescription="Delete record" />
+            android:contentDescription="@string/activity_add_import_service_delete_record" />
     </LinearLayout>
 
     <ScrollView
@@ -205,7 +205,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="7dp"
                             android:text="@string/import_services_when_to_use"
-                            android:textSize="10.5sp"
+                            android:textSize="11sp"
                             android:textColor="#6E5726"
                             android:lineSpacingExtra="2dp" />
                     </LinearLayout>
@@ -292,7 +292,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="@string/invoice_value_2"
                                     android:textSize="12.5sp"
-                                    android:textColor="#7C8782" />
+                                    android:textColor="#66716B" />
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
@@ -301,7 +301,7 @@
                                     android:paddingHorizontal="5dp"
                                     android:paddingVertical="1dp"
                                     android:text="@string/auto_badge"
-                                    android:textSize="8.5sp"
+                                    android:textSize="11sp"
                                     android:letterSpacing="0.06"
                                     android:textColor="#8A6526"
                                     android:fontFamily="@font/googlesans_semibold" />
@@ -482,7 +482,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/igst_paid_rupees"
                         android:textSize="12.5sp"
-                        android:textColor="#7C8782" />
+                        android:textColor="#66716B" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -491,7 +491,7 @@
                         android:paddingHorizontal="5dp"
                         android:paddingVertical="1dp"
                         android:text="@string/auto_badge"
-                        android:textSize="8.5sp"
+                        android:textSize="11sp"
                         android:letterSpacing="0.06"
                         android:textColor="#8A6526"
                         android:fontFamily="@font/googlesans_semibold" />
@@ -544,8 +544,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="7dp"
                         android:text="@string/igst_calc_helper"
-                        android:textSize="10.5sp"
-                        android:textColor="#7C8782"
+                        android:textSize="11sp"
+                        android:textColor="#66716B"
                         android:lineSpacingExtra="2dp" />
                 </LinearLayout>
 
@@ -582,8 +582,8 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="@string/import_services_more_details_subtitle"
-                            android:textSize="10.5sp"
-                            android:textColor="#8D9992"/>
+                            android:textSize="11sp"
+                            android:textColor="#66716B"/>
                     </LinearLayout>
                     <ImageView
                         android:id="@+id/ivImportMoreDetailsChevron"
@@ -705,7 +705,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:text="@string/import_services_eligibility_helper"
-                        android:textColor="#8D9992"
+                        android:textColor="#66716B"
                         android:textSize="11.5sp"/>
 
                     <!--
@@ -764,8 +764,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
                                 android:text="@string/activity_add_import_service_of_000_paid"
-                                android:textSize="10sp"
-                                android:textColor="#7C8782" />
+                                android:textSize="11sp"
+                                android:textColor="#66716B" />
                         </LinearLayout>
 
                         <View android:layout_width="10dp" android:layout_height="1dp" />
@@ -809,8 +809,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
                                 android:text="@string/activity_add_import_service_of_000_paid"
-                                android:textSize="10sp"
-                                android:textColor="#7C8782" />
+                                android:textSize="11sp"
+                                android:textColor="#66716B" />
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>

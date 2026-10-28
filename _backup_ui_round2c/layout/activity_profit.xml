@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  Profit analytics — champagne redesign, matching Inventory / GST reports /
+  Sales report: eyebrow + serif accent header, bg_inv_value_card hero
+  (serif figure + amber/red tiles), tinted 2-up stat row, bg_inv_stat_card
+  search + icon buttons, plain caps section label, bg_inv_value_card list
+  frame, teal CTA. Structure (fixed header/hero/chips/search, RecyclerView
+  filling the remaining space, Print pinned at the bottom) is unchanged
+  from the previous layout — only colors, drawables and typography moved
+  onto the shared champagne language.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_lg_page">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
+
+    <!-- ===================== HEADER ===================== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingBottom="2dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/xml_profit_header_title"
+            android:textColor="#8A6526"
+            android:textSize="11sp"
+            android:letterSpacing="0.16"
+            android:fontFamily="@font/googlesans_semibold" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="bottom"
+            android:layout_marginTop="1dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/xml_profit_title_bold"
+                android:textColor="#1A1A18"
+                android:textSize="21sp"
+                android:letterSpacing="-0.02"
+                android:fontFamily="@font/googlesans_bold"
+                android:includeFontPadding="false"
+                android:accessibilityHeading="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="@string/xml_profit_title_accent"
+                android:textColor="#0F6E56"
+                android:textSize="21sp"
+                android:textStyle="italic"
+                android:fontFamily="serif"
+                android:includeFontPadding="false" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Period filters — shared by both Overview and Trend tabs; moved
+         here from ProfitOverviewFragment so one control drives both. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="16dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/btnToday"
+            android:text="@string/xml_profit_filter_today"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="34dp"
+            android:layout_marginEnd="6dp"
+            android:checkable="true"
+            app:chipBackgroundColor="@android:color/white"
+            app:chipStrokeColor="#D5DDD8"
+            app:chipStrokeWidth="1.5dp"
+            app:chipCornerRadius="8dp"
+            app:chipStartPadding="0dp"
+            app:chipEndPadding="0dp"
+            app:ensureMinTouchTargetSize="false"
+            app:checkedIconVisible="false"
+            app:chipMinTouchTargetSize="0dp"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:textColor="#5B6660"
+            android:fontFamily="@font/googlesans_medium"
+            android:textSize="12sp"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/btnWeek"
+            android:text="@string/xml_profit_filter_week"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="34dp"
+            android:layout_marginEnd="6dp"
+            android:checkable="true"
+            app:chipBackgroundColor="@android:color/white"
+            app:chipStrokeColor="#D5DDD8"
+            app:chipStrokeWidth="1.5dp"
+            app:chipCornerRadius="8dp"
+            app:chipStartPadding="0dp"
+            app:chipEndPadding="0dp"
+            app:ensureMinTouchTargetSize="false"
+            app:checkedIconVisible="false"
+            app:chipMinTouchTargetSize="0dp"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:textColor="#5B6660"
+            android:fontFamily="@font/googlesans_medium"
+            android:textSize="12sp"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/btnMonth"
+            android:text="@string/xml_profit_filter_month"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="34dp"
+            android:layout_marginEnd="6dp"
+            android:checkable="true"
+            app:chipBackgroundColor="@android:color/white"
+            app:chipStrokeColor="#D5DDD8"
+            app:chipStrokeWidth="1.5dp"
+            app:chipCornerRadius="8dp"
+            app:chipStartPadding="0dp"
+            app:chipEndPadding="0dp"
+            app:ensureMinTouchTargetSize="false"
+            app:checkedIconVisible="false"
+            app:chipMinTouchTargetSize="0dp"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:textColor="#5B6660"
+            android:fontFamily="@font/googlesans_medium"
+            android:textSize="12sp"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/btnAll"
+            android:text="@string/xml_profit_filter_all"
+            android:checked="true"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="34dp"
+            android:layout_marginEnd="6dp"
+            android:checkable="true"
+            app:chipBackgroundColor="@android:color/white"
+            app:chipStrokeColor="#B8895A"
+            app:chipStrokeWidth="1.5dp"
+            app:chipCornerRadius="8dp"
+            app:chipStartPadding="0dp"
+            app:chipEndPadding="0dp"
+            app:ensureMinTouchTargetSize="false"
+            app:checkedIconVisible="false"
+            app:chipMinTouchTargetSize="0dp"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:textColor="#8A6526"
+            android:fontFamily="@font/googlesans_medium"
+            android:textSize="12sp"/>
+
+        <!-- Custom date range: opens the range picker; shared by all three tabs. -->
+        <com.google.android.material.chip.Chip
+            android:id="@+id/btnCustom"
+            android:text="@string/xml_profit_filter_custom"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="34dp"
+            android:checkable="true"
+            app:chipBackgroundColor="@android:color/white"
+            app:chipStrokeColor="#D5DDD8"
+            app:chipStrokeWidth="1.5dp"
+            app:chipCornerRadius="8dp"
+            app:chipStartPadding="0dp"
+            app:chipEndPadding="0dp"
+            app:ensureMinTouchTargetSize="false"
+            app:checkedIconVisible="false"
+            app:chipMinTouchTargetSize="0dp"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:textColor="#5B6660"
+            android:fontFamily="@font/googlesans_medium"
+            android:textSize="12sp"/>
+    </LinearLayout>
+
+    <!-- ===================== PAGE SWITCH (Overview / Trend) =====================
+         Plain, simple tabs: just the two words and a thin underline under
+         whichever one is active — no filled pill, nothing heavy. -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp">
+
+        <LinearLayout
+            android:id="@+id/tabNavOverview"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingVertical="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+
+            <TextView
+                android:id="@+id/tvTabOverview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/xml_profit_nav_overview"
+                android:textColor="#1A1A18"
+                android:textSize="13.5sp"
+                android:fontFamily="@font/googlesans_semibold"/>
+
+            <View
+                android:id="@+id/tabOverviewIndicator"
+                android:layout_width="36dp"
+                android:layout_height="3dp"
+                android:layout_marginTop="7dp"
+                android:background="#0F6E56"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tabNavTrend"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingVertical="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+
+            <TextView
+                android:id="@+id/tvTabTrend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/xml_profit_nav_trend"
+                android:textColor="#66716B"
+                android:textSize="13.5sp"
+                android:fontFamily="@font/googlesans_medium"/>
+
+            <View
+                android:id="@+id/tabTrendIndicator"
+                android:layout_width="36dp"
+                android:layout_height="3dp"
+                android:layout_marginTop="7dp"
+                android:background="@android:color/transparent"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tabNavScrap"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:paddingVertical="10dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+
+            <TextView
+                android:id="@+id/tvTabScrap"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/scrap_tab_title"
+                android:textColor="#66716B"
+                android:textSize="13.5sp"
+                android:fontFamily="@font/googlesans_medium"/>
+
+            <View
+                android:id="@+id/tabScrapIndicator"
+                android:layout_width="36dp"
+                android:layout_height="3dp"
+                android:layout_marginTop="7dp"
+                android:background="@android:color/transparent"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/profitPager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+</LinearLayout>

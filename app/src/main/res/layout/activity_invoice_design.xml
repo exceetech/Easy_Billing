@@ -46,8 +46,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/print_layout_eyebrow"
-                        android:textColor="#B8895A"
-                        android:textSize="10sp"
+                        android:textColor="#8A6526"
+                        android:textSize="11sp"
                         android:letterSpacing="0.16"
                         android:fontFamily="@font/googlesans_semibold"/>
 
@@ -150,7 +150,7 @@
                             android:textSize="11sp" android:layout_marginTop="1dp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
-                    <TextView android:text="1 field" android:textSize="10sp" android:textStyle="bold"
+                    <TextView android:text="@string/activity_billing_settings_1_field" android:textSize="11sp" android:textStyle="bold"
                         android:textColor="#8A6526" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
                         android:background="@drawable/bg_pill_amber" android:letterSpacing="0.06"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"/>
@@ -202,7 +202,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="@string/design_footer_helper"
-                        android:textColor="#7C8782"
+                        android:textColor="#66716B"
                         android:textSize="11sp"/>
                 </LinearLayout>
             </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
@@ -241,7 +241,7 @@
                             android:textSize="11sp" android:layout_marginTop="1dp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
-                    <TextView android:text="4 toggles" android:textSize="10sp" android:textStyle="bold"
+                    <TextView android:text="@string/activity_invoice_design_4_toggles" android:textSize="11sp" android:textStyle="bold"
                         android:textColor="#0F6E56" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
                         android:background="@drawable/bg_pill_green" android:letterSpacing="0.06"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"/>
@@ -341,8 +341,8 @@
                             <TextView android:text="@string/design_round_off" android:textColor="#1A1A18"
                                 android:textSize="13.5sp" android:textStyle="bold"
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                            <TextView android:text="@string/design_round_off_sub" android:textColor="#7C8782"
-                                android:textSize="10.5sp" android:layout_marginTop="1dp"
+                            <TextView android:text="@string/design_round_off_sub" android:textColor="#66716B"
+                                android:textSize="11sp" android:layout_marginTop="1dp"
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                         </LinearLayout>
                         <com.google.android.material.materialswitch.MaterialSwitch

@@ -46,8 +46,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/localization_region_label"
-                        android:textColor="#B8895A"
-                        android:textSize="10sp"
+                        android:textColor="#8A6526"
+                        android:textSize="11sp"
                         android:letterSpacing="0.16"
                         android:fontFamily="@font/googlesans_semibold"/>
 
@@ -140,13 +140,13 @@
                     </FrameLayout>
                     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
                         android:orientation="vertical" android:layout_marginStart="12dp">
-                        <TextView android:text="Preferences" android:textColor="#1A1A18" android:textSize="14sp"
+                        <TextView android:text="@string/activity_localization_settings_preferences" android:textColor="#1A1A18" android:textSize="14sp"
                             android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                        <TextView android:text="Language &amp; currency format" android:textColor="#5C6B65"
+                        <TextView android:text="@string/activity_localization_settings_language_and_currency_format" android:textColor="#5C6B65"
                             android:textSize="11sp" android:layout_marginTop="1dp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
-                    <TextView android:text="2 fields" android:textSize="10sp" android:textStyle="bold"
+                    <TextView android:text="@string/activity_localization_settings_2_fields" android:textSize="11sp" android:textStyle="bold"
                         android:textColor="#16A34A" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
                         android:background="@drawable/bg_pill_green" android:letterSpacing="0.06"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"/>
@@ -268,7 +268,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/localization_restart_note"
-                    android:textColor="#7C8782"
+                    android:textColor="#66716B"
                     android:textSize="11sp"
                     android:lineSpacingExtra="1dp"/>
             </LinearLayout>

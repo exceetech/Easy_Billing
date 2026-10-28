@@ -60,7 +60,7 @@
         android:layout_marginTop="6dp"
         android:gravity="center"
         android:text="@string/dialog_session_expiring_subtitle"
-        android:textColor="#76867C"
+        android:textColor="#66716B"
         android:textSize="12.5sp"
         android:lineSpacingExtra="3dp" />
 

@@ -40,7 +40,7 @@
             android:paddingVertical="2dp"
             android:background="@drawable/bg_search_tag_chip_neutral"
             android:textColor="#5B6660"
-            android:textSize="10sp"
+            android:textSize="11sp"
             android:fontFamily="@font/googlesans_medium"
             android:singleLine="true"/>
     </LinearLayout>

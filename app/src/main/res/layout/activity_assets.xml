@@ -37,8 +37,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/assets_header_subtitle"
-            android:textColor="#B8895A"
-            android:textSize="10sp"
+            android:textColor="#8A6526"
+            android:textSize="11sp"
             android:letterSpacing="0.16"
             android:fontFamily="@font/googlesans_semibold"/>
 
@@ -93,7 +93,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="7dp"
             android:text="@string/assets_explainer"
-            android:textSize="10.5sp"
+            android:textSize="11sp"
             android:textColor="#6E5726"
             android:lineSpacingExtra="2dp" />
     </LinearLayout>
@@ -113,7 +113,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/assets_total_value_label"
-            android:textColor="#7C8782"
+            android:textColor="#66716B"
             android:textSize="11sp"/>
 
         <LinearLayout
@@ -138,7 +138,7 @@
                 android:layout_marginStart="8dp"
                 android:paddingBottom="2dp"
                 android:text="@string/assets_total_value_caption"
-                android:textColor="#76867C"
+                android:textColor="#66716B"
                 android:textSize="11sp"/>
         </LinearLayout>
 
@@ -173,7 +173,7 @@
                     android:layout_marginTop="1dp"
                     android:text="@string/assets_kpi_capital_goods"
                     android:textColor="#BA7517"
-                    android:textSize="9.5sp"
+                    android:textSize="11sp"
                     android:singleLine="true"/>
             </LinearLayout>
 
@@ -204,7 +204,7 @@
                     android:layout_marginTop="1dp"
                     android:text="@string/assets_kpi_input_services"
                     android:textColor="#0F6E56"
-                    android:textSize="9.5sp"
+                    android:textSize="11sp"
                     android:singleLine="true"/>
             </LinearLayout>
 
@@ -235,7 +235,7 @@
                     android:layout_marginTop="1dp"
                     android:text="@string/assets_kpi_raw_material"
                     android:textColor="#A32D2D"
-                    android:textSize="9.5sp"
+                    android:textSize="11sp"
                     android:singleLine="true"/>
             </LinearLayout>
         </LinearLayout>
@@ -246,8 +246,8 @@
             android:layout_marginTop="8dp"
             android:gravity="center"
             android:text="@string/assets_tap_hint"
-            android:textColor="#7C8782"
-            android:textSize="10sp"/>
+            android:textColor="#66716B"
+            android:textSize="11sp"/>
     </LinearLayout>
 
     <TextView
@@ -256,7 +256,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="8dp"
-        android:textColor="#7C8782"
+        android:textColor="#66716B"
         android:textSize="11sp"
         android:fontFamily="@font/googlesans_medium"
         tools:text="14 assets · not counted as sellable stock"/>
@@ -351,7 +351,7 @@
                 android:background="@drawable/bg_hdr_badge_red"
                 android:text="1"
                 android:textColor="#FFFFFF"
-                android:textSize="8sp"
+                android:textSize="11sp"
                 android:fontFamily="@font/googlesans_semibold"
                 android:visibility="gone"/>
         </FrameLayout>
@@ -400,7 +400,7 @@
         android:layout_marginTop="13dp"
         android:layout_marginBottom="8dp"
         android:text="@string/assets_section_all"
-        android:textColor="#9CA3AF"
+        android:textColor="#66716B"
         android:textSize="11sp"/>
 
     <!-- ══ List — background lives on this outer card, not the
@@ -489,7 +489,7 @@
                     android:gravity="center"
                     android:text="@string/assets_empty_sub"
                     android:textSize="12.5sp"
-                    android:textColor="#76867C"
+                    android:textColor="#66716B"
                     android:lineSpacingExtra="3dp"/>
 
                 <View
@@ -528,7 +528,7 @@
                             android:layout_marginTop="1dp"
                             android:text="@string/assets_tip_purchase_body"
                             android:textSize="11sp"
-                            android:textColor="#7C8782" />
+                            android:textColor="#66716B" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -560,7 +560,7 @@
                             android:layout_marginTop="1dp"
                             android:text="@string/assets_tip_search_body"
                             android:textSize="11sp"
-                            android:textColor="#7C8782" />
+                            android:textColor="#66716B" />
                     </LinearLayout>
                 </LinearLayout>
 

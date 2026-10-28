@@ -201,9 +201,7 @@ open class BaseActivity : AppCompatActivity() {
         val mins = driftMs / 60000
         val view = layoutInflater.inflate(R.layout.dialog_clock_blocked, null)
         view.findViewById<android.widget.TextView>(R.id.tvClockMessage).text =
-            "Your device clock is off by about $mins minute(s).\n\n" +
-                "Please set it to automatic / correct date & time, then retry. " +
-                "Billing is paused until the time is correct."
+            getString(R.string.base_your_device_clock_is_off_by_about_1_s_, mins)
         val dialog = AlertDialog.Builder(this)
             .setCancelable(false)
             .setView(view)

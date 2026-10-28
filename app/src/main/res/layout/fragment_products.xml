@@ -52,8 +52,8 @@
                     android:layout_height="wrap_content"
                     android:includeFontPadding="false"
                     android:text="@string/products_rank_by"
-                    android:textSize="10.5sp"
-                    android:textColor="#79897F"/>
+                    android:textSize="11sp"
+                    android:textColor="#66716B"/>
                 <TextView
                     android:id="@+id/tvSortChip"
                     android:layout_width="wrap_content"
@@ -120,7 +120,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/products_kpi_caption"
-                        android:textSize="10.5sp"
+                        android:textSize="11sp"
                         android:textColor="#0F6E56"
                         android:layout_marginTop="1dp"/>
                 </LinearLayout>
@@ -207,9 +207,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="@string/dash"
-                        android:textSize="10.5sp"
+                        android:textSize="11sp"
                         android:fontFamily="serif"
-                        android:textColor="#79897F"
+                        android:textColor="#66716B"
                         android:singleLine="true"
                         android:ellipsize="end"/>
                 </LinearLayout>
@@ -288,9 +288,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:text="@string/dash"
-                        android:textSize="10.5sp"
+                        android:textSize="11sp"
                         android:fontFamily="serif"
-                        android:textColor="#79897F"
+                        android:textColor="#66716B"
                         android:singleLine="true"
                         android:ellipsize="end"/>
                 </LinearLayout>
@@ -343,8 +343,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/products_card_caption"
-                        android:textSize="10.5sp"
-                        android:textColor="#B8895A"
+                        android:textSize="11sp"
+                        android:textColor="#8A6526"
                         android:layout_marginTop="1dp"/>
                 </LinearLayout>
             </LinearLayout>
@@ -401,7 +401,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/products_empty_state"
                     android:textSize="13sp"
-                    android:textColor="#7C8782"
+                    android:textColor="#66716B"
                     android:gravity="center"
                     android:paddingVertical="24dp"
                     android:visibility="gone"/>
@@ -413,7 +413,7 @@
                     android:layout_marginTop="12dp"
                     android:textSize="12sp"
                     android:lineSpacingExtra="2dp"
-                    android:textColor="#79897F"
+                    android:textColor="#66716B"
                     android:visibility="gone"/>
             </LinearLayout>
         </com.example.easy_billing.ui.glass.GlassClipLinearLayout>

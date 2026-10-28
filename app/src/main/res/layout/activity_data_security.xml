@@ -47,8 +47,8 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/tvEyebrow"
                         android:text="@string/protected_eyebrow"
-                        android:textColor="#B8895A"
-                        android:textSize="10sp"
+                        android:textColor="#8A6526"
+                        android:textSize="11sp"
                         android:letterSpacing="0.16"
                         android:fontFamily="@font/googlesans_semibold"/>
 
@@ -138,7 +138,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/tap_unlock_helper"
-                    android:textColor="#7C8782"
+                    android:textColor="#66716B"
                     android:textSize="11sp"
                     android:lineSpacingExtra="1dp"/>
             </LinearLayout>
@@ -205,7 +205,7 @@
                         android:paddingVertical="5dp"
                         android:text="@string/security_card_count"
                         android:textColor="#16A34A"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.06"/>
                 </LinearLayout>
@@ -331,7 +331,7 @@
                         android:paddingVertical="5dp"
                         android:text="@string/data_card_count"
                         android:textColor="#8A6526"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.06"/>
                 </LinearLayout>
@@ -431,7 +431,7 @@
                         android:paddingVertical="5dp"
                         android:text="@string/diagnose_card_count"
                         android:textColor="#0F6E56"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.06"/>
                 </LinearLayout>
@@ -531,7 +531,7 @@
                         android:paddingVertical="5dp"
                         android:text="@string/danger_card_count"
                         android:textColor="#A32D2D"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.06"/>
                 </LinearLayout>

@@ -90,7 +90,7 @@ class SalesReturnActivity : AppCompatActivity() {
         btnConfirmReturn = findViewById(R.id.btnConfirmReturn)
         btnCancelReturn  = findViewById(R.id.btnCancelReturn)
 
-        tvInvoiceNumber.text = "Invoice $billNumber"
+        tvInvoiceNumber.text = getString(R.string.billdetails_invoice_1_s, billNumber)
 
         rvReturnItems.layoutManager = LinearLayoutManager(this)
 
@@ -200,9 +200,9 @@ class SalesReturnActivity : AppCompatActivity() {
             viewModel.isLoading.collectLatest { loading ->
                 btnConfirmReturn.isEnabled = !loading
                 btnConfirmReturn.text = if (loading)
-                    "Processing…"
+                    getString(R.string.purchase_return_processing)
                 else
-                    "Confirm return"
+                    getString(R.string.activity_sales_return_confirm_and_issue_credit)
             }
         }
 
@@ -270,7 +270,7 @@ class SalesReturnActivity : AppCompatActivity() {
                 .parse(bill.date.substring(0, 19))
             val displayDate = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
                 .format(parsedDate ?: Date())
-            tvInvoiceDate.text = "Date: $displayDate"
+            tvInvoiceDate.text = getString(R.string.debitnote_date_1_s, displayDate)
         } catch (e: Exception) {
             tvInvoiceDate.text = "Date: ${bill.date}"
         }

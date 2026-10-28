@@ -99,7 +99,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
                 android:text=""
-                android:textColor="#76867C"
+                android:textColor="#66716B"
                 android:textSize="11sp"
                 android:singleLine="true" />
         </LinearLayout>
@@ -119,7 +119,7 @@
             android:layout_height="wrap_content"
             android:text="@string/txn_current_balance_label"
             android:textSize="11sp"
-            android:textColor="#7C8782" />
+            android:textColor="#66716B" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -152,7 +152,7 @@
                 android:layout_marginBottom="4dp"
                 android:text="@string/credit_status_settled"
                 android:textSize="11sp"
-                android:textColor="#76867C" />
+                android:textColor="#66716B" />
         </LinearLayout>
 
         <LinearLayout
@@ -185,7 +185,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
                     android:text="@string/txn_billed_label"
-                    android:textSize="9.5sp"
+                    android:textSize="11sp"
                     android:textColor="#A32D2D" />
             </LinearLayout>
 
@@ -214,7 +214,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
                     android:text="@string/txn_received_label"
-                    android:textSize="9.5sp"
+                    android:textSize="11sp"
                     android:textColor="#0F6E56" />
             </LinearLayout>
 
@@ -253,7 +253,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/txn_label_written_off"
                     android:textSize="11.5sp"
-                    android:textColor="#7C8782" />
+                    android:textColor="#66716B" />
                 <TextView
                     android:id="@+id/tvWrittenOff"
                     android:layout_width="wrap_content"
@@ -278,7 +278,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/txn_paid_out_label"
                     android:textSize="11.5sp"
-                    android:textColor="#7C8782" />
+                    android:textColor="#66716B" />
                 <TextView
                     android:id="@+id/tvPaidOut"
                     android:layout_width="wrap_content"
@@ -303,7 +303,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/txn_refunded_to_customer_label"
                     android:textSize="11.5sp"
-                    android:textColor="#7C8782" />
+                    android:textColor="#66716B" />
                 <TextView
                     android:id="@+id/tvRefunded"
                     android:layout_width="wrap_content"

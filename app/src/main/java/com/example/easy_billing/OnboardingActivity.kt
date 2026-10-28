@@ -291,7 +291,7 @@ class OnboardingActivity : BaseActivity() {
         val currentStepNumber = (completedCount + 1).coerceAtMost(total)
 
         tvOnboardStepCount.text = if (firstIncompleteIndex == -1) {
-            "All steps complete"
+            getString(R.string.onboarding_all_steps_complete)
         } else {
             getString(R.string.onboarding_step_progress, currentStepNumber, total, getString(steps[firstIncompleteIndex].title))
         }

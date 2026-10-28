@@ -64,7 +64,7 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_loss_title" android:textSize="15sp" android:textStyle="bold" android:textColor="#123B31"/>
                     <TextView
                         android:id="@+id/tvLossCaption"
-                        android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_loss_caption" android:textSize="10.5sp" android:textColor="#0F6E56" android:layout_marginTop="1dp"/>
+                        android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_loss_caption" android:textSize="11sp" android:textColor="#0F6E56" android:layout_marginTop="1dp"/>
                 </LinearLayout>
             </LinearLayout>
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="15dp">
@@ -76,14 +76,14 @@
                 </LinearLayout>
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:layout_marginTop="10dp">
                 <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginEnd="8dp" android:orientation="vertical" android:padding="12dp" android:background="@drawable/bg_lg_inv_subcard_accent_amber">
-                    <TextView android:id="@+id/tvShareLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_share_label" android:textSize="10.5sp" android:textStyle="bold" android:textColor="#515B55"/>
+                    <TextView android:id="@+id/tvShareLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_share_label" android:textSize="11sp" android:textStyle="bold" android:textColor="#515B55"/>
                     <TextView android:id="@+id/tvShareValue" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/dash" android:textSize="17sp" android:fontFamily="serif" android:textStyle="bold" android:textColor="#8A6526" android:includeFontPadding="false" android:singleLine="true" app:autoSizeTextType="uniform" app:autoSizeMinTextSize="11sp" app:autoSizeMaxTextSize="17sp"/>
-                    <TextView android:id="@+id/tvShareSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/dash" android:textSize="10.5sp" android:textColor="#79897F" android:maxLines="2"/>
+                    <TextView android:id="@+id/tvShareSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/dash" android:textSize="11sp" android:textColor="#66716B" android:maxLines="2"/>
                 </LinearLayout>
                 <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"  android:orientation="vertical" android:padding="12dp" android:background="@drawable/bg_lg_inv_subcard_accent_blue">
-                    <TextView android:id="@+id/tvEventsLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_events_label" android:textSize="10.5sp" android:textStyle="bold" android:textColor="#515B55"/>
+                    <TextView android:id="@+id/tvEventsLabel" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_events_label" android:textSize="11sp" android:textStyle="bold" android:textColor="#515B55"/>
                     <TextView android:id="@+id/tvEventsValue" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/dash" android:textSize="17sp" android:fontFamily="serif" android:textStyle="bold" android:textColor="#3A5FB2" android:includeFontPadding="false" android:singleLine="true" app:autoSizeTextType="uniform" app:autoSizeMinTextSize="11sp" app:autoSizeMaxTextSize="17sp"/>
-                    <TextView android:id="@+id/tvEventsSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/dash" android:textSize="10.5sp" android:textColor="#79897F" android:maxLines="2"/>
+                    <TextView android:id="@+id/tvEventsSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/dash" android:textSize="11sp" android:textColor="#66716B" android:maxLines="2"/>
                 </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -116,7 +116,7 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_time_title" android:textSize="15sp" android:textStyle="bold" android:textColor="#6B4A20"/>
                     <TextView
                         android:id="@+id/tvTimeCaption"
-                        android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_time_caption" android:textSize="10.5sp" android:textColor="#8A6526" android:layout_marginTop="1dp"/>
+                        android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_time_caption" android:textSize="11sp" android:textColor="#8A6526" android:layout_marginTop="1dp"/>
                 </LinearLayout>
             </LinearLayout>
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="15dp">
@@ -160,8 +160,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/dash"
-                            android:textSize="10.5sp"
-                            android:textColor="#79897F"
+                            android:textSize="11sp"
+                            android:textColor="#66716B"
                             android:layout_marginTop="1dp"/>
                     </LinearLayout>
                     <TextView
@@ -207,7 +207,7 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_freq_title" android:textSize="15sp" android:textStyle="bold" android:textColor="#123B31"/>
                     <TextView
                         android:id="@+id/tvFreqCaption"
-                        android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_freq_caption" android:textSize="10.5sp" android:textColor="#0F6E56" android:layout_marginTop="1dp"/>
+                        android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_freq_caption" android:textSize="11sp" android:textColor="#0F6E56" android:layout_marginTop="1dp"/>
                 </LinearLayout>
             </LinearLayout>
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="16dp" android:paddingTop="14dp" android:paddingBottom="8dp">
@@ -223,12 +223,12 @@
                     <View android:id="@+id/vFreqMarker" android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="start|center_vertical"/>
                 </FrameLayout>
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="5dp">
-                    <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/scrap_meter_less" android:textSize="10.5sp" android:textColor="#5B6660"/>
-                    <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:gravity="center" android:text="@string/scrap_meter_same" android:textSize="10.5sp" android:textColor="#5B6660"/>
-                    <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:gravity="end" android:text="@string/scrap_meter_more" android:textSize="10.5sp" android:textColor="#5B6660"/>
+                    <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/scrap_meter_less" android:textSize="11sp" android:textColor="#5B6660"/>
+                    <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:gravity="center" android:text="@string/scrap_meter_same" android:textSize="11sp" android:textColor="#5B6660"/>
+                    <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:gravity="end" android:text="@string/scrap_meter_more" android:textSize="11sp" android:textColor="#5B6660"/>
                 </LinearLayout>
                 <LinearLayout android:id="@+id/llFreqProducts" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical" android:visibility="gone"/>
-                <TextView android:id="@+id/tvFreqHint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/scrap_freq_dots_hint" android:textSize="10.5sp" android:textColor="#7C8782" android:visibility="gone"/>
+                <TextView android:id="@+id/tvFreqHint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="@string/scrap_freq_dots_hint" android:textSize="11sp" android:textColor="#66716B" android:visibility="gone"/>
                 <LinearLayout android:id="@+id/btnFreqProducts" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minHeight="44dp" android:layout_gravity="end" android:gravity="center_vertical" android:clickable="true" android:focusable="true">
                     <TextView android:id="@+id/tvFreqBtnText" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/scrap_freq_see_products" android:textSize="13sp" android:textColor="#8A6526" android:fontFamily="@font/googlesans_semibold"/>
                 </LinearLayout>
@@ -260,14 +260,14 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_products_title" android:textSize="15sp" android:textStyle="bold" android:textColor="#6B4A20"/>
                     <TextView
                         android:id="@+id/tvProductsCaption"
-                        android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_products_caption" android:textSize="10.5sp" android:textColor="#8A6526" android:layout_marginTop="1dp"/>
+                        android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_products_caption" android:textSize="11sp" android:textColor="#8A6526" android:layout_marginTop="1dp"/>
                 </LinearLayout>
             </LinearLayout>
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="15dp">
                 <!-- Reason dropdown: same white, amber-bordered look as the Best Sellers selector -->
                 <LinearLayout android:id="@+id/rowScrapReason" android:layout_width="match_parent" android:layout_height="52dp" android:layout_marginBottom="10dp" android:orientation="horizontal" android:gravity="center_vertical" android:background="@drawable/bg_pick_selector" android:paddingStart="14dp" android:paddingEnd="12dp" android:clickable="true" android:focusable="true">
                     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="@string/scrap_reason_label" android:textSize="10.5sp" android:textColor="#79897F"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:includeFontPadding="false" android:text="@string/scrap_reason_label" android:textSize="11sp" android:textColor="#66716B"/>
                         <TextView android:id="@+id/tvScrapReasonValue" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:includeFontPadding="false" android:text="@string/scrap_all_reasons" android:textSize="14sp" android:textColor="#123B31" android:fontFamily="@font/googlesans_semibold"/>
                     </LinearLayout>
                     <TextView android:id="@+id/tvScrapReasonCount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginEnd="8dp" android:textSize="14sp" android:fontFamily="serif" android:textStyle="bold" android:textColor="#8E2A2A"/>
@@ -306,7 +306,7 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_recent_title" android:textSize="15sp" android:textStyle="bold" android:textColor="#123B31"/>
                     <TextView
                         android:id="@+id/tvRecentCaption"
-                        android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_recent_caption" android:textSize="10.5sp" android:textColor="#0F6E56" android:layout_marginTop="1dp"/>
+                        android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scrap_recent_caption" android:textSize="11sp" android:textColor="#0F6E56" android:layout_marginTop="1dp"/>
                 </LinearLayout>
             </LinearLayout>
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="15dp">

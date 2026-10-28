@@ -48,8 +48,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/invoice_khata_header"
-            android:textColor="#B8895A"
-            android:textSize="10sp"
+            android:textColor="#8A6526"
+            android:textSize="11sp"
             android:letterSpacing="0.16"
             android:fontFamily="@font/googlesans_semibold" />
 
@@ -97,7 +97,7 @@
             android:layout_height="wrap_content"
             android:text="@string/credit_net_position_label"
             android:textSize="11sp"
-            android:textColor="#7C8782" />
+            android:textColor="#66716B" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -164,7 +164,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
                     android:text="@string/credit_chip_label_due"
-                    android:textSize="9.5sp"
+                    android:textSize="11sp"
                     android:textColor="#A32D2D" />
             </LinearLayout>
 
@@ -194,7 +194,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
                     android:text="@string/credit_chip_label_advance"
-                    android:textSize="9.5sp"
+                    android:textSize="11sp"
                     android:textColor="#0F6E56" />
             </LinearLayout>
         </LinearLayout>
@@ -364,7 +364,7 @@
                     android:gravity="center"
                     android:text="@string/credit_no_customers_body"
                     android:textSize="12.5sp"
-                    android:textColor="#76867C"
+                    android:textColor="#66716B"
                     android:lineSpacingExtra="3dp" />
 
                 <View
@@ -403,7 +403,7 @@
                             android:layout_marginTop="1dp"
                             android:text="@string/credit_tip_add_body"
                             android:textSize="11sp"
-                            android:textColor="#7C8782" />
+                            android:textColor="#66716B" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -435,7 +435,7 @@
                             android:layout_marginTop="1dp"
                             android:text="@string/credit_tip_search_body"
                             android:textSize="11sp"
-                            android:textColor="#7C8782" />
+                            android:textColor="#66716B" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>

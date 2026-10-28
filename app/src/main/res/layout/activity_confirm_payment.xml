@@ -39,10 +39,10 @@
 
             <TextView
                 android:text="@string/checkout_eyebrow"
-                android:textSize="10sp"
+                android:textSize="11sp"
                 android:letterSpacing="0.16"
                 android:fontFamily="@font/googlesans_semibold"
-                android:textColor="#B8895A"
+                android:textColor="#8A6526"
                 android:layout_marginTop="4dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
@@ -136,7 +136,7 @@
                         android:text="@string/billing_cycle_default"
                         android:textSize="11.5sp"
                         android:fontFamily="@font/googlesans_medium"
-                        android:textColor="#77877D"
+                        android:textColor="#66716B"
                         android:layout_marginTop="2dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
@@ -165,7 +165,7 @@
                         android:text="@string/plan_price"
                         android:textSize="12.5sp"
                         android:fontFamily="@font/googlesans_medium"
-                        android:textColor="#77877D"
+                        android:textColor="#66716B"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"/>
@@ -218,9 +218,9 @@
                     android:id="@+id/tvUpgradeCreditNote"
                     android:visibility="gone"
                     android:text="@string/estimated_only_note"
-                    android:textSize="10.5sp"
+                    android:textSize="11sp"
                     android:fontFamily="@font/googlesans_medium"
-                    android:textColor="#7C8782"
+                    android:textColor="#66716B"
                     android:layout_marginTop="3dp"
                     android:lineSpacingExtra="1dp"
                     android:layout_width="match_parent"
@@ -319,7 +319,7 @@
                     android:id="@+id/tvBonusDays"
                     android:visibility="gone"
                     android:text="@string/plus_15_days_free"
-                    android:textSize="10.5sp"
+                    android:textSize="11sp"
                     android:textStyle="bold"
                     android:fontFamily="@font/googlesans_semibold"
                     android:textColor="#B8791A"
@@ -346,7 +346,7 @@
                         android:text="@string/service_charge_pct"
                         android:textSize="12.5sp"
                         android:fontFamily="@font/googlesans_medium"
-                        android:textColor="#77877D"
+                        android:textColor="#66716B"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"/>
@@ -374,7 +374,7 @@
                         android:text="@string/gst_18_pct"
                         android:textSize="12.5sp"
                         android:fontFamily="@font/googlesans_medium"
-                        android:textColor="#77877D"
+                        android:textColor="#66716B"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"/>
@@ -533,7 +533,7 @@
                     android:text="@string/secured_by_razorpay"
                     android:textSize="11sp"
                     android:fontFamily="@font/googlesans_medium"
-                    android:textColor="#77877D"
+                    android:textColor="#66716B"
                     android:layout_marginStart="6dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
@@ -641,12 +641,12 @@
          popup rather than a full page. -->
     <FrameLayout
         android:id="@+id/btnClose"
-        android:layout_width="26dp"
-        android:layout_height="26dp"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
         android:layout_gravity="top|end"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="14dp"
-        android:background="@drawable/bg_confirm_close_button"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="5dp"
+        android:background="@drawable/bg_confirm_close_button_44"
         android:clickable="true"
         android:focusable="true">
 

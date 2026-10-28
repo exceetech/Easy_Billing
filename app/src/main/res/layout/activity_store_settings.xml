@@ -46,8 +46,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/your_business_eyebrow"
-                        android:textColor="#B8895A"
-                        android:textSize="10sp"
+                        android:textColor="#8A6526"
+                        android:textSize="11sp"
                         android:letterSpacing="0.16"
                         android:fontFamily="@font/googlesans_semibold"/>
 
@@ -148,7 +148,7 @@
                             android:textSize="11sp" android:layout_marginTop="1dp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
-                    <TextView android:text="2 fields" android:textSize="10sp" android:textStyle="bold"
+                    <TextView android:text="@string/activity_localization_settings_2_fields" android:textSize="11sp" android:textStyle="bold"
                         android:textColor="#16A34A" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
                         android:background="@drawable/bg_pill_green" android:letterSpacing="0.06"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"/>
@@ -276,7 +276,7 @@
                             android:textSize="11sp" android:layout_marginTop="1dp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
-                    <TextView android:text="6 fields" android:textSize="10sp" android:textStyle="bold"
+                    <TextView android:text="@string/activity_store_settings_6_fields" android:textSize="11sp" android:textStyle="bold"
                         android:textColor="#8A6526" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
                         android:background="@drawable/bg_pill_amber" android:letterSpacing="0.06"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"/>
@@ -301,8 +301,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/pincode_label"
-                            android:textColor="#7C8782"
-                            android:textSize="10.5sp"
+                            android:textColor="#66716B"
+                            android:textSize="11sp"
                             android:textStyle="bold"
                             android:letterSpacing="0.07"/>
                         <TextView
@@ -464,8 +464,8 @@
                             android:textSize="15sp"/>
                         <ImageView
                             android:id="@+id/icAreaDropdown"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
+                            android:layout_width="44dp"
+                            android:padding="12dp" android:layout_height="44dp"
                             android:layout_gravity="center_vertical"
                             android:src="@drawable/ic_chevron_down"
                             app:tint="#0F6E56"
@@ -473,7 +473,7 @@
                             android:clickable="true"
                             android:focusable="true"
                             android:visibility="gone"
-                            android:contentDescription="Select Area"/>
+                            android:contentDescription="@string/activity_store_settings_select_area"/>
                     </LinearLayout>
 
                     <!-- Shop No. / Building / Street -->
@@ -529,7 +529,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/address_preview_label"
                             android:textColor="#8A6526"
-                            android:textSize="10sp"
+                            android:textSize="11sp"
                             android:letterSpacing="0.08"
                             android:textStyle="bold"
                             android:textAllCaps="true"/>
@@ -615,7 +615,7 @@
                             android:textSize="11sp" android:layout_marginTop="1dp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
-                    <TextView android:text="2 fields" android:textSize="10sp" android:textStyle="bold"
+                    <TextView android:text="@string/activity_localization_settings_2_fields" android:textSize="11sp" android:textStyle="bold"
                         android:textColor="#0F6E56" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
                         android:background="@drawable/bg_pill_green" android:letterSpacing="0.06"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"/>
@@ -639,8 +639,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/gstin"
-                            android:textColor="#7C8782"
-                            android:textSize="10.5sp"
+                            android:textColor="#66716B"
+                            android:textSize="11sp"
                             android:textStyle="bold"
                             android:letterSpacing="0.07"/>
                         <TextView
@@ -697,8 +697,8 @@
                         android:layout_marginTop="14dp"
                         android:layout_marginBottom="6dp"
                         android:text="@string/store_scheme_label"
-                        android:textColor="#7C8782"
-                        android:textSize="10.5sp"
+                        android:textColor="#66716B"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.07"/>
 
@@ -726,7 +726,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="12dp"
                             android:text="@string/store_scheme_hint"
-                            android:textColor="#7C8782"
+                            android:textColor="#66716B"
                             android:textSize="15sp"/>
                         <ImageView
                             android:id="@+id/icSchemeChevron"

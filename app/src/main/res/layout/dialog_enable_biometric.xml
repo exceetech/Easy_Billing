@@ -79,7 +79,7 @@
         android:gravity="center"
         android:text="@string/biometric_dialog_message"
         android:textSize="12sp"
-        android:textColor="#7C8782"
+        android:textColor="#66716B"
         android:lineSpacingExtra="2dp" />
 
     <com.google.android.material.button.MaterialButton

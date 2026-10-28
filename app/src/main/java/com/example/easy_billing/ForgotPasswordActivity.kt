@@ -124,7 +124,7 @@ class ForgotPasswordActivity : BaseActivity() {
                     val response = RetrofitClient.api.forgotPassword(request)
 
                     findViewById<TextView>(R.id.tvOtpSentTo).text =
-                        "Enter the 6-digit code sent to $email"
+                        getString(R.string.forgot_enter_the_6_digit_code_sent_to_1_s, email)
 
                     // 🚀 CINEMATIC REVEAL: expand OTP section inline (same page)
                     if (otpLayout.visibility == View.GONE) {

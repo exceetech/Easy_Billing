@@ -249,10 +249,10 @@ class ChangePasswordActivity : BaseActivity() {
         val empty = Color.parseColor("#D5DDD8")
         val (label, color) = when {
             password.isEmpty() -> "" to empty
-            score <= 1 -> "Weak password" to Color.parseColor("#C2553A")
-            score == 2 -> "Fair password" to Color.parseColor("#B8895A")
-            score == 3 -> "Good password" to Color.parseColor("#1D9E75")
-            else -> "Strong password" to Color.parseColor("#0F6E56")
+            score <= 1 -> getString(R.string.changepw_weak_password) to Color.parseColor("#C2553A")
+            score == 2 -> getString(R.string.changepw_fair_password) to Color.parseColor("#B8895A")
+            score == 3 -> getString(R.string.changepw_good_password) to Color.parseColor("#1D9E75")
+            else -> getString(R.string.changepw_strong_password) to Color.parseColor("#0F6E56")
         }
 
         val filled = if (password.isEmpty()) 0 else score.coerceIn(1, 4)

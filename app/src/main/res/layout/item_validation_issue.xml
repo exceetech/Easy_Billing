@@ -35,9 +35,9 @@
         <TextView
             android:id="@+id/tvSection"
             android:text="B2B"
-            android:textSize="10sp"
+            android:textSize="11sp"
             android:letterSpacing="0.04"
-            android:textColor="#7C8782"
+            android:textColor="#66716B"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 

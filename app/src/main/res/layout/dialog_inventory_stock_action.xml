@@ -64,7 +64,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
                 android:text="@string/dialog_inventory_stock_action_0_units"
-                android:textSize="10.5sp"
+                android:textSize="11sp"
                 android:fontFamily="@font/googlesans_medium"
                 android:textColor="#854F0B"
                 android:maxLines="1"

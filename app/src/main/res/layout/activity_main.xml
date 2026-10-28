@@ -117,8 +117,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:text="@string/point_of_sale_tagline"
-                    android:textColor="#7C8782"
-                    android:textSize="10sp"
+                    android:textColor="#66716B"
+                    android:textSize="11sp"
                     android:letterSpacing="0.18"
                     android:fontFamily="@font/googlesans_semibold"/>
 
@@ -236,7 +236,7 @@
                         android:gravity="center"
                         android:paddingVertical="8dp"
                         android:text="@string/sign_up"
-                        android:textColor="#7C8782"
+                        android:textColor="#66716B"
                         android:textSize="13sp"
                         android:fontFamily="@font/googlesans_semibold"
                         android:clickable="true"
@@ -258,7 +258,7 @@
                         android:layout_marginBottom="6dp"
                         android:text="@string/email_address"
                         android:textSize="12.5sp"
-                        android:textColor="#8D9992"
+                        android:textColor="#66716B"
                         android:fontFamily="@font/googlesans_regular"/>
 
                     <FrameLayout
@@ -300,7 +300,7 @@
                         android:layout_marginBottom="6dp"
                         android:text="@string/password"
                         android:textSize="12.5sp"
-                        android:textColor="#8D9992"
+                        android:textColor="#66716B"
                         android:fontFamily="@font/googlesans_regular"/>
 
                     <FrameLayout
@@ -334,10 +334,10 @@
                             android:textSize="14sp"/>
                         <ImageView
                             android:id="@+id/btnTogglePassword"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
+                            android:layout_width="44dp"
+                            android:padding="12dp" android:layout_height="44dp"
                             android:layout_gravity="center_vertical|end"
-                            android:layout_marginEnd="14dp"
+                            android:layout_marginEnd="2dp"
                             android:src="@drawable/ic_lc_eye_off"
                             android:clickable="true"
                             android:focusable="true"
@@ -402,8 +402,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="7dp"
                         android:text="@string/secured_encryption_note"
-                        android:textColor="#7C8782"
-                        android:textSize="10sp"/>
+                        android:textColor="#66716B"
+                        android:textSize="11sp"/>
                 </LinearLayout>
 
                 <!-- Powered-by footer: wax-seal style monogram badge. -->
@@ -435,7 +435,7 @@
                         android:layout_marginTop="5dp"
                         android:text="@string/powered_by_label"
                         android:textColor="#5A7A85"
-                        android:textSize="7sp"
+                        android:textSize="11sp"
                         android:letterSpacing="0.16"
                         android:fontFamily="@font/googlesans_medium"/>
 

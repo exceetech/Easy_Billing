@@ -226,9 +226,9 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
                             android:text="@string/fragment_overview_returns_caption"
-                            android:textSize="10.5sp"
+                            android:textSize="11sp"
                             android:fontFamily="serif"
-                            android:textColor="#79897F"/>
+                            android:textColor="#66716B"/>
                     </LinearLayout>
 
                     <TextView
@@ -294,9 +294,9 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="1dp"
                             android:text="@string/fragment_overview_cancelled_caption"
-                            android:textSize="10.5sp"
+                            android:textSize="11sp"
                             android:fontFamily="serif"
-                            android:textColor="#79897F"/>
+                            android:textColor="#66716B"/>
                     </LinearLayout>
 
                     <TextView
@@ -353,8 +353,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="@string/fragment_overview_stat_bills"
-                        android:textSize="10sp"
-                        android:textColor="#79897F"/>
+                        android:textSize="11sp"
+                        android:textColor="#66716B"/>
                 </LinearLayout>
 
                 <View
@@ -384,8 +384,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="@string/fragment_overview_stat_avg"
-                        android:textSize="10sp"
-                        android:textColor="#79897F"/>
+                        android:textSize="11sp"
+                        android:textColor="#66716B"/>
                 </LinearLayout>
 
                 <View
@@ -415,8 +415,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:text="@string/fragment_overview_stat_growth"
-                        android:textSize="10sp"
-                        android:textColor="#79897F"/>
+                        android:textSize="11sp"
+                        android:textColor="#66716B"/>
                 </LinearLayout>
             </LinearLayout>
         </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
@@ -496,7 +496,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/dash"
                     android:textColor="#8A6526"
-                    android:textSize="10.5sp"
+                    android:textSize="11sp"
                     android:letterSpacing="0.04"
                     android:fontFamily="@font/googlesans_semibold"
                     android:paddingHorizontal="11dp"

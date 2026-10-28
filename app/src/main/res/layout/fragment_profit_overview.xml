@@ -134,7 +134,7 @@
                 android:gravity="center"
                 android:paddingVertical="9dp"
                 android:text="@string/xml_profit_tab_total"
-                android:textColor="#7C8782"
+                android:textColor="#66716B"
                 android:textSize="11.5sp"
                 android:fontFamily="@font/googlesans_semibold"
                 android:background="?attr/selectableItemBackgroundBorderless"
@@ -190,9 +190,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="@string/xml_profit_revenue_caption"
-                        android:textSize="10.5sp"
+                        android:textSize="11sp"
                         android:fontFamily="serif"
-                        android:textColor="#79897F" />
+                        android:textColor="#66716B" />
                 </LinearLayout>
 
                 <TextView
@@ -220,7 +220,7 @@
                 android:text="@string/xml_profit_op_minus"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="#7C8782"/>
+                android:textColor="#66716B"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -261,9 +261,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="@string/xml_profit_cost_caption"
-                        android:textSize="10.5sp"
+                        android:textSize="11sp"
                         android:fontFamily="serif"
-                        android:textColor="#79897F" />
+                        android:textColor="#66716B" />
                 </LinearLayout>
 
                 <TextView
@@ -291,7 +291,7 @@
                 android:text="@string/xml_profit_op_minus"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="#7C8782"/>
+                android:textColor="#66716B"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -332,9 +332,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="@string/xml_profit_loss_caption"
-                        android:textSize="10.5sp"
+                        android:textSize="11sp"
                         android:fontFamily="serif"
-                        android:textColor="#79897F" />
+                        android:textColor="#66716B" />
                 </LinearLayout>
 
                 <TextView
@@ -362,7 +362,7 @@
                 android:text="@string/xml_profit_op_equals"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="#7C8782"/>
+                android:textColor="#66716B"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -403,9 +403,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="@string/xml_profit_profit_from_sales_caption"
-                        android:textSize="10.5sp"
+                        android:textSize="11sp"
                         android:fontFamily="serif"
-                        android:textColor="#79897F" />
+                        android:textColor="#66716B" />
                 </LinearLayout>
 
                 <TextView
@@ -475,9 +475,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="@string/xml_profit_revenue_caption"
-                        android:textSize="10.5sp"
+                        android:textSize="11sp"
                         android:fontFamily="serif"
-                        android:textColor="#79897F" />
+                        android:textColor="#66716B" />
                 </LinearLayout>
 
                 <TextView
@@ -505,7 +505,7 @@
                 android:text="@string/xml_profit_op_minus"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="#7C8782"/>
+                android:textColor="#66716B"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -546,9 +546,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="@string/xml_profit_expense_caption"
-                        android:textSize="10.5sp"
+                        android:textSize="11sp"
                         android:fontFamily="serif"
-                        android:textColor="#79897F" />
+                        android:textColor="#66716B" />
                 </LinearLayout>
 
                 <TextView
@@ -576,7 +576,7 @@
                 android:text="@string/xml_profit_op_minus"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="#7C8782"/>
+                android:textColor="#66716B"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -617,9 +617,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="@string/xml_profit_cost_caption"
-                        android:textSize="10.5sp"
+                        android:textSize="11sp"
                         android:fontFamily="serif"
-                        android:textColor="#79897F" />
+                        android:textColor="#66716B" />
                 </LinearLayout>
 
                 <TextView
@@ -647,7 +647,7 @@
                 android:text="@string/xml_profit_op_minus"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="#7C8782"/>
+                android:textColor="#66716B"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -688,9 +688,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="@string/xml_profit_loss_caption"
-                        android:textSize="10.5sp"
+                        android:textSize="11sp"
                         android:fontFamily="serif"
-                        android:textColor="#79897F" />
+                        android:textColor="#66716B" />
                 </LinearLayout>
 
                 <TextView
@@ -718,7 +718,7 @@
                 android:text="@string/xml_profit_op_equals"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="#7C8782"/>
+                android:textColor="#66716B"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -759,9 +759,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="@string/xml_profit_total_profit_caption"
-                        android:textSize="10.5sp"
+                        android:textSize="11sp"
                         android:fontFamily="serif"
-                        android:textColor="#79897F" />
+                        android:textColor="#66716B" />
                     <LinearLayout
                         android:id="@+id/layoutMarginPill"
                         android:layout_width="wrap_content"
@@ -819,10 +819,10 @@
         android:layout_marginTop="10dp"
         android:gravity="center"
         android:text="@string/xml_profit_calc_footnote"
-        android:textSize="10sp"
+        android:textSize="11sp"
         android:fontFamily="serif"
         android:textStyle="italic"
-        android:textColor="#7C8782"/>
+        android:textColor="#66716B"/>
 
     <!-- By product — now its own card (outer teal-header card, same
          family as the Profit calculation card above), with each product
@@ -905,13 +905,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="&#10022;"
-                    android:textColor="#B8895A"
+                    android:textColor="#8A6526"
                     android:textSize="11sp"
                     android:layout_marginEnd="6dp"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="SEARCH PRODUCTS"
+                    android:text="@string/fragment_profit_overview_search_products"
                     android:textSize="11sp"
                     android:textStyle="bold"
                     android:textColor="#5C4A22"
@@ -1035,7 +1035,7 @@
                 android:gravity="center"
                 android:text="@string/xml_profit_empty_description"
                 android:textSize="12.5sp"
-                android:textColor="#76867C"
+                android:textColor="#66716B"
                 android:lineSpacingExtra="3dp" />
 
             <View
@@ -1074,7 +1074,7 @@
                         android:layout_marginTop="1dp"
                         android:text="@string/xml_profit_hint_revenue_cost_margin"
                         android:textSize="11sp"
-                        android:textColor="#7C8782" />
+                        android:textColor="#66716B" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -1106,7 +1106,7 @@
                         android:layout_marginTop="1dp"
                         android:text="@string/xml_profit_hint_search_by_name"
                         android:textSize="11sp"
-                        android:textColor="#7C8782" />
+                        android:textColor="#66716B" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

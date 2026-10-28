@@ -27,10 +27,10 @@
 
             <TextView
                 android:text="@string/account_eyebrow"
-                android:textSize="10sp"
+                android:textSize="11sp"
                 android:letterSpacing="0.16"
                 android:fontFamily="@font/googlesans_semibold"
-                android:textColor="#B8895A"
+                android:textColor="#8A6526"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
@@ -139,7 +139,7 @@
                     <TextView
                         android:id="@+id/tvStatus"
                         android:text="@string/checking"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.06"
                         android:fontFamily="@font/googlesans_medium"
@@ -230,7 +230,7 @@
 
                     <TextView
                         android:text="@string/limited_offer_badge"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:letterSpacing="0.06"
                         android:fontFamily="@font/googlesans_semibold"
                         android:textColor="#EFF2F0"
@@ -391,7 +391,7 @@
                     android:textSize="12sp"
                     android:fontFamily="serif"
                     android:textStyle="italic"
-                    android:textColor="#B8895A"
+                    android:textColor="#8A6526"
                     android:layout_marginTop="2dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
@@ -431,7 +431,7 @@
                     android:textSize="12sp"
                     android:fontFamily="serif"
                     android:textStyle="italic"
-                    android:textColor="#B8895A"
+                    android:textColor="#8A6526"
                     android:layout_marginTop="2dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>

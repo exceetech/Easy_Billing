@@ -86,7 +86,7 @@
                         android:paddingVertical="1dp"
                         android:background="@drawable/bg_credit_avatar"
                         android:backgroundTint="#E3E8E4"
-                        android:textSize="9.5sp"
+                        android:textSize="11sp"
                         android:textColor="#8A6526"
                         android:visibility="gone"
                         android:text="@string/xml_purchase_return_row_returned_placeholder"/>
@@ -102,8 +102,8 @@
                         android:id="@+id/tvHsnVariant"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="10.5sp"
-                        android:textColor="#7C8782"
+                        android:textSize="11sp"
+                        android:textColor="#66716B"
                         android:fontFamily="@font/googlesans_regular"
                         android:singleLine="true"
                         android:ellipsize="end"
@@ -115,8 +115,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:text="·"
-                        android:textSize="10.5sp"
-                        android:textColor="#7C8782"
+                        android:textSize="11sp"
+                        android:textColor="#66716B"
                         android:fontFamily="@font/googlesans_regular" />
 
                     <TextView
@@ -124,8 +124,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
-                        android:textSize="10.5sp"
-                        android:textColor="#7C8782"
+                        android:textSize="11sp"
+                        android:textColor="#66716B"
                         android:fontFamily="@font/googlesans_regular"
                         android:text="0%"/>
                 </LinearLayout>
@@ -135,8 +135,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:textSize="10.5sp"
-                    android:textColor="#7C8782"
+                    android:textSize="11sp"
+                    android:textColor="#66716B"
                     android:fontFamily="@font/googlesans_regular"
                     android:text="@string/xml_purchase_return_row_bought_placeholder"/>
             </LinearLayout>
@@ -199,16 +199,16 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/xml_purchase_return_row_max_returnable_label"
-                        android:textSize="10sp"
-                        android:textColor="#7C8782"
+                        android:textSize="11sp"
+                        android:textColor="#66716B"
                         android:fontFamily="@font/googlesans_regular" />
 
                     <TextView
                         android:id="@+id/tvMaxReturn"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="10sp"
-                        android:textColor="#7C8782"
+                        android:textSize="11sp"
+                        android:textColor="#66716B"
                         android:fontFamily="@font/googlesans_regular"
                         android:text="0"/>
                 </LinearLayout>
@@ -303,7 +303,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="7dp"
             android:gravity="end"
-            android:textSize="10.5sp"
+            android:textSize="11sp"
             android:textColor="#8A6526"
             android:fontFamily="@font/googlesans_medium"
             android:visibility="gone"

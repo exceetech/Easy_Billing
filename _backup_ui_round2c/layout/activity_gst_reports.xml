@@ -1,0 +1,1839 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    GST reports — champagne theme, same language as credit accounts, purchase
+    history and purchase details: eyebrow + serif accent header, white cards,
+    serif numerals, tinted tiles, segmented toggle.
+
+    Ids bound by GstReportsActivity (all preserved):
+      toolbar, selectorReturnType, tvSelectorValue, tvGstin,
+      chipGroupReturnType, chipMonthly, chipQuarterly, spinnerFY, spinnerPeriod,
+      btnGenerate, progressGenerate, cardSummary, tvSummaryHeroLabel,
+      tvSummaryTax, tvSummaryTaxable, tvSummaryInvoices, tvSummaryCreditNotes,
+      llValidationBanner, tvValidationStatus, tabLayout, viewPager,
+      btnValidate, btnSaveDraft, btnExportCsv, btnExportExcel,
+      llDraftsSection, rvDrafts.
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_lg_page"
+    tools:context=".GstReportsActivity">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:navigationIcon="@drawable/ic_back_arrow"
+        app:navigationIconTint="#1A1A18" />
+
+    <!-- ===================== HEADER ===================== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingBottom="12dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/xml_gst_reports_header_title"
+                android:textColor="#8A6526"
+                android:textSize="11sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="bottom"
+                android:layout_marginTop="1dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/xml_gst_reports_title_bold"
+                    android:textColor="#1A1A18"
+                    android:textSize="22sp"
+                    android:letterSpacing="-0.02"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:includeFontPadding="false"
+                    android:accessibilityHeading="true" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/xml_gst_reports_title_accent"
+                    android:textColor="#0F6E56"
+                    android:textSize="22sp"
+                    android:textStyle="italic"
+                    android:fontFamily="serif"
+                    android:includeFontPadding="false" />
+            </LinearLayout>
+        </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_gstin_pill"
+                android:paddingStart="10dp"
+                android:paddingEnd="13dp"
+                android:paddingVertical="6dp"
+                android:layout_marginStart="8dp">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_lc_shield_check"
+                    app:tint="#0F6E56"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:visibility="gone"
+                    android:text="@string/xml_gst_reports_gstin_label"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.08"
+                    android:textColor="#66716B"
+                    android:fontFamily="@font/googlesans_semibold" />
+
+                <TextView
+                    android:id="@+id/tvGstin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:textSize="11sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.04"
+                    android:maxLines="1"
+                    tools:text="33ABCDE1234F1Z5" />
+            </LinearLayout>
+        <ImageView
+            android:id="@+id/imgGstHistory"
+            android:visibility="gone"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_history"
+            app:tint="#626F67"
+            android:contentDescription="@string/activity_gst_reports_saved_drafts" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="14dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <!-- ===================== SIMPLE FLOW (owner view) ===================== -->
+            <LinearLayout
+                android:id="@+id/llSimple"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="14dp">
+
+                <com.example.easy_billing.ui.glass.GlassClipLinearLayout
+                    android:id="@+id/cardGstFiling"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_lg_card"
+                    >
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_gst_hero_top"
+                        android:paddingHorizontal="16dp"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/gst_simple_how_file"
+                            android:textAllCaps="true"
+                            android:textColor="#9FE1CB"
+                            android:textSize="12sp"
+                            android:letterSpacing="0.12"
+                            android:fontFamily="@font/googlesans_semibold" />
+
+                        <TextView
+                            android:id="@+id/tvGstFilingMode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/gst_simple_every_month"
+                            android:textColor="#FFFFFF"
+                            android:textSize="28sp"
+                            android:fontFamily="serif" />
+
+                        <TextView
+                            android:id="@+id/tvGstFilingSub"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/gst_simple_sub_m"
+                            android:textColor="#CFEFE2"
+                            android:textSize="14sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:orientation="horizontal"
+                            android:padding="4dp"
+                            android:background="@drawable/bg_gst_seg">
+                            <TextView
+                                android:id="@+id/segGstMonthly"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:minHeight="48dp"
+                                android:gravity="center"
+                                android:text="@string/gst_simple_seg_monthly"
+                                android:textSize="15sp"
+                                android:fontFamily="@font/googlesans_semibold"
+                                android:clickable="true"
+                                android:focusable="true" />
+                            <TextView
+                                android:id="@+id/segGstQuarterly"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:minHeight="48dp"
+                                android:gravity="center"
+                                android:text="@string/gst_simple_every_quarter"
+                                android:textSize="15sp"
+                                android:fontFamily="@font/googlesans_semibold"
+                                android:clickable="true"
+                                android:focusable="true" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+
+                        <TextView
+                            android:id="@+id/tvGstAsk"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/gst_simple_ask"
+                            android:textColor="#8A6526"
+                            android:textSize="14sp"
+                            android:letterSpacing="0.04"
+                            android:fontFamily="@font/googlesans_semibold" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:orientation="horizontal">
+                        <LinearLayout
+                            android:id="@+id/chipGstThis"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="6dp"
+                            android:minHeight="118dp"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:paddingHorizontal="6dp"
+                            android:paddingVertical="12dp"
+                            android:clickable="true"
+                            android:focusable="true">
+                            <TextView
+                                android:id="@+id/numGstThis"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:textSize="34sp"
+                                android:autoSizeTextType="uniform"
+                                android:autoSizeMinTextSize="16sp"
+                                android:autoSizeMaxTextSize="34sp"
+                                android:autoSizeStepGranularity="1sp"
+                                android:fontFamily="serif"
+                                android:includeFontPadding="false" />
+                            <TextView
+                                android:id="@+id/monGstThis"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:textSize="14sp"
+                                android:autoSizeTextType="uniform"
+                                android:autoSizeMinTextSize="9sp"
+                                android:autoSizeMaxTextSize="14sp"
+                                android:autoSizeStepGranularity="1sp"
+                                android:fontFamily="@font/googlesans_medium" />
+                            <TextView
+                                android:id="@+id/tagGstThis"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:maxWidth="100dp"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="3dp"
+                                android:textSize="11sp"
+                                android:autoSizeTextType="uniform"
+                                android:autoSizeMinTextSize="8sp"
+                                android:autoSizeMaxTextSize="11sp"
+                                android:autoSizeStepGranularity="1sp"
+                                android:fontFamily="@font/googlesans_semibold" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:id="@+id/chipGstLast"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="6dp"
+                            android:minHeight="118dp"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:paddingHorizontal="6dp"
+                            android:paddingVertical="12dp"
+                            android:clickable="true"
+                            android:focusable="true">
+                            <TextView
+                                android:id="@+id/numGstLast"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:textSize="34sp"
+                                android:autoSizeTextType="uniform"
+                                android:autoSizeMinTextSize="16sp"
+                                android:autoSizeMaxTextSize="34sp"
+                                android:autoSizeStepGranularity="1sp"
+                                android:fontFamily="serif"
+                                android:includeFontPadding="false" />
+                            <TextView
+                                android:id="@+id/monGstLast"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:textSize="14sp"
+                                android:autoSizeTextType="uniform"
+                                android:autoSizeMinTextSize="9sp"
+                                android:autoSizeMaxTextSize="14sp"
+                                android:autoSizeStepGranularity="1sp"
+                                android:fontFamily="@font/googlesans_medium" />
+                            <TextView
+                                android:id="@+id/tagGstLast"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:maxWidth="100dp"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="3dp"
+                                android:textSize="11sp"
+                                android:autoSizeTextType="uniform"
+                                android:autoSizeMinTextSize="8sp"
+                                android:autoSizeMaxTextSize="11sp"
+                                android:autoSizeStepGranularity="1sp"
+                                android:fontFamily="@font/googlesans_semibold" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:id="@+id/chipGstOlder"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="0dp"
+                            android:minHeight="118dp"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:paddingHorizontal="6dp"
+                            android:paddingVertical="12dp"
+                            android:clickable="true"
+                            android:focusable="true">
+                            <TextView
+                                android:id="@+id/numGstOlder"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:textSize="34sp"
+                                android:autoSizeTextType="uniform"
+                                android:autoSizeMinTextSize="16sp"
+                                android:autoSizeMaxTextSize="34sp"
+                                android:autoSizeStepGranularity="1sp"
+                                android:fontFamily="serif"
+                                android:includeFontPadding="false" />
+                            <TextView
+                                android:id="@+id/monGstOlder"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:textSize="14sp"
+                                android:autoSizeTextType="uniform"
+                                android:autoSizeMinTextSize="9sp"
+                                android:autoSizeMaxTextSize="14sp"
+                                android:autoSizeStepGranularity="1sp"
+                                android:fontFamily="@font/googlesans_medium" />
+                            <TextView
+                                android:id="@+id/tagGstOlder"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="8dp"
+                                android:maxWidth="100dp"
+                                android:gravity="center"
+                                android:maxLines="1"
+                                android:paddingHorizontal="8dp"
+                                android:paddingVertical="3dp"
+                                android:textSize="11sp"
+                                android:autoSizeTextType="uniform"
+                                android:autoSizeMinTextSize="8sp"
+                                android:autoSizeMaxTextSize="11sp"
+                                android:autoSizeStepGranularity="1sp"
+                                android:fontFamily="@font/googlesans_semibold" />
+                        </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/barGstReminder"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="64dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_gst_remind_bar"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="10dp"
+                        android:clickable="true"
+                        android:focusable="true">
+                        <FrameLayout
+                            android:layout_width="34dp"
+                            android:layout_height="34dp"
+                            android:background="@drawable/bg_circle_soft_amber">
+                            <ImageView
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_hdr_bell"
+                                app:tint="#8A6526"
+                                android:contentDescription="@null" />
+                        </FrameLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="12dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/gst_simple_remind_me"
+                                android:textColor="#1A1A18"
+                                android:textSize="16sp"
+                                android:fontFamily="@font/googlesans_semibold" />
+                            <TextView
+                                android:id="@+id/tvGstReminder"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/gst_simple_reminder_on"
+                                android:textColor="#5B6660"
+                                android:textSize="14sp" />
+                        </LinearLayout>
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/swGstReminder"
+                            style="@style/EpSwitch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:clickable="false"
+                            android:focusable="false"
+                            android:checked="true" />
+                    </LinearLayout>
+                </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+
+                <TextView
+                    android:id="@+id/tvGstGstinWarn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:padding="12dp"
+                    android:text="@string/gst_simple_gstin_missing"
+                    android:textColor="#A32D2D"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:background="@drawable/bg_credit_avatar"
+                    android:backgroundTint="#FBEDED"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/llGstComposition"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal"
+                        android:padding="18dp"
+                        android:background="@drawable/bg_gst_comp_banner">
+                        <FrameLayout android:layout_width="52dp" android:layout_height="52dp">
+                            <View android:layout_width="52dp" android:layout_height="52dp" android:background="@drawable/bg_step_circle_ring" />
+                            <ImageView
+                                android:layout_width="26dp"
+                                android:layout_height="26dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_lc_check"
+                                app:tint="#FFFFFF"
+                                android:contentDescription="@null" />
+                        </FrameLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:text="@string/gst_comp_title"
+                            android:textColor="#123B31"
+                            android:textSize="22sp"
+                            android:fontFamily="serif" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:gravity="center"
+                            android:text="@string/gst_comp_sub"
+                            android:textColor="#0F6E56"
+                            android:textSize="15sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="horizontal">
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="14dp"
+                            android:background="@drawable/bg_lg_card">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/gst_comp_pay_big"
+                                android:textColor="#0F6E56"
+                                android:textSize="26sp"
+                                android:fontFamily="serif" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:gravity="center"
+                                android:text="@string/gst_comp_pay_label"
+                                android:textColor="#4F5953"
+                                android:textSize="14sp" />
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="0dp"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:padding="14dp"
+                            android:background="@drawable/bg_lg_card">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/gst_comp_year_big"
+                                android:textColor="#8A6526"
+                                android:textSize="26sp"
+                                android:fontFamily="serif" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:gravity="center"
+                                android:text="@string/gst_comp_year_label"
+                                android:textColor="#4F5953"
+                                android:textSize="14sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/btnGstCompTell"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center"
+                        android:text="@string/gst_comp_tell"
+                        android:textColor="#FFFFFF"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:background="@drawable/bg_lg_cta_green_12"
+                        android:clickable="true"
+                        android:focusable="true" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/llGstLoading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:indeterminate="true"
+                        app:indicatorColor="#0F6E56"
+                        app:indicatorSize="28dp"
+                        app:trackThickness="3dp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="@string/gst_simple_loading"
+                        android:textColor="#5B6660"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/googlesans_medium" />
+                </LinearLayout>
+
+                <com.example.easy_billing.ui.glass.GlassClipLinearLayout
+                    android:id="@+id/cardGstNumbers"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_lg_card"
+                    
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_lg_hdr_green"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="14dp">
+                        <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                            <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring" />
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_si_tax"
+                                app:tint="#FFFFFF"
+                                android:contentDescription="@null" />
+                        </FrameLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="10dp">
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/gst_simple_card_title"
+                                android:textColor="#123B31"
+                                android:textSize="17sp"
+                                android:fontFamily="@font/googlesans_semibold" />
+                            <TextView
+                                android:id="@+id/tvGstSelected"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="#0F6E56"
+                                android:textSize="14sp"
+                                android:fontFamily="@font/googlesans_medium" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="14dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="0dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:padding="12dp"
+                            android:background="@drawable/bg_lg_inv_subcard_accent_green">
+                            <FrameLayout
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:background="@drawable/bg_circle_soft_green">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:text="+"
+                                    android:textColor="#16A34A"
+                                    android:textSize="18sp"
+                                    android:textStyle="bold" />
+                            </FrameLayout>
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/gst_simple_step_collected"
+                                    android:textColor="#1A1A18"
+                                    android:textSize="16sp"
+                                    android:fontFamily="@font/googlesans_semibold" />
+                                <TextView
+                                    android:id="@+id/tvGstSales"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="#66716B"
+                                    android:textSize="13sp" />
+                            </LinearLayout>
+                            <TextView
+                                android:id="@+id/tvGstCollected"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:maxWidth="130dp"
+                                android:gravity="end"
+                                android:textColor="#16A34A"
+                                android:textSize="20sp"
+                                android:fontFamily="serif" />
+                        </LinearLayout>
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="▼"
+                            android:textColor="#8A6526"
+                            android:textSize="12sp" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="0dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:padding="12dp"
+                            android:background="@drawable/bg_lg_inv_subcard_accent_blue">
+                            <FrameLayout
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:background="@drawable/bg_circle_soft_blue">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:text="−"
+                                    android:textColor="#2A5CA8"
+                                    android:textSize="18sp"
+                                    android:textStyle="bold" />
+                            </FrameLayout>
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="12dp"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/gst_simple_step_credit"
+                                    android:textColor="#1A1A18"
+                                    android:textSize="16sp"
+                                    android:fontFamily="@font/googlesans_semibold" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/gst_simple_credit_caption"
+                                    android:textColor="#66716B"
+                                    android:textSize="13sp" />
+                            </LinearLayout>
+                            <TextView
+                                android:id="@+id/tvGstCredit"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:maxWidth="130dp"
+                                android:gravity="end"
+                                android:textColor="#2A5CA8"
+                                android:textSize="20sp"
+                                android:fontFamily="serif" />
+                        </LinearLayout>
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="▼"
+                            android:textColor="#8A6526"
+                            android:textSize="12sp" />
+
+                        <LinearLayout
+                            android:id="@+id/boxGstTotal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@drawable/bg_trend_total_box"
+                            android:paddingHorizontal="14dp"
+                            android:paddingVertical="14dp">
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+                                <TextView
+                                    android:id="@+id/lblGstYouPay"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/gst_simple_you_pay"
+                                    android:textAllCaps="true"
+                                    android:textColor="#5E7A6E"
+                                    android:textSize="13sp"
+                                    android:letterSpacing="0.06"
+                                    android:fontFamily="@font/googlesans_semibold" />
+                                <TextView
+                                    android:id="@+id/tvGstToPay"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="#085041"
+                                    android:textSize="34sp"
+                                    android:fontFamily="serif" />
+                            </LinearLayout>
+                            <TextView
+                                android:id="@+id/tvGstToPayTag"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="8dp"
+                                android:maxWidth="130dp"
+                                android:gravity="center"
+                                android:paddingHorizontal="10dp"
+                                android:paddingVertical="5dp"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/googlesans_semibold"
+                                android:background="@drawable/bg_pill_amber"
+                                android:textColor="#8A6526" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvGstDue"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:textColor="#5B6660"
+                            android:textSize="14sp"
+                            android:visibility="gone" />
+
+                        <LinearLayout
+                            android:id="@+id/llGstChecks"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:orientation="vertical"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:visibility="gone">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="4dp"
+                                android:text="@string/gst_chk_header"
+                                android:textColor="#8A6526"
+                                android:textSize="13sp"
+                                android:letterSpacing="0.1"
+                                android:fontFamily="@font/googlesans_semibold" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:minHeight="48dp"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:paddingVertical="6dp">
+                                <TextView
+                                    android:id="@+id/chkDot0"
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:gravity="center"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+                                <TextView
+                                    android:id="@+id/chkTxt0"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="12dp"
+                                    android:textSize="16sp"
+                                    android:fontFamily="@font/googlesans_medium" />
+                                <TextView
+                                    android:id="@+id/chkFix0"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="8dp"
+                                    android:text="@string/gst_chk_fix"
+                                    android:textColor="#8A6526"
+                                    android:textSize="14sp"
+                                    android:fontFamily="@font/googlesans_semibold" />
+                            </LinearLayout>
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="#E3E8E4" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:minHeight="48dp"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:paddingVertical="6dp">
+                                <TextView
+                                    android:id="@+id/chkDot1"
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:gravity="center"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+                                <TextView
+                                    android:id="@+id/chkTxt1"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="12dp"
+                                    android:textSize="16sp"
+                                    android:fontFamily="@font/googlesans_medium" />
+                                <TextView
+                                    android:id="@+id/chkFix1"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="8dp"
+                                    android:text="@string/gst_chk_fix"
+                                    android:textColor="#8A6526"
+                                    android:textSize="14sp"
+                                    android:fontFamily="@font/googlesans_semibold" />
+                            </LinearLayout>
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="#E3E8E4" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:minHeight="48dp"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:paddingVertical="6dp">
+                                <TextView
+                                    android:id="@+id/chkDot2"
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:gravity="center"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+                                <TextView
+                                    android:id="@+id/chkTxt2"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="12dp"
+                                    android:textSize="16sp"
+                                    android:fontFamily="@font/googlesans_medium" />
+                                <TextView
+                                    android:id="@+id/chkFix2"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="8dp"
+                                    android:text="@string/gst_chk_fix"
+                                    android:textColor="#8A6526"
+                                    android:textSize="14sp"
+                                    android:fontFamily="@font/googlesans_semibold" />
+                            </LinearLayout>
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="#E3E8E4" />
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:minHeight="48dp"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:paddingVertical="6dp">
+                                <TextView
+                                    android:id="@+id/chkDot3"
+                                    android:layout_width="26dp"
+                                    android:layout_height="26dp"
+                                    android:gravity="center"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold" />
+                                <TextView
+                                    android:id="@+id/chkTxt3"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="12dp"
+                                    android:textSize="16sp"
+                                    android:fontFamily="@font/googlesans_medium" />
+                                <TextView
+                                    android:id="@+id/chkFix3"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="8dp"
+                                    android:text="@string/gst_chk_fix"
+                                    android:textColor="#8A6526"
+                                    android:textSize="14sp"
+                                    android:fontFamily="@font/googlesans_semibold" />
+                            </LinearLayout>
+                        </LinearLayout>
+                        <TextView
+                            android:id="@+id/tvGstToPayNote"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:padding="12dp"
+                            android:drawableStart="@drawable/ic_si_alert"
+                            android:drawableTint="#B8895A"
+                            android:drawablePadding="10dp"
+                            android:background="@drawable/bg_gst_estimate"
+                            android:textColor="#6B4A20"
+                            android:textSize="14sp"
+                            android:lineSpacingMultiplier="1.1" />
+
+                        <TextView
+                            android:id="@+id/tvGstNotIncluded"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:paddingHorizontal="4dp"
+                            android:text="@string/gst_simple_not_included"
+                            android:textColor="#66716B"
+                            android:textSize="13sp"
+                            android:visibility="gone" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginTop="12dp"
+                            android:background="#E3E8E4" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="@string/gst_simple_estimate_short"
+                                android:textColor="#5B6660"
+                                android:textSize="14sp" />
+                            <TextView
+                                android:id="@+id/tvGstBills"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:textColor="#1A1A18"
+                                android:textSize="14sp"
+                                android:fontFamily="@font/googlesans_semibold" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+
+                <TextView
+                    android:id="@+id/tvGstStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="13dp"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:background="@drawable/bg_credit_avatar"
+                    android:backgroundTint="#E1F5EE"
+                    android:textColor="#0F5943"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:visibility="gone" />
+
+
+                <LinearLayout
+                    android:id="@+id/rowGstFiled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:minHeight="68dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="14dp"
+                    android:background="@drawable/bg_lg_card"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:visibility="gone">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/tvGstFiled"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/gst_simple_filed_title"
+                            android:textColor="#1A1A18"
+                            android:textSize="16sp"
+                            android:fontFamily="@font/googlesans_semibold" />
+                        <TextView
+                            android:id="@+id/tvGstFiledSub"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/gst_simple_filed_sub_off"
+                            android:textColor="#66716B"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/swGstFiled"
+                        style="@style/EpSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:clickable="false"
+                        android:focusable="false" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSendAccountant"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/gst_simple_send"
+                    android:textColor="#FFFFFF"
+                    android:textAllCaps="false"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:includeFontPadding="false"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_lg_cta_green_12"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvGstDetailsToggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="48dp"
+                    android:gravity="center"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/gst_simple_details_show"
+                    android:textColor="#8A6526"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:clickable="true"
+                    android:focusable="true" />
+            </LinearLayout>
+
+            <!-- ===================== DETAILS FOR ACCOUNTANT (hidden by default) ===================== -->
+            <LinearLayout
+                android:id="@+id/llAdvanced"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+            <!-- ===================== REPORT TYPE SELECTOR (dropdown chip) ===================== -->
+            <LinearLayout
+                android:id="@+id/selectorReturnType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="210dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_lg_input"
+                android:paddingStart="14dp"
+                android:paddingEnd="12dp"
+                android:paddingVertical="9dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/xml_gst_reports_return_label"
+                        android:textColor="#8A6526"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.14"
+                        android:fontFamily="@font/googlesans_semibold" />
+
+                    <TextView
+                        android:id="@+id/tvSelectorValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="@string/xml_gst_reports_selector_default"
+                        android:textColor="#1A1A18"
+                        android:textSize="16sp"
+                        android:fontFamily="serif"
+                        android:includeFontPadding="false" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="10dp"
+                    android:src="@drawable/ic_chevron_down"
+                    app:tint="#6B7770"
+                    android:contentDescription="@string/activity_gst_reports_change_return_type" />
+            </LinearLayout>
+
+            <!-- ===================== PERIOD CARD ===================== -->
+            <LinearLayout
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/bg_lg_card"
+                android:padding="16dp">
+
+                <!-- Financial-year stepper -->
+                <TextView
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/xml_gst_reports_fy_label"
+                    android:textSize="11sp"
+                    android:textColor="#66716B"
+                    android:letterSpacing="0.06"
+                    android:layout_marginBottom="6dp"
+                    android:fontFamily="@font/googlesans_semibold" />
+
+                <LinearLayout
+                    android:visibility="gone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_period_track"
+                    android:padding="4dp"
+                    android:layout_marginBottom="16dp">
+
+                    <ImageView
+                        android:id="@+id/btnFyPrev"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:padding="12dp"
+                        android:background="@drawable/bg_stepper_btn_44"
+                        android:src="@drawable/ic_chevron_left"
+                        app:tint="#6B7770"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:contentDescription="@string/activity_gst_reports_previous_year" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center">
+                        <TextView
+                            android:id="@+id/tvFyValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/xml_gst_reports_fy_default_year"
+                            android:textSize="19sp"
+                            android:textColor="#1A1A18"
+                            android:fontFamily="serif"
+                            android:includeFontPadding="false" />
+                        <TextView
+                            android:id="@+id/tvFyRange"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/xml_gst_reports_fy_default_range"
+                            android:textSize="11sp"
+                            android:textColor="#66716B" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:id="@+id/btnFyNext"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:padding="12dp"
+                        android:background="@drawable/bg_stepper_btn_44"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="#6B7770"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:contentDescription="@string/activity_gst_reports_next_year" />
+                </LinearLayout>
+
+                <!-- Period label + monthly/quarterly -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="@string/xml_gst_reports_period_label"
+                        android:textSize="11sp"
+                        android:textColor="#66716B"
+                        android:letterSpacing="0.06"
+                        android:fontFamily="@font/googlesans_semibold" />
+
+                    <LinearLayout
+                        android:id="@+id/segReturnType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:background="@drawable/bg_period_track"
+                        android:padding="3dp">
+
+                        <TextView
+                            android:id="@+id/segMonthly"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/xml_gst_reports_period_monthly"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/googlesans_medium"
+                            android:includeFontPadding="false"
+                            android:paddingHorizontal="14dp"
+                            android:paddingVertical="6dp"
+                            android:gravity="center"
+                            android:background="@drawable/bg_lg_tab_active"
+                            android:textColor="#FFFFFF"
+                            android:clickable="true"
+                            android:focusable="true" />
+
+                        <TextView
+                            android:id="@+id/segQuarterly"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="3dp"
+                            android:text="@string/xml_gst_reports_period_quarterly"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/googlesans_medium"
+                            android:includeFontPadding="false"
+                            android:paddingHorizontal="14dp"
+                            android:paddingVertical="6dp"
+                            android:gravity="center"
+                            android:background="@drawable/bg_period_pill"
+                            android:backgroundTint="#00000000"
+                            android:textColor="#6B7770"
+                            android:clickable="true"
+                            android:focusable="true" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Month / quarter strip -->
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:layout_marginBottom="14dp">
+
+                    <LinearLayout
+                        android:id="@+id/llPeriodStrip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="14dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnGenerate"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="52dp"
+                        android:text="@string/xml_gst_reports_generate_btn"
+                        android:textColor="#FFFFFF"
+                        android:textAllCaps="false"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        app:backgroundTint="@null"
+                        android:background="@drawable/bg_lg_cta_green_12"
+                        app:icon="@drawable/ic_lc_file_text"
+                        app:iconTint="#FFFFFF"
+                        app:iconSize="18dp"
+                        app:iconGravity="textStart"
+                        app:iconPadding="8dp"
+                        app:cornerRadius="14dp"
+                        android:stateListAnimator="@null" 
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
+
+                    <com.google.android.material.progressindicator.CircularProgressIndicator
+                        android:id="@+id/progressGenerate"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_marginStart="12dp"
+                        android:visibility="gone"
+                        app:indicatorColor="#0F6E56"
+                        app:indicatorSize="28dp"
+                        app:trackThickness="3dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ===================== VALIDATION BANNER ===================== -->
+            <LinearLayout
+                android:id="@+id/llValidationBanner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="11dp"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_credit_avatar"
+                android:backgroundTint="#E1F5EE"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tvValidationStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="12.5sp"
+                    android:textColor="#0F5943"
+                    android:fontFamily="@font/googlesans_medium"
+                    tools:text="✓ All checks passed — Ready to export" />
+            </LinearLayout>
+
+            <!-- ===================== SUMMARY HERO ===================== -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardSummary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:visibility="gone"
+                app:cardElevation="0dp"
+                app:cardCornerRadius="18dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:strokeWidth="0.5dp"
+                app:strokeColor="#1F000000">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tvSummaryHeroLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/xml_gst_reports_total_tax_label"
+                        android:textSize="11sp"
+                        android:textColor="#66716B" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="bottom"
+                        android:layout_marginTop="2dp"
+                        android:baselineAligned="false">
+
+                        <TextView
+                            android:id="@+id/tvSummaryTax"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="30sp"
+                            android:textColor="#1A1A18"
+                            android:fontFamily="serif"
+                            android:includeFontPadding="false"
+                            android:singleLine="true"
+                            tools:text="₹1,42,380" />
+
+                        <TextView
+                            android:id="@+id/tvSummaryTaxable"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:paddingBottom="4dp"
+                            android:textSize="12sp"
+                            android:textColor="#66716B"
+                            android:gravity="end"
+                            android:singleLine="true"
+                            tools:text="on ₹7,91,000 taxable" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="14dp"
+                        android:baselineAligned="false">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:background="@drawable/bg_credit_avatar"
+                            android:backgroundTint="#EEF2F0"
+                            android:padding="12dp">
+                            <TextView
+                                android:id="@+id/tvSummaryInvoices"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="20sp"
+                                android:textColor="#2F3531"
+                                android:fontFamily="@font/googlesans_bold"
+                                android:includeFontPadding="false"
+                                tools:text="128" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/xml_gst_reports_invoices_label"
+                                android:textSize="11sp"
+                                android:textColor="#66716B" />
+                        </LinearLayout>
+
+                        <View android:layout_width="10dp" android:layout_height="1dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:background="@drawable/bg_credit_tile_red"
+                            android:padding="12dp">
+                            <TextView
+                                android:id="@+id/tvSummaryCreditNotes"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textSize="20sp"
+                                android:textColor="#791F1F"
+                                android:fontFamily="@font/googlesans_bold"
+                                android:includeFontPadding="false"
+                                tools:text="6" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/xml_gst_reports_credit_notes_label"
+                                android:textSize="11sp"
+                                android:textColor="#A32D2D" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ===================== SECTION CHIPS ===================== -->
+            <TextView
+                android:id="@+id/tvSheetsHeading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:text="@string/gst_sheets_heading"
+                android:textAllCaps="true"
+                android:textColor="#8A6526"
+                android:textSize="12sp"
+                android:letterSpacing="0.12"
+                android:fontFamily="@font/googlesans_semibold"
+                android:accessibilityHeading="true"
+                android:visibility="gone" />
+
+
+            <HorizontalScrollView
+                android:id="@+id/scrollSections"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:scrollbars="none"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/chipGroupSections"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
+
+            <TextView
+                android:id="@+id/tvSheetsToggle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:paddingVertical="10dp"
+                android:textColor="#8A6526"
+                android:textSize="14sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:clickable="true"
+                android:focusable="true"
+                android:visibility="gone" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cardSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:visibility="gone"
+                app:cardElevation="0dp"
+                app:cardCornerRadius="18dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:strokeWidth="0.5dp"
+                app:strokeColor="#1F000000">
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/viewPager"
+                    android:layout_width="match_parent"
+                    android:layout_height="360dp" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ===================== EXPORT ACTIONS (list rows) ===================== -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                app:cardElevation="0dp"
+                app:cardCornerRadius="18dp"
+                app:cardBackgroundColor="#FFFFFF"
+                app:strokeWidth="0.5dp"
+                app:strokeColor="#1F000000">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Validate -->
+                    <LinearLayout
+                        android:id="@+id/btnValidate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="13dp"
+                        android:enabled="false"
+                        android:alpha="0.45"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <LinearLayout android:layout_width="36dp" android:layout_height="36dp"
+                            android:gravity="center" android:background="@drawable/bg_period_pill"
+                            android:backgroundTint="#EAF3DE">
+                            <ImageView android:layout_width="19dp" android:layout_height="19dp"
+                                android:src="@drawable/ic_lc_shield_check" app:tint="#3B6D11"
+                                android:contentDescription="@null" />
+                        </LinearLayout>
+                        <TextView android:layout_width="0dp" android:layout_weight="1"
+                            android:layout_height="wrap_content" android:layout_marginStart="12dp"
+                            android:text="@string/xml_gst_reports_validate_btn" android:textSize="14sp" android:textColor="#1A1A18"
+                            android:fontFamily="@font/googlesans_medium" />
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:src="@drawable/ic_chevron_right" app:tint="#BBC2BE"
+                            android:contentDescription="@null" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="0.5dp"
+                        android:layout_marginHorizontal="14dp" android:background="#E3E8E4" />
+
+                    <!-- Export Excel -->
+                    <LinearLayout
+                        android:id="@+id/btnExportExcel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="13dp"
+                        android:enabled="false"
+                        android:alpha="0.45"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <LinearLayout android:layout_width="36dp" android:layout_height="36dp"
+                            android:gravity="center" android:background="@drawable/bg_period_pill"
+                            android:backgroundTint="#E1F5EE">
+                            <ImageView android:layout_width="19dp" android:layout_height="19dp"
+                                android:src="@drawable/ic_lc_bar_chart" app:tint="#0F6E56"
+                                android:contentDescription="@null" />
+                        </LinearLayout>
+                        <TextView android:layout_width="0dp" android:layout_weight="1"
+                            android:layout_height="wrap_content" android:layout_marginStart="12dp"
+                            android:text="@string/xml_gst_reports_export_excel_btn" android:textSize="14sp" android:textColor="#1A1A18"
+                            android:fontFamily="@font/googlesans_medium" />
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:src="@drawable/ic_chevron_right" app:tint="#BBC2BE"
+                            android:contentDescription="@null" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="0.5dp"
+                        android:layout_marginHorizontal="14dp" android:background="#E3E8E4" />
+
+                    <!-- Export CSV -->
+                    <LinearLayout
+                        android:id="@+id/btnExportCsv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="13dp"
+                        android:enabled="false"
+                        android:alpha="0.45"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <LinearLayout android:layout_width="36dp" android:layout_height="36dp"
+                            android:gravity="center" android:background="@drawable/bg_period_pill"
+                            android:backgroundTint="#FAEEDA">
+                            <ImageView android:layout_width="19dp" android:layout_height="19dp"
+                                android:src="@drawable/ic_lc_file_text" app:tint="#854F0B"
+                                android:contentDescription="@null" />
+                        </LinearLayout>
+                        <TextView android:layout_width="0dp" android:layout_weight="1"
+                            android:layout_height="wrap_content" android:layout_marginStart="12dp"
+                            android:text="@string/xml_gst_reports_export_csv_btn" android:textSize="14sp" android:textColor="#1A1A18"
+                            android:fontFamily="@font/googlesans_medium" />
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:src="@drawable/ic_chevron_right" app:tint="#BBC2BE"
+                            android:contentDescription="@null" />
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="0.5dp"
+                        android:layout_marginHorizontal="14dp" android:background="#E3E8E4" />
+
+                    <!-- Save as draft -->
+                    <LinearLayout
+                        android:id="@+id/btnSaveDraft"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="13dp"
+                        android:enabled="false"
+                        android:alpha="0.45"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <LinearLayout android:layout_width="36dp" android:layout_height="36dp"
+                            android:gravity="center" android:background="@drawable/bg_period_pill"
+                            android:backgroundTint="#EEEDFE">
+                            <ImageView android:layout_width="19dp" android:layout_height="19dp"
+                                android:src="@drawable/ic_lc_file_plus" app:tint="#3C3489"
+                                android:contentDescription="@null" />
+                        </LinearLayout>
+                        <TextView android:layout_width="0dp" android:layout_weight="1"
+                            android:layout_height="wrap_content" android:layout_marginStart="12dp"
+                            android:text="@string/xml_gst_reports_save_draft_btn" android:textSize="14sp" android:textColor="#1A1A18"
+                            android:fontFamily="@font/googlesans_medium" />
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:src="@drawable/ic_chevron_right" app:tint="#BBC2BE"
+                            android:contentDescription="@null" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- ===================== DRAFTS ===================== -->
+            <LinearLayout
+                android:id="@+id/llDraftsSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="18dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/xml_gst_reports_saved_drafts_label"
+                    android:textSize="11sp"
+                    android:textColor="#66716B"
+                    android:letterSpacing="0.08"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/googlesans_semibold" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvDrafts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false" />
+            </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

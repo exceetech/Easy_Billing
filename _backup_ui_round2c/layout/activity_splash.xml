@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_splash_gradient">
+
+    <!-- Center App Branding -->
+    <LinearLayout
+        android:id="@+id/centerBrand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/poweredByFooter"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <FrameLayout
+            android:layout_width="236dp"
+            android:layout_height="236dp">
+
+            <ImageView
+                android:id="@+id/appLogo"
+                android:layout_width="112dp"
+                android:layout_height="137dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_expos_emblem"
+                android:contentDescription="@null" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:id="@+id/brandTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="34dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ex_word"
+                android:textColor="@color/splash_wordmark_ex"
+                android:textSize="52sp"
+                android:fontFamily="@font/marcellus"
+                android:includeFontPadding="false"
+                android:textStyle="normal" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pos_word"
+                android:textColor="@color/splash_wordmark_pos"
+                android:textSize="52sp"
+                android:fontFamily="@font/marcellus"
+                android:includeFontPadding="false"
+                android:textStyle="normal" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/brandTagline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/point_of_sale_tagline"
+            android:textColor="@color/splash_sub"
+            android:textSize="11sp"
+            android:letterSpacing="0.35"
+            android:fontFamily="@font/googlesans_semibold" />
+
+        <View
+            android:id="@+id/brandRule"
+            android:layout_width="44dp"
+            android:layout_height="3dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/bg_brand_rule" />
+
+    </LinearLayout>
+
+    <!-- Bottom Powered By Scalancer footer: emblem, "POWERED BY", then wordmark (stacked) -->
+    <LinearLayout
+        android:id="@+id/poweredByFooter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginBottom="54dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:adjustViewBounds="true"
+            android:src="@drawable/ic_scalancer_emblem"
+            android:contentDescription="@string/powered_by_scalancer" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="@string/powered_by_label"
+            android:textColor="@color/splash_sub"
+            android:textSize="11sp"
+            android:letterSpacing="0.16"
+            android:fontFamily="@font/googlesans_medium" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="10dp"
+            android:layout_marginTop="3dp"
+            android:adjustViewBounds="true"
+            android:src="@drawable/ic_scalancer_wordmark"
+            android:contentDescription="@null" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

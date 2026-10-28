@@ -44,8 +44,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/purchase_eyebrow"
-            android:textColor="#B8895A"
-            android:textSize="10sp"
+            android:textColor="#8A6526"
+            android:textSize="11sp"
             android:letterSpacing="0.16"
             android:fontFamily="@font/googlesans_semibold"/>
 
@@ -164,7 +164,7 @@
                         android:paddingVertical="3dp"
                         android:text="@string/invoice_required"
                         android:textColor="#9B2C2C"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:fontFamily="@font/googlesans_semibold"/>
                 </LinearLayout>
 
@@ -306,7 +306,7 @@
                         android:paddingVertical="3dp"
                         android:text="@string/invoice_required"
                         android:textColor="#9B2C2C"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:fontFamily="@font/googlesans_semibold"/>
                 </LinearLayout>
 
@@ -350,8 +350,8 @@
                             android:singleLine="true"/>
                         <ImageView
                             android:id="@+id/btnPickSupplier"
-                            android:layout_width="34dp" android:layout_height="34dp"
-                            android:padding="9dp" android:scaleType="fitCenter"
+                            android:layout_width="44dp" android:layout_height="44dp"
+                            android:padding="14dp" android:scaleType="fitCenter"
                             android:background="?attr/selectableItemBackgroundBorderless"
                             android:clickable="true" android:focusable="true"
                             android:src="@drawable/ic_lc_chevron_down" app:tint="#B8895A"
@@ -487,7 +487,7 @@
                         android:paddingVertical="3dp"
                         android:text="@string/invoice_required"
                         android:textColor="#9B2C2C"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:fontFamily="@font/googlesans_semibold"/>
                 </LinearLayout>
 
@@ -622,7 +622,7 @@
                             android:layout_marginTop="3dp"
                             android:gravity="end"
                             android:text="@string/xml_single_stock_auto_calc_caption"
-                            android:textColor="#7C8782" android:textSize="10sp"
+                            android:textColor="#66716B" android:textSize="11sp"
                             android:textStyle="italic"/>
 
                         <!-- Invoice value — read-only, computed live -->
@@ -649,7 +649,7 @@
                             android:layout_marginTop="3dp"
                             android:gravity="end"
                             android:text="@string/xml_single_stock_auto_calc_caption"
-                            android:textColor="#7C8782" android:textSize="10sp"
+                            android:textColor="#66716B" android:textSize="11sp"
                             android:textStyle="italic"/>
                     </LinearLayout>
 
@@ -708,15 +708,15 @@
                         android:fontFamily="@font/googlesans_semibold"
                         android:insetTop="0dp"
                         android:insetBottom="0dp"
-                        android:background="@drawable/bg_addp_cta_coral_sheen"
+                        android:background="@drawable/bg_lg_cta_green_14"
                         android:stateListAnimator="@null"
-                        app:rippleColor="#4DB93875"
+                        app:rippleColor="#4D0F6E56"
                         app:icon="@drawable/ic_plus_badge_combo"
                         app:iconTint="#FFFFFF"
                         app:iconSize="20dp"
                         app:iconGravity="textStart"
                         app:iconPadding="8dp"
-                        app:cornerRadius="15dp"
+                        app:cornerRadius="14dp"
                         app:backgroundTint="@null"
                         android:includeFontPadding="false"
                         android:gravity="center"
@@ -1035,7 +1035,7 @@
                         android:layout_marginEnd="8dp"
                         android:text="@string/invoice_optional"
                         android:textColor="#166534"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:fontFamily="@font/googlesans_semibold"/>
                     <ImageView
                         android:id="@+id/ivGstrChevron"
@@ -1122,7 +1122,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@string/invoice_reverse_charge_desc"
-                                    android:textColor="#79897F"
+                                    android:textColor="#66716B"
                                     android:textSize="11sp"/>
                             </LinearLayout>
                             <com.google.android.material.materialswitch.MaterialSwitch
@@ -1177,7 +1177,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
                             android:text="@string/purchase_invoice_type_helper"
-                            android:textColor="#8D9992"
+                            android:textColor="#66716B"
                             android:textSize="11.5sp"/>
 
                         <!-- Nested "More tax details" sub-collapse: Supply type, Cess
@@ -1298,7 +1298,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
                             android:text="@string/purchase_itc_helper_text"
-                            android:textColor="#8D9992"
+                            android:textColor="#66716B"
                             android:textSize="11.5sp"/>
 
                         <TextView
@@ -1511,7 +1511,7 @@
                         android:paddingVertical="3dp"
                         android:text="@string/invoice_required"
                         android:textColor="#9B2C2C"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:fontFamily="@font/googlesans_semibold"/>
                 </LinearLayout>
 
@@ -1545,8 +1545,8 @@
                         android:orientation="vertical">
                         <TextView
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="@string/purchase_paid_through" android:textColor="#7C8782"
-                            android:textSize="10sp" android:letterSpacing="0.06"
+                            android:text="@string/purchase_paid_through" android:textColor="#66716B"
+                            android:textSize="11sp" android:letterSpacing="0.06"
                             android:fontFamily="@font/googlesans_semibold"/>
                         <LinearLayout
                             android:id="@+id/payModeChips"
@@ -1607,8 +1607,8 @@
                                     android:layout_marginStart="11dp">
                                     <TextView
                                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                        android:text="@string/purchase_credit_account_label" android:textColor="#7C8782"
-                                        android:textSize="10sp" android:letterSpacing="0.06"
+                                        android:text="@string/purchase_credit_account_label" android:textColor="#66716B"
+                                        android:textSize="11sp" android:letterSpacing="0.06"
                                         android:fontFamily="@font/googlesans_semibold"/>
                                     <TextView
                                         android:id="@+id/tvSelectedAccountName"
@@ -1748,7 +1748,7 @@
                     android:textAllCaps="false"
                     android:textSize="13.5sp"
                     android:textStyle="bold"
-                    android:textColor="#76867C"
+                    android:textColor="#66716B"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:background="@android:color/transparent"

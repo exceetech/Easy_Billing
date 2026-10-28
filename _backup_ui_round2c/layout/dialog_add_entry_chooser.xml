@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Add entry chooser (themed centered dialog). Bound by ManualEntryDialog.show(): optDeposit, optWithdraw, optIncome, optExpense, btnCancel. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_lg_dialog" android:fillViewport="false" android:scrollbars="none">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingStart="18dp" android:paddingEnd="18dp" android:paddingTop="20dp" android:paddingBottom="18dp">
+        <FrameLayout android:id="@+id/flBadge" android:layout_width="50dp" android:layout_height="50dp" android:layout_gravity="center" android:layout_marginBottom="10dp" android:background="@drawable/bg_dialog_soft_amber_circle">
+            <ImageView android:id="@+id/ivBadge" android:layout_width="22dp" android:layout_height="22dp" android:layout_gravity="center" android:src="@drawable/ic_lucide_plus" app:tint="#8A6526"/>
+        </FrameLayout>
+        <TextView android:id="@+id/tvEyebrow" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mae_eyebrow" android:textSize="11sp" android:letterSpacing="0.16" android:fontFamily="@font/googlesans_semibold" android:textColor="#8A6526" android:gravity="center"/>
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:orientation="horizontal" android:gravity="bottom" android:layout_marginTop="1dp">
+            <TextView android:id="@+id/tvTitleA" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mae_title_a" android:textColor="#1A1A18" android:textSize="19sp" android:fontFamily="@font/googlesans_bold" android:includeFontPadding="false"/>
+            <TextView android:id="@+id/tvTitleB" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="@string/mae_title_b" android:textColor="#0F6E56" android:textSize="19sp" android:textStyle="italic" android:fontFamily="serif" android:includeFontPadding="false"/>
+        </LinearLayout>
+        <TextView android:id="@+id/tvSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mae_sub" android:textSize="12.5sp" android:textColor="#5B6660" android:gravity="center" android:layout_marginTop="6dp" android:lineSpacingExtra="2dp"/><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mae_grp_move" android:textSize="11sp" android:textColor="#8A6526" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false" android:letterSpacing="0.14" android:layout_marginStart="2dp" android:layout_marginTop="14dp" android:layout_marginBottom="7dp"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_share_option">
+            <LinearLayout android:id="@+id/optDeposit" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="13dp" android:paddingVertical="11dp" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground">
+                <FrameLayout android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_mae_ic_green">
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_gravity="center" android:src="@drawable/ic_lc_landmark" app:tint="#0F6E56"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="11dp" android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mae_deposit" android:textSize="13.5sp" android:textColor="#1A1A18" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mae_deposit_sub" android:textSize="11sp" android:textColor="#66716B" android:fontFamily="@font/googlesans_regular" android:includeFontPadding="false" android:layout_marginTop="1dp"/>
+                </LinearLayout>
+            </LinearLayout>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E3E8E4"/>
+            <LinearLayout android:id="@+id/optWithdraw" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="13dp" android:paddingVertical="11dp" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground">
+                <FrameLayout android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_mae_ic_amber">
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_gravity="center" android:src="@drawable/ic_lc_landmark" app:tint="#8A6526"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="11dp" android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mae_withdraw" android:textSize="13.5sp" android:textColor="#1A1A18" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mae_withdraw_sub" android:textSize="11sp" android:textColor="#66716B" android:fontFamily="@font/googlesans_regular" android:includeFontPadding="false" android:layout_marginTop="1dp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mae_grp_other" android:textSize="11sp" android:textColor="#8A6526" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false" android:letterSpacing="0.14" android:layout_marginStart="2dp" android:layout_marginTop="16dp" android:layout_marginBottom="7dp"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_share_option">
+            <LinearLayout android:id="@+id/optIncome" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="13dp" android:paddingVertical="11dp" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground">
+                <FrameLayout android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_mae_ic_green">
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_gravity="center" android:src="@drawable/ic_lc_arrow_down_left" app:tint="#0F6E56"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="11dp" android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/money_e_income" android:textSize="13.5sp" android:textColor="#1A1A18" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mae_income_sub" android:textSize="11sp" android:textColor="#66716B" android:fontFamily="@font/googlesans_regular" android:includeFontPadding="false" android:layout_marginTop="1dp"/>
+                </LinearLayout>
+            </LinearLayout>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E3E8E4"/>
+            <LinearLayout android:id="@+id/optExpense" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="13dp" android:paddingVertical="11dp" android:clickable="true" android:focusable="true" android:foreground="?attr/selectableItemBackground">
+                <FrameLayout android:layout_width="34dp" android:layout_height="34dp" android:background="@drawable/bg_mae_ic_rose">
+                    <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_gravity="center" android:src="@drawable/ic_lc_arrow_up_right" app:tint="#9A2E2E"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="11dp" android:orientation="vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/money_e_expense" android:textSize="13.5sp" android:textColor="#1A1A18" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mae_expense_sub" android:textSize="11sp" android:textColor="#66716B" android:fontFamily="@font/googlesans_regular" android:includeFontPadding="false" android:layout_marginTop="1dp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+        <com.google.android.material.button.MaterialButton android:id="@+id/btnCancel" android:layout_width="match_parent" android:layout_height="44dp" android:layout_marginTop="12dp"
+            android:text="@string/dialog_confirm_print_cancel" android:textColor="#9A2E2E" android:textAllCaps="false" android:textSize="13sp" android:textStyle="bold" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false"
+            android:background="@drawable/bg_inv_action_close" app:backgroundTint="@null" android:insetTop="0dp" android:insetBottom="0dp" android:insetLeft="0dp" android:insetRight="0dp" android:stateListAnimator="@null"
+            app:icon="@drawable/ic_close" app:iconTint="#B91C1C" app:iconSize="16dp" app:iconGravity="textStart" app:iconPadding="7dp" app:cornerRadius="14dp" app:rippleColor="#F6D8D4" android:gravity="center"/>
+    </LinearLayout>
+</ScrollView>

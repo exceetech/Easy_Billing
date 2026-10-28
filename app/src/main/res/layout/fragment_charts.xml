@@ -56,7 +56,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/fragment_charts_card_caption"
-                    android:textSize="10.5sp"
+                    android:textSize="11sp"
                     android:textColor="#0F6E56"
                     android:layout_marginTop="1dp"/>
             </LinearLayout>
@@ -86,8 +86,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/fragment_charts_rising"
-                    android:textSize="10.5sp"
-                    android:textColor="#7C8782"
+                    android:textSize="11sp"
+                    android:textColor="#66716B"
                     android:layout_marginEnd="12dp"/>
                 <View
                     android:layout_width="8dp"
@@ -98,8 +98,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/fragment_charts_falling"
-                    android:textSize="10.5sp"
-                    android:textColor="#7C8782"/>
+                    android:textSize="11sp"
+                    android:textColor="#66716B"/>
             </LinearLayout>
 
             <com.github.mikephil.charting.charts.LineChart

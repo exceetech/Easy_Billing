@@ -81,7 +81,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/dashboard_greeting_morning_2"
-                        android:textColor="#B8895A"
+                        android:textColor="#8A6526"
                         android:textSize="11sp"
                         android:letterSpacing="0.14"
                         android:textAllCaps="true"
@@ -247,8 +247,8 @@
 
                 <LinearLayout
                     android:id="@+id/btnViewContainer"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
                     android:layout_marginStart="8dp"
                     android:gravity="center"
                     android:background="@drawable/bg_lg_tile"
@@ -273,8 +273,8 @@
 
                     <LinearLayout
                         android:id="@+id/btnFilterContainer"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:gravity="center"
                         android:background="@drawable/bg_lg_tile"
                         android:clickable="true"
@@ -307,8 +307,8 @@
 
                 <LinearLayout
                     android:id="@+id/btnSortContainer"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
                     android:layout_marginStart="8dp"
                     android:gravity="center"
                     android:background="@drawable/bg_lg_tile"
@@ -563,7 +563,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/dashboard_live_intelligence"
-                            android:textColor="#9FB0D4"
+                            android:textColor="#E3F3EE"
                             android:textSize="11sp"
                             android:letterSpacing="0.12"
                             android:fontFamily="@font/googlesans_semibold"/>
@@ -580,11 +580,11 @@
 
                     <ImageView
                         android:id="@+id/btnNotifyClose"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:padding="6dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:padding="13dp"
                         android:src="@drawable/ic_notify_close"
-                        app:tint="#9FB0D4"
+                        app:tint="#E3F3EE"
                         android:clickable="true"
                         android:focusable="true"
                         android:background="?attr/selectableItemBackgroundBorderless"
@@ -611,7 +611,7 @@
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="0" android:textColor="#FCA5A5" android:textSize="17sp" android:textStyle="bold"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="@string/dashboard_notify_critical" android:textColor="#9FB0D4" android:textSize="10sp"/>
+                            android:text="@string/dashboard_notify_critical" android:textColor="#E3F3EE" android:textSize="11sp"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -627,7 +627,7 @@
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="0" android:textColor="#FAC775" android:textSize="17sp" android:textStyle="bold"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="@string/dashboard_notify_watch" android:textColor="#9FB0D4" android:textSize="10sp"/>
+                            android:text="@string/dashboard_notify_watch" android:textColor="#E3F3EE" android:textSize="11sp"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -643,7 +643,7 @@
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="0" android:textColor="#86EFAC" android:textSize="17sp" android:textStyle="bold"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="@string/dashboard_notify_tips" android:textColor="#9FB0D4" android:textSize="10sp"/>
+                            android:text="@string/dashboard_notify_tips" android:textColor="#E3F3EE" android:textSize="11sp"/>
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -765,7 +765,7 @@
                             android:gravity="center"
                             android:text="@string/dashboard_notify_empty_body"
                             android:textSize="12.5sp"
-                            android:textColor="#76867C"
+                            android:textColor="#66716B"
                             android:lineSpacingExtra="3dp" />
 
                         <View
@@ -773,13 +773,15 @@
                             android:layout_height="0.5dp"
                             android:layout_marginTop="20dp"
                             android:layout_marginBottom="16dp"
-                            android:background="#E3E8E4" />
+                            android:background="#E3E8E4"
+        android:visibility="gone"/>
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:layout_marginBottom="11dp">
+                            android:layout_marginBottom="11dp"
+        android:visibility="gone">
                             <ImageView
                                 android:layout_width="17dp"
                                 android:layout_height="17dp"
@@ -804,14 +806,15 @@
                                     android:layout_marginTop="1dp"
                                     android:text="@string/dashboard_notify_tip1_body"
                                     android:textSize="11sp"
-                                    android:textColor="#7C8782" />
+                                    android:textColor="#66716B" />
                             </LinearLayout>
                         </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+        android:visibility="gone">
                             <ImageView
                                 android:layout_width="17dp"
                                 android:layout_height="17dp"
@@ -836,7 +839,7 @@
                                     android:layout_marginTop="1dp"
                                     android:text="@string/dashboard_notify_tip2_body"
                                     android:textSize="11sp"
-                                    android:textColor="#7C8782" />
+                                    android:textColor="#66716B" />
                             </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
@@ -909,7 +912,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/dashboard_welcome_back"
-                        android:textColor="#9FB0D4"
+                        android:textColor="#E3F3EE"
                         android:textSize="11sp"
                         android:letterSpacing="0.02"/>
 
@@ -960,7 +963,7 @@
                         android:layout_marginStart="6dp"
                         android:text="@string/dashboard_live_status"
                         android:textColor="#FFFFFF"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:fontFamily="@font/googlesans_semibold"
                         android:letterSpacing="0.14"/>
                 </LinearLayout>
@@ -986,8 +989,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/activity_dashboard_xml_todays_sales_label"
-                        android:textColor="#9FB0D4"
-                        android:textSize="10sp"/>
+                        android:textColor="#E3F3EE"
+                        android:textSize="11sp"/>
                     <TextView
                         android:id="@+id/tvDrawerSales"
                         android:layout_width="wrap_content"
@@ -1012,8 +1015,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/activity_dashboard_xml_bills_today_label"
-                        android:textColor="#9FB0D4"
-                        android:textSize="10sp"/>
+                        android:textColor="#E3F3EE"
+                        android:textSize="11sp"/>
                     <TextView
                         android:id="@+id/tvDrawerBills"
                         android:layout_width="wrap_content"
@@ -1165,7 +1168,7 @@
                                 <TextView android:id="@+id/chipProfit" android:layout_width="wrap_content" android:layout_height="wrap_content"
                                     android:layout_marginStart="6dp" android:background="@drawable/bg_premium_chip"
                                     android:paddingHorizontal="6dp" android:paddingVertical="1dp" android:text="@string/premium_plan_name"
-                                    android:textAllCaps="true" android:textColor="#8A6526" android:textSize="9sp"
+                                    android:textAllCaps="true" android:textColor="#8A6526" android:textSize="11sp"
                                     android:textStyle="bold" android:singleLine="true" android:visibility="gone"/>
                             </LinearLayout>
                             <TextView android:id="@+id/subProfit" style="@style/SettingsRowSub" android:text="@string/dashboard_profit_subtitle"/>
@@ -1195,7 +1198,7 @@
                                 <TextView android:id="@+id/chipGstReports" android:layout_width="wrap_content" android:layout_height="wrap_content"
                                     android:layout_marginStart="6dp" android:background="@drawable/bg_premium_chip"
                                     android:paddingHorizontal="6dp" android:paddingVertical="1dp" android:text="@string/premium_plan_name"
-                                    android:textAllCaps="true" android:textColor="#8A6526" android:textSize="9sp"
+                                    android:textAllCaps="true" android:textColor="#8A6526" android:textSize="11sp"
                                     android:textStyle="bold" android:singleLine="true" android:visibility="gone"/>
                             </LinearLayout>
                             <TextView android:id="@+id/subGstReports" style="@style/SettingsRowSub" android:text="@string/dashboard_gst_reports_subtitle"/>
@@ -1225,7 +1228,7 @@
                                 <TextView android:id="@+id/chipAiInsights" android:layout_width="wrap_content" android:layout_height="wrap_content"
                                     android:layout_marginStart="6dp" android:background="@drawable/bg_premium_chip"
                                     android:paddingHorizontal="6dp" android:paddingVertical="1dp" android:text="@string/premium_plan_name"
-                                    android:textAllCaps="true" android:textColor="#8A6526" android:textSize="9sp"
+                                    android:textAllCaps="true" android:textColor="#8A6526" android:textSize="11sp"
                                     android:textStyle="bold" android:singleLine="true" android:visibility="gone"/>
                             </LinearLayout>
                             <TextView android:id="@+id/subAiInsights" style="@style/SettingsRowSub" android:text="@string/dashboard_ai_insights_subtitle"/>
@@ -1312,7 +1315,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:text="@string/dashboard_tap_to_sign_out"
+                                android:text=""
                                 android:textColor="#F7CFCF"
                                 android:textSize="11sp"
                                 android:singleLine="true"
@@ -1343,7 +1346,7 @@
                     android:layout_marginTop="18dp"
                     android:gravity="center"
                     android:text="@string/app_name"
-                    android:textColor="#BBC2BE"
+                    android:textColor="#66716B"
                     android:textSize="11sp"/>
             </LinearLayout>
         </ScrollView>
@@ -1414,7 +1417,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/dashboard_live_order"
-                        android:textColor="#9FB0D4"
+                        android:textColor="#E3F3EE"
                         android:textSize="11sp"
                         android:letterSpacing="0.02"/>
 
@@ -1464,7 +1467,7 @@
                         android:layout_marginStart="6dp"
                         android:text="@string/dashboard_live_status"
                         android:textColor="#FFFFFF"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:fontFamily="@font/googlesans_semibold"
                         android:letterSpacing="0.14"/>
                 </LinearLayout>
@@ -1490,8 +1493,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/dashboard_items_label"
-                        android:textColor="#9FB0D4"
-                        android:textSize="10sp"/>
+                        android:textColor="#E3F3EE"
+                        android:textSize="11sp"/>
                     <TextView
                         android:id="@+id/tvCartDrawerBadge"
                         android:layout_width="wrap_content"
@@ -1511,13 +1514,14 @@
                     android:orientation="vertical"
                     android:background="@drawable/bg_drawer_stat_tile"
                     android:paddingHorizontal="12dp"
-                    android:paddingVertical="10dp">
+                    android:paddingVertical="10dp"
+        android:visibility="gone">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/subtotal"
-                        android:textColor="#9FB0D4"
-                        android:textSize="10sp"/>
+                        android:textColor="#E3F3EE"
+                        android:textSize="11sp"/>
                     <TextView
                         android:id="@+id/tvCartHeaderSubtotal"
                         android:layout_width="wrap_content"
@@ -1595,7 +1599,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/dashboard_order_summary"
-                android:textColor="#8D9992"
+                android:textColor="#66716B"
                 android:textSize="11sp"
                 android:letterSpacing="0.05"/>
 
@@ -1625,8 +1629,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="@string/dashboard_taxes_applied_at_billing"
-                        android:textColor="#929F97"
-                        android:textSize="10sp"/>
+                        android:textColor="#66716B"
+                        android:textSize="11sp"/>
                 </LinearLayout>
 
                 <TextView
@@ -1683,7 +1687,8 @@
                             android:text="@string/dashboard_checkout_print_receipt"
                             android:textColor="#A7D9C9"
                             android:textSize="11sp"
-                            android:includeFontPadding="false"/>
+                            android:includeFontPadding="false"
+        android:visibility="gone"/>
                     </LinearLayout>
 
                     <FrameLayout

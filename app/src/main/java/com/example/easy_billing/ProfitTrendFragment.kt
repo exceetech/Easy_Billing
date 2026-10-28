@@ -207,12 +207,12 @@ class ProfitTrendFragment : Fragment(R.layout.fragment_profit_trend) {
     /** Plain-language caption shown above the chart, matching the period
      *  the bars represent -- the 60+-friendly explanation from the plan. */
     private fun captionFor(filter: String): String = when (filter) {
-        "today" -> "Each point is one hour of today"
-        "week" -> "Each point is one day this week"
-        "month" -> "Each point is one day this month"
-        "all" -> "Each point is one month since you started"
-        "custom" -> "Each point is one day in your chosen range"
-        else -> "Each point is one period"
+        "today" -> getString(R.string.fragment_profit_trend_each_point_is_one_hour_of_today)
+        "week" -> getString(R.string.profittrend_each_point_is_one_day_this_week)
+        "month" -> getString(R.string.profittrend_each_point_is_one_day_this_month)
+        "all" -> getString(R.string.profittrend_each_point_is_one_month_since_you_star)
+        "custom" -> getString(R.string.profittrend_each_point_is_one_day_in_your_chosen_r)
+        else -> getString(R.string.profittrend_each_point_is_one_period)
     }
 
     // ================= TREND DATA =================
@@ -234,7 +234,7 @@ class ProfitTrendFragment : Fragment(R.layout.fragment_profit_trend) {
                 // Network hiccup: leave the chart as-is rather than crash;
                 // the leaderboard below still has the already-loaded data.
                 tvTrendEmpty.visibility = View.VISIBLE
-                tvTrendEmpty.text = "Couldn't load the chart right now"
+                tvTrendEmpty.text = getString(R.string.profittrend_couldn_t_load_the_chart_right_now)
                 lineChart.visibility = View.GONE
             }
         }
@@ -249,7 +249,7 @@ class ProfitTrendFragment : Fragment(R.layout.fragment_profit_trend) {
         if (buckets.isEmpty() || allZero) {
             lineChart.visibility = View.GONE
             tvTrendEmpty.visibility = View.VISIBLE
-            tvTrendEmpty.text = "Nothing sold in this period yet"
+            tvTrendEmpty.text = getString(R.string.fragment_profit_trend_nothing_sold_in_this_period_yet)
             return
         }
 
@@ -358,7 +358,7 @@ class ProfitTrendFragment : Fragment(R.layout.fragment_profit_trend) {
                 // silently showing the whole-shop chart.
                 android.widget.Toast.makeText(
                     requireContext(),
-                    "That product can't be charted on its own yet — pull to refresh and try again.",
+                    getString(R.string.profittrend_that_product_can_t_be_charted_on_its_o),
                     android.widget.Toast.LENGTH_LONG
                 ).show()
                 return@ProductPickerAdapter
@@ -492,7 +492,7 @@ private class ProductPickerAdapter(
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         if (position == 0) {
-            holder.name.text = "All products"
+            holder.name.text = holder.itemView.context.getString(R.string.inventory_filter_all_products)
             holder.variant.visibility = View.GONE
             holder.check.visibility = if (selectedProductId == null) View.VISIBLE else View.GONE
             holder.divider.visibility = View.VISIBLE

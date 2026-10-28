@@ -34,8 +34,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/dialog_quantity_pad_eyebrow"
-                    android:textColor="#B8895A"
-                    android:textSize="10sp"
+                    android:textColor="#8A6526"
+                    android:textSize="11sp"
                     android:letterSpacing="0.12"
                     android:textAllCaps="true"
                     android:fontFamily="@font/googlesans_semibold"/>
@@ -55,15 +55,15 @@
 
             <ImageView
                 android:id="@+id/btnCloseQty"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
-                android:padding="6dp"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:padding="11dp"
                 android:src="@drawable/ic_dialog_close"
                 app:tint="#8D9992"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Close"/>
+                android:contentDescription="@string/activity_bill_details_close"/>
         </LinearLayout>
 
         <!-- Emerald glass receipt display -->
@@ -180,7 +180,7 @@
                 app:tint="#B91C1C"
                 android:scaleType="centerInside"
                 android:padding="14dp"
-                android:contentDescription="Backspace"/>
+                android:contentDescription="@string/dialog_quantity_pad_backspace"/>
         </GridLayout>
 
         <!-- Add to cart -->

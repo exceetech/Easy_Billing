@@ -1,0 +1,861 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_lg_page">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="24dp">
+
+            <!-- Title + Edit action -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/your_business_eyebrow"
+                        android:textColor="#8A6526"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.16"
+                        android:fontFamily="@font/googlesans_semibold"/>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="2dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/store"
+                            android:textColor="#1A1A18"
+                            android:textSize="21sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="-0.02"
+                            android:fontFamily="@font/googlesans_bold"
+                            android:includeFontPadding="false"
+                            android:accessibilityHeading="true"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text="@string/information_word"
+                            android:textColor="#0F6E56"
+                            android:textSize="21sp"
+                            android:fontFamily="serif"
+                            android:textStyle="italic"
+                            android:includeFontPadding="false"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Edit pill (toggles edit mode) — gold gradient, matching
+                     the Unlock/Edit pills elsewhere. -->
+                <LinearLayout
+                    android:id="@+id/btnEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_lg_seg_selected"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <ImageView
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@drawable/ic_si_edit"
+                        app:tint="#FFFFFF"
+                        android:contentDescription="@string/edit"/>
+
+                    <TextView
+                        android:id="@+id/tvEdit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/edit"
+                        android:textColor="#FFFFFF"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:includeFontPadding="false"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ===================== IDENTITY ===================== -->
+            <!-- cardIdentity/cardContact/cardTax: faded (alpha 0.6) until
+                 Edit is tapped, same locked/unlocked feel as the other
+                 settings screens. -->
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:id="@+id/cardIdentity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_lg_card"
+                android:layout_marginTop="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_lg_hdr_green"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="38dp" android:layout_height="38dp">
+                        <View android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:background="@drawable/bg_step_circle_ring"/>
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:layout_gravity="center" android:src="@drawable/ic_set_store"
+                            app:tint="#FFFFFF" android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:text="@string/store_card_name_title" android:textColor="#1A1A18" android:textSize="14sp"
+                            android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="@string/store_card_name_sub" android:textColor="#5C6B65"
+                            android:textSize="11sp" android:layout_marginTop="1dp"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                    <TextView android:text="@string/activity_localization_settings_2_fields" android:textSize="11sp" android:textStyle="bold"
+                        android:textColor="#16A34A" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
+                        android:background="@drawable/bg_pill_green" android:letterSpacing="0.06"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+
+                    <!-- Store name -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/store_name"
+                        android:textSize="11sp"
+                        android:textColor="#5B6660"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_lg_field"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_blue">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_set_store"
+                                app:tint="#0F6E56" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <EditText
+                            android:id="@+id/etStoreName"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:layout_marginStart="12dp"
+                            android:hint="@string/store_name"
+                            android:textColor="#1A1A18"
+                            android:textColorHint="#929F97"
+                            android:inputType="textCapWords"
+                            android:singleLine="true"
+                            android:textSize="15sp"/>
+                    </LinearLayout>
+
+                    <!-- Business type (themed dropdown) -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="5dp"
+                        android:id="@+id/tvShopTypeLabel"
+                        android:text="@string/business_type"
+                        android:textSize="11sp"
+                        android:textColor="#5B6660"/>
+                    <LinearLayout
+                        android:id="@+id/rowShopType"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_lg_field"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_purple">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_si_category"
+                                app:tint="#534AB7" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <TextView
+                            android:id="@+id/tvShopType"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="@string/business_type_default_general"
+                            android:textColor="#1A1A18"
+                            android:textSize="15sp"/>
+                        <ImageView
+                            android:id="@+id/icShopTypeChevron"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/ic_chevron_down"
+                            app:tint="#98A49D"
+                            android:contentDescription="@null"/>
+                    </LinearLayout>
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="15dp"/>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+
+            <!-- ===================== CONTACT ===================== -->
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:id="@+id/cardContact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_lg_card_amber"
+                android:layout_marginTop="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_lg_hdr_amber"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="38dp" android:layout_height="38dp">
+                        <View android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:background="@drawable/bg_step_circle_ring_champagne"/>
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:layout_gravity="center" android:src="@drawable/ic_lc_map_pin"
+                            app:tint="#FFFFFF" android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:text="@string/store_card_address_title" android:textColor="#1A1A18" android:textSize="14sp"
+                            android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="@string/store_card_address_sub" android:textColor="#5C6B65"
+                            android:textSize="11sp" android:layout_marginTop="1dp"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                    <TextView android:text="@string/activity_store_settings_6_fields" android:textSize="11sp" android:textStyle="bold"
+                        android:textColor="#8A6526" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
+                        android:background="@drawable/bg_pill_amber" android:letterSpacing="0.06"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+
+                    <!-- PIN Code with auto-fetch -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="6dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/pincode_label"
+                            android:textColor="#66716B"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.07"/>
+                        <TextView
+                            android:id="@+id/tvPinStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:textColor="#0F6E56"
+                            android:textSize="11sp"
+                            android:fontFamily="@font/googlesans_semibold"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_lg_field_amber"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_teal">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_si_pin"
+                                app:tint="#0F6E56" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <EditText
+                            android:id="@+id/etStorePincode"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:layout_marginStart="12dp"
+                            android:hint="@string/pincode_hint"
+                            android:textColor="#1A1A18"
+                            android:textColorHint="#929F97"
+                            android:inputType="number"
+                            android:maxLength="6"
+                            android:singleLine="true"
+                            android:textSize="15sp"/>
+                        <ProgressBar
+                            android:id="@+id/progressPincode"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_gravity="center_vertical"
+                            android:indeterminate="true"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+
+                    <!-- State & City Row (2 columns) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:baselineAligned="false"
+                        android:layout_marginTop="8dp">
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginEnd="5dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="5dp"
+                                android:text="@string/state_label"
+                                android:textSize="11sp"
+                                android:textColor="#5B6660"/>
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="50dp"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:background="@drawable/bg_lg_field_amber"
+                                android:paddingHorizontal="12dp">
+                                <EditText
+                                    android:id="@+id/etStoreState"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="@null"
+                                    android:hint="@string/state_hint"
+                                    android:textColor="#1A1A18"
+                                    android:textColorHint="#929F97"
+                                    android:inputType="textCapWords"
+                                    android:singleLine="true"
+                                    android:textSize="15sp"/>
+                            </LinearLayout>
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="5dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="5dp"
+                                android:text="@string/city_district_label"
+                                android:textSize="11sp"
+                                android:textColor="#5B6660"/>
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="50dp"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:background="@drawable/bg_lg_field_amber"
+                                android:paddingHorizontal="12dp">
+                                <EditText
+                                    android:id="@+id/etStoreCity"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="@null"
+                                    android:hint="@string/city_district_hint"
+                                    android:textColor="#1A1A18"
+                                    android:textColorHint="#929F97"
+                                    android:inputType="textCapWords"
+                                    android:singleLine="true"
+                                    android:textSize="15sp"/>
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Area / Locality with themed dropdown -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/locality_area_label"
+                        android:textSize="11sp"
+                        android:textColor="#5B6660"/>
+                    <LinearLayout
+                        android:id="@+id/rowStoreArea"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_lg_field_amber"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_blue">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_lc_map_pin"
+                                app:tint="#2A5CA8" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <EditText
+                            android:id="@+id/etStoreArea"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:layout_marginStart="12dp"
+                            android:hint="@string/locality_area_hint"
+                            android:textColor="#1A1A18"
+                            android:textColorHint="#929F97"
+                            android:inputType="textCapWords"
+                            android:singleLine="true"
+                            android:textSize="15sp"/>
+                        <ImageView
+                            android:id="@+id/icAreaDropdown"
+                            android:layout_width="44dp"
+                            android:padding="12dp" android:layout_height="44dp"
+                            android:layout_gravity="center_vertical"
+                            android:src="@drawable/ic_chevron_down"
+                            app:tint="#0F6E56"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:visibility="gone"
+                            android:contentDescription="@string/activity_store_settings_select_area"/>
+                    </LinearLayout>
+
+                    <!-- Shop No. / Building / Street -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/street_building_label"
+                        android:textSize="11sp"
+                        android:textColor="#5B6660"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_lg_field_amber"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_amber">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_lc_store"
+                                app:tint="#8A6526" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <EditText
+                            android:id="@+id/etStoreStreet"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:layout_marginStart="12dp"
+                            android:hint="@string/street_building_hint"
+                            android:textColor="#1A1A18"
+                            android:textColorHint="#929F97"
+                            android:inputType="textCapWords"
+                            android:singleLine="true"
+                            android:textSize="15sp"/>
+                    </LinearLayout>
+
+                    <!-- Formatted Address Preview -->
+                    <LinearLayout
+                        android:id="@+id/layoutAddressPreview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/bg_lg_preview"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="9dp"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/address_preview_label"
+                            android:textColor="#8A6526"
+                            android:textSize="11sp"
+                            android:letterSpacing="0.08"
+                            android:textStyle="bold"
+                            android:textAllCaps="true"/>
+                        <TextView
+                            android:id="@+id/tvAddressPreview"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text=""
+                            android:textColor="#1A1A18"
+                            android:textSize="12.5sp"
+                            android:fontFamily="@font/googlesans_medium"/>
+                    </LinearLayout>
+
+                    <!-- Phone -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/phone_number"
+                        android:textSize="11sp"
+                        android:textColor="#5B6660"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_lg_field_amber"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_amber">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_si_phone"
+                                app:tint="#8A6526" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <EditText
+                            android:id="@+id/etStorePhone"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:layout_marginStart="12dp"
+                            android:hint="@string/phone_number"
+                            android:textColor="#1A1A18"
+                            android:textColorHint="#929F97"
+                            android:inputType="phone"
+                            android:singleLine="true"
+                            android:textSize="15sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="15dp"/>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+
+            <!-- ===================== TAX ===================== -->
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:id="@+id/cardTax"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_lg_card"
+                android:layout_marginTop="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_lg_hdr_green"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="38dp" android:layout_height="38dp">
+                        <View android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:background="@drawable/bg_step_circle_ring"/>
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:layout_gravity="center" android:src="@drawable/ic_si_tax"
+                            app:tint="#FFFFFF" android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:text="@string/store_card_gst_title" android:textColor="#1A1A18" android:textSize="14sp"
+                            android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="@string/store_card_gst_sub" android:textColor="#5C6B65"
+                            android:textSize="11sp" android:layout_marginTop="1dp"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                    <TextView android:text="@string/activity_localization_settings_2_fields" android:textSize="11sp" android:textStyle="bold"
+                        android:textColor="#0F6E56" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
+                        android:background="@drawable/bg_pill_green" android:letterSpacing="0.06"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="6dp">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/gstin"
+                            android:textColor="#66716B"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="0.07"/>
+                        <TextView
+                            android:id="@+id/tvGstinStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:textColor="#0F6E56"
+                            android:textSize="11sp"
+                            android:fontFamily="@font/googlesans_semibold"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_lg_field"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_rose">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_si_tax"
+                                app:tint="#791F1F" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <EditText
+                            android:id="@+id/etStoreGstin"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:layout_marginStart="12dp"
+                            android:hint="@string/gstin"
+                            android:textColor="#1A1A18"
+                            android:textColorHint="#929F97"
+                            android:textAllCaps="true"
+                            android:maxLength="15"
+                            android:inputType="textCapCharacters"
+                            android:singleLine="true"
+                            android:textSize="15sp"/>
+                        <ProgressBar
+                            android:id="@+id/progressGstin"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_gravity="center_vertical"
+                            android:indeterminate="true"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:layout_marginBottom="6dp"
+                        android:text="@string/store_scheme_label"
+                        android:textColor="#66716B"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.07"/>
+
+                    <LinearLayout
+                        android:id="@+id/rowStoreScheme"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_lg_field"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_purple">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_lc_sliders"
+                                app:tint="#6B4A9C" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <TextView
+                            android:id="@+id/tvStoreScheme"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="@string/store_scheme_hint"
+                            android:textColor="#66716B"
+                            android:textSize="15sp"/>
+                        <ImageView
+                            android:id="@+id/icSchemeChevron"
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:src="@drawable/ic_chevron_down"
+                            app:tint="#98A49D"
+                            android:contentDescription="@null"/>
+                    </LinearLayout>
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="15dp"/>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+
+            <!-- ===================== PRINTER ===================== -->
+            <!-- ===================== PRINTER ===================== -->
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:id="@+id/cardPrinter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_lg_card_amber"
+                android:layout_marginTop="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_lg_hdr_amber"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="38dp" android:layout_height="38dp">
+                        <View android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:background="@drawable/bg_step_circle_ring_champagne"/>
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:layout_gravity="center" android:src="@drawable/ic_si_printer"
+                            app:tint="#FFFFFF" android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:text="@string/billing_card_printer_title" android:textColor="#1A1A18" android:textSize="14sp"
+                            android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="@string/billing_card_printer_sub" android:textColor="#5C6B65"
+                            android:textSize="11sp" android:layout_marginTop="1dp"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/paper_size_label"
+                        android:textSize="11sp"
+                        android:textColor="#5B6660"/>
+                    <LinearLayout
+                        android:id="@+id/rowPrinter"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_lg_field_amber"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_amber">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_si_printer"
+                                app:tint="#8A6526" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <TextView
+                            android:id="@+id/tvPrinter"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="@string/paper_small"
+                            android:textColor="#1A1A18"
+                            android:textSize="15sp"/>
+                        <ImageView
+                            android:id="@+id/icPrinterChevron"
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:src="@drawable/ic_chevron_down"
+                            app:tint="#98A49D"
+                            android:contentDescription="@null"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+
+            <!-- Save — solid teal CTA matching the app's other confirm
+                 buttons, instead of SiSavePill's navy. -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSave"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="18dp"
+                android:text="@string/save_changes"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:textSize="13.5sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:includeFontPadding="false"
+                android:background="@drawable/bg_lg_cta"
+                app:backgroundTint="@null"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:stateListAnimator="@null"
+                app:elevation="0dp"
+                app:icon="@drawable/ic_lucide_check"
+                app:iconTint="#FFFFFF"
+                app:iconSize="16dp"
+                app:iconGravity="textStart"
+                app:iconPadding="7dp"
+                app:cornerRadius="14dp"
+                app:rippleColor="#33FFFFFF"
+                android:visibility="gone"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -21,7 +21,7 @@
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
         android:orientation="vertical" android:paddingHorizontal="18dp" android:paddingTop="2dp">
         <TextView android:id="@+id/tvQtyEyebrow" android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/correct_qty_eyebrow" android:textColor="#B8895A" android:textSize="10sp"
+            android:text="@string/correct_qty_eyebrow" android:textColor="#8A6526" android:textSize="11sp"
             android:letterSpacing="0.16" android:fontFamily="@font/googlesans_semibold"/>
         <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:orientation="horizontal" android:layout_marginTop="2dp">
@@ -68,7 +68,7 @@
             </LinearLayout>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:background="@drawable/bg_pill_red" android:paddingHorizontal="10dp" android:paddingVertical="3dp"
-            android:text="@string/invoice_required" android:textColor="#9B2C2C" android:textSize="10sp"
+            android:text="@string/invoice_required" android:textColor="#9B2C2C" android:textSize="11sp"
             android:fontFamily="@font/googlesans_semibold"/>
         </LinearLayout>
 
@@ -100,7 +100,7 @@
             </LinearLayout>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:background="@drawable/bg_pill_red" android:paddingHorizontal="10dp" android:paddingVertical="3dp"
-            android:text="@string/invoice_required" android:textColor="#9B2C2C" android:textSize="10sp"
+            android:text="@string/invoice_required" android:textColor="#9B2C2C" android:textSize="11sp"
             android:fontFamily="@font/googlesans_semibold"/>
         </LinearLayout>
 
@@ -120,7 +120,7 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_qty_less_title"
                         android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                        android:text="@string/correct_qty_less_desc" android:textSize="10.5sp" android:textColor="#76867C"/>
+                        android:text="@string/correct_qty_less_desc" android:textSize="11sp" android:textColor="#66716B"/>
                 </LinearLayout>
                 <View android:id="@+id/checkQtyLess" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
             </LinearLayout>
@@ -138,7 +138,7 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_qty_more_title"
                         android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                        android:text="@string/correct_qty_more_desc" android:textSize="10.5sp" android:textColor="#76867C"/>
+                        android:text="@string/correct_qty_more_desc" android:textSize="11sp" android:textColor="#66716B"/>
                 </LinearLayout>
                 <View android:id="@+id/checkQtyMore" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
             </LinearLayout>
@@ -167,7 +167,7 @@
         app:backgroundTint="@null" app:strokeWidth="0dp" app:rippleColor="#33FFFFFF"/>
                     </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
                     <TextView android:id="@+id/tvQtyHint" android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp" android:gravity="center" android:textSize="10.5sp" android:textColor="#818F87"/>
+                        android:layout_marginTop="6dp" android:gravity="center" android:textSize="11sp" android:textColor="#66716B"/>
                 </LinearLayout>
             </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
@@ -195,7 +195,7 @@
             </LinearLayout>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:background="@drawable/bg_lg_pill_grey" android:paddingHorizontal="10dp" android:paddingVertical="3dp"
-            android:text="@string/correct_qty_optional" android:textColor="#76867C" android:textSize="10sp"
+            android:text="@string/correct_qty_optional" android:textColor="#66716B" android:textSize="11sp"
             android:fontFamily="@font/googlesans_semibold"/>
         </LinearLayout>
 
@@ -214,7 +214,7 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_qty_reason_qty"
                         android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                        android:text="@string/correct_qty_reason_qty_desc" android:textSize="10.5sp" android:textColor="#76867C"/>
+                        android:text="@string/correct_qty_reason_qty_desc" android:textSize="11sp" android:textColor="#66716B"/>
                 </LinearLayout>
                 <View android:id="@+id/checkReason0" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
             </LinearLayout>
@@ -232,7 +232,7 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_qty_reason_damaged"
                         android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                        android:text="@string/correct_qty_reason_damaged_desc" android:textSize="10.5sp" android:textColor="#76867C"/>
+                        android:text="@string/correct_qty_reason_damaged_desc" android:textSize="11sp" android:textColor="#66716B"/>
                 </LinearLayout>
                 <View android:id="@+id/checkReason1" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
             </LinearLayout>
@@ -250,7 +250,7 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_qty_reason_short"
                         android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                        android:text="@string/correct_qty_reason_short_desc" android:textSize="10.5sp" android:textColor="#76867C"/>
+                        android:text="@string/correct_qty_reason_short_desc" android:textSize="11sp" android:textColor="#66716B"/>
                 </LinearLayout>
                 <View android:id="@+id/checkReason2" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
             </LinearLayout>
@@ -268,7 +268,7 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_qty_reason_extra"
                         android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                        android:text="@string/correct_qty_reason_extra_desc" android:textSize="10.5sp" android:textColor="#76867C"/>
+                        android:text="@string/correct_qty_reason_extra_desc" android:textSize="11sp" android:textColor="#66716B"/>
                 </LinearLayout>
                 <View android:id="@+id/checkReason3" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
             </LinearLayout>
@@ -303,7 +303,7 @@
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="vertical" android:padding="16dp">
                     <TextView android:id="@+id/tvQtyMsg" android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:textSize="13sp" android:textColor="#76867C" android:lineSpacingExtra="2dp"/>
+                        android:textSize="13sp" android:textColor="#66716B" android:lineSpacingExtra="2dp"/>
                     <LinearLayout android:id="@+id/llQtyOk" android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:orientation="vertical" android:visibility="gone">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -344,7 +344,7 @@
                 <ImageView android:layout_width="13dp" android:layout_height="13dp" android:src="@drawable/ic_close"
                     app:tint="#9DA8A1" android:layout_marginEnd="6dp" android:contentDescription="@null"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/cancel"
-                    android:textColor="#76867C" android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold"/>
+                    android:textColor="#66716B" android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold"/>
             </LinearLayout>
             <LinearLayout android:id="@+id/btnQtySave" android:layout_width="0dp" android:layout_weight="1" android:layout_height="50dp"
                 android:layout_marginStart="14dp" android:orientation="horizontal" android:gravity="center"

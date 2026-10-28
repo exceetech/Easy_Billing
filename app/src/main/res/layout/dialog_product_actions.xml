@@ -62,10 +62,10 @@
 
         <FrameLayout
             android:id="@+id/btnProductActionsClose"
-            android:layout_width="26dp"
-            android:layout_height="26dp"
-            android:layout_marginStart="10dp"
-            android:background="@drawable/bg_confirm_close_button"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="1dp"
+            android:background="@drawable/bg_confirm_close_button_44"
             android:clickable="true"
             android:focusable="true">
             <ImageView
@@ -74,7 +74,7 @@
                 android:layout_gravity="center"
                 android:src="@drawable/ic_lucide_x"
                 app:tint="#1A1A18"
-                android:contentDescription="Close"/>
+                android:contentDescription="@string/activity_bill_details_close"/>
         </FrameLayout>
     </LinearLayout>
 
@@ -107,7 +107,7 @@
                 android:fontFamily="@font/googlesans_semibold"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:layout_marginTop="2dp" android:text="@string/dialog_product_actions_edit_body"
-                android:textColor="#76867C" android:textSize="11.5sp"/>
+                android:textColor="#66716B" android:textSize="11.5sp"/>
         </LinearLayout>
         <ImageView android:layout_width="19dp" android:layout_height="19dp"
             android:src="@drawable/ic_lc_chevron_right" app:tint="#C7A15A" android:contentDescription="@null"/>
@@ -142,7 +142,7 @@
                 android:fontFamily="@font/googlesans_semibold"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:layout_marginTop="2dp" android:text="@string/dialog_product_actions_delete_body"
-                android:textColor="#76867C" android:textSize="11.5sp"/>
+                android:textColor="#66716B" android:textSize="11.5sp"/>
         </LinearLayout>
         <ImageView android:layout_width="19dp" android:layout_height="19dp"
             android:src="@drawable/ic_lc_chevron_right" app:tint="#C7A15A" android:contentDescription="@null"/>

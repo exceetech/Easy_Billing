@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Batch line item — now with the same left accent stripe + per-row
+    colour palette as Clear Stock's item_batch_clear.xml (set from
+    BatchPickerAdapter.colorFor(), keyed by batch id so each batch keeps
+    its own colour across rebinds), so the two batch-picker lists look
+    and feel consistent across Reduce Stock and Clear Stock.
+
+    Batch details on the left, the Design-A "edge-to-edge" −/qty/+ bar
+    inline on the right of the SAME row — a numbered badge, batch label
+    + oldest tag, a one-line date/cost/remaining caption, and the
+    compact bordered stepper bar sitting right where the old unit-cost
+    price used to be. The card's outer border still highlights (teal)
+    once a qty is entered, via bg_batch_card_selected/unselected set
+    from BatchPickerAdapter — independent of the per-row stripe/avatar
+    colour, same as before.
+
+    Bound by BatchPickerAdapter: viewItemStripe, tvAvatar, tvBatchLabel,
+    tvOldestTag (hidden unless this is the oldest batch with stock),
+    tvBatchMeta ("14 Jul 2026 · ₹42/unit"), tvUnitCost (hidden — kept
+    only so the adapter's existing findViewById/text-set doesn't need
+    to change), tvMaxReturn, etBatchQty, tvBatchAmount, btnDecrement,
+    btnIncrement.
+-->
+<com.example.easy_billing.ui.glass.GlassClipLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginVertical="5dp"
+    android:background="@drawable/bg_batch_card_unselected"
+    android:clipChildren="true">
+
+    <View
+        android:id="@+id/viewItemStripe"
+        android:layout_width="4dp"
+        android:layout_height="match_parent"
+        android:background="#1D6E6E" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="13dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvAvatar"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:gravity="center"
+                android:text="1"
+                android:textSize="12sp"
+                android:textColor="#1D6E6E"
+                android:fontFamily="@font/googlesans_semibold"
+                android:background="@drawable/bg_credit_avatar"
+                android:backgroundTint="#DDEEEE"
+                android:includeFontPadding="false" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvBatchLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/xml_batch_pick_number_placeholder"
+                        android:textSize="13sp"
+                        android:textColor="#1A1A18"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:maxWidth="110dp" />
+
+                    <TextView
+                        android:id="@+id/tvOldestTag"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:paddingHorizontal="7dp"
+                        android:paddingVertical="1dp"
+                        android:background="@drawable/bg_credit_avatar"
+                        android:backgroundTint="#E3E8E4"
+                        android:textSize="11sp"
+                        android:textColor="#8A6526"
+                        android:visibility="gone"
+                        android:text="@string/xml_batch_pick_oldest_tag"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvBatchMeta"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:textSize="11sp"
+                    android:textColor="#66716B"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:text="@string/xml_batch_pick_date_cost_placeholder"/>
+
+                <TextView
+                    android:id="@+id/tvMaxReturn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textSize="11sp"
+                    android:textColor="#8A6526"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:text="@string/xml_batch_pick_max_reducible_placeholder"/>
+
+                <!-- Unit-cost price removed from the layout per feedback —
+                     the per-unit cost is already in tvBatchMeta above; this
+                     view stays bound (BatchPickerAdapter still sets its
+                     text) but hidden so it takes no space. -->
+                <TextView
+                    android:id="@+id/tvUnitCost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="15sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="serif"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- Units-to-take-out stepper — Design A "edge-to-edge bar",
+                 inline on the right of the batch details: one bordered
+                 bar clipped to a single rounded outline
+                 (bg_batch_edge_bar), a flat −/+ square flush to each
+                 end, qty filling the space between. -->
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
+                android:layout_width="134dp"
+                android:layout_height="44dp"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_lg_amount_bar"
+                >
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDecrement"
+                    android:layout_width="40dp"
+                    android:layout_height="match_parent"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:text="−"
+                    android:textAllCaps="false"
+                    android:textSize="19sp"
+                    android:textColor="#1D6E6E"
+                    android:padding="0dp"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:stateListAnimator="@null"
+                    app:elevation="0dp"
+                    app:cornerRadius="0dp"
+                    app:backgroundTint="#FFFFFF"
+                    app:strokeWidth="0dp"
+                    app:rippleColor="#14000000"/>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#E3E8E4"/>
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etBatchQty"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:inputType="numberDecimal"
+                    android:textSize="18sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:background="@android:color/transparent"
+                    android:padding="0dp"
+                    android:hint="0"
+                    android:textColorHint="#B4BDB8"/>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#E3E8E4"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnIncrement"
+                    android:layout_width="40dp"
+                    android:layout_height="match_parent"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:text="+"
+                    android:textAllCaps="false"
+                    android:textSize="19sp"
+                    android:textColor="#FFFFFF"
+                    android:padding="0dp"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:stateListAnimator="@null"
+                    app:elevation="0dp"
+                    app:cornerRadius="0dp"
+                    android:background="@drawable/bg_lg_cta_teal_0"
+        app:backgroundTint="@null"
+                    app:strokeWidth="0dp"
+                    app:rippleColor="#33FFFFFF"/>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+
+        </LinearLayout>
+
+        <!-- Reduce value preview — only takes space once a qty is entered. -->
+        <TextView
+            android:id="@+id/tvBatchAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="end"
+            android:textSize="11sp"
+            android:textColor="#0F6E56"
+            android:fontFamily="@font/googlesans_medium"
+            android:visibility="gone"
+            android:text="@string/xml_batch_pick_reduce_value_placeholder"/>
+
+    </LinearLayout>
+
+</com.example.easy_billing.ui.glass.GlassClipLinearLayout>

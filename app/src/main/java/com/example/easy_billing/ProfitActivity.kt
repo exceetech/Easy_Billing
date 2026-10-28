@@ -287,7 +287,7 @@ class ProfitActivity : AppCompatActivity() {
 
         val picker = com.google.android.material.datepicker.MaterialDatePicker.Builder
             .dateRangePicker()
-            .setTitleText("Select Date Range")
+            .setTitleText(getString(R.string.profit_select_date_range))
             .setCalendarConstraints(constraints)
             .build()
 

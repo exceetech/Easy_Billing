@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Credit-account row — same skeleton as Inventory's product row
+    (item_inventory.xml): a plain 4dp left stripe carrying the balance
+    direction, a 36dp monogram tile, name + a muted detail line, a
+    colour-coded status caption, and a serif price on the right with a
+    hairline divider inset under the text.
+
+    The monogram/stripe tint follows the balance, not the row position —
+    the old position-cycled colours meant the same customer changed
+    colour whenever the list was filtered.
+
+    Shared with the credit-account picker sheet (CreditAccountPicker), so
+    it has to read well on both.
+
+    Bound by CreditAdapter: viewBalanceStripe, tvAvatar, tvName, tvPhone,
+    tvDue, tvStatus, viewRowDivider.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/viewBalanceStripe"
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="#0F6E56" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="13dp">
+
+            <TextView
+                android:id="@+id/tvAvatar"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:gravity="center"
+                android:text="A"
+                android:textSize="11.5sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:textColor="#085041"
+                android:background="@drawable/bg_credit_avatar"
+                android:backgroundTint="#E1F5EE"
+                android:includeFontPadding="false" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="11dp">
+
+                <TextView
+                    android:id="@+id/tvName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/invoice_hint_customer_name"
+                    android:textSize="13.5sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textColor="#1A1A18"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tvPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:text="@string/xml_credit_item_phone_placeholder"
+                    android:textSize="11sp"
+                    android:textColor="#66716B"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="@string/credit_chip_label_settled"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textColor="#3B6D11"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvDue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="0"
+                android:textSize="17sp"
+                android:fontFamily="serif"
+                android:textColor="#1A1A18"
+                android:includeFontPadding="false"
+                android:singleLine="true" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/viewRowDivider"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginStart="18dp"
+        android:background="#E3E8E4" />
+
+</LinearLayout>

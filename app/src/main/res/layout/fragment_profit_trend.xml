@@ -72,7 +72,7 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Profit over time"
+                            android:text="@string/fragment_profit_trend_profit_over_time"
                             android:textSize="15sp"
                             android:textStyle="bold"
                             android:textColor="#123B31"/>
@@ -80,8 +80,8 @@
                             android:id="@+id/tvTrendCaption"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Each point is one hour of today"
-                            android:textSize="10.5sp"
+                            android:text="@string/fragment_profit_trend_each_point_is_one_hour_of_today"
+                            android:textSize="11sp"
                             android:textColor="#0F6E56"
                             android:layout_marginTop="1dp"/>
                     </LinearLayout>
@@ -112,7 +112,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Product name"
-                            android:textSize="10.5sp"
+                            android:textSize="11sp"
                             android:fontFamily="@font/googlesans_semibold"
                             android:textColor="#0F6E56"
                             android:maxLines="1"
@@ -127,7 +127,7 @@
                             android:src="@drawable/ic_close"
                             app:tint="@android:color/white"
                             android:background="@drawable/bg_trend_product_chip_close"
-                            android:contentDescription="Clear product"/>
+                            android:contentDescription="@string/fragment_profit_trend_clear_product"/>
                     </LinearLayout>
 
                     <com.github.mikephil.charting.charts.LineChart
@@ -142,8 +142,8 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:paddingVertical="24dp"
-                        android:text="Nothing sold in this period yet"
-                        android:textColor="#7C8782"
+                        android:text="@string/fragment_profit_trend_nothing_sold_in_this_period_yet"
+                        android:textColor="#66716B"
                         android:textSize="13sp"
                         android:visibility="gone"/>
 
@@ -162,7 +162,7 @@
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:text="Total for this chart"
+                            android:text="@string/fragment_charts_total_label"
                             android:textSize="11sp"
                             android:textStyle="bold"
                             android:textColor="#5E7A6E"/>
@@ -182,7 +182,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="46dp"
                         android:layout_marginTop="12dp"
-                        android:text="Pick a product"
+                        android:text="@string/fragment_profit_trend_pick_a_product"
                         android:textAllCaps="false"
                         android:textSize="12.5sp"
                         android:textColor="#123B31"
@@ -248,9 +248,9 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Best to worst, by profit"
-                            android:textSize="10.5sp"
-                            android:textColor="#B8895A"
+                            android:text="@string/fragment_profit_trend_best_to_worst_by_profit"
+                            android:textSize="11sp"
+                            android:textColor="#8A6526"
                             android:layout_marginTop="1dp"/>
                     </LinearLayout>
                     <ImageView
@@ -283,12 +283,12 @@
                             android:background="@drawable/bg_bar_fill" android:backgroundTint="#1D9E75"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginStart="4dp" android:layout_marginEnd="10dp"
-                            android:text="@string/xml_profit_chart_legend_profit" android:textSize="10.5sp" android:textColor="#5B6660"/>
+                            android:text="@string/xml_profit_chart_legend_profit" android:textSize="11sp" android:textColor="#5B6660"/>
                         <View android:layout_width="8dp" android:layout_height="8dp"
                             android:background="@drawable/bg_bar_fill" android:backgroundTint="#E24B4A"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"
-                            android:text="@string/xml_profit_chart_legend_loss" android:textSize="10.5sp" android:textColor="#5B6660"/>
+                            android:text="@string/xml_profit_chart_legend_loss" android:textSize="11sp" android:textColor="#5B6660"/>
                     </LinearLayout>
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -305,7 +305,7 @@
                         android:gravity="center"
                         android:paddingVertical="24dp"
                         android:text="@string/xml_profit_chart_no_data"
-                        android:textColor="#7C8782"
+                        android:textColor="#66716B"
                         android:textSize="13sp"
                         android:visibility="gone"/>
                 </LinearLayout>

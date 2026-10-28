@@ -43,8 +43,8 @@
         android:layout_marginTop="12dp"
         android:gravity="center"
         android:text="@string/dialog_subscription_expired_eyebrow"
-        android:textColor="#B8895A"
-        android:textSize="10sp"
+        android:textColor="#8A6526"
+        android:textSize="11sp"
         android:letterSpacing="0.16"
         android:fontFamily="@font/googlesans_semibold" />
 
@@ -80,7 +80,7 @@
         android:layout_marginTop="12dp"
         android:gravity="center"
         android:text="@string/dialog_subscription_expired_message"
-        android:textColor="#76867C"
+        android:textColor="#66716B"
         android:textSize="12.5sp"
         android:lineSpacingExtra="3dp" />
 
@@ -104,7 +104,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:text="@string/dialog_subscription_expired_data_safe"
-            android:textColor="#7C8782"
+            android:textColor="#66716B"
             android:textSize="11sp"
             android:lineSpacingExtra="2dp" />
     </LinearLayout>
@@ -143,7 +143,7 @@
         android:layout_marginTop="14dp"
         android:gravity="center"
         android:text="@string/dialog_subscription_expired_contact_support"
-        android:textColor="#7C8782"
+        android:textColor="#66716B"
         android:textSize="11sp"
         android:clickable="true"
         android:focusable="true"

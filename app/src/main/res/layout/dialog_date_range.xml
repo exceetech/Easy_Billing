@@ -48,8 +48,8 @@
         android:layout_marginTop="12dp"
         android:gravity="center"
         android:text=""
-        android:textColor="#B8895A"
-        android:textSize="10sp"
+        android:textColor="#8A6526"
+        android:textSize="11sp"
         android:letterSpacing="0.16"
         android:fontFamily="@font/googlesans_semibold"
         android:singleLine="true"
@@ -88,9 +88,9 @@
         android:layout_marginTop="18dp"
         android:layout_marginBottom="8dp"
         android:text="@string/dialog_date_range_quick_ranges"
-        android:textSize="9.5sp"
+        android:textSize="11sp"
         android:letterSpacing="0.13"
-        android:textColor="#7C8782"
+        android:textColor="#66716B"
         android:fontFamily="@font/googlesans_semibold" />
 
     <LinearLayout
@@ -129,9 +129,9 @@
         android:layout_marginTop="18dp"
         android:layout_marginBottom="8dp"
         android:text="@string/dialog_date_range_custom_range"
-        android:textSize="9.5sp"
+        android:textSize="11sp"
         android:letterSpacing="0.13"
-        android:textColor="#7C8782"
+        android:textColor="#66716B"
         android:fontFamily="@font/googlesans_semibold" />
 
     <LinearLayout
@@ -150,8 +150,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
                 android:text="@string/dialog_date_range_from"
-                android:textSize="10.5sp"
-                android:textColor="#7C8782" />
+                android:textSize="11sp"
+                android:textColor="#66716B" />
             <TextView
                 android:id="@+id/tvStartDate"
                 android:layout_width="match_parent"
@@ -179,7 +179,7 @@
             android:layout_marginBottom="13dp"
             android:text="→"
             android:textSize="13sp"
-            android:textColor="#B4BDB8" />
+            android:textColor="#66716B" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -191,8 +191,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
                 android:text="@string/dialog_date_range_to"
-                android:textSize="10.5sp"
-                android:textColor="#7C8782" />
+                android:textSize="11sp"
+                android:textColor="#66716B" />
             <TextView
                 android:id="@+id/tvEndDate"
                 android:layout_width="match_parent"
@@ -230,8 +230,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
             android:text="@string/dialog_date_range_leave_either_side_empty"
-            android:textColor="#7C8782"
-            android:textSize="10.5sp"
+            android:textColor="#66716B"
+            android:textSize="11sp"
             android:lineSpacingExtra="2dp" />
     </LinearLayout>
 
@@ -251,7 +251,7 @@
             android:layout_height="wrap_content"
             android:text="@string/dialog_date_range_matches"
             android:textSize="11.5sp"
-            android:textColor="#7C8782" />
+            android:textColor="#66716B" />
         <TextView
             android:id="@+id/tvRangeMatches"
             android:layout_width="wrap_content"
@@ -285,14 +285,14 @@
         android:layout_width="match_parent"
         android:layout_height="46dp"
         android:layout_marginTop="9dp"
-        android:background="@drawable/bg_inv_action_close"
+        android:background="@drawable/bg_dialog_cancel_neutral"
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:text="@string/dialog_date_range_cancel"
         android:textAllCaps="false"
         android:textSize="13sp"
-        android:textColor="#76867C"
+        android:textColor="#4B554F"
         android:fontFamily="@font/googlesans_medium"
         android:includeFontPadding="false"
         android:stateListAnimator="@null"

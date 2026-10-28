@@ -48,8 +48,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
                 android:text="@string/dash"
-                android:textSize="10.5sp"
-                android:textColor="#79897F"/>
+                android:textSize="11sp"
+                android:textColor="#66716B"/>
             <LinearLayout
                 android:id="@+id/rankBarTrack"
                 android:layout_width="match_parent"

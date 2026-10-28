@@ -28,8 +28,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/dialog_register_success_eyebrow"
-        android:textColor="#B8895A"
-        android:textSize="10sp"
+        android:textColor="#8A6526"
+        android:textSize="11sp"
         android:letterSpacing="0.14"
         android:fontFamily="@font/googlesans_semibold"/>
 
@@ -67,7 +67,7 @@
         android:layout_marginTop="10dp"
         android:gravity="center"
         android:text="@string/dialog_register_success_message"
-        android:textColor="#76867C"
+        android:textColor="#66716B"
         android:textSize="12.5sp"
         android:lineSpacingExtra="3dp"/>
 

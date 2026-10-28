@@ -47,8 +47,8 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="12dp"
         android:text="@string/invoice_khata_header"
-        android:textColor="#B8895A"
-        android:textSize="10sp"
+        android:textColor="#8A6526"
+        android:textSize="11sp"
         android:letterSpacing="0.16"
         android:fontFamily="@font/googlesans_semibold" />
 
@@ -86,7 +86,7 @@
         android:layout_marginTop="6dp"
         android:gravity="center"
         android:text="@string/invoice_customer_appear_note"
-        android:textColor="#76867C"
+        android:textColor="#66716B"
         android:textSize="12sp"
         android:lineSpacingExtra="2dp" />
 
@@ -98,7 +98,7 @@
         android:layout_marginBottom="6dp"
         android:text="@string/invoice_label_name"
         android:textSize="12.5sp"
-        android:textColor="#8D9992"
+        android:textColor="#66716B"
         android:fontFamily="@font/googlesans_regular" />
 
     <FrameLayout
@@ -139,7 +139,7 @@
         android:layout_marginBottom="6dp"
         android:text="@string/invoice_hint_phone_number"
         android:textSize="12.5sp"
-        android:textColor="#8D9992"
+        android:textColor="#66716B"
         android:fontFamily="@font/googlesans_regular" />
 
     <FrameLayout
@@ -196,8 +196,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
             android:text="@string/invoice_phone_reuse_note"
-            android:textColor="#7C8782"
-            android:textSize="10.5sp"
+            android:textColor="#66716B"
+            android:textSize="11sp"
             android:lineSpacingExtra="2dp" />
     </LinearLayout>
 
@@ -239,7 +239,7 @@
         android:layout_width="match_parent"
         android:layout_height="46dp"
         android:layout_marginTop="9dp"
-        android:background="@drawable/bg_inv_action_close"
+        android:background="@drawable/bg_dialog_cancel_neutral"
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
@@ -248,7 +248,7 @@
         android:text="@string/cancel"
         android:textAllCaps="false"
         android:textSize="13.5sp"
-        android:textColor="#9A2E2E"
+        android:textColor="#4B554F"
         android:textStyle="bold"
         android:fontFamily="@font/googlesans_semibold"
         android:includeFontPadding="false"

@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Credit-note (sales return) line item — matches item_debit_note_line.xml's
+    structure exactly (price-led card, left accent stripe, footer stepper),
+    recoloured teal for the return/credit context. Price leads the header row;
+    the return-qty stepper sits in a footer row with the value centered
+    between the − and + buttons.
+
+    Bound by SalesReturnItemAdapter: viewItemStripe, tvAvatar, tvProductName,
+    tvAlreadyReturned (hidden), tvHsnVariant, tvQtySold, tvUnitPrice,
+    tvGstRate, tvMaxReturn, etReturnQty, tvReturnAmount, btnDecrement,
+    btnIncrement.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginVertical="5dp"
+    android:background="@drawable/bg_lg_card">
+
+    <View
+        android:id="@+id/viewItemStripe"
+        android:layout_width="4dp"
+        android:layout_height="match_parent"
+        android:background="#1D6E6E" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="14dp">
+
+        <!-- Header: monogram, name/sub, price -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvAvatar"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:gravity="center"
+                android:text="P"
+                android:textSize="13sp"
+                android:textColor="#1D6E6E"
+                android:fontFamily="@font/googlesans_semibold"
+                android:background="@drawable/bg_credit_avatar"
+                android:backgroundTint="#DDEEEE"
+                android:includeFontPadding="false" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvProductName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Product Name"
+                        android:textSize="13.5sp"
+                        android:textColor="#1A1A18"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:maxWidth="150dp" />
+
+                    <TextView
+                        android:id="@+id/tvAlreadyReturned"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:paddingHorizontal="7dp"
+                        android:paddingVertical="1dp"
+                        android:background="@drawable/bg_credit_avatar"
+                        android:backgroundTint="#E3E8E4"
+                        android:textSize="11sp"
+                        android:textColor="#8A6526"
+                        android:visibility="gone"
+                        android:text="Returned: 0"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="1dp">
+
+                    <!-- Variant + unit only now — the HSN tax code added
+                         no value when deciding what to return, so it's
+                         dropped rather than just hidden (it was never
+                         something a quantity decision depended on). -->
+                    <TextView
+                        android:id="@+id/tvHsnVariant"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textColor="#66716B"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:text="—"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="@string/item_debit_note_line_sold"
+                        android:textSize="11sp"
+                        android:textColor="#66716B" />
+
+                    <TextView
+                        android:id="@+id/tvQtySold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="3dp"
+                        android:textSize="11sp"
+                        android:textColor="#66716B"
+                        android:text="0"/>
+
+                    <!-- GST%/CESS% — tax-filing detail, not needed to decide
+                         a return quantity. Kept (not deleted) so the figures
+                         are still available if a future screen needs them,
+                         just hidden here as one group via llGstMeta. -->
+                    <LinearLayout
+                        android:id="@+id/llGstMeta"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:text="·"
+                            android:textSize="11sp"
+                            android:textColor="#66716B" />
+
+                        <TextView
+                            android:id="@+id/tvGstRate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:textSize="11sp"
+                            android:textColor="#66716B"
+                            android:text="0%"/>
+
+                        <TextView
+                            android:id="@+id/tvGstLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="3dp"
+                            android:text="GST"
+                            android:textSize="11sp"
+                            android:textColor="#66716B" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Max returnable — labelled caption instead of a bare
+                     number, so it reads as "Max returnable: 5" rather than
+                     a stray unstyled digit. -->
+                <TextView
+                    android:id="@+id/tvMaxReturn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textSize="11sp"
+                    android:textColor="#8A6526"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:text="Max returnable: 0"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvUnitPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="0.00"
+                android:textSize="18sp"
+                android:textColor="#1A1A18"
+                android:fontFamily="serif"
+                android:includeFontPadding="false"
+                android:singleLine="true" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="9dp"
+            android:background="#E3E8E4" />
+
+        <!-- Footer: label on the left, the same inline edge-to-edge
+             −/qty/+ bar used in Reduce Stock / Purchase's debit-note row
+             (item_purchase_return_row.xml: bg_batch_edge_bar, 134dp x
+             44dp) sitting on the right of the same row. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="#1A1A18"
+                android:fontFamily="@font/googlesans_medium"
+                android:text="@string/item_sales_return_row_return_quantity"/>
+
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
+                android:layout_width="134dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="10dp"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_batch_edge_bar"
+                >
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDecrement"
+                    android:layout_width="40dp"
+                    android:layout_height="match_parent"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:text="−"
+                    android:textAllCaps="false"
+                    android:textSize="19sp"
+                    android:textColor="#1D6E6E"
+                    android:padding="0dp"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:stateListAnimator="@null"
+                    app:elevation="0dp"
+                    app:cornerRadius="0dp"
+                    app:backgroundTint="#FFFFFF"
+                    app:strokeWidth="0dp"
+                    app:rippleColor="#14000000"/>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#E3E8E4"/>
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etReturnQty"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:inputType="numberDecimal"
+                    android:textSize="18sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:background="@android:color/transparent"
+                    android:padding="0dp"
+                    android:hint="0"
+                    android:textColorHint="#B4BDB8"/>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#E3E8E4"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnIncrement"
+                    android:layout_width="40dp"
+                    android:layout_height="match_parent"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:text="+"
+                    android:textAllCaps="false"
+                    android:textSize="19sp"
+                    android:textColor="#FFFFFF"
+                    android:padding="0dp"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:stateListAnimator="@null"
+                    app:elevation="0dp"
+                    app:cornerRadius="0dp"
+                    android:background="@drawable/bg_lg_cta_teal_0"
+        app:backgroundTint="@null"
+                    app:strokeWidth="0dp"
+                    app:rippleColor="#33FFFFFF"/>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+        </LinearLayout>
+
+        <!-- Return value preview — only takes space once a qty is entered. -->
+        <TextView
+            android:id="@+id/tvReturnAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:gravity="end"
+            android:textSize="11sp"
+            android:textColor="#0F6E56"
+            android:fontFamily="@font/googlesans_medium"
+            android:visibility="gone"
+            android:text="Return value: 0.00"/>
+
+    </LinearLayout>
+
+</LinearLayout>

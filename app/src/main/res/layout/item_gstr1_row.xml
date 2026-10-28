@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:textSize="11sp"
-                android:textColor="#7C8782"
+                android:textColor="#66716B"
                 android:includeFontPadding="false" />
         </LinearLayout>
     </LinearLayout>

@@ -68,7 +68,7 @@
                     android:paddingHorizontal="7dp"
                     android:paddingVertical="3dp"
                     android:text="@string/refused_chip"
-                    android:textSize="9.5sp"
+                    android:textSize="11sp"
                     android:textColor="#791F1F"
                     android:fontFamily="@font/googlesans_semibold"
                     android:visibility="gone" />
@@ -83,7 +83,7 @@
                     android:paddingHorizontal="7dp"
                     android:paddingVertical="3dp"
                     android:text="@string/purchase_eligibility_inputs"
-                    android:textSize="9.5sp"
+                    android:textSize="11sp"
                     android:textColor="#27500A"
                     android:fontFamily="@font/googlesans_semibold" />
             </LinearLayout>
@@ -94,8 +94,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
                 android:text="12 Jul 2026 · POS 97 · 18%"
-                android:textSize="10.5sp"
-                android:textColor="#76867C"
+                android:textSize="11sp"
+                android:textColor="#66716B"
                 android:singleLine="true"
                 android:ellipsize="end" />
 
@@ -139,8 +139,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/invoice_igst_label"
-                        android:textSize="9.5sp"
-                        android:textColor="#76867C" />
+                        android:textSize="11sp"
+                        android:textColor="#66716B" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -161,8 +161,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="ITC"
-                        android:textSize="9.5sp"
-                        android:textColor="#76867C" />
+                        android:textSize="11sp"
+                        android:textColor="#66716B" />
                 </LinearLayout>
 
                 <!--
@@ -189,8 +189,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Cess"
-                        android:textSize="9.5sp"
-                        android:textColor="#76867C" />
+                        android:textSize="11sp"
+                        android:textColor="#66716B" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

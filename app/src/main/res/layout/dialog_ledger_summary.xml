@@ -49,8 +49,8 @@
         android:layout_marginTop="12dp"
         android:gravity="center"
         android:text=""
-        android:textColor="#B8895A"
-        android:textSize="10sp"
+        android:textColor="#8A6526"
+        android:textSize="11sp"
         android:letterSpacing="0.16"
         android:fontFamily="@font/googlesans_semibold"
         android:singleLine="true"
@@ -89,7 +89,7 @@
         android:layout_marginTop="5dp"
         android:gravity="center"
         android:text=""
-        android:textColor="#7C8782"
+        android:textColor="#66716B"
         android:textSize="11.5sp" />
 
     <!-- ===================== RECONCILIATION ===================== -->
@@ -203,8 +203,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/dialog_ledger_summary_no_cash_moved"
-                    android:textSize="10sp"
-                    android:textColor="#7C8782" />
+                    android:textSize="11sp"
+                    android:textColor="#66716B" />
             </LinearLayout>
             <TextView
                 android:id="@+id/tvSumWrittenOff"
@@ -250,8 +250,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/dialog_ledger_summary_paid_out_sub"
-                    android:textSize="10sp"
-                    android:textColor="#7C8782" />
+                    android:textSize="11sp"
+                    android:textColor="#66716B" />
             </LinearLayout>
             <TextView
                 android:id="@+id/tvSumPaidOut"
@@ -297,8 +297,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/dialog_ledger_summary_handed_back"
-                    android:textSize="10sp"
-                    android:textColor="#7C8782" />
+                    android:textSize="11sp"
+                    android:textColor="#66716B" />
             </LinearLayout>
             <TextView
                 android:id="@+id/tvSumRefunded"
@@ -329,7 +329,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/dialog_ledger_summary_balance"
                 android:textSize="12.5sp"
-                android:textColor="#7C8782" />
+                android:textColor="#66716B" />
             <TextView
                 android:id="@+id/tvSumBalance"
                 android:layout_width="wrap_content"
@@ -348,8 +348,8 @@
             android:layout_marginTop="1dp"
             android:gravity="end"
             android:text="@string/dialog_ledger_summary_settled"
-            android:textSize="10sp"
-            android:textColor="#7C8782" />
+            android:textSize="11sp"
+            android:textColor="#66716B" />
     </LinearLayout>
 
     <!-- ===================== AT A GLANCE ===================== -->
@@ -384,8 +384,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
                 android:text="@string/dialog_ledger_summary_average_bill"
-                android:textSize="9.5sp"
-                android:textColor="#7C8782" />
+                android:textSize="11sp"
+                android:textColor="#66716B" />
         </LinearLayout>
 
         <View android:layout_width="8dp" android:layout_height="1dp" />
@@ -414,8 +414,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="1dp"
                 android:text="@string/dialog_ledger_summary_last_payment"
-                android:textSize="9.5sp"
-                android:textColor="#7C8782" />
+                android:textSize="11sp"
+                android:textColor="#66716B" />
         </LinearLayout>
     </LinearLayout>
 
@@ -424,7 +424,7 @@
         android:layout_width="match_parent"
         android:layout_height="46dp"
         android:layout_marginTop="18dp"
-        android:background="@drawable/bg_inv_action_close"
+        android:background="@drawable/bg_dialog_cancel_neutral"
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
@@ -432,7 +432,7 @@
         android:textAllCaps="false"
         android:textSize="13.5sp"
         android:textStyle="bold"
-        android:textColor="#9A2E2E"
+        android:textColor="#4B554F"
         android:fontFamily="@font/googlesans_semibold"
         android:includeFontPadding="false"
         android:stateListAnimator="@null"

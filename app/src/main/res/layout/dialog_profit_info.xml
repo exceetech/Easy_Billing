@@ -36,10 +36,10 @@
     <!-- EYEBROW -->
     <TextView
         android:text="@string/xml_profit_info_eyebrow"
-        android:textSize="10sp"
+        android:textSize="11sp"
         android:letterSpacing="0.16"
         android:fontFamily="@font/googlesans_semibold"
-        android:textColor="#B8895A"
+        android:textColor="#8A6526"
         android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>

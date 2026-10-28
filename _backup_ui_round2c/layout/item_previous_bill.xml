@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Bill-history row — structurally identical to item_purchase_history_row.xml
+    (champagne theme): a left status stripe, a monogram avatar tile, name +
+    date/method caption, and the amount right-aligned with a small status
+    caption. Colors are assigned per-row from a fixed palette (see
+    BillHistoryAdapter.rowPalette) rather than by status, for visual variety.
+
+    Bound by BillHistoryAdapter: viewStatusStripe, tvAvatar, tvBillNumber,
+    tvBillDate, tvBillAmount, tvPaymentMethod, viewRowDivider.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/viewStatusStripe"
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            android:background="#1D6E6E" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="13dp">
+
+            <TextView
+                android:id="@+id/tvAvatar"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:gravity="center"
+                android:text="045"
+                android:textSize="12sp"
+                android:textColor="#1D6E6E"
+                android:fontFamily="@font/googlesans_semibold"
+                android:background="@drawable/bg_credit_avatar"
+                android:backgroundTint="#DDEEEE"
+                android:includeFontPadding="false" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="12dp">
+
+                <TextView
+                    android:id="@+id/tvBillNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Invoice 0001"
+                    android:textSize="13.5sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:singleLine="true"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tvBillDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="12 Apr · Cash"
+                    android:textSize="11sp"
+                    android:textColor="#66716B"
+                    android:singleLine="true"
+                    android:ellipsize="end" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="end"
+                android:layout_marginStart="10dp">
+
+                <TextView
+                    android:id="@+id/tvBillAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0.00"
+                    android:textSize="18sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="serif"
+                    android:includeFontPadding="false"
+                    android:singleLine="true" />
+
+                <TextView
+                    android:id="@+id/tvPaymentMethod"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="@string/bill_history_status_paid"
+                    android:textSize="11sp"
+                    android:textColor="#66716B" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/viewRowDivider"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginHorizontal="14dp"
+        android:background="#E3E8E4" />
+
+</LinearLayout>

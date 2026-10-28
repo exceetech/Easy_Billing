@@ -166,13 +166,13 @@ class ProfitOverviewFragment : Fragment(R.layout.fragment_profit_overview) {
         recyclerView.visibility = if (list.isEmpty()) android.view.View.GONE else android.view.View.VISIBLE
 
         if (currentSearchQuery.isNotEmpty()) {
-            tvProfitEmptyTitle.text = "No matches"
-            tvProfitEmptyTitleAccent.text = "found"
-            tvProfitEmptyBody.text = "No product matches your search. Try a different name or variant."
+            tvProfitEmptyTitle.text = getString(R.string.credit_no_matches_title)
+            tvProfitEmptyTitleAccent.text = getString(R.string.credit_no_matches_accent)
+            tvProfitEmptyBody.text = getString(R.string.profitoverview_no_product_matches_your_search_try_a_d)
         } else {
-            tvProfitEmptyTitle.text = "No products"
-            tvProfitEmptyTitleAccent.text = "yet"
-            tvProfitEmptyBody.text = "Sell something in this period and its revenue, cost and profit will break down here by product."
+            tvProfitEmptyTitle.text = getString(R.string.inventory_no_products_title)
+            tvProfitEmptyTitleAccent.text = getString(R.string.credit_no_customers_accent)
+            tvProfitEmptyBody.text = getString(R.string.xml_profit_empty_description)
         }
     }
 

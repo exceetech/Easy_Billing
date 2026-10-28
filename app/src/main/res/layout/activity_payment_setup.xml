@@ -48,8 +48,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/payment_setup_eyebrow"
-                    android:textColor="#B8895A"
-                    android:textSize="10sp"
+                    android:textColor="#8A6526"
+                    android:textSize="11sp"
                     android:letterSpacing="0.16"
                     android:fontFamily="@font/googlesans_semibold"/>
 
@@ -104,7 +104,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/payment_setup_explainer"
-                    android:textColor="#7C8782"
+                    android:textColor="#66716B"
                     android:textSize="11sp"
                     android:lineSpacingExtra="2dp"/>
             </LinearLayout>
@@ -153,8 +153,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/payments_status_off"
-                        android:textColor="#79897F"
-                        android:textSize="10.5sp"/>
+                        android:textColor="#66716B"
+                        android:textSize="11sp"/>
                 </LinearLayout>
 
                 <com.google.android.material.materialswitch.MaterialSwitch
@@ -268,7 +268,7 @@
                         android:paddingVertical="5dp"
                         android:text="@string/razorpay_status_not_connected"
                         android:textColor="#8A6526"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.06"/>
                 </LinearLayout>
@@ -429,7 +429,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/razorpay_helper_text"
-                            android:textColor="#7C8782"
+                            android:textColor="#66716B"
                             android:textSize="11sp"
                             android:lineSpacingExtra="2dp"/>
                     </LinearLayout>

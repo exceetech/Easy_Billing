@@ -69,7 +69,7 @@
             android:layout_height="wrap_content"
             android:text="@string/gst_reports_cgst_sgst"
             android:textColor="#6B7280"
-            android:textSize="10sp"/>
+            android:textSize="11sp"/>
     </LinearLayout>
 
 </LinearLayout>

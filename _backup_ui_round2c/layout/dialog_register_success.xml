@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:background="@drawable/bg_lg_dialog"
+    android:paddingHorizontal="24dp"
+    android:paddingTop="30dp"
+    android:paddingBottom="22dp">
+
+    <FrameLayout
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_success_circle">
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lc_check"
+            app:tint="#0F6E56"
+            android:contentDescription="@null"/>
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/dialog_register_success_eyebrow"
+        android:textColor="#8A6526"
+        android:textSize="11sp"
+        android:letterSpacing="0.14"
+        android:fontFamily="@font/googlesans_semibold"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_register_success_title_part1"
+            android:textColor="#1A1A18"
+            android:textSize="21sp"
+            android:fontFamily="serif"
+            android:textStyle="bold"
+            android:layout_marginEnd="6dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_register_success_title_part2"
+            android:textColor="#0F6E56"
+            android:textSize="21sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvDialogMsg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="@string/dialog_register_success_message"
+        android:textColor="#66716B"
+        android:textSize="12.5sp"
+        android:lineSpacingExtra="3dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnContinue"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/bg_lg_cta_green_12"
+        app:backgroundTint="@null"
+        android:text="@string/dialog_register_success_continue_btn"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textAllCaps="false"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:gravity="center"
+        android:insetLeft="0dp"
+        android:insetRight="0dp"
+        app:cornerRadius="12dp"
+        app:icon="@drawable/ic_cta_arrow"
+        app:iconGravity="textEnd"
+        app:iconTint="#FFFFFF"/>
+
+</LinearLayout>

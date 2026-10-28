@@ -197,7 +197,7 @@ class AccountSelectionActivity : BaseActivity() {
 
         if (isLastActive) {
             val activeText = TextView(this).apply {
-                text = "Active now"
+                text = getString(R.string.acctsel_active_now)
                 textSize = 9.5f
                 setTextColor(android.graphics.Color.parseColor("#7C8782"))
                 layoutParams = LinearLayout.LayoutParams(

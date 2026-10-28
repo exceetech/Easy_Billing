@@ -76,7 +76,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/peak_hour_item_bills_placeholder"
                     android:textSize="11sp"
-                    android:textColor="#9CA3AF"
+                    android:textColor="#66716B"
                     android:layout_marginTop="1dp"/>
 
             </LinearLayout>
@@ -102,7 +102,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/peak_hour_status_avg"
-                    android:textSize="10sp"
+                    android:textSize="11sp"
                     android:textStyle="bold"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="2dp"

@@ -12,7 +12,7 @@
         android:gravity="end"
         android:paddingTop="2dp">
         <TextView android:id="@+id/tvRecTime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="12sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18" android:includeFontPadding="false"/>
-        <TextView android:id="@+id/tvRecAmPm" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:textSize="10.5sp" android:textColor="#79897F" android:includeFontPadding="false"/>
+        <TextView android:id="@+id/tvRecAmPm" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:textSize="11sp" android:textColor="#66716B" android:includeFontPadding="false"/>
     </LinearLayout>
 
     <FrameLayout
@@ -32,7 +32,7 @@
         android:paddingBottom="28dp"
         android:orientation="vertical">
         <TextView android:id="@+id/tvRecName" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="13sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18" android:singleLine="true" android:ellipsize="end"/>
-        <TextView android:id="@+id/tvRecSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:textSize="10.5sp" android:textColor="#79897F"/>
+        <TextView android:id="@+id/tvRecSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:textSize="11sp" android:textColor="#66716B"/>
     </LinearLayout>
 
     <TextView android:id="@+id/tvRecAmount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:textSize="13.5sp" android:fontFamily="serif" android:textStyle="bold" android:textColor="#8E2A2A"/>

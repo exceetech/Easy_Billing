@@ -45,8 +45,8 @@
         android:layout_marginTop="12dp"
         android:gravity="center"
         android:text="@string/dialog_settle_account_customer"
-        android:textColor="#B8895A"
-        android:textSize="10sp"
+        android:textColor="#8A6526"
+        android:textSize="11sp"
         android:letterSpacing="0.16"
         android:fontFamily="@font/googlesans_semibold"
         android:singleLine="true"
@@ -90,7 +90,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/dialog_settle_account_writing_off"
-            android:textColor="#7C8782"
+            android:textColor="#66716B"
             android:textSize="11sp" />
         <TextView
             android:id="@+id/tvSettleAmount"
@@ -111,7 +111,7 @@
         android:layout_marginTop="12dp"
         android:gravity="center"
         android:text="@string/dialog_settle_account_the_balance_goes_to"
-        android:textColor="#76867C"
+        android:textColor="#66716B"
         android:textSize="12sp"
         android:lineSpacingExtra="3dp" />
 
@@ -147,7 +147,7 @@
         android:layout_width="match_parent"
         android:layout_height="46dp"
         android:layout_marginTop="9dp"
-        android:background="@drawable/bg_inv_action_close"
+        android:background="@drawable/bg_dialog_cancel_neutral"
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
@@ -156,7 +156,7 @@
         android:text="@string/dialog_settle_account_cancel"
         android:textAllCaps="false"
         android:textSize="13.5sp"
-        android:textColor="#9A2E2E"
+        android:textColor="#4B554F"
         android:textStyle="bold"
         android:fontFamily="@font/googlesans_semibold"
         android:includeFontPadding="false"

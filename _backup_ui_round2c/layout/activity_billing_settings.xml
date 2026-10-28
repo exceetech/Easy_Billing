@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_lg_page">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="24dp">
+
+            <!-- Title + Edit action -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tax_format_eyebrow"
+                        android:textColor="#8A6526"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.16"
+                        android:fontFamily="@font/googlesans_semibold"/>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="2dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/billing_word"
+                            android:textColor="#1A1A18"
+                            android:textSize="21sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="-0.02"
+                            android:fontFamily="@font/googlesans_bold"
+                            android:includeFontPadding="false"
+                            android:accessibilityHeading="true"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text="@string/settings_word"
+                            android:textColor="#0F6E56"
+                            android:textSize="21sp"
+                            android:fontFamily="serif"
+                            android:textStyle="italic"
+                            android:includeFontPadding="false"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Edit pill (toggles edit mode) — gold gradient, matching
+                     the Unlock/Edit pills elsewhere. -->
+                <LinearLayout
+                    android:id="@+id/btnEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_lg_seg_selected"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <ImageView
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_marginEnd="6dp"
+                        android:src="@drawable/ic_si_edit"
+                        app:tint="#FFFFFF"
+                        android:contentDescription="@string/edit"/>
+
+                    <TextView
+                        android:id="@+id/tvEdit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/edit"
+                        android:textColor="#FFFFFF"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:includeFontPadding="false"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ===================== GST PROFILE ===================== -->
+            <!-- cardGstProfile: faded (alpha 0.6) until Edit is tapped, same
+                 locked/unlocked feel as Invoice Design & Data & Security. -->
+            <!-- ===================== GST PROFILE ===================== -->
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:id="@+id/cardGstProfile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_lg_card"
+                android:layout_marginTop="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_lg_hdr_green"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="38dp" android:layout_height="38dp">
+                        <View android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:background="@drawable/bg_step_circle_ring"/>
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:layout_gravity="center" android:src="@drawable/ic_si_tax"
+                            app:tint="#FFFFFF" android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:text="@string/billing_card_gst_title" android:textColor="#1A1A18" android:textSize="14sp"
+                            android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="@string/billing_card_gst_sub" android:textColor="#5C6B65"
+                            android:textSize="11sp" android:layout_marginTop="1dp"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                    <TextView android:text="@string/activity_billing_settings_5_fields" android:textSize="11sp" android:textStyle="bold"
+                        android:textColor="#0F6E56" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
+                        android:background="@drawable/bg_pill_green" android:letterSpacing="0.06"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+
+                    <!-- GSTIN (locked) -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/gstin"
+                        android:textSize="11sp"
+                        android:textColor="#5B6660"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_lg_field_locked"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_rose">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_si_tax"
+                                app:tint="#791F1F" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <EditText
+                            android:id="@+id/etGstin"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:layout_marginStart="12dp"
+                            android:textColor="#5B6660"
+                            android:letterSpacing="0.03"
+                            android:singleLine="true"
+                            android:textSize="15sp"
+                            android:enabled="false"
+                            android:focusable="false"/>
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_si_lock"
+                            app:tint="#98A49D"
+                            android:contentDescription="@null"/>
+                    </LinearLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:layout_marginStart="2dp"
+                        android:text="@string/set_in_store_information"
+                        android:textColor="#66716B"
+                        android:textSize="11sp"/>
+
+                    <!-- Legal name -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/profile_label_legal_name"
+                        android:textSize="11sp"
+                        android:textColor="#5B6660"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_lg_field"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_teal">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_si_building"
+                                app:tint="#0F6E56" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <EditText
+                            android:id="@+id/etLegalName"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:layout_marginStart="12dp"
+                            android:hint="@string/profile_hint_legal_name"
+                            android:textColor="#1A1A18"
+                            android:textColorHint="#929F97"
+                            android:inputType="textCapWords"
+                            android:singleLine="true"
+                            android:textSize="15sp"/>
+                    </LinearLayout>
+
+                    <!-- Trade name -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/profile_label_trade_name"
+                        android:textSize="11sp"
+                        android:textColor="#5B6660"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_lg_field"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_teal">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_set_store"
+                                app:tint="#0F6E56" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <EditText
+                            android:id="@+id/etTradeName"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:layout_marginStart="12dp"
+                            android:hint="@string/profile_hint_trade_name"
+                            android:textColor="#1A1A18"
+                            android:textColorHint="#929F97"
+                            android:inputType="textCapWords"
+                            android:singleLine="true"
+                            android:textSize="15sp"/>
+                    </LinearLayout>
+
+                    <!-- GST scheme + State code (row) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="12dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="5dp"
+                                android:text="@string/profile_label_scheme"
+                                android:textSize="11sp"
+                                android:textColor="#5B6660"/>
+                            <LinearLayout
+                                android:id="@+id/rowScheme"
+                                android:layout_width="match_parent"
+                                android:layout_height="50dp"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:background="@drawable/bg_lg_field"
+                                android:foreground="?attr/selectableItemBackground"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:paddingHorizontal="12dp">
+                                <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                                    android:background="@drawable/bg_circle_soft_blue">
+                                    <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                        android:layout_gravity="center" android:src="@drawable/ic_si_layers"
+                                        app:tint="#2A5CA8" android:contentDescription="@null"/>
+                                </FrameLayout>
+                                <TextView
+                                    android:id="@+id/tvScheme"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="12dp"
+                                    android:text="@string/regular_badge"
+                                    android:textColor="#1A1A18"
+                                    android:textSize="15sp"/>
+                                <ImageView
+                                    android:id="@+id/icSchemeChevron"
+                                    android:layout_width="17dp"
+                                    android:layout_height="17dp"
+                                    android:src="@drawable/ic_chevron_down"
+                                    app:tint="#98A49D"
+                                    android:contentDescription="@null"/>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="92dp"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:layout_marginStart="10dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="5dp"
+                                android:text="@string/profile_label_state"
+                                android:textSize="11sp"
+                                android:textColor="#5B6660"/>
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="50dp"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:background="@drawable/bg_lg_field"
+                                android:paddingHorizontal="10dp">
+                                <EditText
+                                    android:id="@+id/etStateCode"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:background="@null"
+                                    android:gravity="center"
+                                    android:textColor="#1A1A18"
+                                    android:inputType="number"
+                                    android:maxLength="2"
+                                    android:singleLine="true"
+                                    android:textSize="15sp"/>
+                            </LinearLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Address -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/profile_label_address"
+                        android:textSize="11sp"
+                        android:textColor="#5B6660"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="70dp"
+                        android:orientation="horizontal"
+                        android:background="@drawable/bg_lg_field"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:layout_marginTop="1dp"
+                            android:background="@drawable/bg_circle_soft_amber">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_si_map"
+                                app:tint="#8A6526" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <EditText
+                            android:id="@+id/etAddress"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:layout_marginStart="12dp"
+                            android:hint="@string/profile_label_address"
+                            android:textColor="#1A1A18"
+                            android:textColorHint="#929F97"
+                            android:gravity="top"
+                            android:inputType="textMultiLine|textCapSentences"
+                            android:minLines="2"
+                            android:textSize="15sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="4dp"/>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+
+            <!-- ===================== PRINTER ===================== -->
+            <!-- ===================== PRINTER ===================== -->
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:id="@+id/cardPrinter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_lg_card_amber"
+                android:layout_marginTop="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_lg_hdr_amber"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="38dp" android:layout_height="38dp">
+                        <View android:layout_width="match_parent" android:layout_height="match_parent"
+                            android:background="@drawable/bg_step_circle_ring_champagne"/>
+                        <ImageView android:layout_width="17dp" android:layout_height="17dp"
+                            android:layout_gravity="center" android:src="@drawable/ic_si_printer"
+                            app:tint="#FFFFFF" android:contentDescription="@null"/>
+                    </FrameLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:layout_marginStart="12dp">
+                        <TextView android:text="@string/billing_card_printer_title" android:textColor="#1A1A18" android:textSize="14sp"
+                            android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:text="@string/billing_card_printer_sub" android:textColor="#5C6B65"
+                            android:textSize="11sp" android:layout_marginTop="1dp"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                    <TextView android:text="@string/activity_billing_settings_1_field" android:textSize="11sp" android:textStyle="bold"
+                        android:textColor="#8A6526" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
+                        android:background="@drawable/bg_pill_amber" android:letterSpacing="0.06"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/print_layout"
+                        android:textSize="11sp"
+                        android:textColor="#5B6660"/>
+                    <LinearLayout
+                        android:id="@+id/rowPrinter"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_lg_field_amber"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:paddingHorizontal="12dp">
+                        <FrameLayout android:layout_width="26dp" android:layout_height="26dp"
+                            android:background="@drawable/bg_circle_soft_amber">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp"
+                                android:layout_gravity="center" android:src="@drawable/ic_si_printer"
+                                app:tint="#8A6526" android:contentDescription="@null"/>
+                        </FrameLayout>
+                        <TextView
+                            android:id="@+id/tvPrinter"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="@string/printer_80mm"
+                            android:textColor="#1A1A18"
+                            android:textSize="15sp"/>
+                        <ImageView
+                            android:id="@+id/icPrinterChevron"
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:src="@drawable/ic_chevron_down"
+                            app:tint="#98A49D"
+                            android:contentDescription="@null"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+
+            <!-- Save — solid teal CTA matching the app's other confirm
+                 buttons, instead of SiSavePill's navy. -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveBilling"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="18dp"
+                android:text="@string/save_billing_settings"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:textSize="13.5sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:includeFontPadding="false"
+                android:background="@drawable/bg_lg_cta"
+                app:backgroundTint="@null"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:stateListAnimator="@null"
+                app:elevation="0dp"
+                app:icon="@drawable/ic_lucide_check"
+                app:iconTint="#FFFFFF"
+                app:iconSize="16dp"
+                app:iconGravity="textStart"
+                app:iconPadding="7dp"
+                app:cornerRadius="14dp"
+                app:rippleColor="#33FFFFFF"
+                android:visibility="gone"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

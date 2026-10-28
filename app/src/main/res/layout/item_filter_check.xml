@@ -40,6 +40,6 @@
         android:id="@+id/tvCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#8D9992"
+        android:textColor="#66716B"
         android:textSize="12sp"/>
 </LinearLayout>

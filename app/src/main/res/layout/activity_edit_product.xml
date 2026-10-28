@@ -43,8 +43,8 @@
             android:orientation="vertical">
             <TextView
                 android:text="@string/edit_product_xml_product_label"
-                android:textColor="#B8895A"
-                android:textSize="10sp"
+                android:textColor="#8A6526"
+                android:textSize="11sp"
                 android:letterSpacing="0.16"
                 android:fontFamily="@font/googlesans_semibold"
                 android:layout_width="wrap_content"
@@ -170,7 +170,7 @@
                         android:paddingHorizontal="10dp"
                         android:paddingVertical="5dp"
                         android:textColor="@android:color/white"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.08"
                         tools:text="PURCHASED"/>
@@ -260,8 +260,8 @@
 
                 <TextView
                     android:text="@string/ep_price_sub_header"
-                    android:textColor="#7C8782"
-                    android:textSize="10.5sp"
+                    android:textColor="#66716B"
+                    android:textSize="11sp"
                     android:textStyle="bold"
                     android:letterSpacing="0.07"
                     android:layout_marginBottom="10dp"
@@ -345,8 +345,8 @@
                         android:layout_height="wrap_content"/>
                     <TextView
                         android:text="@string/ep_price_incl_desc"
-                        android:textSize="10.5sp"
-                        android:textColor="#79897F"
+                        android:textSize="11sp"
+                        android:textColor="#66716B"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
@@ -455,7 +455,7 @@
                     android:layout_marginEnd="8dp"
                     android:text="@string/ep_tax_pill"
                     android:textColor="#166534"
-                    android:textSize="10sp"
+                    android:textSize="11sp"
                     android:fontFamily="@font/googlesans_semibold"/>
                 <ImageView
                     android:id="@+id/ivMoreOptionsChevron"
@@ -545,7 +545,7 @@
                             android:id="@+id/etIgst"
                             style="@style/EpMiniInput"
                             android:enabled="false"
-                            android:textColor="#76867C"/>
+                            android:textColor="#66716B"/>
                     </LinearLayout>
                 </FrameLayout>
             </LinearLayout>
@@ -635,7 +635,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginStart="4dp"
-                android:textSize="10.5sp"
+                android:textSize="11sp"
                 android:visibility="gone"
                 tools:text="HSN verified"
                 tools:visibility="visible"/>
@@ -1068,7 +1068,7 @@
                 <TextView
                     android:text="@string/edit_current_stock"
                     android:textColor="#BFE3D6"
-                    android:textSize="10sp"
+                    android:textSize="11sp"
                     android:textStyle="bold"
                     android:letterSpacing="0.12"
                     android:fontFamily="@font/googlesans_semibold"
@@ -1102,7 +1102,7 @@
                     <TextView
                         android:id="@+id/tvStockHelper"
                         android:text="@string/ep_stock_locked"
-                        android:textColor="#8D9992"
+                        android:textColor="#66716B"
                         android:textSize="11sp"
                         android:layout_width="0dp"
                         android:layout_weight="1"
@@ -1212,8 +1212,8 @@
 
                     <TextView
                         android:text="@string/ep_add_stock_helper"
-                        android:textColor="#8D9992"
-                        android:textSize="10.5sp"
+                        android:textColor="#66716B"
+                        android:textSize="11sp"
                         android:layout_marginTop="5dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"/>
@@ -1275,7 +1275,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/cancel"
-                    android:textColor="#76867C"
+                    android:textColor="#66716B"
                     android:textSize="13.5sp"
                     android:textStyle="bold"
                     android:fontFamily="@font/googlesans_semibold"/>

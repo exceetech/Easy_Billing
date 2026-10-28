@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dropdown row for the unified Name · Brand · Type search box on Add
+     Product / Add Item (simple redesign). Single-line title (italic serif,
+     matching the dashboard's accent-word style) with a flat colored tag
+     chip on the right — "Your shop" (soft green) vs "Global" (neutral),
+     or the "+ add new" row with no tag. Tag color is set in
+     SearchRowAdapter.getView() (AddProductActivity.kt / PurchaseLineDialog.kt). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="44dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="10dp"
+        android:background="?attr/selectableItemBackground">
+
+        <TextView
+            android:id="@+id/tvSearchRowLabel"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textColor="#1A1A18"
+            android:textSize="14sp"
+            android:fontFamily="@font/googlesans_medium"
+            android:ellipsize="end"
+            android:singleLine="true"/>
+
+        <TextView
+            android:id="@+id/tvSearchRowTag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            android:background="@drawable/bg_search_tag_chip_neutral"
+            android:textColor="#5B6660"
+            android:textSize="11sp"
+            android:fontFamily="@font/googlesans_medium"
+            android:singleLine="true"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E3E8E4"/>
+
+</LinearLayout>

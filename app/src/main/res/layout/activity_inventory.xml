@@ -35,8 +35,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/add_product_section_inventory_label"
-                android:textColor="#B8895A"
-                android:textSize="10sp"
+                android:textColor="#8A6526"
+                android:textSize="11sp"
                 android:letterSpacing="0.16"
                 android:fontFamily="@font/googlesans_semibold" />
 
@@ -90,7 +90,7 @@
             android:layout_height="wrap_content"
             android:text="@string/inventory_total_stock_value_label"
             android:textSize="11sp"
-            android:textColor="#7C8782" />
+            android:textColor="#66716B" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -123,7 +123,7 @@
                 android:layout_marginBottom="4dp"
                 android:text="@string/inventory_kpi_all_in_stock"
                 android:textSize="11sp"
-                android:textColor="#76867C" />
+                android:textColor="#66716B" />
         </LinearLayout>
 
         <LinearLayout
@@ -156,7 +156,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
                     android:text="@string/inventory_filter_low_stock"
-                    android:textSize="9.5sp"
+                    android:textSize="11sp"
                     android:textColor="#BA7517" />
             </LinearLayout>
 
@@ -185,7 +185,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
                     android:text="@string/inventory_out_of_stock"
-                    android:textSize="9.5sp"
+                    android:textSize="11sp"
                     android:textColor="#A32D2D" />
             </LinearLayout>
         </LinearLayout>
@@ -200,7 +200,7 @@
         android:layout_marginTop="8dp"
         android:text="@string/inventory_active_skus_placeholder"
         android:textSize="11sp"
-        android:textColor="#7C8782"
+        android:textColor="#66716B"
         android:fontFamily="@font/googlesans_medium" />
 
     <!-- ===================== SEARCH + FILTER + SORT (inline) ===================== -->
@@ -304,7 +304,7 @@
                 android:background="@drawable/bg_hdr_badge_red"
                 android:text="1"
                 android:textColor="#FFFFFF"
-                android:textSize="8sp"
+                android:textSize="11sp"
                 android:fontFamily="@font/googlesans_semibold"
                 android:includeFontPadding="false"
                 android:visibility="gone" />
@@ -364,7 +364,7 @@
                 android:layout_gravity="center"
                 android:src="@drawable/ic_close"
                 app:tint="#B23A3A"
-                android:contentDescription="Reset filters" /> <!-- no matching string key -->
+                android:contentDescription="@string/activity_bill_history_reset_filters" /> <!-- no matching string key -->
 
         </FrameLayout>
 
@@ -433,7 +433,7 @@
         android:layout_marginTop="13dp"
         android:layout_marginBottom="8dp">
         <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-            android:text="@string/inventory_all_products_section" android:textSize="11sp" android:textColor="#9CA3AF"/>
+            android:text="@string/inventory_all_products_section" android:textSize="11sp" android:textColor="#66716B"/>
     </LinearLayout>
 
     <!-- One card, one background — the list and the empty state are both
@@ -527,7 +527,7 @@
                     android:gravity="center"
                     android:text="@string/inventory_no_products_body"
                     android:textSize="12.5sp"
-                    android:textColor="#76867C"
+                    android:textColor="#66716B"
                     android:lineSpacingExtra="3dp" />
 
                 <View
@@ -566,7 +566,7 @@
                             android:layout_marginTop="1dp"
                             android:text="@string/inventory_tip_add_body"
                             android:textSize="11sp"
-                            android:textColor="#7C8782" />
+                            android:textColor="#66716B" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -598,7 +598,7 @@
                             android:layout_marginTop="1dp"
                             android:text="@string/inventory_tip_search_body"
                             android:textSize="11sp"
-                            android:textColor="#7C8782" />
+                            android:textColor="#66716B" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>

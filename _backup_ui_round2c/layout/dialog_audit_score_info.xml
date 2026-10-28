@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    "What's the audit score?" info dialog — champagne redesign, matching
+    the card shell used by dialog_verify_password.xml / dialog_sign_out.xml,
+    with the band dots recolored to the app's teal/gold/red palette.
+
+    Id unchanged: btnScoreInfoGotIt — the only one AiDashboardActivity binds.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_lg_dialog"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dialog_audit_score_info_whats_the_audit"
+            android:textColor="#1A1A18"
+            android:textSize="16sp"
+            android:fontFamily="@font/googlesans_bold"
+            android:includeFontPadding="false"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:text="@string/dialog_audit_score_info_score"
+            android:textColor="#0F6E56"
+            android:textSize="16sp"
+            android:fontFamily="serif"
+            android:textStyle="italic"
+            android:includeFontPadding="false"/>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/dialog_audit_score_info_a_quick_health_check"
+        android:textColor="#66716B"
+        android:textSize="13sp"
+        android:lineSpacingMultiplier="1.4"/>
+
+    <!-- Healthy -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="14dp">
+        <View android:layout_width="10dp" android:layout_height="10dp"
+            android:background="@drawable/bg_imp_dot" android:backgroundTint="#085041"/>
+        <TextView android:layout_width="80dp" android:layout_height="wrap_content"
+            android:layout_marginStart="9dp" android:text="@string/dialog_audit_score_info_healthy"
+            android:textColor="#1A1A18" android:textSize="12sp"
+            android:fontFamily="@font/googlesans_semibold"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/dialog_audit_score_info_78100_few_or_no" android:textColor="#66716B" android:textSize="12sp"/>
+    </LinearLayout>
+
+    <!-- Fair -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="9dp">
+        <View android:layout_width="10dp" android:layout_height="10dp"
+            android:background="@drawable/bg_imp_dot" android:backgroundTint="#8A6526"/>
+        <TextView android:layout_width="80dp" android:layout_height="wrap_content"
+            android:layout_marginStart="9dp" android:text="@string/dialog_audit_score_info_fair"
+            android:textColor="#1A1A18" android:textSize="12sp"
+            android:fontFamily="@font/googlesans_semibold"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/dialog_audit_score_info_6677_a_few_things" android:textColor="#66716B" android:textSize="12sp"/>
+    </LinearLayout>
+
+    <!-- Needs work -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="9dp">
+        <View android:layout_width="10dp" android:layout_height="10dp"
+            android:background="@drawable/bg_imp_dot" android:backgroundTint="#791F1F"/>
+        <TextView android:layout_width="80dp" android:layout_height="wrap_content"
+            android:layout_marginStart="9dp" android:text="@string/dialog_audit_score_info_needs_work"
+            android:textColor="#1A1A18" android:textSize="12sp"
+            android:fontFamily="@font/googlesans_semibold"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/dialog_audit_score_info_below_66_act_on" android:textColor="#66716B" android:textSize="12sp"/>
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnScoreInfoGotIt"
+        android:layout_width="wrap_content"
+        android:layout_height="42dp"
+        android:layout_gravity="end"
+        android:layout_marginTop="18dp"
+        android:background="@drawable/bg_lg_cta_green_12"
+        app:backgroundTint="@null"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:text="@string/dialog_audit_score_info_got_it"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:textSize="13sp"
+        android:fontFamily="@font/googlesans_semibold"
+        android:includeFontPadding="false"
+        android:paddingHorizontal="18dp"
+        android:stateListAnimator="@null"
+        app:elevation="0dp"
+        app:cornerRadius="12dp"
+        app:rippleColor="#33FFFFFF"
+        android:clickable="true"
+        android:focusable="true"/>
+</LinearLayout>

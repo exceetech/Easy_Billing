@@ -39,9 +39,9 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="PROFIT CHART"
-                android:textColor="#B8895A"
-                android:textSize="10sp"
+                android:text="@string/dialog_product_picker_profit_chart"
+                android:textColor="#8A6526"
+                android:textSize="11sp"
                 android:letterSpacing="0.16"
                 android:fontFamily="@font/googlesans_semibold"/>
             <LinearLayout
@@ -52,7 +52,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Pick a"
+                    android:text="@string/dialog_product_picker_pick_a"
                     android:textColor="#1A1A18"
                     android:textSize="19sp"
                     android:letterSpacing="-0.02"
@@ -62,7 +62,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
-                    android:text="product"
+                    android:text="@string/add_product_title_product"
                     android:textColor="#0F6E56"
                     android:textSize="19sp"
                     android:fontFamily="serif"
@@ -75,7 +75,7 @@
             android:id="@+id/tvProductPickerCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#7C8782"
+            android:textColor="#66716B"
             android:textSize="11sp"
             android:fontFamily="@font/googlesans_medium"/>
     </LinearLayout>
@@ -105,7 +105,7 @@
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:background="@null"
-            android:hint="Search products"
+            android:hint="@string/dialog_product_picker_search_products"
             android:textColor="#1A1A18"
             android:textColorHint="#929F97"
             android:inputType="text"

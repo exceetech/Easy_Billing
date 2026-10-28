@@ -1,0 +1,665 @@
+<!--
+    Root width/height here are placeholders only — the real, on-screen
+    window size is set in ConfirmPaymentActivity.onCreate() via
+    window.setLayout(), the same percentage-of-screen-width + capped-max
+    technique already used for every Dialog-based popup elsewhere in the
+    app (see ui/ThemedDropdown.kt). This used to be a flat 340dp x 540dp,
+    which was fine on the landscape-only screen this was built for but
+    didn't adapt to different phone widths — see phone_compatibility_plan.md
+    Phase 2.
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="false"
+    android:overScrollMode="never"
+    android:scrollbars="none">
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/cardContainer"
+        android:orientation="vertical"
+        android:background="@drawable/bg_confirm_popup_card"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/mainContent"
+            android:orientation="vertical"
+            android:paddingHorizontal="18dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="24dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:text="@string/checkout_eyebrow"
+                android:textSize="11sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold"
+                android:textColor="#8A6526"
+                android:layout_marginTop="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="2dp"
+                android:paddingEnd="30dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:text="@string/confirm_word"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:textColor="#1A1A18"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="@string/and_word"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:textColor="#1A1A18"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="@string/pay_word"
+                    android:textSize="21sp"
+                    android:textStyle="italic"
+                    android:fontFamily="serif"
+                    android:textColor="#0F6E56"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <!-- PLAN SUMMARY CARD -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_onboard_step_card"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="14dp"
+                android:layout_marginTop="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <FrameLayout
+                    android:id="@+id/planIconBadge"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_onboard_avatar_current">
+
+                    <ImageView
+                        android:id="@+id/ivPlanIcon"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lucide_badge_check"
+                        app:tint="#085041"
+                        android:contentDescription="@null"/>
+
+                </FrameLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tvPlanName"
+                        android:text="@string/premium_plan_name"
+                        android:textSize="14.5sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:textColor="#1A1A18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvPlanCycle"
+                        android:text="@string/billing_cycle_default"
+                        android:textSize="11.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#66716B"
+                        android:layout_marginTop="2dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- PRICE BREAKDOWN -->
+            <LinearLayout
+                android:orientation="vertical"
+                android:background="@drawable/bg_onboard_step_card"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="14dp"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tvPlanPriceLabel"
+                        android:text="@string/plan_price"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#66716B"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvPlanPrice"
+                        android:text="₹999"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#1A1A18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <!-- On-device estimate only (see the caption this drives in
+                     ConfirmPaymentActivity) — folded into the Total below,
+                     replaced by the server's confirmed figure once
+                     create-order responds. -->
+                <LinearLayout
+                    android:id="@+id/rowUpgradeCredit"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    android:layout_marginTop="6dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tvUpgradeCreditLabel"
+                        android:text="@string/upgrade_credit_est"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#0F6E56"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvUpgradeCreditAmount"
+                        android:text="-₹0"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#0F6E56"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvUpgradeCreditNote"
+                    android:visibility="gone"
+                    android:text="@string/estimated_only_note"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textColor="#66716B"
+                    android:layout_marginTop="3dp"
+                    android:lineSpacingExtra="1dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <!-- Plan price minus the upgrade credit — the actual
+                     pre-tax amount service charge/GST are computed on.
+                     Only shown alongside rowUpgradeCredit so it's clear
+                     what number the 2%/18% below apply to. -->
+                <LinearLayout
+                    android:id="@+id/rowPayableAmount"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    android:layout_marginTop="6dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:text="@string/payable_amount"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:textColor="#1A1A18"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvPayableAmount"
+                        android:text="₹0"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:textColor="#1A1A18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/rowDiscount"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    android:layout_marginTop="6dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tvDiscountLabel"
+                        android:text="@string/cycle_discount"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#0F6E56"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvDiscountAmount"
+                        android:text="-₹0"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#0F6E56"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/rowCoupon"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    android:layout_marginTop="6dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:text="@string/coupon_discount"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#0F6E56"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvCouponDiscountAmount"
+                        android:text="-₹0"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#0F6E56"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvBonusDays"
+                    android:visibility="gone"
+                    android:text="@string/plus_15_days_free"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:textColor="#B8791A"
+                    android:background="@drawable/bg_bonus_badge"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <View
+                    android:background="#E3E8E4"
+                    android:layout_marginTop="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"/>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:text="@string/service_charge_pct"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#66716B"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvServiceCharge"
+                        android:text="₹0"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#1A1A18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/rowGst"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="6dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tvGstLabel"
+                        android:text="@string/gst_18_pct"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#66716B"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvGst"
+                        android:text="₹0"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#1A1A18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <View
+                    android:background="#E3E8E4"
+                    android:layout_marginVertical="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"/>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:text="@string/total_2"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:textColor="#1A1A18"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvFinalPrice"
+                        android:text="₹999"
+                        android:textSize="17sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:textColor="#0F6E56"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvHaveCoupon"
+                android:text="@string/cp_have_coupon"
+                android:textSize="13.5sp"
+                android:fontFamily="@font/googlesans_semibold"
+                android:textColor="#0F6E56"
+                android:paddingVertical="12dp"
+                android:layout_marginTop="4dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <LinearLayout
+                android:id="@+id/containerCoupon"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <!-- COUPON ENTRY -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/etCoupon"
+                    android:hint="@string/coupon_code_hint"
+                    android:textSize="13sp"
+                    android:textAllCaps="true"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textColor="#1A1A18"
+                    android:textColorHint="#77877D"
+                    android:textCursorDrawable="@drawable/cursor_coupon_thin"
+                    android:background="@drawable/bg_onboard_step_card"
+                    android:paddingHorizontal="14dp"
+                    android:gravity="center_vertical"
+                    android:includeFontPadding="false"
+                    android:paddingVertical="0dp"
+                    android:inputType="textCapCharacters"
+                    android:maxLines="1"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="46dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnApplyCoupon"
+                    android:text="@string/dialog_product_filter_apply"
+                    android:textAllCaps="false"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:textColor="#EFF2F0"
+                    android:includeFontPadding="false"
+                    android:gravity="center"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:stateListAnimator="@null"
+                    android:background="@drawable/bg_lg_cta_gold_14"
+        app:backgroundTint="@null"
+                    app:rippleColor="#7A5E33"
+                    app:cornerRadius="14dp"
+                    app:icon="@drawable/ic_lc_check"
+                    app:iconTint="#EFF2F0"
+                    app:iconSize="18dp"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="46dp"
+                    android:paddingHorizontal="18dp"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvCouponResult"
+                android:visibility="gone"
+                android:textSize="11.5sp"
+                android:fontFamily="@font/googlesans_medium"
+                android:layout_marginTop="6dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <!-- TRUST LINE -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_lucide_shield_check"
+                    app:tint="#77877D"
+                    android:contentDescription="@null"/>
+
+                <TextView
+                    android:text="@string/secured_by_razorpay"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textColor="#66716B"
+                    android:layout_marginStart="6dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    <!-- STICKY PAY BUTTON -->
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:orientation="vertical"
+        android:background="@drawable/bg_confirm_popup_bottom_bar"
+        android:paddingHorizontal="18dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPay"
+                android:text="@string/confirm_payment_pay_securely_btn"
+                android:textAllCaps="false"
+                android:textSize="14.5sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/googlesans_semibold"
+                android:textColor="#EFF2F0"
+                android:includeFontPadding="false"
+                android:gravity="center"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:stateListAnimator="@null"
+                android:background="@drawable/bg_lg_cta_green_14"
+        app:backgroundTint="@null"
+                app:rippleColor="#085041"
+                app:cornerRadius="14dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <ProgressBar
+                android:id="@+id/progressPayment"
+                android:visibility="gone"
+                android:layout_gravity="center"
+                android:indeterminateTint="#EFF2F0"
+                android:layout_width="24dp"
+                android:layout_height="24dp"/>
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- LOADING OVERLAY — shown while the authoritative order/price
+         breakdown is being fetched (see prefetchAuthoritativeOrder() in
+         ConfirmPaymentActivity), hidden once it resolves. Covers the
+         local client-side estimate entirely so the user only ever sees
+         ONE set of numbers (the final, backend-confirmed ones) instead
+         of a quick flash of the rough local guess immediately followed
+         by it changing to the real total a moment later. -->
+    <FrameLayout
+        android:id="@+id/loadingOverlay"
+        android:background="@drawable/bg_confirm_popup_card"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ProgressBar
+            android:layout_gravity="center"
+            android:indeterminateTint="#0F6E56"
+            android:layout_width="28dp"
+            android:layout_height="28dp"/>
+
+    </FrameLayout>
+
+    <!-- PAY-TIME LOADING SPINNER — shown AFTER the card has fully closed
+         (see closeCardThenShowSpinner() in ConfirmPaymentActivity) and
+         BEFORE Razorpay's checkout window opens. Deliberately no card
+         background here (unlike loadingOverlay above) — the card is
+         gone by this point, not just showing a loading state inside it,
+         so this floats as a plain spinner over the dimmed backdrop
+         instead of implying the card is still present. -->
+    <FrameLayout
+        android:id="@+id/payLoadingOverlay"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ProgressBar
+            android:layout_gravity="center"
+            android:indeterminateTint="#0F6E56"
+            android:layout_width="28dp"
+            android:layout_height="28dp"/>
+
+    </FrameLayout>
+
+    <!-- CLOSE BUTTON -->
+    <!-- Floating circular close button, top-right, overlapping the card —
+         replaces the old toolbar back arrow now that this screen is a
+         popup rather than a full page. -->
+    <FrameLayout
+        android:id="@+id/btnClose"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="1dp"
+        android:layout_marginEnd="5dp"
+        android:background="@drawable/bg_confirm_close_button_44"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_lucide_x"
+            app:tint="#1A1A18"
+            android:contentDescription="@string/close"/>
+
+    </FrameLayout>
+
+</FrameLayout>
+
+</ScrollView>

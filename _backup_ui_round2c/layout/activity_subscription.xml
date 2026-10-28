@@ -1,0 +1,490 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_lg_page">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:paddingBottom="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/transparent"
+            android:elevation="0dp"
+            app:titleTextColor="#1A1A18"
+            app:navigationIconTint="#1A1A18" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:paddingHorizontal="18dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="@string/account_eyebrow"
+                android:textSize="11sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold"
+                android:textColor="#8A6526"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="2dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:accessibilityHeading="true">
+
+                <TextView
+                    android:text="@string/your_word"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="-0.02"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:textColor="#1A1A18"
+                    android:includeFontPadding="false"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:text="@string/subscription_title_part2"
+                    android:textSize="21sp"
+                    android:textStyle="italic"
+                    android:fontFamily="serif"
+                    android:textColor="#0F6E56"
+                    android:includeFontPadding="false"
+                    android:layout_marginStart="6dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <!-- STATUS CARD -->
+            <!-- Themed header-banner card matching the Security/Data/
+                 Diagnose card language used elsewhere: a white
+                 bg_inv_card_cream shell, a tinted header banner (teal for
+                 active/trial, amber for ending-soon/no-plan/expired — see
+                 SubscriptionActivity.applyStatusCardState()) with a
+                 step-circle icon badge + fixed title/subtitle + a status
+                 pill, and a body showing the real headline plus an
+                 expiry chip. -->
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
+                android:id="@+id/cardStatus"
+                android:orientation="vertical"
+                
+                android:background="@drawable/bg_lg_card"
+                android:layout_marginTop="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/statusHeader"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_lg_hdr_green"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <FrameLayout
+                        android:id="@+id/statusIconBadge"
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:background="@drawable/bg_step_circle_ring">
+
+                        <ImageView
+                            android:id="@+id/ivStatusIcon"
+                            android:layout_width="17dp"
+                            android:layout_height="17dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_lucide_badge_check"
+                            app:tint="#FFFFFF"
+                            android:contentDescription="@null"/>
+
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_marginStart="12dp"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:text="@string/sub_status_header_title"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:textColor="#1A1A18"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:text="@string/sub_status_header_subtitle"
+                            android:textSize="11sp"
+                            android:textColor="#5C6B65"
+                            android:layout_marginTop="1dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvStatus"
+                        android:text="@string/checking"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.06"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#16A34A"
+                        android:background="@drawable/bg_pill_green"
+                        android:paddingHorizontal="11dp"
+                        android:paddingVertical="5dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:paddingHorizontal="15dp"
+                    android:paddingVertical="14dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tvPlan"
+                        android:text="@string/plan"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:textColor="#1A1A18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvExpiry"
+                        android:text="@string/expiry"
+                        android:textSize="12.5sp"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:textColor="#5C6B65"
+                        android:layout_marginTop="8dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvDaysLeft"
+                        android:text="@string/days_left"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:textColor="#1A1A18"
+                        android:layout_marginTop="2dp"
+                        android:visibility="gone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+
+            <!-- FREE TRIAL -->
+            <!-- Hidden entirely once the shop has already used its trial —
+                 see SubscriptionActivity.loadSubscription(). Trial length
+                 is never hardcoded here; the actual duration comes from
+                 the backend and is only shown for display after
+                 start-trial succeeds. Dashed-teal card with a gold
+                 "LIMITED OFFER" ribbon strip on top, then a feature
+                 checklist instead of a single description line. -->
+            <LinearLayout
+                android:id="@+id/cardTrial"
+                android:orientation="vertical"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/bg_lg_trial_card"
+                android:layerType="software"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_trial_ribbon"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:layout_width="13dp"
+                        android:layout_height="13dp"
+                        android:src="@drawable/ic_lucide_sparkles"
+                        app:tint="#EFF2F0"
+                        android:contentDescription="@null"/>
+
+                    <TextView
+                        android:text="@string/limited_offer_badge"
+                        android:textSize="11sp"
+                        android:letterSpacing="0.06"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:textColor="#EFF2F0"
+                        android:layout_marginStart="6dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tvTrialDescription"
+                        android:text="@string/sub_trial_line"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:textSize="14sp"
+                        android:textColor="#1A1A18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                    <LinearLayout
+                        android:orientation="vertical"
+                        android:layout_marginTop="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:layout_width="13dp"
+                                android:layout_height="13dp"
+                                android:src="@drawable/ic_lucide_check"
+                                app:tint="#0F6E56"
+                                android:contentDescription="@null"/>
+
+                            <TextView
+                                android:text="@string/dashboard_feature_gst_reports"
+                                android:textSize="11.5sp"
+                                android:fontFamily="@font/googlesans_medium"
+                                android:textColor="#374151"
+                                android:layout_marginStart="6dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="5dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:layout_width="13dp"
+                                android:layout_height="13dp"
+                                android:src="@drawable/ic_lucide_check"
+                                app:tint="#0F6E56"
+                                android:contentDescription="@null"/>
+
+                            <TextView
+                                android:text="@string/subscription_trial_feature_profit_analytics"
+                                android:textSize="11.5sp"
+                                android:fontFamily="@font/googlesans_medium"
+                                android:textColor="#374151"
+                                android:layout_marginStart="6dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:layout_marginTop="5dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:layout_width="13dp"
+                                android:layout_height="13dp"
+                                android:src="@drawable/ic_lucide_check"
+                                app:tint="#0F6E56"
+                                android:contentDescription="@null"/>
+
+                            <TextView
+                                android:text="@string/subscription_trial_feature_ai_insights"
+                                android:textSize="11.5sp"
+                                android:fontFamily="@font/googlesans_medium"
+                                android:textColor="#374151"
+                                android:layout_marginStart="6dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnStartTrial"
+                        android:text="@string/sub_trial_button"
+                        android:textAllCaps="false"
+                        android:textSize="13.5sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/googlesans_semibold"
+                        android:layout_marginTop="14dp"
+                        android:textColor="#EFF2F0"
+                        android:includeFontPadding="false"
+                        android:gravity="center"
+                        android:insetLeft="0dp"
+                        android:insetRight="0dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:stateListAnimator="@null"
+                        android:background="@drawable/bg_lg_cta_gold_14"
+        app:backgroundTint="@null"
+                        app:rippleColor="#8A6526"
+                        app:cornerRadius="14dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- BILLING CYCLE -->
+            <!-- Segmented chips (1/3/6/12 months), built in code since the
+                 set of cycles actually offered comes from whichever
+                 duration_days values GET /subscription/plans returns, not
+                 a hardcoded list — see SubscriptionActivity.renderBillingCycles(). -->
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_marginTop="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:text="@string/sub_pick_cycle"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:textColor="#1A1A18"
+                    android:letterSpacing="-0.01"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="@string/sub_pick_cycle_sub"
+                    android:textSize="12sp"
+                    android:fontFamily="serif"
+                    android:textStyle="italic"
+                    android:textColor="#8A6526"
+                    android:layout_marginTop="2dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llBillingCycle"
+                android:orientation="horizontal"
+                android:layout_marginTop="18dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <!-- PLAN SELECTION -->
+            <!-- Populated at runtime, one card per plan matching the
+                 selected billing cycle (SubscriptionActivity.renderPlans())
+                 — never hardcoded here, so a price/plan change is a
+                 backend-only edit, not an app release. -->
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_marginTop="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:text="@string/sub_pick_plan"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:textColor="#1A1A18"
+                    android:letterSpacing="-0.01"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:text="@string/sub_pick_plan_sub"
+                    android:textSize="12sp"
+                    android:fontFamily="serif"
+                    android:textStyle="italic"
+                    android:textColor="#8A6526"
+                    android:layout_marginTop="2dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/llPlans"
+                android:orientation="vertical"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/tvContinueHint"
+                android:text="@string/sub_continue_hint"
+                android:textSize="12.5sp"
+                android:textColor="#5C6B65"
+                android:gravity="center"
+                android:layout_marginTop="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnContinue"
+                android:text="@string/continue_button"
+                android:textAllCaps="false"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/googlesans_semibold"
+                android:enabled="false"
+                android:layout_marginTop="8dp"
+                android:textColor="#EFF2F0"
+                android:includeFontPadding="false"
+                android:gravity="center"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:stateListAnimator="@null"
+                android:background="@drawable/bg_lg_cta_green_14"
+        app:backgroundTint="@null"
+                app:rippleColor="#085041"
+                app:cornerRadius="14dp"
+                app:icon="@drawable/ic_lucide_check"
+                app:iconTint="#EFF2F0"
+                app:iconGravity="textStart"
+                app:iconPadding="6dp"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

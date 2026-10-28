@@ -42,7 +42,7 @@
                 android:layout_marginTop="2dp"
                 android:text="Variant"
                 android:textSize="11sp"
-                android:textColor="#7C8782"
+                android:textColor="#66716B"
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:visibility="gone"/>

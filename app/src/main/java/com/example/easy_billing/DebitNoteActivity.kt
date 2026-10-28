@@ -76,7 +76,7 @@ class DebitNoteActivity : BaseActivity() {
         btnConfirmDebit = findViewById(R.id.btnConfirmDebit)
         btnCancelDebit  = findViewById(R.id.btnCancelDebit)
 
-        tvInvoiceNumber.text = "Invoice $billNumber"
+        tvInvoiceNumber.text = getString(R.string.billdetails_invoice_1_s, billNumber)
 
         rvDebitItems.layoutManager = LinearLayoutManager(this)
         rvDebitItems.clipToOutline = true
@@ -134,9 +134,9 @@ class DebitNoteActivity : BaseActivity() {
             viewModel.isLoading.collectLatest { loading ->
                 btnConfirmDebit.isEnabled = !loading
                 btnConfirmDebit.text = if (loading)
-                    "Processing…"
+                    getString(R.string.purchase_return_processing)
                 else
-                    "Add products"
+                    getString(R.string.activity_debit_note_confirm_amp_issue_debit)
             }
         }
 
@@ -243,7 +243,7 @@ class DebitNoteActivity : BaseActivity() {
                 .parse(bill.date.substring(0, 19))
             val displayDate = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
                 .format(parsedDate ?: Date())
-            tvInvoiceDate.text = "Date: $displayDate"
+            tvInvoiceDate.text = getString(R.string.debitnote_date_1_s, displayDate)
         } catch (e: Exception) {
             tvInvoiceDate.text = "Date: ${bill.date}"
         }

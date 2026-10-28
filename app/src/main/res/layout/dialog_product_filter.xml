@@ -54,7 +54,7 @@
                         android:fontFamily="@font/googlesans_semibold"/>
                     <TextView android:id="@+id/tvCategorySummary" android:layout_width="wrap_content"
                         android:layout_height="wrap_content" android:text="@string/dashboard_filter_all_categories"
-                        android:textColor="#8D9992" android:textSize="11sp" android:layout_marginTop="1dp"/>
+                        android:textColor="#66716B" android:textSize="11sp" android:layout_marginTop="1dp"/>
                 </LinearLayout>
                 <ImageView android:id="@+id/ivCatChevron" android:layout_width="18dp" android:layout_height="18dp"
                     android:src="@drawable/ic_filter_chevron" app:tint="#8D9992" android:contentDescription="@null"/>
@@ -108,7 +108,7 @@
                         android:fontFamily="@font/googlesans_semibold"/>
                     <TextView android:id="@+id/tvStockSummary" android:layout_width="wrap_content"
                         android:layout_height="wrap_content" android:text="@string/dashboard_filter_any"
-                        android:textColor="#8D9992" android:textSize="11sp" android:layout_marginTop="1dp"/>
+                        android:textColor="#66716B" android:textSize="11sp" android:layout_marginTop="1dp"/>
                 </LinearLayout>
                 <ImageView android:id="@+id/ivStockChevron" android:layout_width="18dp" android:layout_height="18dp"
                     android:src="@drawable/ic_filter_chevron" app:tint="#8D9992" android:contentDescription="@null"/>
@@ -156,7 +156,7 @@
                         android:fontFamily="@font/googlesans_semibold"/>
                     <TextView android:id="@+id/tvTypeSummary" android:layout_width="wrap_content"
                         android:layout_height="wrap_content" android:text="@string/dashboard_filter_any"
-                        android:textColor="#8D9992" android:textSize="11sp" android:layout_marginTop="1dp"/>
+                        android:textColor="#66716B" android:textSize="11sp" android:layout_marginTop="1dp"/>
                 </LinearLayout>
                 <ImageView android:id="@+id/ivTypeChevron" android:layout_width="18dp" android:layout_height="18dp"
                     android:src="@drawable/ic_filter_chevron" app:tint="#8D9992" android:contentDescription="@null"/>
@@ -204,7 +204,7 @@
                         android:fontFamily="@font/googlesans_semibold"/>
                     <TextView android:id="@+id/tvPriceSummary" android:layout_width="wrap_content"
                         android:layout_height="wrap_content" android:text="@string/dashboard_filter_any"
-                        android:textColor="#8D9992" android:textSize="11sp" android:layout_marginTop="1dp"/>
+                        android:textColor="#66716B" android:textSize="11sp" android:layout_marginTop="1dp"/>
                 </LinearLayout>
                 <ImageView android:id="@+id/ivPriceChevron" android:layout_width="18dp" android:layout_height="18dp"
                     android:src="@drawable/ic_filter_chevron" app:tint="#8D9992" android:contentDescription="@null"/>

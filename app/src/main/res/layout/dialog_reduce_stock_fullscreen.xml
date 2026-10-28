@@ -59,8 +59,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/dialog_reduce_stock_fullscreen_reduce"
-                    android:textColor="#B8895A"
-                    android:textSize="10sp"
+                    android:textColor="#8A6526"
+                    android:textSize="11sp"
                     android:letterSpacing="0.16"
                     android:fontFamily="@font/googlesans_semibold" />
 
@@ -153,8 +153,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:textSize="9.5sp"
-                            android:textColor="#76867C"
+                            android:textSize="11sp"
+                            android:textColor="#66716B"
                             android:maxLines="1"
                             android:ellipsize="end"
                             android:visibility="gone"/>
@@ -184,8 +184,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/dialog_reduce_stock_fullscreen_available_now"
-                            android:textSize="9sp"
-                            android:textColor="#7C8782"/>
+                            android:textSize="11sp"
+                            android:textColor="#66716B"/>
 
                         <TextView
                             android:id="@+id/tvCurrentStockLabel"
@@ -209,8 +209,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/dialog_reduce_stock_fullscreen_stock_value"
-                            android:textSize="9sp"
-                            android:textColor="#7C8782"/>
+                            android:textSize="11sp"
+                            android:textColor="#66716B"/>
 
                         <TextView
                             android:id="@+id/tvStockValue"
@@ -286,7 +286,7 @@
                             android:paddingVertical="3dp"
                             android:text="@string/invoice_required"
                             android:textColor="#9B2C2C"
-                            android:textSize="10sp"
+                            android:textSize="11sp"
                             android:fontFamily="@font/googlesans_semibold"/>
                     </LinearLayout>
 
@@ -306,7 +306,7 @@
                             android:background="@drawable/bg_lg_field"
                             android:text="@string/dialog_reduce_stock_fullscreen_no_purchase_batches_available"
                             android:textSize="12sp"
-                            android:textColor="#7C8782"
+                            android:textColor="#66716B"
                             android:visibility="gone"/>
 
                         <androidx.recyclerview.widget.RecyclerView
@@ -350,7 +350,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="2dp"
                                     android:text="@string/dialog_reduce_stock_fullscreen_no_batches_selected"
-                                    android:textSize="10sp"
+                                    android:textSize="11sp"
                                     android:fontFamily="@font/googlesans_medium"
                                     android:textColor="#8A6526"/>
                             </LinearLayout>
@@ -429,7 +429,7 @@
                             android:paddingVertical="3dp"
                             android:text="@string/invoice_required"
                             android:textColor="#9B2C2C"
-                            android:textSize="10sp"
+                            android:textSize="11sp"
                             android:fontFamily="@font/googlesans_semibold"/>
                     </LinearLayout>
 
@@ -497,8 +497,8 @@
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="1dp"
                                         android:text="@string/dialog_reduce_stock_fullscreen_return_to_supplier_desc"
-                                        android:textSize="10.5sp"
-                                        android:textColor="#76867C"/>
+                                        android:textSize="11sp"
+                                        android:textColor="#66716B"/>
                                 </LinearLayout>
 
                                 <View
@@ -571,7 +571,7 @@
                                         android:text="@string/dialog_reduce_stock_fullscreen_account"
                                         android:textSize="11.5sp"
                                         android:fontFamily="@font/googlesans_medium"
-                                        android:textColor="#7C8782"/>
+                                        android:textColor="#66716B"/>
 
                                     <TextView
                                         android:id="@+id/tvReturnAccountName"
@@ -583,7 +583,7 @@
                                         android:text="@string/dialog_reduce_stock_fullscreen_no_account_selected"
                                         android:textSize="12.5sp"
                                         android:fontFamily="@font/googlesans_medium"
-                                        android:textColor="#7C8782"
+                                        android:textColor="#66716B"
                                         android:maxLines="1"
                                         android:ellipsize="end"/>
 
@@ -636,8 +636,8 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="1dp"
                                     android:text="@string/dialog_reduce_stock_fullscreen_scrap_damage_desc"
-                                    android:textSize="10.5sp"
-                                    android:textColor="#76867C"/>
+                                    android:textSize="11sp"
+                                    android:textColor="#66716B"/>
                             </LinearLayout>
 
                             <View
@@ -735,14 +735,14 @@
             android:layout_height="44dp"
             android:layout_marginTop="8dp"
             android:text="@string/dialog_reduce_stock_fullscreen_cancel"
-            android:textColor="#9A2E2E"
+            android:textColor="#4B554F"
             android:textAllCaps="false"
             android:textSize="13sp"
             android:textStyle="bold"
             android:fontFamily="@font/googlesans_semibold"
             android:gravity="center"
             android:includeFontPadding="false"
-            android:background="@drawable/bg_inv_action_close"
+            android:background="@drawable/bg_dialog_cancel_neutral"
             android:insetLeft="0dp"
             android:insetRight="0dp"
             android:insetTop="0dp"

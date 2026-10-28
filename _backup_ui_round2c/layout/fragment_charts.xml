@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Sales trend card — same skeleton as the "Profit over time" card in
+     Profit Analytics: teal header strip + step-circle, chart, total box. -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp"
+    android:background="@android:color/transparent">
+
+    <com.example.easy_billing.ui.glass.GlassClipLinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="14dp"
+        
+                android:background="@drawable/bg_lg_card"
+        android:clipToPadding="false">
+
+        <!-- Card header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_lg_hdr_green"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="14dp">
+            <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_si_trend_up"
+                    app:tint="#FFFFFF"
+                    android:contentDescription="@null"/>
+            </FrameLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fragment_charts_card_title"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:textColor="#123B31"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fragment_charts_card_caption"
+                    android:textSize="11sp"
+                    android:textColor="#0F6E56"
+                    android:layout_marginTop="1dp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="15dp">
+
+            <!-- Rising / falling legend -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_legend_box"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="6dp">
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/dot_green"
+                    android:layout_marginEnd="5dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fragment_charts_rising"
+                    android:textSize="11sp"
+                    android:textColor="#66716B"
+                    android:layout_marginEnd="12dp"/>
+                <View
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:background="@drawable/dot_red"
+                    android:layout_marginEnd="5dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fragment_charts_falling"
+                    android:textSize="11sp"
+                    android:textColor="#66716B"/>
+            </LinearLayout>
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/chartSalesTrend"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:layout_marginTop="12dp"/>
+
+            <!-- Total box -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_trend_total_box"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="12dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fragment_charts_total_label"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textColor="#5E7A6E"/>
+                <TextView
+                    android:id="@+id/tvPeriodTotal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="19sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:textColor="#085041"/>
+            </LinearLayout>
+
+            <!-- Peak day -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/bg_trend_total_box"
+                android:backgroundTint="#EEF2F0"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="12dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fragment_charts_peak"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textColor="#8A6526"/>
+                <TextView
+                    android:id="@+id/tvPeakDay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="—"
+                    android:textSize="15sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:textColor="#8A6526"
+                    android:singleLine="true"
+                    android:ellipsize="end"/>
+            </LinearLayout>
+        </LinearLayout>
+    </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+</LinearLayout>

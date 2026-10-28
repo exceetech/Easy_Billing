@@ -22,7 +22,7 @@
     </FrameLayout>
 
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp"
-        android:gravity="center" android:text="@string/correct_qty_eyebrow" android:textColor="#B8895A" android:textSize="10sp"
+        android:gravity="center" android:text="@string/correct_qty_eyebrow" android:textColor="#8A6526" android:textSize="11sp"
         android:letterSpacing="0.14" android:fontFamily="@font/googlesans_semibold" android:singleLine="true" android:ellipsize="end"/>
 
     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
     </LinearLayout>
 
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp"
-        android:gravity="center" android:text="@string/correct_confirm_body" android:textColor="#76867C"
+        android:gravity="center" android:text="@string/correct_confirm_body" android:textColor="#66716B"
         android:textSize="12.5sp" android:lineSpacingExtra="3dp"/>
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp"
@@ -77,7 +77,7 @@
         android:background="@drawable/bg_dialog_cancel_neutral" app:backgroundTint="@null"
         android:insetTop="0dp" android:insetBottom="0dp" android:insetLeft="0dp" android:insetRight="0dp"
         android:text="@string/correct_confirm_back" android:textAllCaps="false" android:textSize="13.5sp"
-        android:textColor="#6B5A3A" android:fontFamily="@font/googlesans_semibold"
+        android:textColor="#4B554F" android:fontFamily="@font/googlesans_semibold"
         android:includeFontPadding="false" android:gravity="center" android:stateListAnimator="@null"
         app:icon="@drawable/ic_chevron_left" app:iconTint="#6B5A3A" app:iconSize="16dp"
         app:iconGravity="textStart" app:iconPadding="8dp" app:cornerRadius="14dp" app:rippleColor="#1F000000"/>

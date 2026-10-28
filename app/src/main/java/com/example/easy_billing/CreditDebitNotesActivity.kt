@@ -71,7 +71,7 @@ class CreditDebitNotesActivity : BaseActivity() {
         tvTabDebitLabel = findViewById(R.id.tvTabDebitLabel)
 
         if (scopedBillId != -1 && !scopedBillNumber.isNullOrBlank()) {
-            tvNotesSubtitle.text = "Against $scopedBillNumber"
+            tvNotesSubtitle.text = getString(R.string.creditnotes_against_1_s, scopedBillNumber)
             tvNotesSubtitle.visibility = View.VISIBLE
         }
 
@@ -137,8 +137,8 @@ class CreditDebitNotesActivity : BaseActivity() {
     private fun updateTabLabels() {
         val creditCount = allNotes.count { it.noteType == "C" }
         val debitCount = allNotes.count { it.noteType == "D" }
-        tvTabCreditLabel.text = "Credit notes · $creditCount"
-        tvTabDebitLabel.text = "Debit notes · $debitCount"
+        tvTabCreditLabel.text = getString(R.string.creditnotes_credit_notes_1_s, creditCount)
+        tvTabDebitLabel.text = getString(R.string.creditnotes_debit_notes_1_s, debitCount)
     }
 
     private fun render() {

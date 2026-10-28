@@ -90,7 +90,7 @@
                     android:id="@+id/tvStockPill"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="11sp"
                     android:textColor="#0F6E56"
                     android:fontFamily="@font/googlesans_semibold"
                     android:singleLine="true"/>
@@ -147,7 +147,7 @@
                 android:background="@drawable/bg_category_chip"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="2dp"
-                android:textSize="10sp"
+                android:textSize="11sp"
                 android:textColor="#616D66"
                 android:singleLine="true"
                 android:visibility="gone"/>
@@ -192,8 +192,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="3dp"
                     android:paddingBottom="1dp"
-                    android:textSize="10sp"
-                    android:textColor="#8D9992"
+                    android:textSize="11sp"
+                    android:textColor="#66716B"
                     android:singleLine="true"/>
             </LinearLayout>
 

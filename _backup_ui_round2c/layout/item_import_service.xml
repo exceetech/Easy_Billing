@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    One GSTR-2 import-of-services record, as a ledger row inside the list card.
+
+    The left edge stripe carries sync state: red = the server refused it and it
+    will never sync until corrected, amber = queued, green = on the server.
+    That replaces the old corner dot, which was too quiet for a state that
+    needs a person to act on it.
+
+    Ids bound by ImportServiceAdapter: viewSyncDot (the stripe),
+    tvInvoiceNumber, tvInvoiceValue, tvItcEligibility, tvIgst, tvCess,
+    layoutCess, tvItcAvailed, tvPlaceOfSupply, viewRowDivider.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="?attr/selectableItemBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!-- Status stripe — tinted by the adapter -->
+        <View
+            android:id="@+id/viewSyncDot"
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            android:background="#639922" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="13dp">
+
+            <!-- Invoice number + eligibility / status badge -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tvInvoiceNumber"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="INV-2026-041"
+                    android:textSize="13.5sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:singleLine="true"
+                    android:ellipsize="end" />
+
+                <!-- Refused/Queued state, alongside eligibility rather than
+                     replacing it — both facts matter and neither should hide
+                     the other. Gone for a synced record. -->
+                <TextView
+                    android:id="@+id/tvStatusBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="7dp"
+                    android:background="@drawable/bg_imp_badge"
+                    android:backgroundTint="#FCEBEB"
+                    android:paddingHorizontal="7dp"
+                    android:paddingVertical="3dp"
+                    android:text="@string/refused_chip"
+                    android:textSize="11sp"
+                    android:textColor="#791F1F"
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvItcEligibility"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="7dp"
+                    android:background="@drawable/bg_imp_badge"
+                    android:backgroundTint="#EAF3DE"
+                    android:paddingHorizontal="7dp"
+                    android:paddingVertical="3dp"
+                    android:text="@string/purchase_eligibility_inputs"
+                    android:textSize="11sp"
+                    android:textColor="#27500A"
+                    android:fontFamily="@font/googlesans_semibold" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvPlaceOfSupply"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="12 Jul 2026 · POS 97 · 18%"
+                android:textSize="11sp"
+                android:textColor="#66716B"
+                android:singleLine="true"
+                android:ellipsize="end" />
+
+            <!-- Taxable value leads; IGST / ITC as the secondary pair -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="bottom"
+                android:layout_marginTop="9dp"
+                android:baselineAligned="false">
+
+                <TextView
+                    android:id="@+id/tvInvoiceValue"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="80,000"
+                    android:textSize="19sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="serif"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    android:ellipsize="end" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="end"
+                    android:layout_marginStart="12dp">
+                    <TextView
+                        android:id="@+id/tvIgst"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="14,400"
+                        android:textSize="12sp"
+                        android:textColor="#185FA5"
+                        android:fontFamily="@font/googlesans_medium" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/invoice_igst_label"
+                        android:textSize="11sp"
+                        android:textColor="#66716B" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="end"
+                    android:layout_marginStart="14dp">
+                    <TextView
+                        android:id="@+id/tvItcAvailed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="14,400"
+                        android:textSize="12sp"
+                        android:textColor="#0F6E56"
+                        android:fontFamily="@font/googlesans_medium" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ITC"
+                        android:textSize="11sp"
+                        android:textColor="#66716B" />
+                </LinearLayout>
+
+                <!--
+                    Cess is bound by the adapter but is zero on almost every
+                    import record, so the column only takes space when it isn't.
+                -->
+                <LinearLayout
+                    android:id="@+id/layoutCess"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="end"
+                    android:layout_marginStart="14dp"
+                    android:visibility="gone">
+                    <TextView
+                        android:id="@+id/tvCess"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="12sp"
+                        android:textColor="#8A6526"
+                        android:fontFamily="@font/googlesans_medium" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Cess"
+                        android:textSize="11sp"
+                        android:textColor="#66716B" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Hairline between rows; hidden on the last one by the adapter -->
+    <View
+        android:id="@+id/viewRowDivider"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginHorizontal="14dp"
+        android:background="#E3E8E4" />
+
+</LinearLayout>

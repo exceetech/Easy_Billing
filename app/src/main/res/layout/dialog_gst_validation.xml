@@ -37,10 +37,10 @@
 
     <TextView
         android:text="@string/xml_gst_validation_eyebrow"
-        android:textSize="10sp"
+        android:textSize="11sp"
         android:letterSpacing="0.16"
         android:fontFamily="@font/googlesans_semibold"
-        android:textColor="#B8895A"
+        android:textColor="#8A6526"
         android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
@@ -79,7 +79,7 @@
         android:id="@+id/tvMessage"
         android:text="@string/xml_gst_validation_message"
         android:textSize="12.5sp"
-        android:textColor="#76867C"
+        android:textColor="#66716B"
         android:gravity="center"
         android:layout_marginTop="6dp"
         android:lineSpacingExtra="2dp"

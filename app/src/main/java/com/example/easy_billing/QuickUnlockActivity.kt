@@ -138,22 +138,22 @@ class QuickUnlockActivity : BaseActivity() {
             setStep(1)
             tvSelectAnotherAccount.visibility = View.GONE
             if (isChange) {
-                setTitle("Update your", "Quick Unlock PIN")
-                tvSubtitle.text = "Enter a new 4-digit PIN"
-                tvAlt.text = "Cancel"
+                setTitle(getString(R.string.quickunlock_update_your), getString(R.string.quickunlock_quick_unlock_pin))
+                tvSubtitle.text = getString(R.string.quickunlock_enter_a_new_4_digit_pin)
+                tvAlt.text = getString(R.string.activity_debit_note_cancel)
             } else {
-                setTitle("Create a", "Quick Unlock PIN")
-                tvSubtitle.text = "So you don't have to type your email and password every time"
-                tvAlt.text = "Skip for now"
+                setTitle(getString(R.string.quickunlock_create_a), getString(R.string.quickunlock_quick_unlock_pin))
+                tvSubtitle.text = getString(R.string.quickunlock_so_you_don_t_have_to_type_your_email_a)
+                tvAlt.text = getString(R.string.quickunlock_skip_for_now)
             }
             tvAlt.setOnClickListener { finishSetup(enabledBiometric = false, skipped = true) }
         } else if (mode == MODE_LOCK) {
             com.example.easy_billing.util.UserEventLogger.logAction("QuickUnlock", "lock_shown")
             setIcon(R.drawable.ic_lucide_lock)
-            setTitle("Welcome", "back")
-            tvSubtitle.text = "Enter your 4-digit PIN to continue"
+            setTitle(getString(R.string.welcome), getString(R.string.quickunlock_back))
+            tvSubtitle.text = getString(R.string.activity_quick_unlock_enter_your_4_digit_pin_to_continue)
             tvSelectAnotherAccount.visibility = View.GONE
-            tvAlt.text = "Forgot PIN? Sign out"
+            tvAlt.text = getString(R.string.quickunlock_forgot_pin_sign_out)
             tvAlt.setOnClickListener { forgotPinSignOut() }
 
             if (QuickUnlockManager.hasBiometricEnabled(this, targetUsername!!) && canUseBiometric()) {
@@ -164,8 +164,8 @@ class QuickUnlockActivity : BaseActivity() {
         } else {
             com.example.easy_billing.util.UserEventLogger.logAction("QuickUnlock", "unlock_opened")
             setIcon(R.drawable.ic_lucide_lock)
-            setTitle("Enter your", "PIN")
-            tvSubtitle.text = "Enter your 4-digit PIN to continue"
+            setTitle(getString(R.string.verify_t1), getString(R.string.activity_quick_unlock_pin))
+            tvSubtitle.text = getString(R.string.activity_quick_unlock_enter_your_4_digit_pin_to_continue)
             tvAlt.text = getString(R.string.use_password_instead)
             tvAlt.setOnClickListener { goToFullLogin() }
 
@@ -297,9 +297,9 @@ class QuickUnlockActivity : BaseActivity() {
             }
         })
         val info = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Unlock Easy Billing")
-            .setSubtitle("Use your fingerprint to continue")
-            .setNegativeButtonText("Use PIN instead")
+            .setTitle(getString(R.string.quickunlock_unlock_easy_billing))
+            .setSubtitle(getString(R.string.quickunlock_use_your_fingerprint_to_continue))
+            .setNegativeButtonText(getString(R.string.quickunlock_use_pin_instead))
             .build()
         prompt.authenticate(info)
     }
@@ -365,8 +365,8 @@ class QuickUnlockActivity : BaseActivity() {
                 updateDots()
                 setStep(2)
                 setIcon(R.drawable.ic_lucide_check)
-                setTitle("Confirm", "your PIN")
-                tvSubtitle.text = "Enter the same 4 digits again"
+                setTitle(getString(R.string.confirm_word), getString(R.string.quickunlock_your_pin))
+                tvSubtitle.text = getString(R.string.quickunlock_enter_the_same_4_digits_again)
             } else {
                 if (pin == firstPin) {
                     offerBiometricThenFinish(pin)
@@ -376,11 +376,11 @@ class QuickUnlockActivity : BaseActivity() {
                     setStep(1)
                     setIcon(R.drawable.ic_lucide_shield_check)
                     if (intent.getBooleanExtra(EXTRA_IS_CHANGE, false)) {
-                        setTitle("Update your", "Quick Unlock PIN")
-                        tvSubtitle.text = "Enter a new 4-digit PIN"
+                        setTitle(getString(R.string.quickunlock_update_your), getString(R.string.quickunlock_quick_unlock_pin))
+                        tvSubtitle.text = getString(R.string.quickunlock_enter_a_new_4_digit_pin)
                     } else {
-                        setTitle("Create a", "Quick Unlock PIN")
-                        tvSubtitle.text = "So you don't have to type your email and password every time"
+                        setTitle(getString(R.string.quickunlock_create_a), getString(R.string.quickunlock_quick_unlock_pin))
+                        tvSubtitle.text = getString(R.string.quickunlock_so_you_don_t_have_to_type_your_email_a)
                     }
                     shakeAndClear("PINs didn't match — try again")
                 }
@@ -396,7 +396,7 @@ class QuickUnlockActivity : BaseActivity() {
                 }
             } else {
                 com.example.easy_billing.util.UserEventLogger.logAction("QuickUnlock", "pin_failed")
-                shakeAndClear("Incorrect PIN")
+                shakeAndClear(getString(R.string.quickunlock_incorrect_pin))
             }
         }
     }
@@ -499,11 +499,11 @@ class QuickUnlockActivity : BaseActivity() {
         // A brief celebratory beat before handing off — a checkmark pop and
         // a toast, matching the confirm-step success moment, instead of
         // navigating away the instant the PIN is saved.
-        Toast.makeText(this, "Quick Unlock is ready", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.quickunlock_quick_unlock_is_ready), Toast.LENGTH_SHORT).show()
         setStep(0)
         setIcon(R.drawable.ic_lucide_check)
-        setTitle("Quick Unlock", "is ready")
-        tvSubtitle.text = "You're all set — use your PIN or fingerprint next time"
+        setTitle(getString(R.string.quick_unlock_settings_title), getString(R.string.quickunlock_is_ready))
+        tvSubtitle.text = getString(R.string.quickunlock_you_re_all_set_use_your_pin_or_fingerp)
         tvError.text = ""
         ivIcon.scaleX = 0.5f
         ivIcon.scaleY = 0.5f
@@ -553,7 +553,7 @@ class QuickUnlockActivity : BaseActivity() {
                 val response = RetrofitClient.api.login(username, password, deviceId, quickUnlock = "true")
                 val token = response.access_token
                 if (token.isNullOrEmpty()) {
-                    shakeAndClear("Couldn't sign in — try your password instead")
+                    shakeAndClear(getString(R.string.quickunlock_couldn_t_sign_in_try_your_password_ins))
                     return@launch
                 }
 
@@ -604,7 +604,7 @@ class QuickUnlockActivity : BaseActivity() {
                 val isAuthRejection = httpCode == 401 || httpCode == 403 || httpCode == 409
 
                 if (!isAuthRejection) {
-                    shakeAndClear("Couldn't reach the server — try again")
+                    shakeAndClear(getString(R.string.quickunlock_couldn_t_reach_the_server_try_again))
                     return@launch
                 }
 
@@ -617,9 +617,9 @@ class QuickUnlockActivity : BaseActivity() {
                 // unaffected.
                 QuickUnlockManager.clear(this@QuickUnlockActivity, username)
                 val message = if (httpCode == 409) {
-                    "Your device access was reset — please sign in with your password"
+                    getString(R.string.quickunlock_your_device_access_was_reset_please_si)
                 } else {
-                    "Please sign in again with your password"
+                    getString(R.string.quickunlock_please_sign_in_again_with_your_passwor)
                 }
                 Toast.makeText(this@QuickUnlockActivity, message, Toast.LENGTH_LONG).show()
                 goToFullLogin()

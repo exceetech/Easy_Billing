@@ -1,0 +1,1321 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Edit product — premium cream "ExPOS" theme.
+
+    Title row matches Manage Products (gold tick + eyebrow + two-tone
+    heading). Hero card reuses the exact Invoice Activity navy masthead
+    drawables (bg_drawer_header_card / avatar ring / inner / live pill).
+    Every input is the same "glass" field used on Invoice Activity
+    (bg_glass_input) with a leading gold Lucide icon.
+
+    All view ids referenced by EditProductActivity.kt are preserved.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_lg_page"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:navigationIconTint="#1A1A18"/>
+
+    <!-- ══ Header — same design as Inventory ══ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingTop="2dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:text="@string/edit_product_xml_product_label"
+                android:textColor="#8A6526"
+                android:textSize="11sp"
+                android:letterSpacing="0.16"
+                android:fontFamily="@font/googlesans_semibold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp">
+                <TextView
+                    android:text="@string/edit_product_xml_edit"
+                    android:textColor="#1A1A18"
+                    android:textSize="21sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_bold"
+                    android:includeFontPadding="false"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <TextView
+                    android:text="@string/edit_product_xml_details"
+                    android:textColor="#0F6E56"
+                    android:textSize="21sp"
+                    android:fontFamily="serif"
+                    android:textStyle="italic"
+                    android:includeFontPadding="false"
+                    android:layout_marginStart="6dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="24dp">
+
+            <!-- ══ Navy hero card — same drawables as Invoice Activity ══ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_lg_drawer_hdr"
+                android:paddingHorizontal="17dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="14dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <FrameLayout
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:background="@drawable/bg_drawer_avatar_ring">
+
+                        <TextView
+                            android:id="@+id/tvAvatar"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_margin="2dp"
+                            android:background="@drawable/bg_lg_avatar_inner"
+                            android:gravity="center"
+                            android:text="—"
+                            android:textColor="#E6F4EE"
+                            android:textSize="18sp"
+                            android:fontFamily="serif"
+                            android:textStyle="bold"/>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="13dp">
+
+                        <TextView
+                            android:id="@+id/tvName"
+                            android:textColor="#FFFFFF"
+                            android:textSize="19sp"
+                            android:fontFamily="serif"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false"
+                            android:maxLines="1"
+                            android:ellipsize="end"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            tools:text="Lipton Tea 500g"/>
+
+                        <TextView
+                            android:id="@+id/tvVariant"
+                            android:textColor="#BFE3D6"
+                            android:textSize="11sp"
+                            android:letterSpacing="0.02"
+                            android:singleLine="true"
+                            android:layout_marginTop="2dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="Variant: Green"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/badge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top"
+                        android:background="@drawable/bg_lg_badge"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="5dp"
+                        android:textColor="@android:color/white"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.08"
+                        tools:text="PURCHASED"/>
+                </LinearLayout>
+
+                <!-- Quick-glance stat trio — all bound to real product fields -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="14dp">
+
+                    <LinearLayout style="@style/EpHeroStat">
+                        <TextView style="@style/EpHeroStatLabel" android:text="@string/edit_product_xml_price_label"/>
+                        <TextView android:id="@+id/tvHeroPrice" style="@style/EpHeroStatValue" tools:text="₹32.00"/>
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/EpHeroStat" android:layout_marginStart="8dp">
+                        <TextView style="@style/EpHeroStatLabel" android:text="@string/edit_product_xml_gst_label"/>
+                        <TextView android:id="@+id/tvHeroGst" style="@style/EpHeroStatValue" tools:text="18%"/>
+                    </LinearLayout>
+
+                    <LinearLayout style="@style/EpHeroStat" android:layout_marginStart="8dp">
+                        <TextView style="@style/EpHeroStatLabel" android:text="@string/edit_product_xml_category_label"/>
+                        <TextView android:id="@+id/tvHeroCategory" style="@style/EpHeroStatValue" tools:text="Beverages"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- ══ PRICING ══ -->
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout style="@style/EpCard"
+                android:padding="0dp"
+                android:layout_marginTop="12dp"
+                
+                android:background="@drawable/bg_lg_card">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_lg_hdr_green"
+                android:paddingHorizontal="15dp"
+                android:paddingVertical="14dp">
+                <FrameLayout android:layout_width="38dp" android:layout_height="38dp">
+                    <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_step_circle_ring"/>
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_indian_rupee"
+                        app:tint="#FFFFFF"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ep_price_label"
+                        android:textColor="#1A1A18"
+                        android:textSize="14sp"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="@string/ep_price_sub"
+                        android:textColor="#5C6B65"
+                        android:textSize="11sp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- sub-card exactly like Invoice "Contact" -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_lg_inv_subcard"
+                android:padding="12dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginHorizontal="15dp">
+
+                <TextView
+                    android:text="@string/ep_price_sub_header"
+                    android:textColor="#66716B"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.07"
+                    android:layout_marginBottom="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_lg_field">
+
+                    <FrameLayout
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_gravity="center_vertical|start"
+                        android:layout_marginStart="12dp"
+                        android:background="@drawable/bg_circle_soft_green">
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_lc_indian_rupee"
+                            app:tint="#16A34A"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etPrice"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:paddingStart="50dp"
+                        android:paddingEnd="14dp"
+                        android:hint="@string/ep_price_hint"
+                        android:textColor="#1A1A18"
+                        android:textColorHint="#929F97"
+                        android:inputType="numberDecimal"
+                        android:singleLine="true"
+                        android:textSize="15sp"/>
+                </FrameLayout>
+            </LinearLayout>
+
+            <!-- toggle card exactly like Invoice "Business customer" -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_lg_inv_subcard_accent_amber"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="11dp"
+                android:layout_marginTop="13dp"
+                android:layout_marginHorizontal="15dp"
+                android:layout_marginBottom="15dp">
+
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_circle_soft_amber">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_percent"
+                        app:tint="#8A6526"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="11dp">
+                    <TextView
+                        android:text="@string/ep_price_incl"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A18"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                    <TextView
+                        android:text="@string/ep_price_incl_desc"
+                        android:textSize="11sp"
+                        android:textColor="#66716B"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switchTaxInclusive"
+                    style="@style/EpSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false"/>
+            </LinearLayout>
+</com.example.easy_billing.ui.glass.GlassClipLinearLayout><!-- /EpCard PRICING -->
+
+            <!-- ══ DETAIL ROWS: tax / category / stock ══ -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_lg_card">
+            <LinearLayout
+                android:id="@+id/rowTax"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <FrameLayout
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_circle_soft_blue">
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_percent"
+                        app:tint="#2A5CA8"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ep_tax_header"
+                        android:textColor="#1A1A18"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                    <TextView
+                        android:id="@+id/tvTaxSummary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#5B6660"
+                        android:textSize="13.5sp"/>
+                </LinearLayout>
+                <ImageView
+                    android:id="@+id/ivTaxChevron"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_lc_chevron_down"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/groupTax"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_lg_inv_subcard"
+                android:padding="12dp"
+                android:layout_marginHorizontal="15dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone">
+
+            <LinearLayout
+                android:id="@+id/btnToggleMoreOptions"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#0F6E56"/>
+                <TextView style="@style/EpCardHeaderLabel"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/ep_tax_header"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_pill_green"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="3dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/ep_tax_pill"
+                    android:textColor="#166534"
+                    android:textSize="11sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+                <ImageView
+                    android:id="@+id/ivMoreOptionsChevron"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_lc_chevron_down"
+                    app:tint="#1A1A18"
+                    android:contentDescription="@null"/>
+            </LinearLayout>
+
+            <!-- CGST/SGST/IGST stay visible outside the "More options"
+                 collapse — on an existing product these rates are commonly
+                 checked/verified at a glance, unlike Add Product's
+                 first-entry flow where they are folded into "More options"
+                 along with everything else. -->
+            <TextView style="@style/EpFieldLabel" android:visibility="gone" android:text="@string/ep_gst_pct_label"/>
+
+            <FrameLayout
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_lg_field">
+
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_vertical|start"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_circle_soft_blue">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_percent"
+                        app:tint="#2A5CA8"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etGstPct"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:paddingStart="50dp"
+                    android:paddingEnd="14dp"
+                    android:hint="@string/ep_gst_pct_hint"
+                    android:textColor="#1A1A18"
+                    android:textColorHint="#929F97"
+                    android:inputType="numberDecimal"
+                    android:singleLine="true"
+                    android:textSize="15sp"/>
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <FrameLayout style="@style/EpMiniGlassBox" android:layout_height="50dp" android:background="@drawable/bg_lg_field">
+                    <LinearLayout
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_gravity="center" android:orientation="vertical" android:gravity="center">
+                        <TextView style="@style/EpMiniLabel" android:text="@string/edit_product_xml_cgst_pct_label"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etCgst"
+                            style="@style/EpMiniInput"/>
+                    </LinearLayout>
+                </FrameLayout>
+
+                <FrameLayout style="@style/EpMiniGlassBox" android:layout_height="50dp" android:background="@drawable/bg_lg_field" android:layout_marginStart="8dp">
+                    <LinearLayout
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_gravity="center" android:orientation="vertical" android:gravity="center">
+                        <TextView style="@style/EpMiniLabel" android:text="@string/edit_product_xml_sgst_pct_label"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etSgst"
+                            style="@style/EpMiniInput"/>
+                    </LinearLayout>
+                </FrameLayout>
+
+                <FrameLayout style="@style/EpMiniGlassBox" android:layout_height="50dp" android:background="@drawable/bg_lg_field" android:layout_marginStart="8dp">
+                    <LinearLayout
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_gravity="center" android:orientation="vertical" android:gravity="center">
+                        <TextView style="@style/EpMiniLabel" android:text="@string/activity_edit_product_igst_auto"/>
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etIgst"
+                            style="@style/EpMiniInput"
+                            android:enabled="false"
+                            android:textColor="#66716B"/>
+                    </LinearLayout>
+                </FrameLayout>
+            </LinearLayout>
+
+            <!-- ── "More options" — HSN, HSN description, and the nested
+                 "More tax details" sub-collapse. Collapsed by default;
+                 auto-expanded when the shop is GST-registered, exactly
+                 like Add Product's groupMoreOptions. ── -->
+            <LinearLayout
+                android:id="@+id/groupMoreOptions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+            <TextView style="@style/EpFieldLabel" android:layout_marginTop="14dp" android:text="@string/ep_hsn_label"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_lg_field">
+
+                    <FrameLayout
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_gravity="center_vertical|start"
+                        android:layout_marginStart="12dp"
+                        android:background="@drawable/bg_circle_soft_purple">
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_lc_id_card"
+                            app:tint="#6B4A9C"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etHsn"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:paddingStart="50dp"
+                        android:paddingEnd="14dp"
+                        android:hint="@string/activity_edit_product_tax_code"
+                        android:textColor="#1A1A18"
+                        android:textColorHint="#929F97"
+                        android:inputType="number"
+                        android:singleLine="true"
+                        android:textSize="15sp"/>
+                </FrameLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnHsnHelp"
+                    android:visibility="gone"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:layout_marginStart="8dp"
+                    android:paddingHorizontal="10dp"
+                    android:text="@string/hsn_help_text"
+                    android:textAllCaps="false"
+                    android:textSize="11sp"
+                    android:textColor="#0F6E56"
+                    app:icon="@drawable/ic_lc_help_circle"
+                    app:iconTint="#0F6E56"
+                    app:iconGravity="textStart"
+                    app:iconSize="13dp"
+                    app:iconPadding="4dp"
+                    app:backgroundTint="@android:color/transparent"
+            android:includeFontPadding="false"
+            android:gravity="center"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvHsnStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="4dp"
+                android:textSize="11sp"
+                android:visibility="gone"
+                tools:text="HSN verified"
+                tools:visibility="visible"/>
+
+            <TextView style="@style/EpFieldLabel" android:layout_marginTop="14dp"
+                android:text="@string/edit_product_xml_hsn_desc_optional"/>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_lg_field">
+
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_vertical|start"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_circle_soft_teal">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_file_text"
+                        app:tint="#0F766E"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etHsnDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:paddingStart="50dp"
+                    android:paddingEnd="14dp"
+                    android:hint="@string/activity_edit_product_short_description"
+                    android:textColor="#1A1A18"
+                    android:textColorHint="#929F97"
+                    android:inputType="textCapSentences"
+                    android:maxLines="1"
+                    android:textSize="15sp"/>
+            </FrameLayout>
+
+            <!-- ── Nested "More tax details" sub-collapse — UQC, supply
+                 classification, cess. Closed by default, independent of
+                 the outer "More options" toggle — same pattern as
+                 Add Product's groupMoreTaxDetails. ── -->
+            <LinearLayout
+                android:id="@+id/btnToggleMoreTaxDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="14dp"
+                android:paddingVertical="6dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/add_product_more_tax_details_label"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/googlesans_medium"
+                    android:textColor="#5B6660"/>
+                <ImageView
+                    android:id="@+id/ivMoreTaxDetailsChevron"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_lc_chevron_down"
+                    app:tint="#5B6660"
+                    android:contentDescription="@null"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/groupMoreTaxDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+            <TextView style="@style/EpFieldLabel" android:layout_marginTop="12dp" android:text="@string/activity_edit_product_official_uqc"/>
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_lg_field">
+
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_vertical|start"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_circle_soft_grey">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_ruler"
+                        app:tint="#5B6660"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/spinnerOfficialUqc"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingStart="50dp"
+                    android:paddingEnd="26dp"
+                    android:hint="@string/edit_product_xml_select_hint"
+                    android:textColor="#1A1A18"
+                    android:textColorHint="#929F97"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:textSize="15sp"/>
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_gravity="center_vertical|end"
+                    android:layout_marginEnd="12dp"
+                    android:src="@drawable/ic_lc_chevron_down"
+                    app:tint="#929F97"
+                    android:contentDescription="@null"/>
+            </FrameLayout>
+
+            <TextView style="@style/EpFieldLabel" android:layout_marginTop="12dp" android:text="@string/edit_product_xml_cess_pct_label"/>
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_lg_field">
+
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_vertical|start"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_circle_soft_rose">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_percent"
+                        app:tint="#791F1F"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCessRate"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:paddingStart="50dp"
+                    android:paddingEnd="12dp"
+                    android:hint="@string/activity_edit_product_if_any"
+                    android:textColor="#1A1A18"
+                    android:textColorHint="#929F97"
+                    android:inputType="numberDecimal"
+                    android:singleLine="true"
+                    android:textSize="15sp"/>
+            </FrameLayout>
+
+            <TextView style="@style/EpFieldLabel" android:layout_marginTop="12dp" android:text="@string/activity_edit_product_supply_classification"/>
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_lg_field">
+
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_vertical|start"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_circle_soft_blue">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_truck"
+                        app:tint="#2A5CA8"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/spinnerSupplyClassification"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingStart="50dp"
+                    android:paddingEnd="26dp"
+                    android:hint="@string/activity_edit_product_select"
+                    android:textColor="#1A1A18"
+                    android:textColorHint="#929F97"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:textSize="15sp"/>
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_gravity="center_vertical|end"
+                    android:layout_marginEnd="12dp"
+                    android:src="@drawable/ic_lc_chevron_down"
+                    app:tint="#929F97"
+                    android:contentDescription="@null"/>
+            </FrameLayout>
+
+            </LinearLayout><!-- /groupMoreTaxDetails -->
+            </LinearLayout><!-- /groupMoreOptions -->
+            </LinearLayout><!-- /EpCard TAX -->
+
+            <!-- ══ CATEGORY ══ -->
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E3E8E4"/>
+            <LinearLayout
+                android:id="@+id/rowCategory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <FrameLayout
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_circle_soft_amber">
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_tag"
+                        app:tint="#8A6526"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ep_category_title"
+                        android:textColor="#1A1A18"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                    <TextView
+                        android:id="@+id/tvCategorySummary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#5B6660"
+                        android:textSize="13.5sp"/>
+                </LinearLayout>
+                <ImageView
+                    android:id="@+id/ivCategoryChevron"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_lc_chevron_down"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/groupCategory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_lg_inv_subcard"
+                android:padding="12dp"
+                android:layout_marginHorizontal="15dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone">
+
+            <LinearLayout
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#0F6E56"/>
+                <TextView style="@style/EpCardHeaderLabel" android:text="@string/edit_product_xml_category_header"/>
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@drawable/bg_lg_field">
+
+                <FrameLayout
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:layout_gravity="center_vertical|start"
+                    android:layout_marginStart="12dp"
+                    android:background="@drawable/bg_circle_soft_amber">
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_tag"
+                        app:tint="#8A6526"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+
+                <AutoCompleteTextView
+                    android:id="@+id/etCategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:popupBackground="@drawable/bg_pos_dropdown"
+                    android:paddingStart="50dp"
+                    android:paddingEnd="34dp"
+                    android:hint="@string/activity_edit_product_select_category"
+                    android:textColor="#1A1A18"
+                    android:textColorHint="#929F97"
+                    android:inputType="textCapWords"
+                    android:completionThreshold="1"
+                    android:textSize="15sp"/>
+
+                <ImageView
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_gravity="center_vertical|end"
+                    android:layout_marginEnd="14dp"
+                    android:src="@drawable/ic_lc_chevron_down"
+                    app:tint="#929F97"
+                    android:contentDescription="@null"/>
+            </FrameLayout>
+            </LinearLayout><!-- /EpCard CATEGORY -->
+
+            <!-- ══ INVENTORY ══ -->
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E3E8E4"/>
+            <LinearLayout
+                android:id="@+id/rowStock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="64dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <FrameLayout
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_circle_soft_green">
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_package"
+                        app:tint="#0F6E56"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ep_stock_title"
+                        android:textColor="#1A1A18"
+                        android:textSize="16sp"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                    <TextView
+                        android:id="@+id/tvStockSummary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#5B6660"
+                        android:textSize="13.5sp"/>
+                </LinearLayout>
+                <ImageView
+                    android:id="@+id/ivStockChevron"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_lc_chevron_down"
+                    app:tint="#B8895A"
+                    android:contentDescription="@null"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/groupStock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_lg_inv_subcard"
+                android:padding="12dp"
+                android:layout_marginHorizontal="15dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone">
+
+            <LinearLayout
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+                <View android:layout_width="3dp" android:layout_height="14dp" android:background="#0F6E56"/>
+                <TextView style="@style/EpCardHeaderLabel" android:text="@string/edit_product_xml_inventory_header"/>
+            </LinearLayout>
+
+            <!-- READ-ONLY view shown for purchased products — same
+                 graphite treatment as the Invoice Activity GRAND TOTAL
+                 card (bg_inv_total_graphite), lock icon + helper text
+                 unchanged. -->
+            <LinearLayout
+                android:id="@+id/cardLockedStock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:orientation="vertical"
+                android:background="@drawable/bg_lg_locked_dark"
+                android:padding="15dp"
+                tools:visibility="visible">
+
+                <TextView
+                    android:text="@string/edit_current_stock"
+                    android:textColor="#BFE3D6"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.12"
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/tvCurrentStock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textColor="#FFFFFF"
+                    android:textSize="22sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    tools:text="42 piece"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="7dp">
+                    <ImageView
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginTop="2dp"
+                        android:src="@drawable/ic_lc_lock"
+                        app:tint="#8D9992"
+                        android:contentDescription="@null"/>
+                    <TextView
+                        android:id="@+id/tvStockHelper"
+                        android:text="@string/ep_stock_locked"
+                        android:textColor="#66716B"
+                        android:textSize="11sp"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- EDITABLE inventory controls (non-purchased only) -->
+            <LinearLayout
+                android:id="@+id/groupEditableInventory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_lg_card"
+                android:padding="15dp">
+
+                <LinearLayout
+                    android:visibility="gone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <TextView
+                        android:text="@string/ep_track_stock"
+                        android:textColor="#1A1A18"
+                        android:textSize="13sp"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"/>
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switchTrack"
+                        style="@style/EpSwitch"
+                        android:text=""/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/llStartCounting"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ep_not_counted"
+                        android:textColor="#5B6660"
+                        android:textSize="14sp"/>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnStartCounting"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginTop="10dp"
+                        android:text="@string/ep_start_counting"
+                        android:textColor="#FFFFFF"
+                        android:textAllCaps="false"
+                        android:textSize="15sp"
+                        app:cornerRadius="14dp"
+                        android:background="@drawable/bg_lg_cta_green_14"
+        app:backgroundTint="@null"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tilStock"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="10dp">
+
+                    <TextView style="@style/EpFieldLabel"
+                        android:id="@+id/tvAddStockLabel"
+                        android:layout_marginStart="0dp"
+                        android:text="@string/ep_start_count_label"/>
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="@drawable/bg_lg_field">
+
+                        <FrameLayout
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:layout_gravity="center_vertical|start"
+                            android:layout_marginStart="12dp"
+                            android:background="@drawable/bg_circle_soft_red">
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_lc_package_plus"
+                                app:tint="#A32D2D"
+                                android:contentDescription="@null"/>
+                        </FrameLayout>
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etAddStock"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@null"
+                            android:paddingStart="50dp"
+                            android:paddingEnd="14dp"
+                            android:hint="@string/ep_add_stock_hint"
+                            android:textColor="#1A1A18"
+                            android:textColorHint="#929F97"
+                            android:inputType="numberDecimal"
+                            android:singleLine="true"
+                            android:textSize="15sp"/>
+                    </FrameLayout>
+
+                    <TextView
+                        android:text="@string/ep_add_stock_helper"
+                        android:textColor="#66716B"
+                        android:textSize="11sp"
+                        android:layout_marginTop="5dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+            </LinearLayout>
+            </LinearLayout><!-- /EpCard INVENTORY -->
+            </LinearLayout><!-- /detail rows card -->
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ══ Footer — floating capsule bar ══ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="10dp"
+        android:paddingHorizontal="18dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="10dp"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
+        <View
+            android:layout_width="34dp"
+            android:layout_height="3dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_gold_accent_tick"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_lg_footer"
+            android:paddingStart="20dp"
+            android:paddingEnd="8dp"
+            android:paddingVertical="8dp"
+            android:elevation="3dp"
+            android:baselineAligned="false">
+
+            <LinearLayout
+                android:id="@+id/btnCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:layout_width="13dp"
+                    android:layout_height="13dp"
+                    android:src="@drawable/ic_close"
+                    app:tint="#9DA8A1"
+                    android:layout_marginEnd="6dp"
+                    android:contentDescription="@null"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/cancel"
+                    android:textColor="#66716B"
+                    android:textSize="13.5sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/googlesans_semibold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btnSave"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp"
+                android:layout_marginStart="14dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="@drawable/bg_lg_cta"
+                android:clickable="true"
+                android:focusable="true">
+                <FrameLayout
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="8dp">
+                    <View
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:background="@drawable/bg_check_badge_translucent"/>
+                    <ImageView
+                        android:layout_width="11dp"
+                        android:layout_height="11dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_check"
+                        app:tint="#FFFFFF"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/save"
+                    android:textColor="#FFFFFF"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

@@ -42,8 +42,8 @@
         android:layout_marginTop="12dp"
         android:gravity="center"
         android:text="@string/xml_confirm_credit_note_invoice_placeholder"
-        android:textColor="#B8895A"
-        android:textSize="10sp"
+        android:textColor="#8A6526"
+        android:textSize="11sp"
         android:letterSpacing="0.16"
         android:fontFamily="@font/googlesans_semibold"
         android:singleLine="true"
@@ -82,7 +82,7 @@
         android:layout_marginTop="12dp"
         android:gravity="center"
         android:text="@string/xml_confirm_credit_note_body"
-        android:textColor="#76867C"
+        android:textColor="#66716B"
         android:textSize="12.5sp"
         android:lineSpacingExtra="3dp" />
 

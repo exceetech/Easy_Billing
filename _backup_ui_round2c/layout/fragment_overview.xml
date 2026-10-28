@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="100dp">
+
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- TODAY'S STORY — same "equation ladder" card the Profit        -->
+        <!-- Analytics page uses: tinted accent rows chained with plain    -->
+        <!-- −/= operators, ending in a big green highlight. Reuses the    -->
+        <!-- exact drawables fragment_profit_overview.xml uses, so it      -->
+        <!-- looks and feels like the same app, not a one-off design.      -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <com.example.easy_billing.ui.glass.GlassClipLinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="14dp"
+            
+                android:background="@drawable/bg_lg_card">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_lg_hdr_green"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="14dp">
+                <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                    <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_indian_rupee"
+                        app:tint="#FFFFFF"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/fragment_overview_story_title"
+                        android:textColor="#123B31"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/fragment_overview_story_hint"
+                        android:textColor="#0F6E56"
+                        android:textSize="11sp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- HERO: the one big answer -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingTop="18dp"
+                android:paddingBottom="14dp">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_lc_circle_check"
+                        app:tint="#16A34A"
+                        android:contentDescription="@null"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="@string/fragment_overview_hero_label"
+                        android:textSize="16sp"
+                        android:textColor="#1A1A18"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/tvNetCollected"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center"
+                    android:text="0"
+                    android:textSize="44sp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:textColor="#16A34A"
+                    android:includeFontPadding="false"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="28sp"
+                    app:autoSizeMaxTextSize="44sp"/>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/fragment_overview_total_sales"
+                        android:textSize="14sp"
+                        android:textColor="#5B6660"/>
+                    <TextView
+                        android:id="@+id/tvRevenue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="0"
+                        android:textSize="16sp"
+                        android:fontFamily="serif"
+                        android:textStyle="bold"
+                        android:textColor="#2A5CA8"
+                        android:includeFontPadding="false"
+                        android:singleLine="true"/>
+                </LinearLayout>
+            </LinearLayout>
+            <!-- Toggle: deductions are hidden until asked for -->
+            <LinearLayout
+                android:id="@+id/rowDeductionsToggle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="12dp"
+                android:layout_marginBottom="8dp"
+                android:minHeight="48dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <TextView
+                    android:id="@+id/tvDeductionsToggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/fragment_overview_deductions_show"
+                    android:textSize="14sp"
+                    android:textColor="#0F6E56"
+                    android:fontFamily="@font/googlesans_semibold"/>
+                <ImageView
+                    android:id="@+id/ivDeductionsChevron"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginStart="6dp"
+                    android:src="@drawable/ic_chevron_down"
+                    app:tint="#0F6E56"
+                    android:contentDescription="@null"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/panelDeductions"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="12dp"
+                android:paddingBottom="12dp">
+
+                <!-- Returns -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="11dp"
+                    android:background="@drawable/bg_lg_inv_subcard_accent">
+
+                    <FrameLayout
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:background="@drawable/bg_circle_soft_teal">
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_lucide_corner_up_left"
+                            app:tint="#0F6E56"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="11dp">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/fragment_overview_returns"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold"
+                            android:textColor="#1A1A18"/>
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="@string/fragment_overview_returns_caption"
+                            android:textSize="11sp"
+                            android:fontFamily="serif"
+                            android:textColor="#66716B"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvReturns"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:text="0"
+                        android:textSize="18sp"
+                        android:fontFamily="serif"
+                        android:textStyle="bold"
+                        android:textColor="#0F6E56"
+                        android:includeFontPadding="false"
+                        android:singleLine="true"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="13sp"
+                        app:autoSizeMaxTextSize="18sp"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="6dp"/>
+
+                <!-- Cancelled -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="11dp"
+                    android:background="@drawable/bg_lg_inv_subcard_accent_red">
+
+                    <FrameLayout
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:background="@drawable/bg_circle_soft_red">
+                        <ImageView
+                            android:layout_width="14dp"
+                            android:layout_height="14dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_lucide_circle_x"
+                            app:tint="#B23A3A"
+                            android:contentDescription="@null"/>
+                    </FrameLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="11dp">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/fragment_overview_cancelled"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold"
+                            android:textColor="#1A1A18"/>
+                        <TextView
+                            android:id="@+id/tvCancelledCaption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="1dp"
+                            android:text="@string/fragment_overview_cancelled_caption"
+                            android:textSize="11sp"
+                            android:fontFamily="serif"
+                            android:textColor="#66716B"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvCancelled"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:text="0"
+                        android:textSize="18sp"
+                        android:fontFamily="serif"
+                        android:textStyle="bold"
+                        android:textColor="#B23A3A"
+                        android:includeFontPadding="false"
+                        android:singleLine="true"
+                        app:autoSizeTextType="uniform"
+                        app:autoSizeMinTextSize="13sp"
+                        app:autoSizeMaxTextSize="18sp"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginHorizontal="16dp"
+                android:background="#E3E8E4"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingVertical="14dp"
+                android:paddingHorizontal="8dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+                    <TextView
+                        android:id="@+id/tvStatBills"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dash"
+                        android:textSize="17sp"
+                        android:fontFamily="serif"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A18"
+                        android:includeFontPadding="false"/>
+                    <TextView
+                        android:id="@+id/tvStatBillsCaption"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/fragment_overview_stat_bills"
+                        android:textSize="11sp"
+                        android:textColor="#66716B"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#E3E8E4"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+                    <TextView
+                        android:id="@+id/tvStatAvg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dash"
+                        android:textSize="17sp"
+                        android:fontFamily="serif"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A18"
+                        android:includeFontPadding="false"/>
+                    <TextView
+                        android:id="@+id/tvStatAvgCaption"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/fragment_overview_stat_avg"
+                        android:textSize="11sp"
+                        android:textColor="#66716B"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#E3E8E4"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_horizontal">
+                    <TextView
+                        android:id="@+id/tvStatGrowth"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dash"
+                        android:textSize="17sp"
+                        android:fontFamily="serif"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A18"
+                        android:includeFontPadding="false"/>
+                    <TextView
+                        android:id="@+id/tvStatGrowthCaption"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/fragment_overview_stat_growth"
+                        android:textSize="11sp"
+                        android:textColor="#66716B"/>
+                </LinearLayout>
+            </LinearLayout>
+        </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <!-- BUSY TIME TEASER — champagne card, tap opens the Busy Times   -->
+        <!-- tab for the full hour-by-hour breakdown.                     -->
+        <!-- ══════════════════════════════════════════════════════════════ -->
+        <com.example.easy_billing.ui.glass.GlassClipLinearLayout
+            android:id="@+id/cardBusyTeaser"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="18dp"
+            
+                android:background="@drawable/bg_lg_card"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_lg_hdr_green"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="14dp">
+                <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                    <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                    <ImageView
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_clock"
+                        app:tint="#FFFFFF"
+                        android:contentDescription="@null"/>
+                </FrameLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginStart="10dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/fragment_overview_busy_title"
+                        android:textColor="#123B31"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/googlesans_semibold"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/fragment_overview_busy_hint"
+                        android:textColor="#0F6E56"
+                        android:textSize="11sp"/>
+                </LinearLayout>
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:src="@drawable/ic_chevron_down"
+                    android:rotation="-90"
+                    app:tint="#0F6E56"
+                    android:contentDescription="@null"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tvBusyPeriod"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/dash"
+                    android:textColor="#8A6526"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.04"
+                    android:fontFamily="@font/googlesans_semibold"
+                    android:paddingHorizontal="11dp"
+                    android:paddingVertical="5dp"
+                    android:background="@drawable/bg_growth_positive"/>
+
+                <TextView
+                    android:id="@+id/tvBusyTeaser"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/dash"
+                    android:textColor="#1A1A18"
+                    android:textSize="15sp"
+                    android:lineSpacingMultiplier="1.3"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="14dp"
+                    android:background="#E3E8E4"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="12dp">
+                    <TextView
+                        android:id="@+id/tvBusyAmount"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dash"
+                        android:textSize="20sp"
+                        android:fontFamily="serif"
+                        android:textStyle="bold"
+                        android:textColor="#1A1A18"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/fragment_overview_busy_tap"
+                        android:textColor="#8A6526"
+                        android:textSize="11sp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+
+    </LinearLayout>
+
+    </ScrollView>
+
+</FrameLayout>

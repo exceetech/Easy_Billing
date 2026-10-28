@@ -37,8 +37,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
                 android:text="@string/invoice_line_discount_header"
-                android:textColor="#B8895A"
-                android:textSize="10sp"
+                android:textColor="#8A6526"
+                android:textSize="11sp"
                 android:letterSpacing="0.16"
                 android:fontFamily="@font/googlesans_semibold"/>
 
@@ -64,16 +64,16 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="0"
-                android:textColor="#77877D"
+                android:textColor="#66716B"
                 android:textSize="12sp"/>
         </LinearLayout>
 
         <FrameLayout
             android:id="@+id/btnCloseDiscount"
-            android:layout_width="26dp"
-            android:layout_height="26dp"
+            android:layout_width="44dp"
+            android:layout_marginTop="-9dp" android:layout_marginEnd="-9dp" android:layout_height="44dp"
             android:layout_gravity="top|end"
-            android:background="@drawable/bg_disc_close_circle"
+            android:background="@drawable/bg_disc_close_circle_44"
             android:clickable="true"
             android:focusable="true">
             <ImageView
@@ -82,7 +82,7 @@
                 android:layout_gravity="center"
                 android:src="@drawable/ic_lc_x"
                 app:tint="#76867C"
-                android:contentDescription="Close"/>
+                android:contentDescription="@string/activity_bill_details_close"/>
         </FrameLayout>
     </FrameLayout>
 
@@ -193,25 +193,25 @@
         <TextView android:id="@+id/tvPreset1"
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
             android:gravity="center" android:paddingVertical="8dp" android:text="5%"
-            android:textSize="12sp" android:textColor="#76867C" android:fontFamily="@font/googlesans_semibold"
+            android:textSize="12sp" android:textColor="#66716B" android:fontFamily="@font/googlesans_semibold"
             android:background="@drawable/bg_inv_pay_gold_unselected" android:clickable="true" android:focusable="true"/>
         <TextView android:id="@+id/tvPreset2"
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
             android:layout_marginStart="7dp"
             android:gravity="center" android:paddingVertical="8dp" android:text="10%"
-            android:textSize="12sp" android:textColor="#76867C" android:fontFamily="@font/googlesans_semibold"
+            android:textSize="12sp" android:textColor="#66716B" android:fontFamily="@font/googlesans_semibold"
             android:background="@drawable/bg_inv_pay_gold_unselected" android:clickable="true" android:focusable="true"/>
         <TextView android:id="@+id/tvPreset3"
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
             android:layout_marginStart="7dp"
             android:gravity="center" android:paddingVertical="8dp" android:text="15%"
-            android:textSize="12sp" android:textColor="#76867C" android:fontFamily="@font/googlesans_semibold"
+            android:textSize="12sp" android:textColor="#66716B" android:fontFamily="@font/googlesans_semibold"
             android:background="@drawable/bg_inv_pay_gold_unselected" android:clickable="true" android:focusable="true"/>
         <TextView android:id="@+id/tvPreset4"
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
             android:layout_marginStart="7dp"
             android:gravity="center" android:paddingVertical="8dp" android:text="20%"
-            android:textSize="12sp" android:textColor="#76867C" android:fontFamily="@font/googlesans_semibold"
+            android:textSize="12sp" android:textColor="#66716B" android:fontFamily="@font/googlesans_semibold"
             android:background="@drawable/bg_inv_pay_gold_unselected" android:clickable="true" android:focusable="true"/>
     </LinearLayout>
 
@@ -234,7 +234,7 @@
             android:orientation="vertical">
             <TextView
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="@string/invoice_new_price_label" android:textColor="#5E8A6E" android:textSize="10sp"
+                android:text="@string/invoice_new_price_label" android:textColor="#5E8A6E" android:textSize="11sp"
                 android:letterSpacing="0.06" android:fontFamily="@font/googlesans_semibold"/>
             <LinearLayout
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -246,7 +246,7 @@
                 <TextView android:id="@+id/tvDiscOrig"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginStart="7dp"
-                    android:text="0" android:textColor="#7C8782" android:textSize="12sp"/>
+                    android:text="0" android:textColor="#66716B" android:textSize="12sp"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -257,7 +257,7 @@
             android:gravity="end">
             <TextView
                 android:layout_width="wrap_content" android:layout_height="wrap_content"
-                android:text="@string/invoice_you_save_label" android:textColor="#5E8A6E" android:textSize="10sp"
+                android:text="@string/invoice_you_save_label" android:textColor="#5E8A6E" android:textSize="11sp"
                 android:letterSpacing="0.06" android:fontFamily="@font/googlesans_semibold"/>
             <TextView android:id="@+id/tvDiscSave"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"

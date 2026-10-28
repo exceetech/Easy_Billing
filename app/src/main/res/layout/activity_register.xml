@@ -107,8 +107,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:text="@string/point_of_sale_tagline"
-                    android:textColor="#7C8782"
-                    android:textSize="10sp"
+                    android:textColor="#66716B"
+                    android:textSize="11sp"
                     android:letterSpacing="0.18"
                     android:fontFamily="@font/googlesans_semibold"/>
 
@@ -190,7 +190,7 @@
                         android:gravity="center"
                         android:paddingVertical="8dp"
                         android:text="@string/login_2"
-                        android:textColor="#7C8782"
+                        android:textColor="#66716B"
                         android:textSize="13sp"
                         android:fontFamily="@font/googlesans_semibold"
                         android:clickable="true"
@@ -211,7 +211,7 @@
 
                 <TextView android:id="@+id/lblFullName" android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginTop="16dp" android:layout_marginBottom="6dp"
-                    android:text="@string/full_name_2" android:textSize="12.5sp" android:textColor="#8D9992"
+                    android:text="@string/full_name_2" android:textSize="12.5sp" android:textColor="#66716B"
                     android:fontFamily="@font/googlesans_regular"/>
                 <FrameLayout
                     android:id="@+id/nameContainer"
@@ -229,7 +229,7 @@
 
                 <TextView android:id="@+id/lblEmail" android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginTop="12dp" android:layout_marginBottom="6dp"
-                    android:text="@string/email_address" android:textSize="12.5sp" android:textColor="#8D9992"
+                    android:text="@string/email_address" android:textSize="12.5sp" android:textColor="#66716B"
                     android:fontFamily="@font/googlesans_regular"/>
                 <FrameLayout
                     android:id="@+id/emailContainer"
@@ -247,7 +247,7 @@
 
                 <TextView android:id="@+id/lblPhone" android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginTop="12dp" android:layout_marginBottom="6dp"
-                    android:text="@string/invoice_hint_phone_number" android:textSize="12.5sp" android:textColor="#8D9992"
+                    android:text="@string/invoice_hint_phone_number" android:textSize="12.5sp" android:textColor="#66716B"
                     android:fontFamily="@font/googlesans_regular"/>
                 <FrameLayout
                     android:id="@+id/phoneContainer"
@@ -265,7 +265,7 @@
 
                 <TextView android:id="@+id/lblShopName" android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginTop="12dp" android:layout_marginBottom="6dp"
-                    android:text="@string/shop_name_2" android:textSize="12.5sp" android:textColor="#8D9992"
+                    android:text="@string/shop_name_2" android:textSize="12.5sp" android:textColor="#66716B"
                     android:fontFamily="@font/googlesans_regular"/>
                 <FrameLayout
                     android:id="@+id/shopContainer"
@@ -334,7 +334,7 @@
                         android:layout_marginTop="5dp"
                         android:text="@string/powered_by_label"
                         android:textColor="#5A7A85"
-                        android:textSize="7sp"
+                        android:textSize="11sp"
                         android:letterSpacing="0.16"
                         android:fontFamily="@font/googlesans_medium"/>
 

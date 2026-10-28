@@ -49,8 +49,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/activity_debit_note_additional_charge"
-                android:textColor="#B8895A"
-                android:textSize="10sp"
+                android:textColor="#8A6526"
+                android:textSize="11sp"
                 android:letterSpacing="0.16"
                 android:fontFamily="@font/googlesans_semibold" />
 
@@ -124,7 +124,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:text="—"
-            android:textColor="#76867C"
+            android:textColor="#66716B"
             android:textSize="11.5sp" />
     </LinearLayout>
 
@@ -276,8 +276,8 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@string/activity_debit_note_taxable"
-                                    android:textSize="10.5sp"
-                                    android:textColor="#79897F" />
+                                    android:textSize="11sp"
+                                    android:textColor="#66716B" />
 
                                 <TextView
                                     android:id="@+id/tvTaxableTile"
@@ -285,8 +285,8 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="4dp"
                                     android:text="0"
-                                    android:textSize="10.5sp"
-                                    android:textColor="#79897F"
+                                    android:textSize="11sp"
+                                    android:textColor="#66716B"
                                     android:fontFamily="serif" />
 
                                 <TextView
@@ -294,8 +294,8 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="10dp"
                                     android:text="@string/activity_debit_note_gst"
-                                    android:textSize="10.5sp"
-                                    android:textColor="#79897F" />
+                                    android:textSize="11sp"
+                                    android:textColor="#66716B" />
 
                                 <TextView
                                     android:id="@+id/tvAdditionalGst"
@@ -303,8 +303,8 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="4dp"
                                     android:text="0"
-                                    android:textSize="10.5sp"
-                                    android:textColor="#79897F"
+                                    android:textSize="11sp"
+                                    android:textColor="#66716B"
                                     android:fontFamily="serif" />
 
                                 <LinearLayout
@@ -319,8 +319,8 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="@string/activity_debit_note_cess"
-                                        android:textSize="10.5sp"
-                                        android:textColor="#79897F" />
+                                        android:textSize="11sp"
+                                        android:textColor="#66716B" />
 
                                     <TextView
                                         android:id="@+id/tvAdditionalCess"
@@ -328,8 +328,8 @@
                                         android:layout_height="wrap_content"
                                         android:layout_marginStart="4dp"
                                         android:text="0"
-                                        android:textSize="10.5sp"
-                                        android:textColor="#79897F"
+                                        android:textSize="11sp"
+                                        android:textColor="#66716B"
                                         android:fontFamily="serif" />
                                 </LinearLayout>
                             </LinearLayout>
@@ -420,14 +420,14 @@
             android:layout_height="44dp"
             android:layout_marginTop="8dp"
             android:text="@string/activity_debit_note_cancel"
-            android:textColor="#9A2E2E"
+            android:textColor="#4B554F"
             android:textAllCaps="false"
             android:textSize="13sp"
             android:textStyle="bold"
             android:fontFamily="@font/googlesans_semibold"
             android:gravity="center"
             android:includeFontPadding="false"
-            android:background="@drawable/bg_inv_action_close"
+            android:background="@drawable/bg_dialog_cancel_neutral"
             android:insetLeft="0dp"
             android:insetRight="0dp"
             android:insetTop="0dp"

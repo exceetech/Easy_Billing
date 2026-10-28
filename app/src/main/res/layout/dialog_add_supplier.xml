@@ -48,7 +48,7 @@
         android:layout_marginTop="12dp"
         android:text="@string/dialog_add_supplier_supplier"
         android:textColor="#0F6E56"
-        android:textSize="10sp"
+        android:textSize="11sp"
         android:letterSpacing="0.16"
         android:fontFamily="@font/googlesans_semibold" />
 
@@ -98,7 +98,7 @@
         android:layout_marginBottom="6dp"
         android:text="@string/dialog_add_supplier_supplier_name"
         android:textSize="12.5sp"
-        android:textColor="#7A8780"
+        android:textColor="#66716B"
         android:fontFamily="@font/googlesans_regular" />
 
     <FrameLayout
@@ -139,7 +139,7 @@
         android:layout_marginBottom="6dp"
         android:text="@string/dialog_add_supplier_gstin"
         android:textSize="12.5sp"
-        android:textColor="#7A8780"
+        android:textColor="#66716B"
         android:fontFamily="@font/googlesans_regular" />
 
     <FrameLayout
@@ -182,7 +182,7 @@
         android:layout_marginBottom="6dp"
         android:text="@string/dialog_add_supplier_state"
         android:textSize="12.5sp"
-        android:textColor="#7A8780"
+        android:textColor="#66716B"
         android:fontFamily="@font/googlesans_regular" />
 
     <FrameLayout
@@ -270,7 +270,7 @@
         android:layout_width="match_parent"
         android:layout_height="46dp"
         android:layout_marginTop="9dp"
-        android:background="@drawable/bg_inv_action_close"
+        android:background="@drawable/bg_dialog_cancel_neutral"
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
@@ -279,7 +279,7 @@
         android:text="@string/dialog_add_supplier_cancel"
         android:textAllCaps="false"
         android:textSize="13.5sp"
-        android:textColor="#9A2E2E"
+        android:textColor="#4B554F"
         android:textStyle="bold"
         android:fontFamily="@font/googlesans_semibold"
         android:includeFontPadding="false"

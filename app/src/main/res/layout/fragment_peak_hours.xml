@@ -66,7 +66,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/busy_card_caption"
-                        android:textSize="10.5sp"
+                        android:textSize="11sp"
                         android:textColor="#0F6E56"
                         android:layout_marginTop="1dp"/>
                 </LinearLayout>
@@ -91,7 +91,7 @@
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp"
                     android:text="@string/reports_empty_period"
-                    android:textColor="#79897F"
+                    android:textColor="#66716B"
                     android:textSize="13sp"
                     android:fontFamily="@font/googlesans_medium"
                     android:visibility="gone"/>
@@ -124,7 +124,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="@string/dash"
-                            android:textSize="10.5sp"
+                            android:textSize="11sp"
                             android:fontFamily="@font/googlesans_semibold"
                             android:paddingHorizontal="8dp"
                             android:paddingVertical="2dp"
@@ -210,9 +210,9 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="@string/dash"
-                            android:textSize="10.5sp"
+                            android:textSize="11sp"
                             android:fontFamily="serif"
-                            android:textColor="#79897F"
+                            android:textColor="#66716B"
                             android:singleLine="true"
                             android:ellipsize="end"/>
                     </LinearLayout>
@@ -278,9 +278,9 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="@string/dash"
-                            android:textSize="10.5sp"
+                            android:textSize="11sp"
                             android:fontFamily="serif"
-                            android:textColor="#79897F"
+                            android:textColor="#66716B"
                             android:singleLine="true"
                             android:ellipsize="end"/>
                     </LinearLayout>
@@ -333,8 +333,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/reports_caption_hours"
-                        android:textSize="10.5sp"
-                        android:textColor="#B8895A"
+                        android:textSize="11sp"
+                        android:textColor="#8A6526"
                         android:layout_marginTop="1dp"/>
                 </LinearLayout>
             </LinearLayout>

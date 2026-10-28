@@ -69,7 +69,7 @@
         android:layout_marginTop="4dp"
         android:gravity="center"
         android:textSize="12sp"
-        android:textColor="#7C8782"
+        android:textColor="#66716B"
         tools:text="Signed in as priya@theshop.in" />
 
     <LinearLayout
@@ -120,8 +120,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
                     android:text="@string/qu_change_sub"
-                    android:textSize="9.5sp"
-                    android:textColor="#7C8782"/>
+                    android:textSize="11sp"
+                    android:textColor="#66716B"/>
             </LinearLayout>
             <ImageView
                 android:layout_width="9dp"
@@ -174,8 +174,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
                     android:text="@string/qu_off_sub"
-                    android:textSize="9.5sp"
-                    android:textColor="#7C8782"/>
+                    android:textSize="11sp"
+                    android:textColor="#66716B"/>
             </LinearLayout>
             <ImageView
                 android:layout_width="9dp"
@@ -192,7 +192,7 @@
         android:layout_height="46dp"
         android:layout_marginTop="14dp"
         android:text="@string/cancel"
-        android:textColor="#76867C"
+        android:textColor="#4B554F"
         android:textStyle="bold"
         android:textAllCaps="false"
         android:textSize="13.5sp"

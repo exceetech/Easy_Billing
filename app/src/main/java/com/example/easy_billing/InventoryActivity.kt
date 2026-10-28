@@ -389,7 +389,7 @@ class InventoryActivity : BaseActivity() {
                     // and offer a retry rather than a flat "failed" toast.
                     Toast.makeText(
                         this@InventoryActivity,
-                        "Couldn't refresh inventory — showing last-known data. Pull down or reopen to retry.",
+                        getString(R.string.inventory_couldn_t_refresh_inventory_showing_las),
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -1073,8 +1073,8 @@ class InventoryActivity : BaseActivity() {
                     adapter.onSelectionChanged = { running ->
                         tvBatchRunning.text = formatStock(running)
                         val n = adapter.selectedBatchCount()
-                        tvBatchCountSub.text = if (n == 0) "No batches selected"
-                            else "$n ${if (n == 1) "batch" else "batches"} selected"
+                        tvBatchCountSub.text = if (n == 0) getString(R.string.dialog_clear_stock_fullscreen_no_batches_selected)
+                            else if (n == 1) getString(R.string.inventory_1_batch_selected) else getString(R.string.inventory_1_d_batches_selected, n)
                     }
                     rvBatches.adapter = adapter
                     batchAdapter = adapter
@@ -1654,8 +1654,8 @@ class InventoryActivity : BaseActivity() {
                                 fun renderRunning(running: Double) {
                                     tvBatchRunning.text = formatStock(running)
                                     val n = adapter.selectedCount()
-                                    tvBatchCountSub.text = if (n == 0) "No batches selected"
-                                        else "$n ${if (n == 1) "batch" else "batches"} selected"
+                                    tvBatchCountSub.text = if (n == 0) getString(R.string.dialog_clear_stock_fullscreen_no_batches_selected)
+                                        else if (n == 1) getString(R.string.inventory_1_batch_selected) else getString(R.string.inventory_1_d_batches_selected, n)
                                 }
                                 adapter.onSelectionChanged = { running ->
                                     renderRunning(running)

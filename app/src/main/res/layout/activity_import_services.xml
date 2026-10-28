@@ -51,8 +51,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/gstr2_eyebrow"
-                android:textColor="#B8895A"
-                android:textSize="10sp"
+                android:textColor="#8A6526"
+                android:textSize="11sp"
                 android:letterSpacing="0.16"
                 android:fontFamily="@font/googlesans_semibold" />
 
@@ -111,7 +111,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="7dp"
                 android:text="@string/import_services_when_to_use"
-                android:textSize="10.5sp"
+                android:textSize="11sp"
                 android:textColor="#6E5726"
                 android:lineSpacingExtra="2dp" />
         </LinearLayout>
@@ -143,7 +143,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/total_taxable_value"
                         android:textSize="11sp"
-                        android:textColor="#7C8782" />
+                        android:textColor="#66716B" />
 
                     <TextView
                         android:id="@+id/tvKpiTaxable"
@@ -167,7 +167,7 @@
                         android:layout_marginTop="2dp"
                         android:text="@string/activity_import_services_14_records_fy_2526"
                         android:textSize="11sp"
-                        android:textColor="#76867C"
+                        android:textColor="#66716B"
                         android:singleLine="true"
                         android:ellipsize="end" />
                 </LinearLayout>
@@ -180,7 +180,7 @@
                     android:paddingHorizontal="9dp"
                     android:paddingVertical="5dp"
                     android:text="@string/itc_ready"
-                    android:textSize="10sp"
+                    android:textSize="11sp"
                     android:textColor="#085041"
                     android:fontFamily="@font/googlesans_semibold" />
             </LinearLayout>
@@ -217,8 +217,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="@string/igst_paid"
-                        android:textSize="9.5sp"
-                        android:textColor="#76867C" />
+                        android:textSize="11sp"
+                        android:textColor="#66716B" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -246,7 +246,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="@string/itc_availed"
-                        android:textSize="9.5sp"
+                        android:textSize="11sp"
                         android:textColor="#0F6E56" />
                 </LinearLayout>
 
@@ -277,7 +277,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="@string/needs_fixing"
-                        android:textSize="9.5sp"
+                        android:textSize="11sp"
                         android:textColor="#A32D2D" />
                 </LinearLayout>
             </LinearLayout>
@@ -334,9 +334,9 @@
             android:paddingTop="12dp"
             android:paddingBottom="6dp"
             android:text="@string/records_section"
-            android:textSize="9.5sp"
+            android:textSize="11sp"
             android:letterSpacing="0.14"
-            android:textColor="#7C8782"
+            android:textColor="#66716B"
             android:fontFamily="@font/googlesans_semibold" />
 
         <!--
@@ -423,7 +423,7 @@
                         android:gravity="center"
                         android:text="@string/import_services_empty_body"
                         android:textSize="12.5sp"
-                        android:textColor="#76867C"
+                        android:textColor="#66716B"
                         android:lineSpacingExtra="3dp" />
 
                 </LinearLayout>

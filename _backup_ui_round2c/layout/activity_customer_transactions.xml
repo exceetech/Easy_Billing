@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Customer ledger — champagne theme, matching the credit accounts list.
+
+    The balance and the two totals sit at the top. They were previously only
+    reachable through the Summary button, but Billed and Received are the two
+    numbers that explain the balance, so they belong on the screen.
+
+    Ids bound by CustomerTransactionsActivity: toolbar, tvHeaderPhone,
+    tvHeaderName, tvHeaderNameAccent, tvCurrentBalance, tvBalanceCaption,
+    tvTotalBilled, tvTotalReceived, etSearchTxn, btnFilter, tvFilterLabel,
+    rvTransactions, btnSummary, btnPrint.
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_lg_page">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:titleTextColor="#1A1A18"
+        app:navigationIconTint="#1A1A18" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="18dp"
+        android:paddingBottom="14dp">
+
+        <!--
+            Name leads; the phone sits under it as a chip.
+
+            The phone used to occupy the eyebrow slot, styled like the "KHATA"
+            and "GSTR-2" labels on the other screens — but those are section
+            headings and a phone number isn't one, so it read oddly. As a chip
+            it looks like a piece of data, and it has a tap target if dialling
+            or copying is ever wanted.
+        -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvHeaderName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/txn_default_customer_name"
+                android:textColor="#1A1A18"
+                android:textSize="21sp"
+                android:letterSpacing="-0.02"
+                android:fontFamily="@font/googlesans_bold"
+                android:includeFontPadding="false"
+                android:accessibilityHeading="true" />
+
+            <TextView
+                android:id="@+id/tvHeaderNameAccent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text=""
+                android:textColor="#0F6E56"
+                android:textSize="21sp"
+                android:fontFamily="serif"
+                android:textStyle="italic"
+                android:includeFontPadding="false" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/chipHeaderPhone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/bg_lg_pill"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="3dp">
+
+            <ImageView
+                android:layout_width="11dp"
+                android:layout_height="11dp"
+                android:src="@drawable/ic_lc_phone"
+                app:tint="#B8895A"
+                android:contentDescription="@null" />
+
+            <TextView
+                android:id="@+id/tvHeaderPhone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:text=""
+                android:textColor="#66716B"
+                android:textSize="11sp"
+                android:singleLine="true" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ===================== SUMMARY ===================== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginHorizontal="16dp"
+        android:background="@drawable/bg_lg_card"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/txn_current_balance_label"
+            android:textSize="11sp"
+            android:textColor="#66716B" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="bottom"
+            android:layout_marginTop="2dp"
+            android:baselineAligned="false">
+
+            <TextView
+                android:id="@+id/tvCurrentBalance"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="30sp"
+                android:textColor="#1A1A18"
+                android:fontFamily="serif"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="20sp"
+                app:autoSizeMaxTextSize="30sp" />
+
+            <TextView
+                android:id="@+id/tvBalanceCaption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="4dp"
+                android:text="@string/credit_status_settled"
+                android:textSize="11sp"
+                android:textColor="#66716B" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="14dp"
+            android:baselineAligned="false">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_credit_tile_red"
+                android:padding="10dp">
+                <TextView
+                    android:id="@+id/tvTotalBilled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="15sp"
+                    android:textColor="#791F1F"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="11sp"
+                    app:autoSizeMaxTextSize="15sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="@string/txn_billed_label"
+                    android:textSize="11sp"
+                    android:textColor="#A32D2D" />
+            </LinearLayout>
+
+            <View android:layout_width="8dp" android:layout_height="1dp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_credit_tile_teal"
+                android:padding="10dp">
+                <TextView
+                    android:id="@+id/tvTotalReceived"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="15sp"
+                    android:textColor="#085041"
+                    android:singleLine="true"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMinTextSize="11sp"
+                    app:autoSizeMaxTextSize="15sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="@string/txn_received_label"
+                    android:textSize="11sp"
+                    android:textColor="#0F6E56" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!--
+            Adjustments — neither a sale nor a payment, so they sit apart from
+            the two tiles rather than being folded into them. Each line hides
+            when zero, which is nearly every customer, so the card normally
+            looks exactly as it did before.
+        -->
+        <LinearLayout
+            android:id="@+id/layoutAdjustments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="12dp"
+            android:visibility="gone">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="#E3E8E4" />
+
+            <LinearLayout
+                android:id="@+id/rowWrittenOff"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="10dp"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/txn_label_written_off"
+                    android:textSize="11.5sp"
+                    android:textColor="#66716B" />
+                <TextView
+                    android:id="@+id/tvWrittenOff"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="13.5sp"
+                    android:textColor="#8A6526"
+                    android:fontFamily="@font/googlesans_medium" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rowPaidOut"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="7dp"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/txn_paid_out_label"
+                    android:textSize="11.5sp"
+                    android:textColor="#66716B" />
+                <TextView
+                    android:id="@+id/tvPaidOut"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="13.5sp"
+                    android:textColor="#8A6526"
+                    android:fontFamily="@font/googlesans_medium" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/rowRefunded"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="7dp"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="@string/txn_refunded_to_customer_label"
+                    android:textSize="11.5sp"
+                    android:textColor="#66716B" />
+                <TextView
+                    android:id="@+id/tvRefunded"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="13.5sp"
+                    android:textColor="#8A6526"
+                    android:fontFamily="@font/googlesans_medium" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ===================== SEARCH + DATE ===================== -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="14dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="40dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_imp_filter"
+            android:paddingHorizontal="12dp">
+            <ImageView
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:src="@drawable/ic_search"
+                app:tint="#B8895A"
+                android:contentDescription="@null" />
+            <EditText
+                android:id="@+id/etSearchTxn"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:hint="@string/txn_search_amount_hint"
+                android:textColorHint="#929F97"
+                android:textColor="#1A1A18"
+                android:textSize="12.5sp"
+                android:singleLine="true"
+                android:paddingStart="8dp"
+                android:importantForAutofill="no"
+                android:inputType="text" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btnFilter"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_imp_filter"
+            android:paddingHorizontal="12dp"
+            android:clickable="true"
+            android:focusable="true">
+            <ImageView
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:src="@drawable/ic_lc_calendar"
+                app:tint="#B8895A"
+                android:contentDescription="@null" />
+            <TextView
+                android:id="@+id/tvFilterLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="@string/txn_filter_all_time"
+                android:textSize="12sp"
+                android:textColor="#1A1A18" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTransactions"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_lg_card"
+        android:clipToPadding="false"
+        android:paddingBottom="4dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="14dp"
+        android:baselineAligned="false">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSummary"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="46dp"
+            android:background="@drawable/bg_lg_cta_outline"
+            app:backgroundTint="@null"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="@string/txn_summary_button"
+            android:textAllCaps="false"
+            android:textSize="13sp"
+            android:textColor="#8A6526"
+            android:fontFamily="@font/googlesans_medium"
+            app:icon="@drawable/ic_lc_scale"
+            app:iconTint="#8A6526"
+            app:iconSize="15dp"
+            app:iconGravity="textStart"
+            app:iconPadding="7dp"
+            android:gravity="center"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            android:includeFontPadding="false"
+            android:stateListAnimator="@null"
+            app:cornerRadius="14dp"
+            app:rippleColor="#22B8895A" 
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
+
+        <View android:layout_width="8dp" android:layout_height="1dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPrint"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="46dp"
+            android:background="@drawable/bg_lg_cta_green_12"
+            app:backgroundTint="@null"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:text="@string/txn_statement_button"
+            android:textAllCaps="false"
+            android:textSize="13sp"
+            android:textColor="@android:color/white"
+            android:fontFamily="@font/googlesans_semibold"
+            app:icon="@drawable/ic_print"
+            app:iconTint="@android:color/white"
+            app:iconSize="15dp"
+            app:iconGravity="textStart"
+            app:iconPadding="7dp"
+            android:gravity="center"
+            android:paddingStart="0dp"
+            android:paddingEnd="0dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            android:includeFontPadding="false"
+            android:stateListAnimator="@null"
+            app:cornerRadius="14dp"
+            app:rippleColor="#33FFFFFF" 
+            android:insetLeft="0dp"
+            android:insetRight="0dp"/>
+    </LinearLayout>
+
+</LinearLayout>

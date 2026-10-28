@@ -13,7 +13,7 @@
         <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@drawable/ic_share_nodes" app:tint="#8A6526"/>
     </FrameLayout>
 
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mstmt_share_eyebrow" android:textSize="10sp" android:letterSpacing="0.16" android:fontFamily="@font/googlesans_semibold" android:textColor="#B8895A" android:gravity="center"/>
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mstmt_share_eyebrow" android:textSize="11sp" android:letterSpacing="0.16" android:fontFamily="@font/googlesans_semibold" android:textColor="#8A6526" android:gravity="center"/>
 
     <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:orientation="horizontal" android:gravity="bottom" android:layout_marginTop="1dp">
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mstmt_share_title_a" android:textColor="#1A1A18" android:textSize="19sp" android:fontFamily="@font/googlesans_bold" android:includeFontPadding="false"/>
@@ -23,7 +23,7 @@
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mstmt_share_sub" android:textSize="12.5sp" android:textColor="#5B6660" android:gravity="center" android:layout_marginTop="6dp" android:lineSpacingExtra="2dp"/>
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_lg_card" android:padding="13dp" android:layout_marginTop="16dp">
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mstmt_share_for" android:textSize="10sp" android:letterSpacing="0.06" android:textColor="#7C8782" android:layout_marginBottom="6dp"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mstmt_share_for" android:textSize="11sp" android:letterSpacing="0.06" android:textColor="#66716B" android:layout_marginBottom="6dp"/>
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
             <FrameLayout android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_ov_pay_icon" android:backgroundTint="#DDEEEE">
                 <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_calendar" app:tint="#085041"/>
@@ -48,7 +48,7 @@
         </FrameLayout>
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="12dp" android:orientation="vertical">
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mstmt_opt_excel" android:textColor="#1A1A18" android:textSize="14sp" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mstmt_opt_excel_short" android:textColor="#7C8782" android:textSize="11.5sp" android:fontFamily="@font/googlesans_regular" android:includeFontPadding="false"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mstmt_opt_excel_short" android:textColor="#66716B" android:textSize="11.5sp" android:fontFamily="@font/googlesans_regular" android:includeFontPadding="false"/>
         </LinearLayout>
         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_lc_chevron_right" app:tint="#9BA7A0"/>
     </LinearLayout>
@@ -69,7 +69,7 @@
         </FrameLayout>
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="12dp" android:orientation="vertical">
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mstmt_opt_pdf" android:textColor="#1A1A18" android:textSize="14sp" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mstmt_opt_pdf_short" android:textColor="#7C8782" android:textSize="11.5sp" android:fontFamily="@font/googlesans_regular" android:includeFontPadding="false"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mstmt_opt_pdf_short" android:textColor="#66716B" android:textSize="11.5sp" android:fontFamily="@font/googlesans_regular" android:includeFontPadding="false"/>
         </LinearLayout>
         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_lc_chevron_right" app:tint="#9BA7A0"/>
     </LinearLayout>
@@ -91,7 +91,7 @@
         </FrameLayout>
         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="12dp" android:orientation="vertical">
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mstmt_opt_print" android:textColor="#1A1A18" android:textSize="14sp" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mstmt_opt_print_short" android:textColor="#7C8782" android:textSize="11.5sp" android:fontFamily="@font/googlesans_regular" android:includeFontPadding="false"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mstmt_opt_print_short" android:textColor="#66716B" android:textSize="11.5sp" android:fontFamily="@font/googlesans_regular" android:includeFontPadding="false"/>
         </LinearLayout>
         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_lc_chevron_right" app:tint="#9BA7A0"/>
     </LinearLayout>
@@ -99,9 +99,9 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnCancel"
         android:layout_width="match_parent" android:layout_height="46dp" android:layout_marginTop="14dp"
-        android:text="@string/dialog_confirm_print_cancel" android:textColor="#9A2E2E" android:textAllCaps="false" android:textSize="13sp" android:textStyle="bold"
+        android:text="@string/dialog_confirm_print_cancel" android:textColor="#4B554F" android:textAllCaps="false" android:textSize="13sp" android:textStyle="bold"
         android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false"
-        android:background="@drawable/bg_inv_action_close" app:backgroundTint="@null"
+        android:background="@drawable/bg_dialog_cancel_neutral" app:backgroundTint="@null"
         android:insetTop="0dp" android:insetBottom="0dp" android:insetLeft="0dp" android:insetRight="0dp"
         android:stateListAnimator="@null" app:icon="@drawable/ic_close" app:iconTint="#B91C1C" app:iconSize="16dp"
         app:iconGravity="textStart" app:iconPadding="7dp" app:cornerRadius="14dp" app:rippleColor="#F6D8D4" android:gravity="center"/>

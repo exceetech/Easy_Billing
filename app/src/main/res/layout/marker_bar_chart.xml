@@ -22,7 +22,7 @@
         android:id="@+id/tvSecondary"
         android:text="@string/marker_bar_chart_0_bills"
         android:textColor="#D1D5DB"
-        android:textSize="10sp"
+        android:textSize="11sp"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"/>
 </LinearLayout>

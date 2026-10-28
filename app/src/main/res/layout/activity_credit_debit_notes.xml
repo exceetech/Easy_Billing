@@ -37,8 +37,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/xml_notes_documents_header"
-            android:textColor="#B8895A"
-            android:textSize="10sp"
+            android:textColor="#8A6526"
+            android:textSize="11sp"
             android:letterSpacing="0.16"
             android:fontFamily="@font/googlesans_semibold" />
 
@@ -131,7 +131,7 @@
                 android:text="@string/xml_notes_debit_tab_count_placeholder"
                 android:textSize="12.5sp"
                 android:fontFamily="@font/googlesans_semibold"
-                android:textColor="#7C8782" />
+                android:textColor="#66716B" />
         </LinearLayout>
 
     </LinearLayout>
@@ -166,7 +166,7 @@
             android:gravity="center"
             android:text="@string/xml_notes_empty_state"
             android:textSize="12.5sp"
-            android:textColor="#7C8782"
+            android:textColor="#66716B"
             android:visibility="gone" />
 
     </FrameLayout>

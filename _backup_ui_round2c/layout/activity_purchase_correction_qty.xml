@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Correct quantity page — Add-product style (champagne page, eyebrow + serif-italic
+    title, green step headers, white cards, floating capsule footer).
+    Bound by PurchaseCorrectionActivity (MODE = QTY only; the price/tax mode
+    still builds its own UI in code).
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:background="@drawable/bg_lg_page">
+
+    <FrameLayout android:layout_width="match_parent" android:layout_height="?attr/actionBarSize">
+        <ImageView android:id="@+id/btnQtyBack" android:layout_width="48dp" android:layout_height="48dp"
+            android:layout_gravity="center_vertical" android:padding="12dp"
+            android:src="@drawable/ic_chevron_left" app:tint="#1A1A18"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/cancel"/>
+    </FrameLayout>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:paddingHorizontal="18dp" android:paddingTop="2dp">
+        <TextView android:id="@+id/tvQtyEyebrow" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="@string/correct_qty_eyebrow" android:textColor="#8A6526" android:textSize="11sp"
+            android:letterSpacing="0.16" android:fontFamily="@font/googlesans_semibold"/>
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:layout_marginTop="2dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/correct_qty_title1" android:textColor="#1A1A18" android:textSize="21sp"
+                android:fontFamily="@font/googlesans_bold" android:includeFontPadding="false"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp"
+                android:text="@string/correct_qty_title2" android:textColor="#0F6E56" android:textSize="21sp"
+                android:fontFamily="serif" android:textStyle="italic" android:includeFontPadding="false"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:layout_marginTop="10dp" android:fillViewport="true" android:overScrollMode="never" android:scrollbars="none">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:paddingHorizontal="18dp" android:paddingBottom="8dp">
+
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/bg_note_green_soft" android:padding="12dp"
+                android:text="@string/correct_qty_use_when" android:textColor="#123B31"
+                android:textSize="12.5sp" android:lineSpacingExtra="2dp"/>
+
+            <!-- STEP 1 · ITEM -->
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" 
+                android:background="@drawable/bg_lg_card" android:layout_marginTop="12dp">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:background="@drawable/bg_lg_hdr_green" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
+            <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_gravity="center" android:text="1" android:textColor="#FFFFFF"
+                    android:textSize="13sp" android:fontFamily="@font/googlesans_bold"/>
+            </FrameLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                android:orientation="vertical" android:layout_marginStart="10dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/correct_qty_step1_title" android:textColor="#123B31" android:textSize="15sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/correct_qty_step1_sub" android:textColor="#3E6F62" android:textSize="11sp"/>
+            </LinearLayout>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:background="@drawable/bg_pill_red" android:paddingHorizontal="10dp" android:paddingVertical="3dp"
+            android:text="@string/invoice_required" android:textColor="#9B2C2C" android:textSize="11sp"
+            android:fontFamily="@font/googlesans_semibold"/>
+        </LinearLayout>
+
+                <LinearLayout android:id="@+id/llQtyItems" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="16dp"/>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+
+            <!-- STEP 2 · WHAT HAPPENED -->
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" 
+                android:background="@drawable/bg_lg_card" android:layout_marginTop="12dp">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:background="@drawable/bg_lg_hdr_green" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
+            <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_gravity="center" android:text="2" android:textColor="#FFFFFF"
+                    android:textSize="13sp" android:fontFamily="@font/googlesans_bold"/>
+            </FrameLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                android:orientation="vertical" android:layout_marginStart="10dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/correct_qty_step2_title" android:textColor="#123B31" android:textSize="15sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/correct_qty_step2_sub" android:textColor="#3E6F62" android:textSize="11sp"/>
+            </LinearLayout>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:background="@drawable/bg_pill_red" android:paddingHorizontal="10dp" android:paddingVertical="3dp"
+            android:text="@string/invoice_required" android:textColor="#9B2C2C" android:textSize="11sp"
+            android:fontFamily="@font/googlesans_semibold"/>
+        </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="16dp">
+
+            <LinearLayout android:id="@+id/rowQtyLess" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:background="@drawable/bg_reason_card_unselected" android:padding="13dp"
+                android:layout_marginTop="0dp" android:clickable="true" android:focusable="true">
+                <FrameLayout android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_circle_soft_red">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center"
+                        android:text="−" android:textColor="#B23A3A" android:textSize="20sp" android:fontFamily="@font/googlesans_bold"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:layout_marginStart="12dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_qty_less_title"
+                        android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
+                        android:text="@string/correct_qty_less_desc" android:textSize="11sp" android:textColor="#66716B"/>
+                </LinearLayout>
+                <View android:id="@+id/checkQtyLess" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/rowQtyMore" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:background="@drawable/bg_reason_card_unselected" android:padding="13dp"
+                android:layout_marginTop="10dp" android:clickable="true" android:focusable="true">
+                <FrameLayout android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_circle_soft_green">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center"
+                        android:text="+" android:textColor="#0F6E56" android:textSize="20sp" android:fontFamily="@font/googlesans_bold"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:layout_marginStart="12dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_qty_more_title"
+                        android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
+                        android:text="@string/correct_qty_more_desc" android:textSize="11sp" android:textColor="#66716B"/>
+                </LinearLayout>
+                <View android:id="@+id/checkQtyMore" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
+            </LinearLayout>
+
+                    <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:layout_width="match_parent" android:layout_height="64dp" android:layout_marginTop="14dp"
+                        android:orientation="horizontal" android:background="@drawable/bg_lg_amount_bar" >
+                        <com.google.android.material.button.MaterialButton android:id="@+id/btnQtyMinus"
+                            android:layout_width="64dp" android:layout_height="match_parent" android:minWidth="0dp" android:minHeight="0dp"
+                            android:text="−" android:textAllCaps="false" android:textSize="26sp" android:textColor="#1D6E6E" android:padding="0dp"
+                            android:insetLeft="0dp" android:insetRight="0dp" android:insetTop="0dp" android:insetBottom="0dp"
+                            android:stateListAnimator="@null" app:elevation="0dp" app:cornerRadius="0dp"
+                            app:backgroundTint="#FFFFFF" app:strokeWidth="0dp" app:rippleColor="#14000000"/>
+                        <View android:layout_width="1dp" android:layout_height="match_parent" android:background="#E3E8E4"/>
+                        <EditText android:id="@+id/etPens" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
+                            android:gravity="center" android:inputType="numberDecimal" android:textSize="26sp" android:textColor="#1A1A18"
+                            android:fontFamily="serif" android:textStyle="bold" android:background="@android:color/transparent"
+                            android:padding="0dp" android:hint="0" android:textColorHint="#B4BDB8"
+                            android:importantForAutofill="no"/>
+                        <View android:layout_width="1dp" android:layout_height="match_parent" android:background="#E3E8E4"/>
+                        <com.google.android.material.button.MaterialButton android:id="@+id/btnQtyPlus"
+                            android:layout_width="64dp" android:layout_height="match_parent" android:minWidth="0dp" android:minHeight="0dp"
+                            android:text="+" android:textAllCaps="false" android:textSize="26sp" android:textColor="#FFFFFF" android:padding="0dp"
+                            android:insetLeft="0dp" android:insetRight="0dp" android:insetTop="0dp" android:insetBottom="0dp"
+                            android:stateListAnimator="@null" app:elevation="0dp" app:cornerRadius="0dp"
+                            android:background="@drawable/bg_lg_cta_teal_0"
+        app:backgroundTint="@null" app:strokeWidth="0dp" app:rippleColor="#33FFFFFF"/>
+                    </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+                    <TextView android:id="@+id/tvQtyHint" android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp" android:gravity="center" android:textSize="11sp" android:textColor="#66716B"/>
+                </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+
+            <!-- STEP 3 · REASON -->
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" 
+                android:background="@drawable/bg_lg_card" android:layout_marginTop="12dp">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:background="@drawable/bg_lg_hdr_green" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
+            <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_gravity="center" android:text="3" android:textColor="#FFFFFF"
+                    android:textSize="13sp" android:fontFamily="@font/googlesans_bold"/>
+            </FrameLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                android:orientation="vertical" android:layout_marginStart="10dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/correct_qty_step3_title" android:textColor="#123B31" android:textSize="15sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/correct_qty_step3_sub" android:textColor="#3E6F62" android:textSize="11sp"/>
+            </LinearLayout>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:background="@drawable/bg_lg_pill_grey" android:paddingHorizontal="10dp" android:paddingVertical="3dp"
+            android:text="@string/correct_qty_optional" android:textColor="#66716B" android:textSize="11sp"
+            android:fontFamily="@font/googlesans_semibold"/>
+        </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="16dp">
+            <LinearLayout android:id="@+id/rowReason0" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:background="@drawable/bg_reason_card_unselected" android:padding="13dp"
+                android:layout_marginTop="0dp" android:clickable="true" android:focusable="true">
+                <FrameLayout android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_circle_soft_teal">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center"
+                        android:text="✎" android:textColor="#0F6E56" android:textSize="20sp" android:fontFamily="@font/googlesans_bold"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:layout_marginStart="12dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_qty_reason_qty"
+                        android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
+                        android:text="@string/correct_qty_reason_qty_desc" android:textSize="11sp" android:textColor="#66716B"/>
+                </LinearLayout>
+                <View android:id="@+id/checkReason0" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/rowReason1" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:background="@drawable/bg_reason_card_unselected" android:padding="13dp"
+                android:layout_marginTop="10dp" android:clickable="true" android:focusable="true">
+                <FrameLayout android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_circle_soft_gold">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center"
+                        android:text="!" android:textColor="#854F0B" android:textSize="20sp" android:fontFamily="@font/googlesans_bold"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:layout_marginStart="12dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_qty_reason_damaged"
+                        android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
+                        android:text="@string/correct_qty_reason_damaged_desc" android:textSize="11sp" android:textColor="#66716B"/>
+                </LinearLayout>
+                <View android:id="@+id/checkReason1" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/rowReason2" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:background="@drawable/bg_reason_card_unselected" android:padding="13dp"
+                android:layout_marginTop="10dp" android:clickable="true" android:focusable="true">
+                <FrameLayout android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_circle_soft_blue">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center"
+                        android:text="↓" android:textColor="#2A5CA8" android:textSize="20sp" android:fontFamily="@font/googlesans_bold"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:layout_marginStart="12dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_qty_reason_short"
+                        android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
+                        android:text="@string/correct_qty_reason_short_desc" android:textSize="11sp" android:textColor="#66716B"/>
+                </LinearLayout>
+                <View android:id="@+id/checkReason2" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/rowReason3" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical"
+                android:background="@drawable/bg_reason_card_unselected" android:padding="13dp"
+                android:layout_marginTop="10dp" android:clickable="true" android:focusable="true">
+                <FrameLayout android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_circle_soft_purple">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center"
+                        android:text="↑" android:textColor="#6B4A9C" android:textSize="20sp" android:fontFamily="@font/googlesans_bold"/>
+                </FrameLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:layout_marginStart="12dp">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_qty_reason_extra"
+                        android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
+                        android:text="@string/correct_qty_reason_extra_desc" android:textSize="11sp" android:textColor="#66716B"/>
+                </LinearLayout>
+                <View android:id="@+id/checkReason3" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
+            </LinearLayout>
+
+                </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+
+            <!-- STEP 4 · WHAT WILL CHANGE -->
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" 
+                android:background="@drawable/bg_lg_card" android:layout_marginTop="12dp">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:background="@drawable/bg_lg_hdr_amber" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
+            <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring_champagne"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_gravity="center" android:text="4" android:textColor="#FFFFFF"
+                    android:textSize="13sp" android:fontFamily="@font/googlesans_bold"/>
+            </FrameLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                android:orientation="vertical" android:layout_marginStart="10dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/correct_qty_step4_title" android:textColor="#5C4423" android:textSize="15sp"
+                    android:fontFamily="@font/googlesans_semibold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/correct_qty_step4_sub" android:textColor="#8A6526" android:textSize="11sp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="16dp">
+                    <TextView android:id="@+id/tvQtyMsg" android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:textSize="13sp" android:textColor="#66716B" android:lineSpacingExtra="2dp"/>
+                    <LinearLayout android:id="@+id/llQtyOk" android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="vertical" android:visibility="gone">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:text="@string/correct_qty_bill_changes" android:textSize="11sp"
+                            android:fontFamily="@font/googlesans_bold" android:textColor="#5C4A22"/>
+                        <TextView android:id="@+id/tvQtyBig" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp" android:fontFamily="serif" android:textStyle="bold" android:textSize="26sp"/>
+                        <TextView android:id="@+id/tvQtyLines" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp" android:textSize="13sp" android:textColor="#1A1A18" android:lineSpacingExtra="4dp"/>
+                        <TextView android:id="@+id/tvQtySay" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp" android:background="@drawable/bg_amber_note" android:padding="12dp"
+                            android:textSize="12.5sp" android:textColor="#5C4A22" android:lineSpacingExtra="2dp"/>
+                        <TextView android:id="@+id/tvQtyAccToggle" android:layout_width="match_parent" android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp" android:padding="12dp" android:clickable="true" android:focusable="true"
+                            android:background="@drawable/bg_acc_bar" android:gravity="center_vertical"
+                            android:drawableEnd="@drawable/ic_lc_chevron_right" android:drawableTint="#854F0B"
+                            android:text="@string/correct_qty_accountant_show" android:textSize="12.5sp" android:textColor="#854F0B"
+                            android:fontFamily="@font/googlesans_semibold"/>
+                        <LinearLayout android:id="@+id/llQtyAcc" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="vertical" android:visibility="gone"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Footer: floating capsule -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:paddingHorizontal="18dp" android:paddingTop="6dp" android:paddingBottom="12dp"
+        android:clipChildren="false" android:clipToPadding="false">
+        <View android:layout_width="34dp" android:layout_height="3dp" android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="12dp" android:background="@drawable/bg_gold_accent_tick"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:background="@drawable/bg_lg_footer" android:paddingStart="20dp" android:paddingEnd="8dp"
+            android:paddingVertical="8dp" android:elevation="3dp" android:baselineAligned="false">
+            <LinearLayout android:id="@+id/btnQtyCancel" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:orientation="horizontal" android:gravity="center_vertical" android:clickable="true" android:focusable="true">
+                <ImageView android:layout_width="13dp" android:layout_height="13dp" android:src="@drawable/ic_close"
+                    app:tint="#9DA8A1" android:layout_marginEnd="6dp" android:contentDescription="@null"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/cancel"
+                    android:textColor="#66716B" android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold"/>
+            </LinearLayout>
+            <LinearLayout android:id="@+id/btnQtySave" android:layout_width="0dp" android:layout_weight="1" android:layout_height="50dp"
+                android:layout_marginStart="14dp" android:orientation="horizontal" android:gravity="center"
+                android:background="@drawable/bg_lg_cta" android:clickable="true" android:focusable="true">
+                <FrameLayout android:layout_width="20dp" android:layout_height="20dp" android:layout_marginEnd="8dp">
+                    <View android:layout_width="20dp" android:layout_height="20dp" android:background="@drawable/bg_check_badge_translucent"/>
+                    <ImageView android:layout_width="11dp" android:layout_height="11dp" android:layout_gravity="center"
+                        android:src="@drawable/ic_lc_check" app:tint="#FFFFFF" android:contentDescription="@null"/>
+                </FrameLayout>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/correct_qty_review_save"
+                    android:textColor="#FFFFFF" android:textSize="15sp" android:fontFamily="@font/googlesans_semibold"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

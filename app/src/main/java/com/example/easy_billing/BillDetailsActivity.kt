@@ -467,7 +467,7 @@ class BillDetailsActivity : AppCompatActivity() {
 
                 val customerName = gstInvoice?.customerName?.takeIf { it.isNotBlank() }
                     ?: creditAccount?.name?.takeIf { it.isNotBlank() }
-                val displayName = customerName ?: "Walk-in customer"
+                val displayName = customerName ?: getString(R.string.activity_bill_details_walkin_customer)
                 tvCustomerInfo.text = displayName
                 tvCustomerNameTitle.text = displayName
 
@@ -523,16 +523,16 @@ class BillDetailsActivity : AppCompatActivity() {
 
                 val isHttp404 = (e as? retrofit2.HttpException)?.code() == 404
                 val message = when {
-                    isHttp404 -> "This bill couldn't be found on the server."
-                    !isOnline() -> "No internet connection — check your network and try again."
-                    else -> "Couldn't load bill details. Tap Retry to try again."
+                    isHttp404 -> getString(R.string.billdetails_this_bill_couldn_t_be_found_on_the_ser)
+                    !isOnline() -> getString(R.string.billdetails_no_internet_connection_check_your_netw)
+                    else -> getString(R.string.billdetails_couldn_t_load_bill_details_tap_retry_t)
                 }
 
                 AlertDialog.Builder(this@BillDetailsActivity)
-                    .setTitle("Couldn't load bill")
+                    .setTitle(getString(R.string.billdetails_couldn_t_load_bill))
                     .setMessage(message)
-                    .setPositiveButton("Retry") { d, _ -> d.dismiss(); loadBillDetails() }
-                    .setNegativeButton("Close") { d, _ -> d.dismiss(); finish() }
+                    .setPositiveButton(getString(R.string.retry)) { d, _ -> d.dismiss(); loadBillDetails() }
+                    .setNegativeButton(getString(R.string.activity_bill_details_close)) { d, _ -> d.dismiss(); finish() }
                     .setCancelable(false)
                     .show()
             } finally {
@@ -720,9 +720,9 @@ class BillDetailsActivity : AppCompatActivity() {
 
             withContext(Dispatchers.Main) {
                 val message = if (hasPartialReturns) {
-                    "This invoice has partial returns. Cancelling it will mark the invoice as void and restore ONLY the remaining (non-returned) items to inventory. This cannot be undone."
+                    getString(R.string.billdetails_this_invoice_has_partial_returns_cance)
                 } else {
-                    "Mark this invoice as cancelled for GST reporting? This will also restore all billed items to your inventory. This cannot be undone."
+                    getString(R.string.billdetails_mark_this_invoice_as_cancelled_for_gst)
                 }
 
                 // Champagne dialog card (soft-red circle + ban icon) instead
@@ -737,8 +737,8 @@ class BillDetailsActivity : AppCompatActivity() {
                 dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
                 view.findViewById<TextView>(R.id.tvCancelInvoiceEyebrow).text =
-                    "Invoice $resolvedBillNumber".takeIf { resolvedBillNumber.isNotBlank() }
-                        ?: "Invoice —"
+                    getString(R.string.billdetails_invoice_1_s, resolvedBillNumber).takeIf { resolvedBillNumber.isNotBlank() }
+                        ?: getString(R.string.billdetails_invoice)
                 view.findViewById<TextView>(R.id.tvCancelInvoiceMessage).text = message
 
                 view.findViewById<MaterialButton>(R.id.btnConfirmCancelInvoice).setOnClickListener {

@@ -76,7 +76,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/dashboard_greeting_morning_2"
-                        android:textColor="#B8895A"
+                        android:textColor="#8A6526"
                         android:textSize="11sp"
                         android:letterSpacing="0.14"
                         android:textAllCaps="true"
@@ -324,7 +324,7 @@
                         android:background="@drawable/bg_hdr_badge_red"
                         android:text="0"
                         android:textColor="#FFFFFF"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:elevation="8dp"/>
                 </FrameLayout>
@@ -567,7 +567,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/dashboard_live_intelligence"
-                            android:textColor="#9FB0D4"
+                            android:textColor="#E3F3EE"
                             android:textSize="11sp"
                             android:letterSpacing="0.12"
                             android:fontFamily="@font/googlesans_semibold"/>
@@ -584,11 +584,11 @@
 
                     <ImageView
                         android:id="@+id/btnNotifyClose"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:padding="6dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:padding="13dp"
                         android:src="@drawable/ic_notify_close"
-                        app:tint="#9FB0D4"
+                        app:tint="#E3F3EE"
                         android:clickable="true"
                         android:focusable="true"
                         android:background="?attr/selectableItemBackgroundBorderless"
@@ -615,7 +615,7 @@
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="0" android:textColor="#FCA5A5" android:textSize="17sp" android:textStyle="bold"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="@string/dashboard_notify_critical" android:textColor="#9FB0D4" android:textSize="10sp"/>
+                            android:text="@string/dashboard_notify_critical" android:textColor="#E3F3EE" android:textSize="11sp"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -631,7 +631,7 @@
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="0" android:textColor="#FAC775" android:textSize="17sp" android:textStyle="bold"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="@string/dashboard_notify_watch" android:textColor="#9FB0D4" android:textSize="10sp"/>
+                            android:text="@string/dashboard_notify_watch" android:textColor="#E3F3EE" android:textSize="11sp"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -647,7 +647,7 @@
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="0" android:textColor="#86EFAC" android:textSize="17sp" android:textStyle="bold"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="@string/dashboard_notify_tips" android:textColor="#9FB0D4" android:textSize="10sp"/>
+                            android:text="@string/dashboard_notify_tips" android:textColor="#E3F3EE" android:textSize="11sp"/>
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -732,7 +732,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:text="@string/dashboard_notify_empty_body_short"
-                    android:textColor="#8D9992"
+                    android:textColor="#66716B"
                     android:textSize="12sp"/>
             </LinearLayout>
 
@@ -802,7 +802,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/dashboard_welcome_back"
-                        android:textColor="#9FB0D4"
+                        android:textColor="#E3F3EE"
                         android:textSize="11sp"
                         android:letterSpacing="0.02"/>
 
@@ -853,7 +853,7 @@
                         android:layout_marginStart="6dp"
                         android:text="@string/dashboard_live_status"
                         android:textColor="#FFFFFF"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:fontFamily="@font/googlesans_semibold"
                         android:letterSpacing="0.14"/>
                 </LinearLayout>
@@ -879,8 +879,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/activity_dashboard_sw600dp_xml_todays_sales_label"
-                        android:textColor="#9FB0D4"
-                        android:textSize="10sp"/>
+                        android:textColor="#E3F3EE"
+                        android:textSize="11sp"/>
                     <TextView
                         android:id="@+id/tvDrawerSales"
                         android:layout_width="wrap_content"
@@ -905,8 +905,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/activity_dashboard_sw600dp_xml_bills_today_label"
-                        android:textColor="#9FB0D4"
-                        android:textSize="10sp"/>
+                        android:textColor="#E3F3EE"
+                        android:textSize="11sp"/>
                     <TextView
                         android:id="@+id/tvDrawerBills"
                         android:layout_width="wrap_content"
@@ -1175,7 +1175,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:text="@string/dashboard_tap_to_sign_out"
+                                android:text=""
                                 android:textColor="#F7CFCF"
                                 android:textSize="11sp"
                                 android:singleLine="true"
@@ -1206,7 +1206,7 @@
                     android:layout_marginTop="18dp"
                     android:gravity="center"
                     android:text="@string/app_name"
-                    android:textColor="#9AA59F"
+                    android:textColor="#66716B"
                     android:textSize="11sp"/>
             </LinearLayout>
         </ScrollView>
@@ -1277,7 +1277,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/dashboard_live_order"
-                        android:textColor="#9FB0D4"
+                        android:textColor="#E3F3EE"
                         android:textSize="11sp"
                         android:letterSpacing="0.02"/>
 
@@ -1327,7 +1327,7 @@
                         android:layout_marginStart="6dp"
                         android:text="@string/dashboard_live_status"
                         android:textColor="#FFFFFF"
-                        android:textSize="10sp"
+                        android:textSize="11sp"
                         android:fontFamily="@font/googlesans_semibold"
                         android:letterSpacing="0.14"/>
                 </LinearLayout>
@@ -1353,8 +1353,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/dashboard_items_label"
-                        android:textColor="#9FB0D4"
-                        android:textSize="10sp"/>
+                        android:textColor="#E3F3EE"
+                        android:textSize="11sp"/>
                     <TextView
                         android:id="@+id/tvCartDrawerBadge"
                         android:layout_width="wrap_content"
@@ -1374,13 +1374,14 @@
                     android:orientation="vertical"
                     android:background="@drawable/bg_drawer_stat_tile"
                     android:paddingHorizontal="12dp"
-                    android:paddingVertical="10dp">
+                    android:paddingVertical="10dp"
+        android:visibility="gone">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/subtotal"
-                        android:textColor="#9FB0D4"
-                        android:textSize="10sp"/>
+                        android:textColor="#E3F3EE"
+                        android:textSize="11sp"/>
                     <TextView
                         android:id="@+id/tvCartHeaderSubtotal"
                         android:layout_width="wrap_content"
@@ -1458,7 +1459,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/dashboard_order_summary"
-                android:textColor="#8D9992"
+                android:textColor="#66716B"
                 android:textSize="11sp"
                 android:letterSpacing="0.05"/>
 
@@ -1488,8 +1489,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="@string/dashboard_taxes_applied_at_billing"
-                        android:textColor="#7C8782"
-                        android:textSize="10sp"/>
+                        android:textColor="#66716B"
+                        android:textSize="11sp"/>
                 </LinearLayout>
 
                 <TextView
@@ -1546,7 +1547,8 @@
                             android:text="@string/dashboard_checkout_print_receipt"
                             android:textColor="#A7D9C9"
                             android:textSize="11sp"
-                            android:includeFontPadding="false"/>
+                            android:includeFontPadding="false"
+        android:visibility="gone"/>
                     </LinearLayout>
 
                     <FrameLayout

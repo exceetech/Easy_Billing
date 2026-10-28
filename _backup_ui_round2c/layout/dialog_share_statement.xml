@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Share full statement: champagne dialog (same language as dialog_confirm_print / dialog_sign_out).
+     Bound by MoneyStatementActivity.showShareSheet(): tvPeriod, optExcel, optPdf, optPrint, btnCancel. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="22dp"
+    android:background="@drawable/bg_lg_dialog"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <FrameLayout android:layout_width="58dp" android:layout_height="58dp" android:layout_gravity="center" android:layout_marginBottom="12dp" android:background="@drawable/bg_dialog_soft_amber_circle">
+        <ImageView android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center" android:src="@drawable/ic_share_nodes" app:tint="#8A6526"/>
+    </FrameLayout>
+
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mstmt_share_eyebrow" android:textSize="11sp" android:letterSpacing="0.16" android:fontFamily="@font/googlesans_semibold" android:textColor="#8A6526" android:gravity="center"/>
+
+    <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:orientation="horizontal" android:gravity="bottom" android:layout_marginTop="1dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mstmt_share_title_a" android:textColor="#1A1A18" android:textSize="19sp" android:fontFamily="@font/googlesans_bold" android:includeFontPadding="false"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="@string/mstmt_share_title_b" android:textColor="#0F6E56" android:textSize="19sp" android:textStyle="italic" android:fontFamily="serif" android:includeFontPadding="false"/>
+    </LinearLayout>
+
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/mstmt_share_sub" android:textSize="12.5sp" android:textColor="#5B6660" android:gravity="center" android:layout_marginTop="6dp" android:lineSpacingExtra="2dp"/>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_lg_card" android:padding="13dp" android:layout_marginTop="16dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mstmt_share_for" android:textSize="11sp" android:letterSpacing="0.06" android:textColor="#66716B" android:layout_marginBottom="6dp"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+            <FrameLayout android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_ov_pay_icon" android:backgroundTint="#DDEEEE">
+                <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_calendar" app:tint="#085041"/>
+            </FrameLayout>
+            <TextView android:id="@+id/tvPeriod" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:textSize="13.5sp" android:fontFamily="serif" android:textColor="#1A1A18"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/optExcel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="12dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@drawable/bg_share_option">
+        <FrameLayout android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/bg_share_tag_green">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:text="XLS" android:textColor="#FFFFFF" android:textSize="11sp" android:fontFamily="@font/googlesans_bold" android:includeFontPadding="false"/>
+        </FrameLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="12dp" android:orientation="vertical">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mstmt_opt_excel" android:textColor="#1A1A18" android:textSize="14sp" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mstmt_opt_excel_short" android:textColor="#66716B" android:textSize="11.5sp" android:fontFamily="@font/googlesans_regular" android:includeFontPadding="false"/>
+        </LinearLayout>
+        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_lc_chevron_right" app:tint="#9BA7A0"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/optPdf"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="12dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@drawable/bg_share_option">
+        <FrameLayout android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/bg_share_tag_red">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:text="PDF" android:textColor="#FFFFFF" android:textSize="11sp" android:fontFamily="@font/googlesans_bold" android:includeFontPadding="false"/>
+        </FrameLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="12dp" android:orientation="vertical">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mstmt_opt_pdf" android:textColor="#1A1A18" android:textSize="14sp" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mstmt_opt_pdf_short" android:textColor="#66716B" android:textSize="11.5sp" android:fontFamily="@font/googlesans_regular" android:includeFontPadding="false"/>
+        </LinearLayout>
+        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_lc_chevron_right" app:tint="#9BA7A0"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/optPrint"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="12dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@drawable/bg_share_option">
+        <FrameLayout android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/bg_share_tag_teal">
+            <ImageView android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="center" android:src="@drawable/ic_si_printer" app:tint="#FFFFFF"/>
+        </FrameLayout>
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="12dp" android:orientation="vertical">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/mstmt_opt_print" android:textColor="#1A1A18" android:textSize="14sp" android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/mstmt_opt_print_short" android:textColor="#66716B" android:textSize="11.5sp" android:fontFamily="@font/googlesans_regular" android:includeFontPadding="false"/>
+        </LinearLayout>
+        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_lc_chevron_right" app:tint="#9BA7A0"/>
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancel"
+        android:layout_width="match_parent" android:layout_height="46dp" android:layout_marginTop="14dp"
+        android:text="@string/dialog_confirm_print_cancel" android:textColor="#9A2E2E" android:textAllCaps="false" android:textSize="13sp" android:textStyle="bold"
+        android:fontFamily="@font/googlesans_semibold" android:includeFontPadding="false"
+        android:background="@drawable/bg_inv_action_close" app:backgroundTint="@null"
+        android:insetTop="0dp" android:insetBottom="0dp" android:insetLeft="0dp" android:insetRight="0dp"
+        android:stateListAnimator="@null" app:icon="@drawable/ic_close" app:iconTint="#B91C1C" app:iconSize="16dp"
+        app:iconGravity="textStart" app:iconPadding="7dp" app:cornerRadius="14dp" app:rippleColor="#F6D8D4" android:gravity="center"/>
+</LinearLayout>

@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Debit-note line item — individual price-led card (each row is its own
+    bg_inv_value_card, not a shared list card), with a left accent stripe
+    matching the row's monogram/stepper color. Price leads on the right of
+    the header row; the qty stepper sits in a footer row with the value
+    centered between the − and + buttons.
+
+    Bound by DebitNoteItemAdapter: cardRoot (for clipToOutline), viewItemStripe,
+    tvAvatar, tvProductName, tvAlreadyReturned (hidden), tvHsnVariant,
+    tvQtySold, tvUnitPrice, tvGstRate, tvMaxReturn (its own wrapper is
+    hidden — not the whole row), etAdditionalTaxable, tvAdditionalTax,
+    btnDecrement, btnIncrement.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_marginVertical="5dp"
+    android:background="@drawable/bg_lg_card">
+
+    <View
+        android:id="@+id/viewItemStripe"
+        android:layout_width="4dp"
+        android:layout_height="match_parent"
+        android:background="#8A6526" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="14dp">
+
+        <!-- Header: monogram, name/sub, price -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvAvatar"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:gravity="center"
+                android:text="P"
+                android:textSize="13sp"
+                android:textColor="#8A6526"
+                android:fontFamily="@font/googlesans_semibold"
+                android:background="@drawable/bg_credit_avatar"
+                android:backgroundTint="#EEF2F0"
+                android:includeFontPadding="false" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvProductName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Product Name"
+                        android:textSize="13.5sp"
+                        android:textColor="#1A1A18"
+                        android:fontFamily="@font/googlesans_medium"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:maxWidth="150dp" />
+
+                    <TextView
+                        android:id="@+id/tvAlreadyReturned"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:paddingHorizontal="7dp"
+                        android:paddingVertical="1dp"
+                        android:background="@drawable/bg_credit_avatar"
+                        android:backgroundTint="#E3E8E4"
+                        android:textSize="11sp"
+                        android:textColor="#8A6526"
+                        android:visibility="gone"
+                        android:text="Returned: 0"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="1dp">
+
+                    <!-- Flexes to fill the remaining row width instead of a
+                         fixed cap, since this now holds HSN + variant + unit
+                         concatenated (was truncating the variant almost
+                         immediately at a fixed 90dp). -->
+                    <TextView
+                        android:id="@+id/tvHsnVariant"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:textSize="11sp"
+                        android:textColor="#66716B"
+                        android:singleLine="true"
+                        android:ellipsize="end"
+                        android:text="—"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:text="@string/item_debit_note_line_sold"
+                        android:textSize="11sp"
+                        android:textColor="#66716B" />
+
+                    <TextView
+                        android:id="@+id/tvQtySold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="3dp"
+                        android:textSize="11sp"
+                        android:textColor="#66716B"
+                        android:text="0"/>
+
+                    <LinearLayout
+                        android:id="@+id/llGstMeta"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:text="·"
+                            android:textSize="11sp"
+                            android:textColor="#66716B" />
+
+                        <TextView
+                            android:id="@+id/tvGstRate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:textSize="11sp"
+                            android:textColor="#66716B"
+                            android:text="0%"/>
+
+                        <TextView
+                            android:id="@+id/tvGstLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="3dp"
+                            android:text="GST"
+                            android:textSize="11sp"
+                            android:textColor="#66716B" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Hidden wrapper so the adapter's parent-hide logic only
+                     collapses this small view, never the whole row. -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/tvMaxReturn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvUnitPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="0.00"
+                android:textSize="18sp"
+                android:textColor="#1A1A18"
+                android:fontFamily="serif"
+                android:includeFontPadding="false"
+                android:singleLine="true" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="9dp"
+            android:background="#E3E8E4" />
+
+        <!-- Footer: label on the left, the same inline edge-to-edge
+             −/qty/+ bar used in the return/refund page's item row
+             (item_sales_return_row.xml: bg_batch_edge_bar, 134dp x
+             44dp) sitting on the right of the same row. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="#1A1A18"
+                android:fontFamily="@font/googlesans_medium"
+                android:text="@string/item_debit_note_line_additional_qty"/>
+
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
+                android:layout_width="134dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="10dp"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_batch_edge_bar"
+                >
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDecrement"
+                    android:layout_width="40dp"
+                    android:layout_height="match_parent"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:text="−"
+                    android:textAllCaps="false"
+                    android:textSize="19sp"
+                    android:textColor="#8A6526"
+                    android:padding="0dp"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:stateListAnimator="@null"
+                    app:elevation="0dp"
+                    app:cornerRadius="0dp"
+                    app:backgroundTint="#FFFFFF"
+                    app:strokeWidth="0dp"
+                    app:rippleColor="#14000000"/>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#E3E8E4"/>
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etAdditionalTaxable"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:inputType="numberDecimal"
+                    android:textSize="18sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
+                    android:background="@android:color/transparent"
+                    android:padding="0dp"
+                    android:hint="0"
+                    android:textColorHint="#B4BDB8"/>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="#E3E8E4"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnIncrement"
+                    android:layout_width="40dp"
+                    android:layout_height="match_parent"
+                    android:minWidth="0dp"
+                    android:minHeight="0dp"
+                    android:text="+"
+                    android:textAllCaps="false"
+                    android:textSize="19sp"
+                    android:textColor="#FFFFFF"
+                    android:padding="0dp"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:stateListAnimator="@null"
+                    app:elevation="0dp"
+                    app:cornerRadius="0dp"
+                    android:background="@drawable/bg_lg_cta_gold_0"
+        app:backgroundTint="@null"
+                    app:strokeWidth="0dp"
+                    app:rippleColor="#33FFFFFF"/>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+        </LinearLayout>
+
+        <!-- Additional taxable/tax preview — only takes space once a
+             qty is entered. -->
+        <TextView
+            android:id="@+id/tvAdditionalTax"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:gravity="end"
+            android:textSize="11sp"
+            android:textColor="#8A6526"
+            android:fontFamily="@font/googlesans_medium"
+            android:visibility="gone"
+            android:text="Taxable: 0.00 | Tax: 0.00"/>
+
+    </LinearLayout>
+
+</LinearLayout>

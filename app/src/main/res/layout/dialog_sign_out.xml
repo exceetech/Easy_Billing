@@ -51,7 +51,7 @@
         android:layout_marginTop="8dp"
         android:gravity="center"
         android:text="@string/dialog_sign_out_message"
-        android:textColor="#76867C"
+        android:textColor="#66716B"
         android:textSize="12.5sp"
         android:lineSpacingExtra="3dp" />
 

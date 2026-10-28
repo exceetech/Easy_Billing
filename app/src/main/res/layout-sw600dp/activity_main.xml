@@ -28,7 +28,7 @@
                 android:includeFontPadding="false" android:textStyle="normal" />
                 </LinearLayout>
 
-                <TextView android:id="@+id/brandTagline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="@string/point_of_sale_tagline" android:textColor="#7C8782" android:textSize="10sp" android:letterSpacing="0.18" android:fontFamily="@font/googlesans_semibold" />
+                <TextView android:id="@+id/brandTagline" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:text="@string/point_of_sale_tagline" android:textColor="#66716B" android:textSize="11sp" android:letterSpacing="0.18" android:fontFamily="@font/googlesans_semibold" />
 
                 <LinearLayout android:id="@+id/brandFeatures" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="22dp">
 
@@ -58,7 +58,7 @@
                 
                 <LinearLayout android:id="@+id/loginHeader" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:background="@drawable/bg_lg_tab_track" android:padding="3dp">
                     <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:paddingVertical="8dp" android:text="@string/login" android:textColor="#FFFFFF" android:textSize="13sp" android:fontFamily="@font/googlesans_semibold" android:background="@drawable/bg_lg_tab_active" />
-                    <TextView android:id="@+id/tvRegister" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:paddingVertical="8dp" android:text="@string/sign_up" android:textColor="#7C8782" android:textSize="13sp" android:fontFamily="@font/googlesans_semibold" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackgroundBorderless" />
+                    <TextView android:id="@+id/tvRegister" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:paddingVertical="8dp" android:text="@string/sign_up" android:textColor="#66716B" android:textSize="13sp" android:fontFamily="@font/googlesans_semibold" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackgroundBorderless" />
                 </LinearLayout>
 
                 <LinearLayout android:id="@+id/loginForm" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="16dp">
@@ -70,7 +70,7 @@
                         android:layout_marginBottom="6dp"
                         android:text="@string/email_address"
                         android:textSize="12.5sp"
-                        android:textColor="#8D9992"
+                        android:textColor="#66716B"
                         android:fontFamily="@font/googlesans_regular" />
 
                     <FrameLayout
@@ -90,7 +90,7 @@
                         android:layout_marginBottom="6dp"
                         android:text="@string/password"
                         android:textSize="12.5sp"
-                        android:textColor="#8D9992"
+                        android:textColor="#66716B"
                         android:fontFamily="@font/googlesans_regular" />
 
                     <FrameLayout
@@ -100,7 +100,7 @@
                         android:background="@drawable/bg_lg_input">
                         <ImageView android:id="@+id/iconPassword" android:layout_width="19dp" android:layout_height="19dp" android:layout_gravity="center_vertical|start" android:layout_marginStart="14dp" android:src="@drawable/ic_lc_lock" app:tint="#B8895A" android:contentDescription="@null" />
                         <EditText android:id="@+id/etPassword" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="50dp" android:background="@null" android:paddingVertical="10dp" android:paddingStart="44dp" android:paddingEnd="46dp" android:hint="@string/enter_your_password_hint" android:textColor="#1A1A18" android:textColorHint="#929F97" android:inputType="textPassword" android:singleLine="true" android:textSize="14sp" />
-                        <ImageView android:id="@+id/btnTogglePassword" android:layout_width="20dp" android:layout_height="20dp" android:layout_gravity="center_vertical|end" android:layout_marginEnd="14dp" android:src="@drawable/ic_lc_eye_off" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackgroundBorderless" app:tint="#B8895A" android:contentDescription="@null" />
+                        <ImageView android:id="@+id/btnTogglePassword" android:layout_width="44dp" android:padding="12dp" android:layout_height="44dp" android:layout_gravity="center_vertical|end" android:layout_marginEnd="2dp" android:src="@drawable/ic_lc_eye_off" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackgroundBorderless" app:tint="#B8895A" android:contentDescription="@null" />
                     </FrameLayout>
 
                     <TextView android:id="@+id/tvForgotPassword" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="end" android:layout_marginTop="9dp" android:text="@string/forgot_password_2" android:textColor="#0F6E56" android:textSize="12sp" android:fontFamily="@font/googlesans_medium" android:background="?attr/selectableItemBackgroundBorderless" />
@@ -110,7 +110,7 @@
 
                 <LinearLayout android:id="@+id/loginFooter" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center" android:layout_marginTop="14dp">
                     <ImageView android:layout_width="15dp" android:layout_height="15dp" android:src="@drawable/ic_security_login" app:tint="#7C8782" android:contentDescription="@null" />
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="7dp" android:text="@string/secured_encryption_note" android:textColor="#7C8782" android:textSize="10sp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="7dp" android:text="@string/secured_encryption_note" android:textColor="#66716B" android:textSize="11sp" />
                 </LinearLayout>
 
                 
@@ -120,7 +120,7 @@
 
                     <ImageView android:layout_width="36dp" android:layout_height="36dp" android:layout_gravity="center_horizontal" android:adjustViewBounds="true" android:src="@drawable/ic_scalancer_emblem" android:contentDescription="@string/powered_by_scalancer" />
 
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="@string/powered_by_label" android:textColor="#5A7A85" android:textSize="7sp" android:letterSpacing="0.16" android:fontFamily="@font/googlesans_medium" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="@string/powered_by_label" android:textColor="#5A7A85" android:textSize="11sp" android:letterSpacing="0.16" android:fontFamily="@font/googlesans_medium" />
 
                     <ImageView android:layout_width="wrap_content" android:layout_height="10dp" android:layout_marginTop="3dp" android:adjustViewBounds="true" android:src="@drawable/ic_scalancer_wordmark" android:contentDescription="@null" />
                 </LinearLayout>

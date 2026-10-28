@@ -35,8 +35,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/account_eyebrow"
-                android:textColor="#B8895A"
-                android:textSize="10sp"
+                android:textColor="#8A6526"
+                android:textSize="11sp"
                 android:letterSpacing="0.16"
                 android:fontFamily="@font/googlesans_semibold" />
 
@@ -116,7 +116,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="@string/dashboard_owner_fallback"
-                        android:textColor="#7C8782"
+                        android:textColor="#66716B"
                         android:textSize="11.5sp"
                         android:singleLine="true"
                         android:ellipsize="end"/>
@@ -141,7 +141,7 @@
                                 android:layout_marginEnd="4dp" android:src="@drawable/ic_lucide_badge_check"
                                 app:tint="#085041" android:contentDescription="@null"/>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="@string/gst_registered_badge" android:textSize="9.5sp"
+                                android:text="@string/gst_registered_badge" android:textSize="11sp"
                                 android:fontFamily="@font/googlesans_semibold" android:textColor="#085041"/>
                         </LinearLayout>
 
@@ -160,7 +160,7 @@
                                 android:layout_marginEnd="4dp" android:src="@drawable/ic_phone"
                                 app:tint="#8A6526" android:contentDescription="@null"/>
                             <TextView android:id="@+id/tvPhoneChip" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                android:text="—" android:textSize="9.5sp"
+                                android:text="—" android:textSize="11sp"
                                 android:fontFamily="@font/googlesans_semibold" android:textColor="#8A6526"/>
                         </LinearLayout>
                     </LinearLayout>
@@ -208,14 +208,14 @@
                         android:orientation="vertical"
                         android:layout_marginStart="12dp">
                         <TextView
-                            android:text="Store information"
+                            android:text="@string/fragment_profile_store_information"
                             android:textColor="#1A1A18"
                             android:textSize="14sp"
                             android:textStyle="bold"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
                         <TextView
-                            android:text="Basic business details"
+                            android:text="@string/fragment_profile_basic_business_details"
                             android:textColor="#5C6B65"
                             android:textSize="11sp"
                             android:layout_marginTop="1dp"
@@ -224,8 +224,8 @@
                     </LinearLayout>
 
                     <TextView
-                        android:text="4 fields"
-                        android:textSize="10sp"
+                        android:text="@string/fragment_profile_4_fields"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:textColor="#16A34A"
                         android:paddingHorizontal="11dp"
@@ -246,9 +246,9 @@
                     android:layout_marginHorizontal="15dp">
 
                     <TextView
-                        android:text="STORE DETAILS"
-                        android:textColor="#7C8782"
-                        android:textSize="10.5sp"
+                        android:text="@string/fragment_profile_store_details"
+                        android:textColor="#66716B"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.07"
                         android:layout_marginBottom="10dp"
@@ -399,14 +399,14 @@
                         android:orientation="vertical"
                         android:layout_marginStart="12dp">
                         <TextView
-                            android:text="Gst profile"
+                            android:text="@string/fragment_profile_gst_profile"
                             android:textColor="#1A1A18"
                             android:textSize="14sp"
                             android:textStyle="bold"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
                         <TextView
-                            android:text="Tax registration details"
+                            android:text="@string/fragment_profile_tax_registration_details"
                             android:textColor="#5C6B65"
                             android:textSize="11sp"
                             android:layout_marginTop="1dp"
@@ -415,8 +415,8 @@
                     </LinearLayout>
 
                     <TextView
-                        android:text="Registered"
-                        android:textSize="9sp"
+                        android:text="@string/fragment_profile_registered"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:textColor="#8A6526"
                         android:paddingHorizontal="9dp"
@@ -452,7 +452,7 @@
                     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
                         android:orientation="vertical" android:layout_marginStart="12dp">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="@string/gstin" android:textSize="9.5sp" android:letterSpacing="0.05" android:textColor="#7C8782"/>
+                            android:text="@string/gstin" android:textSize="11sp" android:letterSpacing="0.05" android:textColor="#66716B"/>
                         <TextView android:id="@+id/tvGstinValue" android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginTop="2dp" android:text="—"
                             android:textSize="15sp" android:fontFamily="serif" android:textColor="#1A1A18" android:letterSpacing="0.04"/>
@@ -470,7 +470,7 @@
                             android:layout_gravity="center"
                             android:src="@drawable/ic_copy"
                             app:tint="#085041"
-                            android:contentDescription="Copy GSTIN"/>
+                            android:contentDescription="@string/fragment_profile_copy_gstin"/>
                     </FrameLayout>
                 </LinearLayout>
 
@@ -484,9 +484,9 @@
                     android:layout_marginHorizontal="15dp">
 
                     <TextView
-                        android:text="REGISTRATION DETAILS"
-                        android:textColor="#7C8782"
-                        android:textSize="10.5sp"
+                        android:text="@string/fragment_profile_registration_details"
+                        android:textColor="#66716B"
+                        android:textSize="11sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.07"
                         android:layout_marginBottom="10dp"

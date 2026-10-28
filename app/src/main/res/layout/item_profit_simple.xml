@@ -88,8 +88,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:text="0 sold"
-                    android:textSize="10sp"
-                    android:textColor="#7C8782"
+                    android:textSize="11sp"
+                    android:textColor="#66716B"
                     android:maxLines="1"
                     android:ellipsize="end"/>
 
@@ -160,8 +160,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="0 sold"
-                        android:textSize="10.5sp"
-                        android:textColor="#7C8782"/>
+                        android:textSize="11sp"
+                        android:textColor="#66716B"/>
                 </LinearLayout>
                 <TextView
                     android:id="@+id/tvEarnedLine"
@@ -229,8 +229,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="@string/xml_profit_detail_loss_none"
-                        android:textSize="10.5sp"
-                        android:textColor="#7C8782"/>
+                        android:textSize="11sp"
+                        android:textColor="#66716B"/>
                 </LinearLayout>
                 <TextView
                     android:id="@+id/tvLossLine"
@@ -274,7 +274,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="0% of what came in"
-                        android:textSize="10.5sp"
+                        android:textSize="11sp"
                         android:textColor="#3E6E62"/>
                 </LinearLayout>
                 <TextView

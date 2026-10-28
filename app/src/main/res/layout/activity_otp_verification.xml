@@ -75,8 +75,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:text="@string/account_verification_eyebrow"
-                android:textColor="#B8895A"
-                android:textSize="10sp"
+                android:textColor="#8A6526"
+                android:textSize="11sp"
                 android:letterSpacing="0.16"
                 android:fontFamily="@font/googlesans_semibold"/>
 
@@ -115,7 +115,7 @@
                 android:layout_marginTop="7dp"
                 android:gravity="center"
                 android:text="@string/enter_6_digit_code_sent_to"
-                android:textColor="#76867C"
+                android:textColor="#66716B"
                 android:textSize="12.5sp"
                 android:lineSpacingExtra="2dp"/>
 
@@ -154,7 +154,7 @@
                     android:textCursorDrawable="@drawable/cursor_thin"
                     android:fontFamily="@font/googlesans_semibold"
                     android:importantForAutofill="no"
-                    android:contentDescription="OTP digit 1"/>
+                    android:contentDescription="@string/activity_forgot_password_otp_digit_1"/>
 
                 <EditText
                     android:id="@+id/otpBox2"
@@ -173,7 +173,7 @@
                     android:textCursorDrawable="@drawable/cursor_thin"
                     android:fontFamily="@font/googlesans_semibold"
                     android:importantForAutofill="no"
-                    android:contentDescription="OTP digit 2"/>
+                    android:contentDescription="@string/activity_forgot_password_otp_digit_2"/>
 
                 <EditText
                     android:id="@+id/otpBox3"
@@ -192,7 +192,7 @@
                     android:textCursorDrawable="@drawable/cursor_thin"
                     android:fontFamily="@font/googlesans_semibold"
                     android:importantForAutofill="no"
-                    android:contentDescription="OTP digit 3"/>
+                    android:contentDescription="@string/activity_forgot_password_otp_digit_3"/>
 
                 <EditText
                     android:id="@+id/otpBox4"
@@ -211,7 +211,7 @@
                     android:textCursorDrawable="@drawable/cursor_thin"
                     android:fontFamily="@font/googlesans_semibold"
                     android:importantForAutofill="no"
-                    android:contentDescription="OTP digit 4"/>
+                    android:contentDescription="@string/activity_forgot_password_otp_digit_4"/>
 
                 <EditText
                     android:id="@+id/otpBox5"
@@ -230,7 +230,7 @@
                     android:textCursorDrawable="@drawable/cursor_thin"
                     android:fontFamily="@font/googlesans_semibold"
                     android:importantForAutofill="no"
-                    android:contentDescription="OTP digit 5"/>
+                    android:contentDescription="@string/activity_forgot_password_otp_digit_5"/>
 
                 <EditText
                     android:id="@+id/otpBox6"
@@ -249,7 +249,7 @@
                     android:textCursorDrawable="@drawable/cursor_thin"
                     android:fontFamily="@font/googlesans_semibold"
                     android:importantForAutofill="no"
-                    android:contentDescription="OTP digit 6"/>
+                    android:contentDescription="@string/activity_forgot_password_otp_digit_6"/>
 
             </LinearLayout>
 
@@ -281,7 +281,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/code_valid_5_minutes"
-                    android:textColor="#7C8782"
+                    android:textColor="#66716B"
                     android:textSize="12sp"
                     android:fontFamily="@font/googlesans_regular"/>
             </LinearLayout>
@@ -329,7 +329,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/didnt_receive_it"
-                    android:textColor="#76867C"
+                    android:textColor="#66716B"
                     android:textSize="12.5sp"/>
                 <TextView
                     android:id="@+id/tvResendOtp"

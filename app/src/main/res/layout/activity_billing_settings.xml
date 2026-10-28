@@ -46,8 +46,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/tax_format_eyebrow"
-                        android:textColor="#B8895A"
-                        android:textSize="10sp"
+                        android:textColor="#8A6526"
+                        android:textSize="11sp"
                         android:letterSpacing="0.16"
                         android:fontFamily="@font/googlesans_semibold"/>
 
@@ -148,7 +148,7 @@
                             android:textSize="11sp" android:layout_marginTop="1dp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
-                    <TextView android:text="5 fields" android:textSize="10sp" android:textStyle="bold"
+                    <TextView android:text="@string/activity_billing_settings_5_fields" android:textSize="11sp" android:textStyle="bold"
                         android:textColor="#0F6E56" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
                         android:background="@drawable/bg_pill_green" android:letterSpacing="0.06"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"/>
@@ -208,7 +208,7 @@
                         android:layout_marginTop="6dp"
                         android:layout_marginStart="2dp"
                         android:text="@string/set_in_store_information"
-                        android:textColor="#7C8782"
+                        android:textColor="#66716B"
                         android:textSize="11sp"/>
 
                     <!-- Legal name -->
@@ -449,7 +449,7 @@
                             android:textSize="11sp" android:layout_marginTop="1dp"
                             android:layout_width="wrap_content" android:layout_height="wrap_content"/>
                     </LinearLayout>
-                    <TextView android:text="1 field" android:textSize="10sp" android:textStyle="bold"
+                    <TextView android:text="@string/activity_billing_settings_1_field" android:textSize="11sp" android:textStyle="bold"
                         android:textColor="#8A6526" android:paddingHorizontal="11dp" android:paddingVertical="5dp"
                         android:background="@drawable/bg_pill_amber" android:letterSpacing="0.06"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"/>

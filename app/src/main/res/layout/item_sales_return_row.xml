@@ -86,7 +86,7 @@
                         android:paddingVertical="1dp"
                         android:background="@drawable/bg_credit_avatar"
                         android:backgroundTint="#E3E8E4"
-                        android:textSize="9.5sp"
+                        android:textSize="11sp"
                         android:textColor="#8A6526"
                         android:visibility="gone"
                         android:text="Returned: 0"/>
@@ -107,8 +107,8 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:textSize="10sp"
-                        android:textColor="#7C8782"
+                        android:textSize="11sp"
+                        android:textColor="#66716B"
                         android:singleLine="true"
                         android:ellipsize="end"
                         android:text="—"/>
@@ -117,17 +117,17 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
-                        android:text="· Sold"
-                        android:textSize="10sp"
-                        android:textColor="#7C8782" />
+                        android:text="@string/item_debit_note_line_sold"
+                        android:textSize="11sp"
+                        android:textColor="#66716B" />
 
                     <TextView
                         android:id="@+id/tvQtySold"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="3dp"
-                        android:textSize="10sp"
-                        android:textColor="#7C8782"
+                        android:textSize="11sp"
+                        android:textColor="#66716B"
                         android:text="0"/>
 
                     <!-- GST%/CESS% — tax-filing detail, not needed to decide
@@ -146,16 +146,16 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"
                             android:text="·"
-                            android:textSize="10sp"
-                            android:textColor="#7C8782" />
+                            android:textSize="11sp"
+                            android:textColor="#66716B" />
 
                         <TextView
                             android:id="@+id/tvGstRate"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"
-                            android:textSize="10sp"
-                            android:textColor="#7C8782"
+                            android:textSize="11sp"
+                            android:textColor="#66716B"
                             android:text="0%"/>
 
                         <TextView
@@ -164,8 +164,8 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="3dp"
                             android:text="GST"
-                            android:textSize="10sp"
-                            android:textColor="#7C8782" />
+                            android:textSize="11sp"
+                            android:textColor="#66716B" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -177,7 +177,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:textSize="10sp"
+                    android:textSize="11sp"
                     android:textColor="#8A6526"
                     android:fontFamily="@font/googlesans_medium"
                     android:text="Max returnable: 0"/>
@@ -220,7 +220,7 @@
                 android:textSize="12sp"
                 android:textColor="#1A1A18"
                 android:fontFamily="@font/googlesans_medium"
-                android:text="Return quantity"/>
+                android:text="@string/item_sales_return_row_return_quantity"/>
 
             <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="134dp"
@@ -310,7 +310,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="7dp"
             android:gravity="end"
-            android:textSize="10.5sp"
+            android:textSize="11sp"
             android:textColor="#0F6E56"
             android:fontFamily="@font/googlesans_medium"
             android:visibility="gone"

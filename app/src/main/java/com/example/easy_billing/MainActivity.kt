@@ -98,10 +98,7 @@ class MainActivity : BaseActivity() {
         suspendCancellableCoroutine { cont ->
             val view = layoutInflater.inflate(R.layout.dialog_unsynced_warning, null)
             view.findViewById<android.widget.TextView>(R.id.tvUnsyncedMessage).text =
-                "This device has $pendingCount unsynced record(s) from your " +
-                    "current workspace. Switching now will permanently delete " +
-                    "them from this device before they reach the server.\n\n" +
-                    "Go back and let them sync first, or continue anyway?"
+                getString(R.string.main_this_device_has_1_s_unsynced_record_s_, pendingCount)
             val dialog = AlertDialog.Builder(this)
                 .setView(view)
                 .setCancelable(false)

@@ -31,8 +31,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/bill_history_eyebrow"
-            android:textColor="#B8895A"
-            android:textSize="10sp"
+            android:textColor="#8A6526"
+            android:textSize="11sp"
             android:letterSpacing="0.16"
             android:fontFamily="@font/googlesans_semibold" />
 
@@ -83,7 +83,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/bill_history_sold_today"
-            android:textColor="#7C8782"
+            android:textColor="#66716B"
             android:textSize="11.5sp"
             android:fontFamily="@font/googlesans_medium" />
 
@@ -142,7 +142,7 @@
                     android:layout_marginTop="2dp"
                     android:text="@string/bill_history_invoices_today"
                     android:textColor="#0F6E56"
-                    android:textSize="9.5sp"
+                    android:textSize="11sp"
                     android:fontFamily="@font/googlesans_medium" />
             </LinearLayout>
 
@@ -171,7 +171,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
                     android:text="@string/bill_history_tile_cash"
-                    android:textSize="9.5sp"
+                    android:textSize="11sp"
                     android:textColor="#0F6E56" />
             </LinearLayout>
 
@@ -200,7 +200,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
                     android:text="@string/bill_history_tile_on_credit"
-                    android:textSize="9.5sp"
+                    android:textSize="11sp"
                     android:textColor="#A32D2D" />
             </LinearLayout>
 
@@ -319,7 +319,7 @@
                 android:background="@drawable/bg_hdr_badge_red"
                 android:text="1"
                 android:textColor="#FFFFFF"
-                android:textSize="8.5sp"
+                android:textSize="11sp"
                 android:fontFamily="@font/googlesans_semibold"
                 android:includeFontPadding="false"
                 android:visibility="gone" />
@@ -378,7 +378,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="@string/sort_newest_first"
-                android:textColor="#7C8782"
+                android:textColor="#66716B"
                 android:fontFamily="@font/googlesans_medium"
                 android:textSize="12sp"
                 android:singleLine="true"
@@ -400,7 +400,7 @@
                     android:layout_height="12dp"
                     android:src="@drawable/ic_close"
                     app:tint="#B23A3A"
-                    android:contentDescription="Reset filters" />
+                    android:contentDescription="@string/activity_bill_history_reset_filters" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -518,7 +518,7 @@
                     android:gravity="center"
                     android:text="@string/bill_history_no_bills_body"
                     android:textSize="12.5sp"
-                    android:textColor="#76867C"
+                    android:textColor="#66716B"
                     android:lineSpacingExtra="3dp" />
 
                 <View
@@ -562,7 +562,7 @@
                             android:layout_marginTop="1dp"
                             android:text="@string/bill_history_tip_create_body"
                             android:textSize="11sp"
-                            android:textColor="#7C8782" />
+                            android:textColor="#66716B" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -594,7 +594,7 @@
                             android:layout_marginTop="1dp"
                             android:text="@string/bill_history_tip_search_body"
                             android:textSize="11sp"
-                            android:textColor="#7C8782" />
+                            android:textColor="#66716B" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
