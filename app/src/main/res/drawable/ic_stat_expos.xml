@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Status-bar / notification small icon. Android only uses the alpha channel,
+    so it is a single-colour bag with the arrow cut out, 20dp tall in a 24dp box.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <group android:scaleX="0.2899" android:scaleY="0.2899" android:translateX="-2.495" android:translateY="-2.93">
+        <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd" android:pathData="M26.23,36.99 Q26,34 29,34 L71,34 Q74,34 73.77,36.99 L70.23,83.01 Q70,86 67,86 L33,86 Q30,86 29.77,83.01 L26.23,36.99 Z M39,34 C39,24 44,17 50,17 C56,17 61,24 61,34 H54 C54,27 52,24 50,24 C48,24 46,27 46,34 Z M38,66 L46,58 L51,62 L62,49 L62,55 L65.3,55 L65.3,46 L56,46 L56,49.2 L61,49.2 L50.7,61 L46,57 L41,62.3 Z"/>
+    </group>
+</vector>

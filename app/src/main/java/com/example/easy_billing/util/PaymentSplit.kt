@@ -55,10 +55,24 @@ object MoneyReason {
     /** Cash moved to / from the bank. Not earnings: it is left out of money in / out on the Reports card. */
     const val TRANSFER = "TRANSFER"
 
+    // "Due" notes: a PENDING reminder that money still has to be handed back / collected.
+    // A due note is NOT money (never counted anywhere). Its reason is the real reason + "_DUE";
+    // settling it cancels the note and writes the real rows (see [DueNotes]).
+    const val DUE_SUFFIX = "_DUE"
+    const val SALE_REFUND_DUE = SALE_REFUND + DUE_SUFFIX
+    const val ADVANCE_REFUND_DUE = ADVANCE_REFUND + DUE_SUFFIX
+    const val SALE_EXTRA_DUE = SALE_EXTRA + DUE_SUFFIX
+    const val PURCHASE_REFUND_DUE = PURCHASE_REFUND + DUE_SUFFIX
+    const val PURCHASE_PAID_DUE = PURCHASE_PAID + DUE_SUFFIX
+
+    val DUE_REASONS = listOf(SALE_REFUND_DUE, ADVANCE_REFUND_DUE, SALE_EXTRA_DUE, PURCHASE_REFUND_DUE, PURCHASE_PAID_DUE)
+    fun isDue(r: String) = r in DUE_REASONS
+    fun realReasonOf(dueReason: String) = dueReason.removeSuffix(DUE_SUFFIX)
+
     val ALL = listOf(
         SALE, SALE_REFUND, SALE_EXTRA, DUES_RECEIVED, ADVANCE_REFUND,
         PURCHASE_PAID, SUPPLIER_PAID, PURCHASE_REFUND, OPENING, MANUAL, TRANSFER
-    )
+    ) + DUE_REASONS
     fun isValid(r: String) = r in ALL
 }
 
@@ -71,8 +85,10 @@ object MoneySource {
     const val PURCHASE_RETURN = "PURCHASE_RETURN"
     const val PURCHASE_NOTE = "PURCHASE_NOTE"
     const val MANUAL = "MANUAL"
+    /** A UPI payment that arrived after the bill was cancelled (the money is real; a refund is due). */
+    const val LATE_PAYMENT = "LATE_PAYMENT"
 
-    val ALL = listOf(BILL, CREDIT_NOTE, DEBIT_NOTE, CREDIT_TXN, PURCHASE, PURCHASE_RETURN, PURCHASE_NOTE, MANUAL)
+    val ALL = listOf(BILL, CREDIT_NOTE, DEBIT_NOTE, CREDIT_TXN, PURCHASE, PURCHASE_RETURN, PURCHASE_NOTE, MANUAL, LATE_PAYMENT)
     fun isValid(s: String) = s in ALL
 }
 

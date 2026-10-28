@@ -244,7 +244,8 @@ class TermsActivity : BaseActivity() {
     private fun unlockAcceptButton() {
         btnAcceptTerms.isEnabled = true
         btnAcceptTerms.setTextColor(0xFFFFFFFF.toInt())
-        btnAcceptTerms.backgroundTintList = android.content.res.ColorStateList.valueOf(0xFF0F6E56.toInt())
+        btnAcceptTerms.setBackgroundResource(R.drawable.bg_lg_cta)
+        btnAcceptTerms.backgroundTintList = null
         btnAcceptTerms.icon = androidx.appcompat.content.res.AppCompatResources.getDrawable(this, R.drawable.ic_lucide_check)
         btnAcceptTerms.iconTint = android.content.res.ColorStateList.valueOf(0xFFFFFFFF.toInt())
         llScrollHint.visibility = View.GONE

@@ -10,7 +10,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/bg_dashboard_premium"
+        android:background="@drawable/bg_lg_page"
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:clickable="true">
@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="#F4F0E6"
+            android:background="@android:color/transparent"
             android:elevation="6dp"
             android:clipChildren="false"
             android:clipToPadding="false">
@@ -51,7 +51,7 @@
                     android:layout_width="44dp"
                     android:layout_height="44dp"
                     android:gravity="center"
-                    android:background="@drawable/bg_hdr_tile"
+                    android:background="@drawable/bg_lg_tile"
                     android:clickable="true"
                     android:focusable="true"
                     android:foreground="?attr/selectableItemBackgroundBorderless">
@@ -59,7 +59,7 @@
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:src="@drawable/ic_hdr_menu"
-                        app:tint="#3A3733"
+                        app:tint="#333A36"
                         android:contentDescription="@null"/>
                 </LinearLayout>
 
@@ -111,7 +111,7 @@
                         android:layout_width="44dp"
                         android:layout_height="44dp"
                         android:gravity="center"
-                        android:background="@drawable/bg_hdr_tile"
+                        android:background="@drawable/bg_lg_tile"
                         android:layout_marginStart="10dp"
                         android:clickable="true"
                         android:focusable="true"
@@ -121,7 +121,7 @@
                             android:layout_width="22dp"
                             android:layout_height="22dp"
                             android:src="@drawable/ic_hdr_view_grid"
-                            app:tint="#3A3733"
+                            app:tint="#333A36"
                             android:contentDescription="@null"/>
                     </LinearLayout>
 
@@ -137,7 +137,7 @@
                             android:layout_width="44dp"
                             android:layout_height="44dp"
                             android:gravity="center"
-                            android:background="@drawable/bg_hdr_tile"
+                            android:background="@drawable/bg_lg_tile"
                             android:clickable="true"
                             android:focusable="true"
                             android:foreground="?attr/selectableItemBackgroundBorderless">
@@ -145,7 +145,7 @@
                                 android:layout_width="22dp"
                                 android:layout_height="22dp"
                                 android:src="@drawable/ic_hdr_filter"
-                                app:tint="#3A3733"
+                                app:tint="#333A36"
                                 android:contentDescription="@null"/>
                         </LinearLayout>
 
@@ -171,7 +171,7 @@
                         android:layout_width="44dp"
                         android:layout_height="44dp"
                         android:gravity="center"
-                        android:background="@drawable/bg_hdr_tile"
+                        android:background="@drawable/bg_lg_tile"
                         android:layout_marginStart="10dp"
                         android:clickable="true"
                         android:focusable="true"
@@ -180,7 +180,7 @@
                             android:layout_width="22dp"
                             android:layout_height="22dp"
                             android:src="@drawable/ic_hdr_sort"
-                            app:tint="#3A3733"
+                            app:tint="#333A36"
                             android:contentDescription="@null"/>
                     </LinearLayout>
 
@@ -197,7 +197,7 @@
                             android:layout_width="44dp"
                             android:layout_height="44dp"
                             android:gravity="center"
-                            android:background="@drawable/bg_hdr_tile"
+                            android:background="@drawable/bg_lg_tile"
                             android:clickable="true"
                             android:focusable="true"
                             android:foreground="?attr/selectableItemBackgroundBorderless">
@@ -205,7 +205,7 @@
                                 android:layout_width="22dp"
                                 android:layout_height="22dp"
                                 android:src="@drawable/ic_hdr_bell"
-                                app:tint="#3A3733"
+                                app:tint="#333A36"
                                 android:contentDescription="@null"/>
                         </LinearLayout>
 
@@ -246,7 +246,7 @@
                     android:layout_weight="1"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_hdr_search"
+                    android:background="@drawable/bg_lg_search"
                     android:paddingStart="14dp"
                     android:paddingEnd="12dp"
                     android:layout_marginEnd="10dp">
@@ -266,7 +266,7 @@
                         android:layout_marginStart="9dp"
                         android:background="@android:color/transparent"
                         android:hint="@string/search_products"
-                        android:textColorHint="#C4B9A6"
+                        android:textColorHint="#B1B9B4"
                         android:textColor="#1A1A18"
                         android:textSize="14sp"
                         android:inputType="text"
@@ -392,7 +392,7 @@
 
         <!-- ================= PRODUCTS ================= -->
 
-        <androidx.recyclerview.widget.RecyclerView
+        <com.example.easy_billing.ui.glass.GlassClipRecyclerView
             android:id="@+id/rvProducts"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -401,7 +401,7 @@
             android:paddingTop="20dp"
             android:paddingBottom="84dp"
             android:clipToPadding="false"
-            android:clipToOutline="true"/>
+            />
 
         <!-- ============================================================
               AI TICKER BAR — slim, edge-to-edge, no card chrome.
@@ -437,7 +437,7 @@
             android:layout_marginBottom="14dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="@drawable/bg_cart_bar"
+            android:background="@drawable/bg_lg_cart_bar"
             android:elevation="14dp"
             android:paddingStart="16dp"
             android:paddingEnd="8dp"
@@ -468,7 +468,7 @@
                 android:layout_height="40dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@drawable/bg_cart_bar_chip"
+                android:background="@drawable/bg_lg_cart_chip"
                 android:paddingHorizontal="14dp">
 
                 <TextView
@@ -512,7 +512,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:orientation="vertical"
-            android:background="#F4F0E6"
+            android:background="@drawable/bg_lg_page"
             android:elevation="22dp"
             android:visibility="gone">
 
@@ -521,7 +521,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_drawer_header_card"
+                android:background="@drawable/bg_lg_drawer_hdr"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="18dp"
                 android:layout_marginBottom="4dp"
@@ -545,7 +545,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_margin="2dp"
-                            android:background="@drawable/bg_drawer_avatar_inner">
+                            android:background="@drawable/bg_lg_avatar_inner">
 
                             <ImageView
                                 android:layout_width="24dp"
@@ -667,7 +667,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text=""
-                    android:textColor="#6E6A60"
+                    android:textColor="#5B6660"
                     android:textSize="11sp"/>
                 <TextView
                     android:id="@+id/tvNotifyClearAll"
@@ -716,7 +716,7 @@
                         android:layout_height="40dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_hdr_bell"
-                        app:tint="#B8AE9A"
+                        app:tint="#A4AEA8"
                         android:contentDescription="@null"/>
                 </FrameLayout>
                 <TextView
@@ -732,7 +732,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:text="@string/dashboard_notify_empty_body_short"
-                    android:textColor="#9A968C"
+                    android:textColor="#8D9992"
                     android:textSize="12sp"/>
             </LinearLayout>
 
@@ -746,7 +746,7 @@
         android:layout_width="360dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="#F4F0E6"
+        android:background="@drawable/bg_lg_page"
         android:orientation="vertical">
 
         <!-- Header: premium navy hero card -->
@@ -754,7 +754,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_drawer_header_card"
+            android:background="@drawable/bg_lg_drawer_hdr"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="18dp"
             android:layout_marginBottom="4dp"
@@ -780,7 +780,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_margin="2dp"
-                        android:background="@drawable/bg_drawer_avatar_inner"
+                        android:background="@drawable/bg_lg_avatar_inner"
                         android:gravity="center"
                         android:text="EB"
                         android:textColor="#F3E2C7"
@@ -951,7 +951,7 @@
 
                     <LinearLayout android:id="@+id/btnAddProduct" style="@style/SettingsRow">
                         <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
-                            android:src="@drawable/ic_drawer_product" app:tint="#185FA5"/>
+                            android:src="@drawable/ic_drawer_product" app:tint="#0F6E56"/>
                         <LinearLayout style="@style/SettingsRowText">
                             <TextView style="@style/SettingsRowTitle" android:text="@string/drawer_title_add_product"/>
                             <TextView style="@style/SettingsRowSub" android:text="@string/drawer_sub_add_product"/>
@@ -961,7 +961,7 @@
 
                     <LinearLayout android:id="@+id/btnInventory" style="@style/SettingsRow">
                         <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
-                            android:src="@drawable/ic_drawer_inventory" app:tint="#185FA5"/>
+                            android:src="@drawable/ic_drawer_inventory" app:tint="#0F6E56"/>
                         <LinearLayout style="@style/SettingsRowText">
                             <TextView style="@style/SettingsRowTitle" android:text="@string/drawer_title_inventory"/>
                             <TextView style="@style/SettingsRowSub" android:text="@string/drawer_sub_inventory"/>
@@ -1044,7 +1044,7 @@
                         <FrameLayout android:layout_width="36dp" android:layout_height="36dp"
                             android:clipChildren="false" android:clipToPadding="false">
                             <ImageView android:id="@+id/iconProfit" style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
-                                android:src="@drawable/ic_drawer_profit" app:tint="#185FA5"/>
+                                android:src="@drawable/ic_drawer_profit" app:tint="#0F6E56"/>
                             <ImageView android:id="@+id/lockProfit" android:layout_width="17dp" android:layout_height="17dp"
                                 android:layout_gravity="bottom|end" android:layout_marginEnd="-3dp" android:layout_marginBottom="-3dp"
                                 android:background="@drawable/bg_premium_lock_badge" android:padding="4dp"
@@ -1084,7 +1084,7 @@
                         <FrameLayout android:layout_width="36dp" android:layout_height="36dp"
                             android:clipChildren="false" android:clipToPadding="false">
                             <ImageView android:id="@+id/iconAiInsights" style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
-                                android:src="@drawable/ic_drawer_ai" app:tint="#185FA5"/>
+                                android:src="@drawable/ic_drawer_ai" app:tint="#0F6E56"/>
                             <ImageView android:id="@+id/lockAiInsights" android:layout_width="17dp" android:layout_height="17dp"
                                 android:layout_gravity="bottom|end" android:layout_marginEnd="-3dp" android:layout_marginBottom="-3dp"
                                 android:background="@drawable/bg_premium_lock_badge" android:padding="4dp"
@@ -1105,8 +1105,8 @@
                 <LinearLayout style="@style/SettingsCard">
 
                     <LinearLayout android:id="@+id/btnSettings" style="@style/SettingsRow">
-                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#EFEDE7"
-                            android:src="@drawable/ic_drawer_settings" app:tint="#57534E"/>
+                        <ImageView style="@style/SettingsIcon" android:backgroundTint="#E9EDEB"
+                            android:src="@drawable/ic_drawer_settings" app:tint="#4E5752"/>
                         <LinearLayout style="@style/SettingsRowText">
                             <TextView style="@style/SettingsRowTitle" android:text="@string/settings"/>
                             <TextView style="@style/SettingsRowSub" android:text="@string/drawer_sub_settings"/>
@@ -1116,7 +1116,7 @@
 
                     <LinearLayout android:id="@+id/btnProfile" style="@style/SettingsRow">
                         <ImageView style="@style/SettingsIcon" android:backgroundTint="#E6F1FB"
-                            android:src="@drawable/ic_drawer_profile" app:tint="#185FA5"/>
+                            android:src="@drawable/ic_drawer_profile" app:tint="#0F6E56"/>
                         <LinearLayout style="@style/SettingsRowText">
                             <TextView style="@style/SettingsRowTitle" android:text="@string/profile"/>
                             <TextView style="@style/SettingsRowSub" android:text="@string/drawer_sub_profile"/>
@@ -1206,7 +1206,7 @@
                     android:layout_marginTop="18dp"
                     android:gravity="center"
                     android:text="@string/app_name"
-                    android:textColor="#C9C3B4"
+                    android:textColor="#9AA59F"
                     android:textSize="11sp"/>
             </LinearLayout>
         </ScrollView>
@@ -1219,7 +1219,7 @@
         android:layout_width="392dp"
         android:layout_height="match_parent"
         android:layout_gravity="end"
-        android:background="#F4F0E6"
+        android:background="@drawable/bg_lg_page"
         android:orientation="vertical"
         android:elevation="20dp">
 
@@ -1228,7 +1228,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_drawer_header_card"
+            android:background="@drawable/bg_lg_drawer_hdr"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="18dp"
             android:layout_marginBottom="4dp"
@@ -1253,7 +1253,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_margin="2dp"
-                        android:background="@drawable/bg_drawer_avatar_inner">
+                        android:background="@drawable/bg_lg_avatar_inner">
 
                         <ImageView
                             android:layout_width="24dp"
@@ -1412,7 +1412,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/dashboard_items_in_bill"
-                android:textColor="#6E6A60"
+                android:textColor="#5B6660"
                 android:textSize="12sp"
                 android:fontFamily="@font/googlesans_medium"/>
 
@@ -1448,7 +1448,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_cart_summary_light"
+            android:background="@drawable/bg_lg_cart_summary"
             android:paddingHorizontal="20dp"
             android:paddingTop="18dp"
             android:paddingBottom="22dp"
@@ -1458,7 +1458,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/dashboard_order_summary"
-                android:textColor="#9A968C"
+                android:textColor="#8D9992"
                 android:textSize="11sp"
                 android:letterSpacing="0.05"/>
 
@@ -1480,7 +1480,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/subtotal"
-                        android:textColor="#6E6A60"
+                        android:textColor="#5B6660"
                         android:textSize="14sp"/>
 
                     <TextView
@@ -1488,7 +1488,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="@string/dashboard_taxes_applied_at_billing"
-                        android:textColor="#A99E88"
+                        android:textColor="#7C8782"
                         android:textSize="10sp"/>
                 </LinearLayout>
 
@@ -1509,7 +1509,7 @@
                 android:id="@+id/btnGenerateBill"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:background="@drawable/bg_cart_cta_navy"
+                android:background="@drawable/bg_lg_cta"
                 android:clickable="true"
                 android:focusable="true"
                 android:stateListAnimator="@animator/button_press_anim"

@@ -47,6 +47,22 @@ open class BaseActivity : AppCompatActivity() {
         // where the DecorView is not yet initialized. It is handled in onWindowFocusChanged.
     }
 
+    // Keep the typed-in field visible when the keyboard opens (see KeyboardInsets).
+    override fun setContentView(layoutResID: Int) {
+        super.setContentView(layoutResID)
+        com.example.easy_billing.util.KeyboardInsets.install(this)
+    }
+
+    override fun setContentView(view: View?) {
+        super.setContentView(view)
+        com.example.easy_billing.util.KeyboardInsets.install(this)
+    }
+
+    override fun setContentView(view: View?, params: android.view.ViewGroup.LayoutParams?) {
+        super.setContentView(view, params)
+        com.example.easy_billing.util.KeyboardInsets.install(this)
+    }
+
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
@@ -183,21 +199,27 @@ open class BaseActivity : AppCompatActivity() {
     fun showClockBlockedDialog(driftMs: Long, onRetry: () -> Unit) {
         if (isFinishing) return
         val mins = driftMs / 60000
-        AlertDialog.Builder(this)
-            .setCancelable(false)
-            .setTitle(R.string.wrong_device_time)
-            .setMessage(
-                "Your device clock is off by about $mins minute(s).\n\n" +
+        val view = layoutInflater.inflate(R.layout.dialog_clock_blocked, null)
+        view.findViewById<android.widget.TextView>(R.id.tvClockMessage).text =
+            "Your device clock is off by about $mins minute(s).\n\n" +
                 "Please set it to automatic / correct date & time, then retry. " +
                 "Billing is paused until the time is correct."
-            )
-            .setPositiveButton(R.string.open_date_settings) { _, _ ->
-                runCatching {
-                    startActivity(Intent(android.provider.Settings.ACTION_DATE_SETTINGS))
-                }
+        val dialog = AlertDialog.Builder(this)
+            .setCancelable(false)
+            .setView(view)
+            .create()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        view.findViewById<android.view.View>(R.id.btnOpenDateSettings).setOnClickListener {
+            dialog.dismiss()
+            runCatching {
+                startActivity(Intent(android.provider.Settings.ACTION_DATE_SETTINGS))
             }
-            .setNegativeButton(R.string.retry) { _, _ -> onRetry() }
-            .show()
+        }
+        view.findViewById<android.view.View>(R.id.btnRetry).setOnClickListener {
+            dialog.dismiss()
+            onRetry()
+        }
+        dialog.show()
     }
 
     // ---------------- SESSION ----------------

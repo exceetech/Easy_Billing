@@ -99,13 +99,17 @@
 
     <style name="PosKeyLight">
         <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">52dp</item>
+        <item name="android:layout_height">54dp</item>
         <item name="android:layout_columnWeight">1</item>
-        <item name="android:textColor">#1A1A18</item>
-        <item name="android:textSize">19sp</item>
-        <item name="android:fontFamily">@font/googlesans_medium</item>
-        <item name="backgroundTint">#F7F4EE</item>
-        <item name="cornerRadius">11dp</item>
+        <item name="android:textColor">#0B3B30</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:fontFamily">@font/googlesans_semibold</item>
+        <item name="android:background">@drawable/bg_lg_key</item>
+        <item name="backgroundTint">@null</item>
+        <item name="cornerRadius">16dp</item>
+        <item name="android:insetLeft">0dp</item>
+        <item name="android:insetRight">0dp</item>
+        <item name="android:stateListAnimator">@null</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
     </style>
@@ -121,7 +125,7 @@
     <style name="FilterSection">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">#9A968C</item>
+        <item name="android:textColor">#8D9992</item>
         <item name="android:textSize">11sp</item>
         <item name="android:letterSpacing">0.08</item>
         <item name="android:fontFamily">@font/googlesans_semibold</item>
@@ -222,26 +226,26 @@
     <style name="Widget.ExPOS.TextField" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="boxStrokeColor">@color/ep_field_stroke</item>
         <item name="boxStrokeWidth">1dp</item>
-        <item name="boxBackgroundColor">#FFFDF8</item>
+        <item name="boxBackgroundColor">#FBFCFB</item>
         <item name="boxCornerRadiusTopStart">12dp</item>
         <item name="boxCornerRadiusTopEnd">12dp</item>
         <item name="boxCornerRadiusBottomStart">12dp</item>
         <item name="boxCornerRadiusBottomEnd">12dp</item>
         <item name="hintTextColor">#8A6526</item>
-        <item name="android:textColorHint">#A99E88</item>
+        <item name="android:textColorHint">#929F97</item>
         <item name="android:textColor">#1A1A18</item>
     </style>
 
     <style name="Widget.ExPOS.TextField.Dropdown" parent="Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
         <item name="boxStrokeColor">@color/ep_field_stroke</item>
         <item name="boxStrokeWidth">1dp</item>
-        <item name="boxBackgroundColor">#FFFDF8</item>
+        <item name="boxBackgroundColor">#FBFCFB</item>
         <item name="boxCornerRadiusTopStart">12dp</item>
         <item name="boxCornerRadiusTopEnd">12dp</item>
         <item name="boxCornerRadiusBottomStart">12dp</item>
         <item name="boxCornerRadiusBottomEnd">12dp</item>
         <item name="hintTextColor">#8A6526</item>
-        <item name="android:textColorHint">#A99E88</item>
+        <item name="android:textColorHint">#929F97</item>
         <item name="android:textColor">#1A1A18</item>
         <item name="endIconTint">#B8895A</item>
     </style>
@@ -252,7 +256,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
-        <item name="android:background">@drawable/bg_inv_card_cream</item>
+        <item name="android:background">@drawable/bg_lg_card</item>
         <item name="android:padding">15dp</item>
         <item name="android:layout_marginTop">14dp</item>
     </style>
@@ -275,7 +279,7 @@
         <item name="android:layout_marginStart">4dp</item>
         <item name="android:layout_marginBottom">6dp</item>
         <item name="android:textSize">12.5sp</item>
-        <item name="android:textColor">#9A968C</item>
+        <item name="android:textColor">#8D9992</item>
         <item name="android:fontFamily">@font/googlesans_regular</item>
     </style>
 
@@ -315,14 +319,14 @@
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">1</item>
         <item name="android:layout_height">54dp</item>
-        <item name="android:background">@drawable/bg_glass_input</item>
+        <item name="android:background">@drawable/bg_lg_input</item>
     </style>
 
     <style name="EpMiniLabel">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">10sp</item>
-        <item name="android:textColor">#A99E88</item>
+        <item name="android:textColor">#929F97</item>
         <item name="android:gravity">center</item>
     </style>
 
@@ -332,7 +336,7 @@
         <item name="android:background">@null</item>
         <item name="android:gravity">center</item>
         <item name="android:textColor">#1A1A18</item>
-        <item name="android:textColorHint">#A99E88</item>
+        <item name="android:textColorHint">#929F97</item>
         <item name="android:textSize">14.5sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:inputType">numberDecimal</item>
@@ -350,14 +354,14 @@
         <item name="android:layout_marginBottom">8dp</item>
         <item name="android:textSize">11sp</item>
         <item name="android:letterSpacing">0.05</item>
-        <item name="android:textColor">#9A968C</item>
+        <item name="android:textColor">#8D9992</item>
     </style>
 
     <style name="AddCard">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
-        <item name="android:background">@drawable/bg_imp_card</item>
+        <item name="android:background">@drawable/bg_lg_card</item>
         <item name="android:padding">14dp</item>
     </style>
 
@@ -384,7 +388,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginBottom">5dp</item>
         <item name="android:textSize">12.5sp</item>
-        <item name="android:textColor">#9A8F79</item>
+        <item name="android:textColor">#7C8782</item>
         <item name="android:fontFamily">@font/googlesans_regular</item>
     </style>
 
@@ -401,7 +405,7 @@
         <item name="android:gravity">center_vertical</item>
         <item name="android:textSize">15sp</item>
         <item name="android:textColor">#1A1A18</item>
-        <item name="android:textColorHint">#A99E88</item>
+        <item name="android:textColorHint">#929F97</item>
         <item name="android:includeFontPadding">false</item>
         <item name="android:singleLine">true</item>
     </style>
@@ -443,14 +447,14 @@
         <item name="android:layout_marginBottom">8dp</item>
         <item name="android:textSize">11sp</item>
         <item name="android:letterSpacing">0.05</item>
-        <item name="android:textColor">#9A968C</item>
+        <item name="android:textColor">#8D9992</item>
     </style>
 
     <style name="SettingsCard">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
-        <item name="android:background">@drawable/bg_imp_card</item>
+        <item name="android:background">@drawable/bg_lg_card</item>
         <item name="android:paddingHorizontal">14dp</item>
         <item name="android:divider">@drawable/divider_hairline</item>
         <item name="android:showDividers">middle</item>
@@ -499,7 +503,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">1dp</item>
         <item name="android:textSize">11sp</item>
-        <item name="android:textColor">#9A968C</item>
+        <item name="android:textColor">#8D9992</item>
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
     </style>
@@ -525,7 +529,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginBottom">5dp</item>
         <item name="android:textSize">11sp</item>
-        <item name="android:textColor">#6E6A60</item>
+        <item name="android:textColor">#5B6660</item>
     </style>
 
     <style name="SiFieldBox">
@@ -646,7 +650,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">1dp</item>
         <item name="android:textSize">11sp</item>
-        <item name="android:textColor">#9A968C</item>
+        <item name="android:textColor">#8D9992</item>
     </style>
 
     <style name="SettingsSwitch" parent="Widget.Material3.CompoundButton.MaterialSwitch">
@@ -665,7 +669,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">horizontal</item>
         <item name="android:gravity">center_vertical</item>
-        <item name="android:background">@drawable/bg_imp_card</item>
+        <item name="android:background">@drawable/bg_lg_card</item>
         <item name="android:paddingHorizontal">14dp</item>
         <item name="android:paddingVertical">13dp</item>
         <item name="android:clickable">true</item>
@@ -695,7 +699,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">1dp</item>
         <item name="android:textSize">11sp</item>
-        <item name="android:textColor">#9A968C</item>
+        <item name="android:textColor">#8D9992</item>
     </style>
 
     <style name="DsChip">
@@ -723,7 +727,7 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_weight">1</item>
         <item name="android:orientation">vertical</item>
-        <item name="android:background">@drawable/bg_imp_card</item>
+        <item name="android:background">@drawable/bg_lg_card</item>
         <item name="android:padding">12dp</item>
     </style>
 
@@ -731,7 +735,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">11sp</item>
-        <item name="android:textColor">#9A968C</item>
+        <item name="android:textColor">#8D9992</item>
     </style>
 
     <style name="PdStatValue">
@@ -749,7 +753,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">10.5sp</item>
-        <item name="android:textColor">#6E6A60</item>
+        <item name="android:textColor">#5B6660</item>
     </style>
 
     <!-- ================= PROFIT ANALYTICS ================= -->
@@ -786,8 +790,8 @@
         <item name="android:textSize">12sp</item>
         <item name="cornerRadius">9dp</item>
         <item name="backgroundTint">#FFFFFF</item>
-        <item name="android:textColor">#6E6A60</item>
-        <item name="strokeColor">#ECE7DA</item>
+        <item name="android:textColor">#5B6660</item>
+        <item name="strokeColor">#1F000000</item>
         <item name="strokeWidth">1dp</item>
         <item name="android:stateListAnimator">@null</item>
         <item name="android:elevation">0dp</item>
@@ -868,7 +872,7 @@
         <item name="android:layout_marginTop">10dp</item>
         <item name="android:layout_marginBottom">5dp</item>
         <item name="android:textSize">12.5sp</item>
-        <item name="android:textColor">#9A8F79</item>
+        <item name="android:textColor">#7C8782</item>
         <item name="android:fontFamily">@font/googlesans_regular</item>
     </style>
 
@@ -877,13 +881,19 @@
          laid out as a small centred card first (that resize is what caused
          the blink). The window background is already the champagne surface,
          so there is no colour flash before the content draws. -->
+    <!-- Opening-balance popup: same as PurchaseLineFullScreen but white (glass theme) instead of champagne. -->
+    <style name="OpeningBalanceFullScreen" parent="PurchaseLineFullScreen">
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:statusBarColor">@android:color/white</item>
+    </style>
+
     <style name="PurchaseLineFullScreen" parent="Theme.Material3.Light.NoActionBar">
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowBackground">@color/champagne_bg</item>
+        <item name="android:windowBackground">@android:color/white</item>
         <item name="android:backgroundDimEnabled">false</item>
-        <item name="android:statusBarColor">@color/champagne_bg</item>
+        <item name="android:statusBarColor">@android:color/white</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
     </style>
@@ -900,5 +910,19 @@
         <item name="android:textSize">11.5sp</item>
         <item name="android:clickable">true</item>
         <item name="android:focusable">true</item>
+    </style>
+
+    <!-- Glass look for every plain system AlertDialog (title / message / buttons). -->
+    <style name="GlassAlertDialog" parent="Theme.Material3.Light.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/bg_lg_alert_window</item>
+        <item name="colorPrimary">#0F6E56</item>
+        <item name="colorSecondary">#0F6E56</item>
+        <item name="android:textColorPrimary">#1A1A18</item>
+        <item name="android:textColorSecondary">#6B7C73</item>
+        <item name="android:buttonBarButtonStyle">@style/GlassAlertButton</item>
+    </style>
+    <style name="GlassAlertButton" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">#0F6E56</item>
+        <item name="android:textAllCaps">false</item>
     </style>
 </resources>

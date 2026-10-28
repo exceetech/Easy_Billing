@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Small white GSTIN pill under the header. -->
+<!-- Small white GSTIN pill under the header (glass). -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
     <solid android:color="#FFFFFF" />
-    <stroke android:width="0.5dp" android:color="#E4DECF" />
+    <stroke android:width="1dp" android:color="#1F000000" />
     <corners android:radius="18dp" />
 </shape>

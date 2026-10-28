@@ -123,10 +123,22 @@ class CreditAccountsActivity : BaseActivity() {
 
     // ================= LOAD =================
 
+    private var sides: Map<Int, com.example.easy_billing.util.CreditSide.Side> = emptyMap()
+
+    private fun sideOf(a: CreditAccount) = sides[a.id] ?: com.example.easy_billing.util.CreditSide.Side.UNKNOWN
+    /** What this account owes YOU / what YOU owe it, whichever side it is on. */
+    private fun owedToYou(a: CreditAccount) = com.example.easy_billing.util.CreditSide.receivable(a.dueAmount, sideOf(a))
+    private fun youOwe(a: CreditAccount) = com.example.easy_billing.util.CreditSide.payable(a.dueAmount, sideOf(a))
+
     private fun loadAccounts() = lifecycleScope.launch {
 
         val data = repository.getAll(shopId)
 
+        // Customer / supplier side of each account, so rows and totals show the real direction.
+        sides = com.example.easy_billing.util.AccountSides.load(
+            com.example.easy_billing.db.AppDatabase.getDatabase(this@CreditAccountsActivity), shopId
+        )
+        adapter.sides = sides
 
         applyFilter(data)        // ✅ apply filter (also pushes rows into the adapter)
         updateSummary(data)  // ✅ IMPORTANT
@@ -386,7 +398,7 @@ class CreditAccountsActivity : BaseActivity() {
         // settled account, so this is usually zero — but it can be non-zero if
         // the balance moved on another device before the delete synced.
         view.findViewById<TextView>(R.id.tvRestoreNote).text =
-            if (existing.dueAmount == 0.0)
+            if (kotlin.math.abs(existing.dueAmount) < 0.005)
                 getString(R.string.credit_restore_note_settled)
             else
                 "Their balance of ${money(kotlin.math.abs(existing.dueAmount))} comes back with the account."
@@ -485,22 +497,22 @@ class CreditAccountsActivity : BaseActivity() {
         val tile: String
         val ink: String
         when {
-            account.dueAmount > 0 -> {
+            account.dueAmount > 0.005 -> {
                 tile = "#FCEBEB"; ink = "#791F1F"
                 tvBalance.text = money(account.dueAmount)
                 tvBalance.setTextColor(Color.parseColor("#B23A3A"))
                 tvCaption.text = getString(R.string.credit_status_owes_you)
             }
-            account.dueAmount < 0 -> {
+            account.dueAmount < -0.005 -> {
                 tile = "#E1F5EE"; ink = "#0F6E56"
                 tvBalance.text = money(-account.dueAmount)
                 tvBalance.setTextColor(Color.parseColor("#0F6E56"))
                 tvCaption.text = getString(R.string.credit_status_in_advance)
             }
             else -> {
-                tile = "#F3ECDD"; ink = "#8A8272"
+                tile = "#EEF2F0"; ink = "#6B7770"
                 tvBalance.text = money(0.0)
-                tvBalance.setTextColor(Color.parseColor("#8A8272"))
+                tvBalance.setTextColor(Color.parseColor("#76867C"))
                 tvCaption.text = getString(R.string.credit_status_settled)
             }
         }
@@ -523,7 +535,7 @@ class CreditAccountsActivity : BaseActivity() {
 
         // Delete is refused for an unsettled account. Say so here rather than
         // after the tap — the activity's own check stays as the real guard.
-        val canDelete = account.dueAmount == 0.0
+        val canDelete = kotlin.math.abs(account.dueAmount) < 0.005
         view.findViewById<TextView>(R.id.tvDeleteSub).text =
             if (canDelete) getString(R.string.credit_delete_allowed_note) else getString(R.string.credit_settle_balance_first)
         btnDelete.alpha = if (canDelete) 1.0f else 0.45f
@@ -552,6 +564,7 @@ class CreditAccountsActivity : BaseActivity() {
         }
 
         dialog.setContentView(view)
+        (view.parent as? android.view.View)?.setBackgroundColor(android.graphics.Color.TRANSPARENT)
         dialog.show()
     }
 
@@ -612,7 +625,7 @@ class CreditAccountsActivity : BaseActivity() {
                 }
                 else -> {
                     tvAfterCaption.text = getString(R.string.credit_settled_after)
-                    tvAfter.setTextColor(Color.parseColor("#8A8272"))
+                    tvAfter.setTextColor(Color.parseColor("#76867C"))
                 }
             }
         }
@@ -627,9 +640,9 @@ class CreditAccountsActivity : BaseActivity() {
         // a custom amount clears the highlight back to the idle pill style.
         fun resetChips() {
             chip1.setBackgroundResource(R.drawable.bg_payment_quick_chip)
-            chip1.setTextColor(Color.parseColor("#8A7F68"))
+            chip1.setTextColor(Color.parseColor("#6B7770"))
             chip2.setBackgroundResource(R.drawable.bg_payment_quick_chip)
-            chip2.setTextColor(Color.parseColor("#8A7F68"))
+            chip2.setTextColor(Color.parseColor("#6B7770"))
             chipFull.setBackgroundResource(R.drawable.bg_payment_quick_chip_full)
             chipFull.setTextColor(Color.parseColor("#0F6E56"))
         }
@@ -695,7 +708,9 @@ class CreditAccountsActivity : BaseActivity() {
 
         btnPay.setOnClickListener {
 
-            val amount = etAmount.text.toString().toDoubleOrNull()
+            // Whole paise only: a typed 100.456 would otherwise be 100.456 in the history but 100.46 in the
+            // balance and the money rows.
+            val amount = etAmount.text.toString().toDoubleOrNull()?.let { Math.round(it * 100.0) / 100.0 }
 
             com.example.easy_billing.util.UserEventLogger.logAction(
                 "CreditAccounts", "pay_clicked: customer=${account.name}, amount=${amount ?: "-"}"
@@ -860,40 +875,28 @@ class CreditAccountsActivity : BaseActivity() {
                     }
                     return@launch
                 }
-                // A due is being cleared: either it was PAID (money moves, so ask how) or it is forgiven
-                // for free (a write-off, no money moves). The owner must say which.
-                AlertDialog.Builder(this@CreditAccountsActivity)
-                    .setTitle(R.string.settle_how_title)
-                    .setMessage(getString(R.string.settle_how_msg, account.name, money(cleared)))
-                    .setPositiveButton(R.string.settle_paid_full) { d, _ ->
-                        d.dismiss()
-                        chooseDirection(account, refund = false) { direction ->
-                            val title = getString(
-                                if (direction == com.example.easy_billing.util.MoneyDirection.IN) R.string.pay_sheet_received
-                                else R.string.pay_sheet_paid, account.name
-                            )
-                            com.example.easy_billing.util.PaymentLinesSheet.show(
-                                activity = this@CreditAccountsActivity,
-                                title = title,
-                                total = cleared,
-                                modes = com.example.easy_billing.util.MoneyMode.ALL,
-                                initial = emptyList(),
-                                defaultMode = com.example.easy_billing.util.MoneyMode.CASH,
-                                onConfirm = { lines ->
-                                    lifecycleScope.launch { finishPaidSettle(account, cleared, direction, lines) }
-                                },
-                                onCancel = {
-                                    Toast.makeText(this@CreditAccountsActivity, R.string.pay_not_recorded, Toast.LENGTH_SHORT).show()
-                                }
-                            )
+                // A due is being cleared: settled means paid. No question - money moves, so ask how it
+                // was paid, then clear the balance.
+                chooseDirection(account, refund = false) { direction ->
+                    val title = getString(
+                        if (direction == com.example.easy_billing.util.MoneyDirection.IN) R.string.pay_sheet_received
+                        else R.string.pay_sheet_paid, account.name
+                    )
+                    com.example.easy_billing.util.PaymentLinesSheet.show(
+                        activity = this@CreditAccountsActivity,
+                        title = title,
+                        total = cleared,
+                        modes = com.example.easy_billing.util.MoneyMode.ALL,
+                        initial = emptyList(),
+                        defaultMode = com.example.easy_billing.util.MoneyMode.CASH,
+                        onConfirm = { lines ->
+                            lifecycleScope.launch { finishPaidSettle(account, cleared, direction, lines) }
+                        },
+                        onCancel = {
+                            Toast.makeText(this@CreditAccountsActivity, R.string.pay_not_recorded, Toast.LENGTH_SHORT).show()
                         }
-                    }
-                    .setNegativeButton(R.string.settle_free) { d, _ ->
-                        d.dismiss()
-                        lifecycleScope.launch { finishSettle(account, cleared, null, emptyList()) }
-                    }
-                    .setNeutralButton(android.R.string.cancel, null)
-                    .show()
+                    )
+                }
             }
         }
 
@@ -997,7 +1000,7 @@ class CreditAccountsActivity : BaseActivity() {
 
     /**
      * Works out whether money on this account moves IN or OUT from its history; when the history cannot
-     * tell (empty or mixed), asks the owner. [refund] = handing back an advance instead of a payment.
+     * tell (empty or mixed) it defaults without asking. [refund] = handing back an advance instead of a payment.
      */
     private fun chooseDirection(account: CreditAccount, refund: Boolean, onChosen: (String) -> Unit) {
         lifecycleScope.launch {
@@ -1008,17 +1011,12 @@ class CreditAccountsActivity : BaseActivity() {
             val side = com.example.easy_billing.util.CreditSide.of(types)
             val known = if (refund) com.example.easy_billing.util.CreditSide.refundDirection(side)
                         else com.example.easy_billing.util.CreditSide.payDirection(side)
-            if (known != null) { onChosen(known); return@launch }
-
-            val inDir = com.example.easy_billing.util.MoneyDirection.IN
-            val outDir = com.example.easy_billing.util.MoneyDirection.OUT
-            AlertDialog.Builder(this@CreditAccountsActivity)
-                .setTitle(if (refund) R.string.direction_refund_title else R.string.direction_pay_title)
-                .setMessage(account.name)
-                .setPositiveButton(if (refund) R.string.direction_refund_in else R.string.direction_pay_in) { d, _ -> d.dismiss(); onChosen(inDir) }
-                .setNegativeButton(if (refund) R.string.direction_refund_out else R.string.direction_pay_out) { d, _ -> d.dismiss(); onChosen(outDir) }
-                .setNeutralButton(android.R.string.cancel, null)
-                .show()
+            // No popup: the direction comes from the account's history. When the history can't tell
+            // (brand-new or mixed account) a payment counts as RECEIVED and a refund as PAID OUT.
+            onChosen(
+                known ?: if (refund) com.example.easy_billing.util.MoneyDirection.OUT
+                         else com.example.easy_billing.util.MoneyDirection.IN
+            )
         }
     }
 
@@ -1054,12 +1052,13 @@ class CreditAccountsActivity : BaseActivity() {
 
     private fun updateSummary(accounts: List<CreditAccount>) {
 
-        val totalDue = accounts.filter { it.dueAmount > 0 }.sumOf { it.dueAmount }
-        val totalAdvance = accounts.filter { it.dueAmount < 0 }.sumOf { -it.dueAmount }
+        // Direction-aware: a supplier's balance is what YOU owe, so it goes in "You owe", not "Due".
+        val totalDue = accounts.sumOf { owedToYou(it) }
+        val totalAdvance = accounts.sumOf { youOwe(it) }
 
-        val dueCount = accounts.count { it.dueAmount > 0 }
-        val advanceCount = accounts.count { it.dueAmount < 0 }
-        val settledCount = accounts.count { it.dueAmount == 0.0 }
+        val dueCount = accounts.count { owedToYou(it) > 0.005 }
+        val advanceCount = accounts.count { youOwe(it) > 0.005 }
+        val settledCount = accounts.count { kotlin.math.abs(it.dueAmount) < 0.005 }
 
         val net = totalDue - totalAdvance
 
@@ -1068,9 +1067,9 @@ class CreditAccountsActivity : BaseActivity() {
         findViewById<TextView>(R.id.tvNetBalance).text = money(kotlin.math.abs(net))
         findViewById<TextView>(R.id.tvNetCaption).apply {
             when {
-                net > 0 -> { text = getString(R.string.credit_net_owed_to_you); setTextColor(Color.parseColor("#B23A3A")) }
-                net < 0 -> { text = getString(R.string.credit_net_held_in_advance); setTextColor(Color.parseColor("#0F6E56")) }
-                else    -> { text = getString(R.string.credit_net_all_settled); setTextColor(Color.parseColor("#8A8272")) }
+                net > 0.005 -> { text = getString(R.string.credit_net_owed_to_you); setTextColor(Color.parseColor("#B23A3A")) }
+                net < -0.005 -> { text = getString(R.string.credit_you_owe); setTextColor(Color.parseColor("#8A6526")) }
+                else    -> { text = getString(R.string.credit_net_all_settled); setTextColor(Color.parseColor("#76867C")) }
             }
         }
 
@@ -1083,7 +1082,7 @@ class CreditAccountsActivity : BaseActivity() {
         // set elsewhere (and ignore translations) every time the list
         // reloaded.
         val dueLabel = getString(R.string.credit_chip_label_due)
-        val advanceLabel = getString(R.string.credit_chip_label_advance)
+        val advanceLabel = getString(R.string.credit_you_owe)
         val settledLabel = getString(R.string.credit_chip_label_settled)
         val allLabel = getString(R.string.manage_filter_all)
 
@@ -1099,9 +1098,9 @@ class CreditAccountsActivity : BaseActivity() {
     private fun applyFilter(accounts: List<CreditAccount>) {
 
         val filtered = when (currentFilter) {
-            "DUE" -> accounts.filter { it.dueAmount > 0 }
-            "ADVANCE" -> accounts.filter { it.dueAmount < 0 }
-            "SETTLED" -> accounts.filter { it.dueAmount == 0.0 }
+            "DUE" -> accounts.filter { owedToYou(it) > 0.005 }
+            "ADVANCE" -> accounts.filter { youOwe(it) > 0.005 }
+            "SETTLED" -> accounts.filter { kotlin.math.abs(it.dueAmount) < 0.005 }
             else -> accounts
         }
 
@@ -1162,7 +1161,7 @@ class CreditAccountsActivity : BaseActivity() {
         listOf(
             R.id.chipAll to getString(R.string.manage_filter_all),
             R.id.chipDue to getString(R.string.credit_chip_label_due),
-            R.id.chipAdvance to getString(R.string.credit_chip_label_advance),
+            R.id.chipAdvance to getString(R.string.credit_you_owe),
             R.id.chipSettled to getString(R.string.credit_chip_label_settled)
         ).forEach { (id, label) ->
             findViewById<TextView?>(id)?.let { chip ->
@@ -1188,8 +1187,8 @@ class CreditAccountsActivity : BaseActivity() {
     private fun styleFilterChip(chip: TextView, selected: Boolean, label: String) {
         val d = resources.displayMetrics.density
         val accent = filterChipColor(label)
-        val strokeColor = if (selected) accent else Color.parseColor("#E4DCC8")
-        val textColor = if (selected) accent else Color.parseColor("#6E6A60")
+        val strokeColor = if (selected) accent else Color.parseColor("#D5DDD8")
+        val textColor = if (selected) accent else Color.parseColor("#5B6660")
 
         chip.background = android.graphics.drawable.GradientDrawable().apply {
             shape = android.graphics.drawable.GradientDrawable.RECTANGLE
@@ -1202,7 +1201,7 @@ class CreditAccountsActivity : BaseActivity() {
 
     private fun deleteAccount(account: CreditAccount) {
 
-        if (account.dueAmount != 0.0) {
+        if (kotlin.math.abs(account.dueAmount) >= 0.005) {
             Toast.makeText(this, R.string.credit_only_settled_removable, Toast.LENGTH_SHORT).show()
             return
         }

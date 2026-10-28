@@ -13,7 +13,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="20dp"
     android:orientation="vertical"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:paddingHorizontal="22dp"
     android:paddingTop="24dp"
     android:paddingBottom="20dp">
@@ -65,7 +65,7 @@
         android:gravity="center"
         android:text="@string/pw_dialog_sub"
         android:textSize="12sp"
-        android:textColor="#9A8F79" />
+        android:textColor="#7C8782" />
 
     <!-- New password -->
     <TextView
@@ -75,14 +75,14 @@
         android:layout_marginStart="2dp"
         android:text="@string/pw_new"
         android:textSize="11sp"
-        android:textColor="#9A8F79"
+        android:textColor="#7C8782"
         android:fontFamily="@font/googlesans_semibold" />
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="6dp"
-        android:background="@drawable/bg_glass_input">
+        android:background="@drawable/bg_lg_input">
 
         <ImageView
             android:layout_width="19dp"
@@ -102,7 +102,7 @@
             android:hint="@string/pw_new"
             android:textSize="14sp"
             android:textColor="#1A1A18"
-            android:textColorHint="#A99E88"
+            android:textColorHint="#929F97"
             android:singleLine="true"
             android:inputType="textPassword" />
 
@@ -127,14 +127,14 @@
         android:layout_marginStart="2dp"
         android:text="@string/pw_again"
         android:textSize="11sp"
-        android:textColor="#9A8F79"
+        android:textColor="#7C8782"
         android:fontFamily="@font/googlesans_semibold" />
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="6dp"
-        android:background="@drawable/bg_glass_input">
+        android:background="@drawable/bg_lg_input">
 
         <ImageView
             android:layout_width="19dp"
@@ -154,7 +154,7 @@
             android:hint="@string/pw_again"
             android:textSize="14sp"
             android:textColor="#1A1A18"
-            android:textColorHint="#A99E88"
+            android:textColorHint="#929F97"
             android:singleLine="true"
             android:inputType="textPassword" />
 
@@ -177,7 +177,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="18dp"
-        android:background="@drawable/bg_login_cta_green"
+        android:background="@drawable/bg_lg_cta_green_12"
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"

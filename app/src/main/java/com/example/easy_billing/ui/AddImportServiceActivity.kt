@@ -332,7 +332,7 @@ class AddImportServiceActivity : BaseActivity() {
             val label = TextView(this).apply {
                 text = opt
                 textSize = 14f
-                setTextColor(Color.parseColor(if (isSel) "#185FA5" else "#1A1A18"))
+                setTextColor(Color.parseColor(if (isSel) "#0F6E56" else "#1A1A18"))
             }
             val descText = if (opt == "96 - Foreign Country")
                 getString(R.string.import_services_pos_foreign_desc)
@@ -341,7 +341,7 @@ class AddImportServiceActivity : BaseActivity() {
             val desc = TextView(this).apply {
                 text = descText
                 textSize = 11f
-                setTextColor(Color.parseColor("#9A8F79"))
+                setTextColor(Color.parseColor("#7C8782"))
             }
             textCol.addView(label)
             textCol.addView(desc)
@@ -349,7 +349,7 @@ class AddImportServiceActivity : BaseActivity() {
             if (isSel) {
                 row.addView(ImageView(this).apply {
                     setImageResource(R.drawable.ic_lucide_check)
-                    setColorFilter(Color.parseColor("#185FA5"))
+                    setColorFilter(Color.parseColor("#0F6E56"))
                     layoutParams = LinearLayout.LayoutParams(dp(16), dp(16))
                 })
             }

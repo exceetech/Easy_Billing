@@ -11,7 +11,7 @@
 
     <path
         android:pathData="M -40,40 Q 40,26 120,40 T 280,40 T 440,40 T 600,40 T 760,40 V 400 H -40 Z"
-        android:fillColor="#40F2E8D6"/>
+        android:fillColor="#40E1E7E3"/>
 
     <path
         android:pathData="M -60,100 Q 20,84 100,100 T 260,100 T 420,100 T 580,100 T 740,100 V 400 H -60 Z"
@@ -23,7 +23,7 @@
 
     <path
         android:pathData="M -50,220 Q 30,204 110,220 T 270,220 T 430,220 T 590,220 T 750,220 V 400 H -50 Z"
-        android:fillColor="#48F6EEDF"/>
+        android:fillColor="#48E8EDEA"/>
 
     <path
         android:pathData="M -70,280 Q 10,266 90,280 T 250,280 T 410,280 T 570,280 T 730,280 V 400 H -70 Z"

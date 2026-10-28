@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:maxHeight="460dp"
-    android:background="@drawable/bg_filter_popover">
+    android:background="@drawable/bg_lg_popover">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -31,7 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_imp_card"
+            android:background="@drawable/bg_lg_card"
             android:layout_marginBottom="10dp">
 
             <LinearLayout
@@ -46,7 +46,7 @@
                 android:background="?attr/selectableItemBackground">
 
                 <ImageView android:layout_width="19dp" android:layout_height="19dp"
-                    android:src="@drawable/ic_filter_tag" app:tint="#185FA5" android:contentDescription="@null"/>
+                    android:src="@drawable/ic_filter_tag" app:tint="#0F6E56" android:contentDescription="@null"/>
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="11dp">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -54,10 +54,10 @@
                         android:fontFamily="@font/googlesans_semibold"/>
                     <TextView android:id="@+id/tvCategorySummary" android:layout_width="wrap_content"
                         android:layout_height="wrap_content" android:text="@string/dashboard_filter_all_categories"
-                        android:textColor="#9A968C" android:textSize="11sp" android:layout_marginTop="1dp"/>
+                        android:textColor="#8D9992" android:textSize="11sp" android:layout_marginTop="1dp"/>
                 </LinearLayout>
                 <ImageView android:id="@+id/ivCatChevron" android:layout_width="18dp" android:layout_height="18dp"
-                    android:src="@drawable/ic_filter_chevron" app:tint="#9A968C" android:contentDescription="@null"/>
+                    android:src="@drawable/ic_filter_chevron" app:tint="#8D9992" android:contentDescription="@null"/>
             </LinearLayout>
 
             <LinearLayout
@@ -85,7 +85,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_imp_card"
+            android:background="@drawable/bg_lg_card"
             android:layout_marginBottom="10dp">
 
             <LinearLayout
@@ -108,10 +108,10 @@
                         android:fontFamily="@font/googlesans_semibold"/>
                     <TextView android:id="@+id/tvStockSummary" android:layout_width="wrap_content"
                         android:layout_height="wrap_content" android:text="@string/dashboard_filter_any"
-                        android:textColor="#9A968C" android:textSize="11sp" android:layout_marginTop="1dp"/>
+                        android:textColor="#8D9992" android:textSize="11sp" android:layout_marginTop="1dp"/>
                 </LinearLayout>
                 <ImageView android:id="@+id/ivStockChevron" android:layout_width="18dp" android:layout_height="18dp"
-                    android:src="@drawable/ic_filter_chevron" app:tint="#9A968C" android:contentDescription="@null"/>
+                    android:src="@drawable/ic_filter_chevron" app:tint="#8D9992" android:contentDescription="@null"/>
             </LinearLayout>
 
             <LinearLayout
@@ -133,7 +133,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_imp_card"
+            android:background="@drawable/bg_lg_card"
             android:layout_marginBottom="10dp">
 
             <LinearLayout
@@ -156,10 +156,10 @@
                         android:fontFamily="@font/googlesans_semibold"/>
                     <TextView android:id="@+id/tvTypeSummary" android:layout_width="wrap_content"
                         android:layout_height="wrap_content" android:text="@string/dashboard_filter_any"
-                        android:textColor="#9A968C" android:textSize="11sp" android:layout_marginTop="1dp"/>
+                        android:textColor="#8D9992" android:textSize="11sp" android:layout_marginTop="1dp"/>
                 </LinearLayout>
                 <ImageView android:id="@+id/ivTypeChevron" android:layout_width="18dp" android:layout_height="18dp"
-                    android:src="@drawable/ic_filter_chevron" app:tint="#9A968C" android:contentDescription="@null"/>
+                    android:src="@drawable/ic_filter_chevron" app:tint="#8D9992" android:contentDescription="@null"/>
             </LinearLayout>
 
             <LinearLayout
@@ -181,7 +181,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_imp_card"
+            android:background="@drawable/bg_lg_card"
             android:layout_marginBottom="14dp">
 
             <LinearLayout
@@ -204,10 +204,10 @@
                         android:fontFamily="@font/googlesans_semibold"/>
                     <TextView android:id="@+id/tvPriceSummary" android:layout_width="wrap_content"
                         android:layout_height="wrap_content" android:text="@string/dashboard_filter_any"
-                        android:textColor="#9A968C" android:textSize="11sp" android:layout_marginTop="1dp"/>
+                        android:textColor="#8D9992" android:textSize="11sp" android:layout_marginTop="1dp"/>
                 </LinearLayout>
                 <ImageView android:id="@+id/ivPriceChevron" android:layout_width="18dp" android:layout_height="18dp"
-                    android:src="@drawable/ic_filter_chevron" app:tint="#9A968C" android:contentDescription="@null"/>
+                    android:src="@drawable/ic_filter_chevron" app:tint="#8D9992" android:contentDescription="@null"/>
             </LinearLayout>
 
             <LinearLayout
@@ -270,7 +270,8 @@
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 android:paddingHorizontal="0dp"
-                app:backgroundTint="#B23A3A"
+                android:background="@drawable/bg_lg_cta_red_14"
+        app:backgroundTint="@null"
                 app:cornerRadius="14dp"/>
 
             <com.google.android.material.button.MaterialButton
@@ -289,7 +290,8 @@
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 android:paddingHorizontal="0dp"
-                app:backgroundTint="#0F6E56"
+                android:background="@drawable/bg_lg_cta_green_14"
+        app:backgroundTint="@null"
                 app:cornerRadius="14dp"/>
         </LinearLayout>
     </LinearLayout>

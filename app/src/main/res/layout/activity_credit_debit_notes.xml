@@ -14,7 +14,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F3ECDD">
+    android:background="@drawable/bg_lg_page">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -89,7 +89,7 @@
         android:orientation="horizontal"
         android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="14dp"
-        android:background="@drawable/bg_inv_value_card"
+        android:background="@drawable/bg_lg_card"
         android:padding="3dp">
 
         <LinearLayout
@@ -131,7 +131,7 @@
                 android:text="@string/xml_notes_debit_tab_count_placeholder"
                 android:textSize="12.5sp"
                 android:fontFamily="@font/googlesans_semibold"
-                android:textColor="#9A8F79" />
+                android:textColor="#7C8782" />
         </LinearLayout>
 
     </LinearLayout>
@@ -166,7 +166,7 @@
             android:gravity="center"
             android:text="@string/xml_notes_empty_state"
             android:textSize="12.5sp"
-            android:textColor="#9A8F79"
+            android:textColor="#7C8782"
             android:visibility="gone" />
 
     </FrameLayout>

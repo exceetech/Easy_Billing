@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Supplier row — same invoice line-item shape as item_credit.xml.
+    Supplier row — the same design as the credit-account row (item_credit.xml): a 36dp monogram tile,
+    name + a muted detail line (GSTIN) + a caption line (state), a small tag on the right, and a
+    hairline divider. No side stripe.
 
-    Shows name, GSTIN and state together because those are exactly the
-    fields that tell two same-named suppliers apart.
+    GSTIN and state are shown together because those are exactly the fields that tell two
+    same-named suppliers apart.
 
-    Bound by SupplierAdapter: tvAvatar, tvSupName, tvSupGstin, tvSupState,
-    tvSupTag.
+    Bound by SupplierAdapter: tvAvatar, tvSupName, tvSupGstin, tvSupState, tvSupTag.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -21,85 +22,79 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingVertical="12dp">
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="13dp">
 
         <TextView
             android:id="@+id/tvAvatar"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:gravity="center"
             android:text="A"
-            android:textStyle="bold"
-            android:textSize="17sp"
-            android:fontFamily="serif"
-            android:includeFontPadding="false"
-            android:textColor="#0F6E56"
-            android:background="@drawable/bg_addp_tile_green"/>
+            android:textSize="11.5sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:textColor="#085041"
+            android:background="@drawable/bg_credit_avatar"
+            android:backgroundTint="#E1F5EE"
+            android:includeFontPadding="false" />
 
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="8dp">
+            android:layout_marginStart="11dp">
 
             <TextView
                 android:id="@+id/tvSupName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/supplier_name"
-                android:textSize="14sp"
-                android:textColor="#18181B"
+                android:textSize="13.5sp"
                 android:fontFamily="@font/googlesans_medium"
-                android:singleLine="true"
-                android:ellipsize="end"/>
+                android:textColor="#1A1A18"
+                android:maxLines="1"
+                android:ellipsize="end" />
 
             <TextView
                 android:id="@+id/tvSupGstin"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="3dp"
                 android:text="33AAAAA0000A1Z5"
-                android:textSize="11sp"
-                android:fontFamily="serif"
-                android:includeFontPadding="false"
-                android:textColor="#9A8F79"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="end">
-
-            <TextView
-                android:id="@+id/tvSupTag"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/supplier_tag_registered"
-                android:textSize="9.5sp"
-                android:letterSpacing="0.06"
-                android:textColor="#9A8F79"
-                android:fontFamily="@font/googlesans_semibold"/>
+                android:textSize="10sp"
+                android:textColor="#7C8782"
+                android:maxLines="1"
+                android:ellipsize="end" />
 
             <TextView
                 android:id="@+id/tvSupState"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="1dp"
+                android:layout_marginTop="5dp"
                 android:text="Tamil Nadu"
-                android:textSize="12.5sp"
-                android:textColor="#3A3733"
+                android:textSize="10.5sp"
                 android:fontFamily="@font/googlesans_medium"
-                android:singleLine="true"
-                android:ellipsize="end"/>
+                android:textColor="#0F6E56"
+                android:maxLines="1"
+                android:ellipsize="end" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvSupTag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:text="@string/supplier_tag_registered"
+            android:textSize="9.5sp"
+            android:letterSpacing="0.06"
+            android:textColor="#7C8782"
+            android:fontFamily="@font/googlesans_semibold" />
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="52dp"
-        android:background="#F1EBDD"/>
+        android:layout_height="0.5dp"
+        android:layout_marginStart="18dp"
+        android:background="#E3E8E4" />
 </LinearLayout>

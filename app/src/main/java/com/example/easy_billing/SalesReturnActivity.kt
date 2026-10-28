@@ -62,6 +62,7 @@ class SalesReturnActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sales_return)
+        com.example.easy_billing.util.KeyboardInsets.install(this)
         com.example.easy_billing.util.UserEventLogger.logAction("SalesReturn", "opened")
 
         findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar).apply {
@@ -212,7 +213,7 @@ class SalesReturnActivity : AppCompatActivity() {
                     is CreditNoteRepository.Result.Success -> {
                         Toast.makeText(
                             this@SalesReturnActivity,
-                            "Return for ${result.creditNote.noteNumber} completed successfully.",
+                            getString(R.string.note_return_done, result.creditNote.noteNumber),
                             Toast.LENGTH_LONG
                         ).show()
                         viewModel.clearResult()
@@ -250,7 +251,7 @@ class SalesReturnActivity : AppCompatActivity() {
                     is CreditNoteRepository.Result.SaveError -> {
                         Toast.makeText(
                             this@SalesReturnActivity,
-                            "Failed to save: ${result.cause.message}",
+                            getString(R.string.note_save_failed, result.cause.message ?: ""),
                             Toast.LENGTH_LONG
                         ).show()
                         viewModel.clearResult()

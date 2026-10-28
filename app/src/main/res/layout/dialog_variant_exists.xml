@@ -6,7 +6,7 @@
     android:layout_margin="20dp"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:paddingHorizontal="26dp"
     android:paddingTop="28dp"
     android:paddingBottom="22dp">
@@ -52,7 +52,7 @@
         android:layout_marginTop="9dp"
         android:gravity="center"
         android:text="@string/add_product_variant_exists_default_message"
-        android:textColor="#6E6A60"
+        android:textColor="#5B6660"
         android:textSize="13sp"
         android:lineSpacingExtra="3dp"/>
 
@@ -88,7 +88,7 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="50dp"
-            android:background="@drawable/bg_login_cta_green"
+            android:background="@drawable/bg_lg_cta"
             app:backgroundTint="@null"
             android:insetTop="0dp"
             android:insetBottom="0dp"

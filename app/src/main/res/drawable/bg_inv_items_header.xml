@@ -3,7 +3,7 @@
      card's header treatment (bg_inv_customer_header) but in the amber
      family used elsewhere for the LINE ITEMS accent. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="#F7EEDD"/>
+    <solid android:color="#E7EDE9"/>
     <corners
         android:topLeftRadius="18dp"
         android:topRightRadius="18dp"

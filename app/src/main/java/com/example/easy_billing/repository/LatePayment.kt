@@ -1,0 +1,54 @@
+package com.example.easy_billing.repository
+
+import androidx.room.withTransaction
+import com.example.easy_billing.db.AppDatabase
+import com.example.easy_billing.db.Bill
+import com.example.easy_billing.util.MoneyDirection
+import com.example.easy_billing.util.MoneyMode
+import com.example.easy_billing.util.MoneyReason
+import com.example.easy_billing.util.MoneySource
+import com.example.easy_billing.util.MoneyStatus
+
+/**
+ * A customer paid a UPI bill AFTER it was cancelled (the QR was scanned before the cancel reached the server,
+ * or the bill was cancelled while offline). The money is real, so:
+ *  1. it is recorded as money in (UPI, dated now, source LATE_PAYMENT), and
+ *  2. a "refund still due" note of the same amount is saved, so the bill shows the usual "Record refund" banner.
+ *
+ * Both steps run in one transaction and are safe to repeat: the unique money row stops a second run, and the
+ * refund note is only saved when the money row was newly written.
+ */
+object LatePayment {
+
+    /** Returns true when a late payment was recorded now. */
+    suspend fun handle(db: AppDatabase, bill: Bill): Boolean {
+        if (!bill.isCancelled) return false
+        return db.withTransaction {
+            val dao = db.moneyEntryDao()
+            // If the app was closed right after the bill was cancelled, its UPI row may still say PENDING.
+            // A cancelled bill never receives pending money, so close it now (same as the cancel flow does).
+            dao.cancelPending(MoneySource.BILL, bill.id)
+            // The UPI part that was waiting when the bill was cancelled.
+            val waiting = dao.forParent(MoneySource.BILL, bill.id).filter {
+                it.direction == MoneyDirection.IN && it.reason == MoneyReason.SALE && it.mode == MoneyMode.UPI &&
+                    it.sourceType == MoneySource.BILL && it.status == MoneyStatus.CANCELLED
+            }.sumOf { it.amount }
+            if (waiting <= 0.0) return@withTransaction false
+
+            val book = MoneyBook(dao)
+            val written = book.record(
+                direction = MoneyDirection.IN, mode = MoneyMode.UPI, amount = waiting, reason = MoneyReason.SALE,
+                sourceType = MoneySource.LATE_PAYMENT, sourceId = bill.id,
+                parentType = MoneySource.BILL, parentId = bill.id,
+                refText = bill.billNumber.trim(), status = MoneyStatus.RECEIVED
+            )
+            if (!written) return@withTransaction false
+            book.openDue(
+                MoneyDirection.OUT, MoneyReason.SALE_REFUND_DUE, waiting,
+                MoneySource.LATE_PAYMENT, bill.id, MoneySource.BILL, bill.id,
+                refText = bill.billNumber.trim()
+            )
+            true
+        }
+    }
+}

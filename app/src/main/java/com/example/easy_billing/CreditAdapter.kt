@@ -21,8 +21,15 @@ private val CREDIT_ACCOUNT_DIFF_CALLBACK = object : DiffUtil.ItemCallback<Credit
 
 class CreditAdapter(
     initialList: List<CreditAccount>,
+    private val showStripe: Boolean = true,
     private val onClick: (CreditAccount) -> Unit
 ) : ListAdapter<CreditAccount, CreditAdapter.VH>(CREDIT_ACCOUNT_DIFF_CALLBACK) {
+
+    /** Customer / supplier side per account id, so a supplier you owe reads "You owe", not "Owes you". */
+    var sides: Map<Int, com.example.easy_billing.util.CreditSide.Side> = emptyMap()
+        set(value) {
+            if (field != value) { field = value; notifyDataSetChanged() }
+        }
 
     init {
         submitList(initialList)
@@ -67,28 +74,43 @@ class CreditAdapter(
         val stripe: String
         val tile: String
         val ink: String
+        val isSupplier = sides[item.id] == com.example.easy_billing.util.CreditSide.Side.SUPPLIER
         when {
-            item.dueAmount > 0 -> {
+            isSupplier && item.dueAmount > 0.005 -> {
+                // A supplier's balance is what YOU owe them.
+                stripe = "#8A6526"; tile = "#FAEEDA"; ink = "#8A6526"
+                holder.status.text = holder.itemView.context.getString(R.string.credit_you_owe)
+                holder.due.text = money(holder.itemView.context, item.dueAmount)
+                holder.due.setTextColor(android.graphics.Color.parseColor("#8A6526"))
+            }
+            isSupplier && item.dueAmount < -0.005 -> {
+                stripe = "#0F6E56"; tile = "#E1F5EE"; ink = "#0F6E56"
+                holder.status.text = holder.itemView.context.getString(R.string.credit_you_paid_extra)
+                holder.due.text = money(holder.itemView.context, -item.dueAmount)
+                holder.due.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
+            }
+            item.dueAmount > 0.005 -> {
                 stripe = "#B23A3A"; tile = "#FCEBEB"; ink = "#791F1F"
                 holder.status.text = holder.itemView.context.getString(R.string.credit_row_owes_you)
                 holder.due.text = money(holder.itemView.context, item.dueAmount)
                 holder.due.setTextColor(android.graphics.Color.parseColor("#B23A3A"))
             }
-            item.dueAmount < 0 -> {
+            item.dueAmount < -0.005 -> {
                 stripe = "#0F6E56"; tile = "#E1F5EE"; ink = "#0F6E56"
                 holder.status.text = holder.itemView.context.getString(R.string.credit_row_in_advance)
                 holder.due.text = money(holder.itemView.context, -item.dueAmount)
                 holder.due.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
             }
             else -> {
-                stripe = "#E4DBC6"; tile = "#F3ECDD"; ink = "#8A8272"
+                stripe = "#D5DDD8"; tile = "#EEF2F0"; ink = "#76867C"
                 holder.status.text = holder.itemView.context.getString(R.string.credit_chip_label_settled)
                 holder.due.text = money(holder.itemView.context, 0.0)
-                holder.due.setTextColor(android.graphics.Color.parseColor("#8A8272"))
+                holder.due.setTextColor(android.graphics.Color.parseColor("#76867C"))
             }
         }
 
         holder.stripe.setBackgroundColor(android.graphics.Color.parseColor(stripe))
+        holder.stripe.visibility = if (showStripe) View.VISIBLE else View.GONE
         holder.status.setTextColor(android.graphics.Color.parseColor(stripe))
         holder.tvAvatar.backgroundTintList =
             android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor(tile))

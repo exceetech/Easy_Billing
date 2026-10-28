@@ -11,7 +11,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3ECDD"
+    android:background="@drawable/bg_lg_page"
     android:orientation="vertical">
 
     <!-- ══ Usual toolbar (back arrow) ══ -->
@@ -78,7 +78,7 @@
         android:orientation="horizontal"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="12dp"
-        android:background="@drawable/bg_imp_field_auto"
+        android:background="@drawable/bg_lg_field_locked"
         android:padding="10dp">
         <ImageView
             android:layout_width="14dp"
@@ -104,7 +104,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/bg_inv_value_card"
+        android:background="@drawable/bg_lg_card"
         android:padding="16dp"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="14dp">
@@ -113,7 +113,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/assets_total_value_label"
-            android:textColor="#9A8F79"
+            android:textColor="#7C8782"
             android:textSize="11sp"/>
 
         <LinearLayout
@@ -138,7 +138,7 @@
                 android:layout_marginStart="8dp"
                 android:paddingBottom="2dp"
                 android:text="@string/assets_total_value_caption"
-                android:textColor="#8A8272"
+                android:textColor="#76867C"
                 android:textSize="11sp"/>
         </LinearLayout>
 
@@ -246,7 +246,7 @@
             android:layout_marginTop="8dp"
             android:gravity="center"
             android:text="@string/assets_tap_hint"
-            android:textColor="#A99E88"
+            android:textColor="#7C8782"
             android:textSize="10sp"/>
     </LinearLayout>
 
@@ -256,7 +256,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="8dp"
-        android:textColor="#9A8F79"
+        android:textColor="#7C8782"
         android:textSize="11sp"
         android:fontFamily="@font/googlesans_medium"
         tools:text="14 assets · not counted as sellable stock"/>
@@ -277,7 +277,7 @@
             android:layout_height="match_parent"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="@drawable/bg_inv_stat_card"
+            android:background="@drawable/bg_lg_inv_subcard"
             android:paddingHorizontal="12dp">
             <ImageView
                 android:layout_width="15dp"
@@ -293,7 +293,7 @@
                 android:layout_marginStart="8dp"
                 android:background="@android:color/transparent"
                 android:hint="@string/assets_search_hint"
-                android:textColorHint="#C4B9A6"
+                android:textColorHint="#9AA5A0"
                 android:textColor="#1A1A18"
                 android:textSize="12.5sp"
                 android:inputType="text"
@@ -308,7 +308,7 @@
             android:layout_width="wrap_content"
             android:layout_height="44dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/bg_inv_stat_card"
+            android:background="@drawable/bg_lg_inv_subcard"
             android:clipChildren="false"
             android:clipToPadding="false"
             android:clickable="true"
@@ -334,7 +334,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:text="@string/manage_products_filter_button_label"
-                    android:textColor="#6E6454"
+                    android:textColor="#5B6760"
                     android:fontFamily="@font/googlesans_medium"
                     android:textSize="12.5sp" />
             </LinearLayout>
@@ -361,7 +361,7 @@
             android:layout_width="wrap_content"
             android:layout_height="44dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/bg_inv_stat_card"
+            android:background="@drawable/bg_lg_inv_subcard"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground">
@@ -385,7 +385,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:text="@string/manage_products_sort_content_desc"
-                    android:textColor="#6E6454"
+                    android:textColor="#5B6760"
                     android:fontFamily="@font/googlesans_medium"
                     android:textSize="12.5sp" />
             </LinearLayout>
@@ -406,14 +406,14 @@
     <!-- ══ List — background lives on this outer card, not the
          RecyclerView, so the card stays visible when the empty state
          replaces it (same structure as Inventory's cardInventory). ══ -->
-    <FrameLayout
+    <com.example.easy_billing.ui.glass.GlassClipFrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="6dp"
         android:layout_marginHorizontal="16dp"
         android:layout_weight="1"
-        android:background="@drawable/bg_inv_value_card"
-        android:clipToOutline="true">
+        android:background="@drawable/bg_lg_card"
+        >
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvAssets"
@@ -445,7 +445,7 @@
                 <FrameLayout
                     android:layout_width="72dp"
                     android:layout_height="72dp"
-                    android:background="@drawable/bg_imp_empty_circle">
+                    android:background="@drawable/bg_circle_soft_grey">
                     <ImageView
                         android:layout_width="30dp"
                         android:layout_height="30dp"
@@ -489,7 +489,7 @@
                     android:gravity="center"
                     android:text="@string/assets_empty_sub"
                     android:textSize="12.5sp"
-                    android:textColor="#8A8272"
+                    android:textColor="#76867C"
                     android:lineSpacingExtra="3dp"/>
 
                 <View
@@ -497,7 +497,7 @@
                     android:layout_height="1dp"
                     android:layout_marginTop="22dp"
                     android:layout_marginBottom="18dp"
-                    android:background="#E5DCD0"/>
+                    android:background="#E3E8E4"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -528,7 +528,7 @@
                             android:layout_marginTop="1dp"
                             android:text="@string/assets_tip_purchase_body"
                             android:textSize="11sp"
-                            android:textColor="#9A8F79" />
+                            android:textColor="#7C8782" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -560,14 +560,14 @@
                             android:layout_marginTop="1dp"
                             android:text="@string/assets_tip_search_body"
                             android:textSize="11sp"
-                            android:textColor="#9A8F79" />
+                            android:textColor="#7C8782" />
                     </LinearLayout>
                 </LinearLayout>
 
 
             </LinearLayout>
         </ScrollView>
-    </FrameLayout>
+    </com.example.easy_billing.ui.glass.GlassClipFrameLayout>
 
 
 </LinearLayout>

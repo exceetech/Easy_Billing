@@ -90,5 +90,12 @@ data class Bill(
     var razorpayPaymentLinkUrl: String? = null,
 
     @ColumnInfo(name = "razorpay_payment_id")
-    var razorpayPaymentId: String? = null
+    var razorpayPaymentId: String? = null,
+
+    /**
+     * v72: the owner tapped "Mark as paid" on this phone but the server has not been told yet
+     * (offline, or the bill has no number yet). Cleared once the server confirms.
+     */
+    @ColumnInfo(name = "paid_push_pending", defaultValue = "0")
+    var paidPushPending: Boolean = false
 )

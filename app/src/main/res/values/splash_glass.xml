@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Light splash glows: reference the shared glass-theme glow colours (values/glow_colors.xml). -->
+<resources>
+    <color name="splash_glow_emerald">@color/glow_a</color>
+    <color name="splash_glow_emerald_mid">@color/glow_a_mid</color>
+    <color name="splash_glow_emerald_end">@color/glow_a_end</color>
+    <color name="splash_glow_gold">@color/glow_b</color>
+    <color name="splash_glow_gold_mid">@color/glow_b_mid</color>
+    <color name="splash_glow_gold_end">@color/glow_b_end</color>
+</resources>

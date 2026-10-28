@@ -86,7 +86,7 @@ import com.example.easy_billing.gstr2.Gstr2DraftEntity
         // Payment & cash-flow tracking (v71): the Money Book.
         MoneyEntry::class
     ],
-    version = 71
+    version = 72
 )
 
 abstract class AppDatabase : RoomDatabase() {
@@ -831,6 +831,13 @@ abstract class AppDatabase : RoomDatabase() {
                 )
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_gst_sales_items_table_gst_invoice_id` ON `gst_sales_items_table`(`gst_invoice_id`)")
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_gst_sales_items_table_product_id` ON `gst_sales_items_table`(`product_id`)")
+            }
+        }
+
+        /** Offline "Mark as paid": remembers that the server still has to be told. */
+        val MIGRATION_71_72 = object : Migration(71, 72) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `bills` ADD COLUMN `paid_push_pending` INTEGER NOT NULL DEFAULT 0")
             }
         }
 
@@ -2122,7 +2129,8 @@ abstract class AppDatabase : RoomDatabase() {
                         MIGRATION_67_68,
                         MIGRATION_68_69,
                         MIGRATION_69_70,
-                        MIGRATION_70_71
+                        MIGRATION_70_71,
+                        MIGRATION_71_72
                     )
                     // Report 1 S-8 / Report 3 D-b: a blanket
                     // fallbackToDestructiveMigration() meant any future

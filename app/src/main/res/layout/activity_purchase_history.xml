@@ -18,7 +18,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F3ECDD">
+    android:background="@drawable/bg_lg_page">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -83,7 +83,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginHorizontal="16dp"
-        android:background="@drawable/bg_inv_value_card"
+        android:background="@drawable/bg_lg_card"
         android:padding="16dp">
 
         <TextView
@@ -91,7 +91,7 @@
             android:layout_height="wrap_content"
             android:text="@string/purchase_history_bought_this_month"
             android:textSize="11sp"
-            android:textColor="#9A8F79" />
+            android:textColor="#7C8782" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -124,7 +124,7 @@
                 android:layout_marginBottom="4dp"
                 android:text="@string/xml_purchase_history_invoices_count_placeholder"
                 android:textSize="11sp"
-                android:textColor="#9A8F79" />
+                android:textColor="#7C8782" />
         </LinearLayout>
 
         <LinearLayout
@@ -185,7 +185,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
-                    android:text="@string/cash"
+                    android:text="@string/purchase_history_tile_paid"
                     android:textSize="9.5sp"
                     android:textColor="#0F6E56" />
             </LinearLayout>
@@ -200,7 +200,7 @@
         android:gravity="center_vertical"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="14dp"
-        android:background="@drawable/bg_imp_filter"
+        android:background="@drawable/bg_lg_pill"
         android:paddingHorizontal="12dp">
 
         <ImageView
@@ -217,7 +217,7 @@
             android:layout_height="match_parent"
             android:background="@android:color/transparent"
             android:hint="@string/purchase_history_search_hint"
-            android:textColorHint="#A99E88"
+            android:textColorHint="#929F97"
             android:textColor="#1A1A18"
             android:textSize="12.5sp"
             android:singleLine="true"
@@ -250,7 +250,7 @@
             android:layout_height="42dp"
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:background="@drawable/bg_credit_phone_chip"
+            android:background="@drawable/bg_lg_pill"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground">
@@ -274,7 +274,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:text="@string/purchase_history_filter_button_label"
-                    android:textColor="#6E6454"
+                    android:textColor="#5B6760"
                     android:fontFamily="@font/googlesans_medium"
                     android:textSize="12.5sp" />
             </LinearLayout>
@@ -305,7 +305,7 @@
             android:layout_width="wrap_content"
             android:layout_height="42dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/bg_credit_phone_chip"
+            android:background="@drawable/bg_lg_pill"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground">
@@ -329,7 +329,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:text="@string/purchase_history_sort_button_label"
-                    android:textColor="#6E6454"
+                    android:textColor="#5B6760"
                     android:fontFamily="@font/googlesans_medium"
                     android:textSize="12.5sp" />
             </LinearLayout>
@@ -343,7 +343,7 @@
             android:layout_marginStart="10dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="@drawable/bg_credit_phone_chip"
+            android:background="@drawable/bg_lg_pill"
             android:paddingHorizontal="12dp">
 
             <TextView
@@ -352,7 +352,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="@string/xml_purchase_history_sort_newest_first"
-                android:textColor="#9A8F79"
+                android:textColor="#7C8782"
                 android:fontFamily="@font/googlesans_medium"
                 android:textSize="12sp"
                 android:singleLine="true"
@@ -402,7 +402,7 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="14dp"
-        android:background="@drawable/bg_inv_value_card">
+        android:background="@drawable/bg_lg_card">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvPurchases"
@@ -443,7 +443,7 @@
                 <FrameLayout
                     android:layout_width="72dp"
                     android:layout_height="72dp"
-                    android:background="@drawable/bg_imp_empty_circle">
+                    android:background="@drawable/bg_circle_soft_grey">
                     <ImageView
                         android:layout_width="30dp"
                         android:layout_height="30dp"
@@ -488,7 +488,7 @@
                     android:gravity="center"
                     android:text="@string/purchase_history_no_purchases_body"
                     android:textSize="12.5sp"
-                    android:textColor="#8A8272"
+                    android:textColor="#76867C"
                     android:lineSpacingExtra="3dp" />
 
                 <View
@@ -496,7 +496,7 @@
                     android:layout_height="0.5dp"
                     android:layout_marginTop="20dp"
                     android:layout_marginBottom="16dp"
-                    android:background="#F1EBDD" />
+                    android:background="#E3E8E4" />
 
                 <LinearLayout
                     android:id="@+id/tipRecordPurchase"
@@ -532,7 +532,7 @@
                             android:layout_marginTop="1dp"
                             android:text="@string/purchase_history_tip_record_body"
                             android:textSize="11sp"
-                            android:textColor="#9A8F79" />
+                            android:textColor="#7C8782" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -564,7 +564,7 @@
                             android:layout_marginTop="1dp"
                             android:text="@string/purchase_history_tip_search_body"
                             android:textSize="11sp"
-                            android:textColor="#9A8F79" />
+                            android:textColor="#7C8782" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -577,7 +577,7 @@
         android:layout_height="48dp"
         android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="14dp"
-        android:background="@drawable/bg_login_cta_green"
+        android:background="@drawable/bg_lg_cta_green_12"
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"

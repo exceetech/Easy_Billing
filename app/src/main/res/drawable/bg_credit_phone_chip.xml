@@ -4,6 +4,6 @@
      other screens use for section labels. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
     <solid android:color="#FFFFFF"/>
-    <stroke android:width="0.5dp" android:color="#EAE2D1"/>
+    <stroke android:width="0.5dp" android:color="#D9E2DD"/>
     <corners android:radius="20dp"/>
 </shape>

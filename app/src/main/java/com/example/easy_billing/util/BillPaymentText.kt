@@ -25,7 +25,7 @@ object BillPaymentText {
         if (!PaymentMethodText.isSplit(bill.paymentMethod)) return null
         val db = AppDatabase.getDatabase(context)
         val money = db.moneyEntryDao().forParent(MoneySource.BILL, bill.id)
-            .filter { it.direction == MoneyDirection.IN && it.reason == MoneyReason.SALE }
+            .filter { it.direction == MoneyDirection.IN && it.reason == MoneyReason.SALE && it.status != MoneyStatus.CANCELLED }
             .map { PayLine(it.mode, it.amount) }
         val shop = context.getSharedPreferences("auth", Context.MODE_PRIVATE).getInt("SHOP_ID", -1)
         val credit = if (shop > 0 && PaymentMethodText.hasCredit(bill.paymentMethod))

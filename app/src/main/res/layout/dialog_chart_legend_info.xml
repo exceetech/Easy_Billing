@@ -14,7 +14,7 @@
 
     android:orientation="vertical"
     android:padding="22dp"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -24,7 +24,7 @@
         android:layout_height="58dp"
         android:layout_gravity="center"
         android:layout_marginBottom="12dp"
-        android:background="@drawable/bg_dialog_soft_amber_circle">
+        android:background="@drawable/bg_circle_soft_green">
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
@@ -60,7 +60,7 @@
     <TextView
         android:text="@string/xml_profit_chart_info_subtitle"
         android:textSize="12.5sp"
-        android:textColor="#6E6A60"
+        android:textColor="#5B6660"
         android:gravity="center"
         android:layout_marginTop="6dp"
         android:lineSpacingExtra="2dp"
@@ -72,7 +72,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/bg_inv_value_card"
+        android:background="@drawable/bg_lg_card"
         android:padding="13dp"
         android:layout_marginTop="16dp">
 
@@ -99,7 +99,7 @@
         <TextView
             android:text="@string/xml_profit_chart_info_green_desc"
             android:textSize="12.5sp"
-            android:textColor="#6E6A60"
+            android:textColor="#5B6660"
             android:lineSpacingExtra="2dp"
             android:layout_marginTop="4dp"
             android:layout_width="match_parent"
@@ -111,7 +111,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/bg_inv_value_card"
+        android:background="@drawable/bg_lg_card"
         android:padding="13dp"
         android:layout_marginTop="10dp">
 
@@ -138,7 +138,7 @@
         <TextView
             android:text="@string/xml_profit_chart_info_red_desc"
             android:textSize="12.5sp"
-            android:textColor="#6E6A60"
+            android:textColor="#5B6660"
             android:lineSpacingExtra="2dp"
             android:layout_marginTop="4dp"
             android:layout_width="match_parent"
@@ -157,7 +157,8 @@
         android:textSize="13.5sp"
         android:fontFamily="@font/googlesans_semibold"
         android:includeFontPadding="false"
-        app:backgroundTint="#0F6E56"
+        android:background="@drawable/bg_lg_cta_green_14"
+        app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:stateListAnimator="@null"

@@ -22,5 +22,9 @@ data class BillResponse(
     // a Razorpay webhook confirms payment. Only meaningful when
     // payment_method == "UPI"; other payment methods never touch this
     // column so it just stays "unpaid" and is ignored in the UI.
-    val payment_status: String = "unpaid"
+    val payment_status: String = "unpaid",
+
+    // Set only for rows built from this phone's own database (never by the server).
+    // Lets the list and the details screen open a bill that has no server id/number yet.
+    val local_id: Int? = null
 )

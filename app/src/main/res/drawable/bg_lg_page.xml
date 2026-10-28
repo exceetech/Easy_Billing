@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Login / Register glass background: white base with an glow (top left, glow_a) and a glow (bottom right, glow_b); colours live in values/glow_colors.xml. Always light. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:type="linear" android:angle="270"
+                android:startColor="#FFFFFF" android:centerColor="#FFFFFF" android:endColor="#FFFFFF" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:type="radial" android:centerX="0.23" android:centerY="0.17" android:gradientRadius="72%p"
+                android:startColor="@color/glow_a" android:centerColor="@color/glow_a_mid" android:endColor="@color/glow_a_end" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:type="radial" android:centerX="0.85" android:centerY="0.88" android:gradientRadius="75%p"
+                android:startColor="@color/glow_b" android:centerColor="@color/glow_b_mid" android:endColor="@color/glow_b_end" />
+        </shape>
+    </item>
+</layer-list>

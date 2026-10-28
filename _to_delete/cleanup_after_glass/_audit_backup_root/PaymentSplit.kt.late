@@ -1,0 +1,236 @@
+package com.example.easy_billing.util
+
+/**
+ * Payment & cash-flow tracking (Money Book) - constants and the pure split logic.
+ *
+ * Nothing in this file touches Android or the database, so every rule here is
+ * unit-tested on the JVM (PaymentSplitTest).
+ *
+ * All maths is done in whole paise (Long) so rounding can never drift.
+ */
+object MoneyMode {
+    const val CASH = "CASH"
+    const val UPI = "UPI"
+    const val CARD = "CARD"
+    const val BANK = "BANK"
+    /** Not a money mode: the part of a bill that goes on the customer's credit account. */
+    const val CREDIT = "CREDIT"
+
+    val ALL = listOf(CASH, UPI, CARD, BANK)
+    /** Modes offered at the billing counter. */
+    val COUNTER = listOf(CASH, UPI, CARD, BANK)
+
+    fun isValid(mode: String) = mode in ALL
+    /** CASH = "in pocket"; UPI, CARD and BANK = "in bank". */
+    fun isBank(mode: String) = mode == UPI || mode == CARD || mode == BANK
+}
+
+object MoneyDirection {
+    const val IN = "IN"
+    const val OUT = "OUT"
+    fun isValid(d: String) = d == IN || d == OUT
+    fun opposite(d: String) = if (d == IN) OUT else IN
+}
+
+object MoneyStatus {
+    const val RECEIVED = "RECEIVED"
+    /** UPI payment link sent, customer has not paid yet. Not counted in balances. */
+    const val PENDING = "PENDING"
+    /** A pending payment whose bill was cancelled before the money arrived. Never counted. */
+    const val CANCELLED = "CANCELLED"
+    fun isValid(s: String) = s == RECEIVED || s == PENDING || s == CANCELLED
+}
+
+object MoneyReason {
+    const val SALE = "SALE"
+    const val SALE_REFUND = "SALE_REFUND"
+    const val SALE_EXTRA = "SALE_EXTRA"
+    const val DUES_RECEIVED = "DUES_RECEIVED"
+    const val ADVANCE_REFUND = "ADVANCE_REFUND"
+    const val PURCHASE_PAID = "PURCHASE_PAID"
+    const val SUPPLIER_PAID = "SUPPLIER_PAID"
+    const val PURCHASE_REFUND = "PURCHASE_REFUND"
+    const val OPENING = "OPENING"
+    const val MANUAL = "MANUAL"
+    /** Cash moved to / from the bank. Not earnings: it is left out of money in / out on the Reports card. */
+    const val TRANSFER = "TRANSFER"
+
+    // "Due" notes: a PENDING reminder that money still has to be handed back / collected.
+    // A due note is NOT money (never counted anywhere). Its reason is the real reason + "_DUE";
+    // settling it cancels the note and writes the real rows (see [DueNotes]).
+    const val DUE_SUFFIX = "_DUE"
+    const val SALE_REFUND_DUE = SALE_REFUND + DUE_SUFFIX
+    const val ADVANCE_REFUND_DUE = ADVANCE_REFUND + DUE_SUFFIX
+    const val SALE_EXTRA_DUE = SALE_EXTRA + DUE_SUFFIX
+    const val PURCHASE_REFUND_DUE = PURCHASE_REFUND + DUE_SUFFIX
+    const val PURCHASE_PAID_DUE = PURCHASE_PAID + DUE_SUFFIX
+
+    val DUE_REASONS = listOf(SALE_REFUND_DUE, ADVANCE_REFUND_DUE, SALE_EXTRA_DUE, PURCHASE_REFUND_DUE, PURCHASE_PAID_DUE)
+    fun isDue(r: String) = r in DUE_REASONS
+    fun realReasonOf(dueReason: String) = dueReason.removeSuffix(DUE_SUFFIX)
+
+    val ALL = listOf(
+        SALE, SALE_REFUND, SALE_EXTRA, DUES_RECEIVED, ADVANCE_REFUND,
+        PURCHASE_PAID, SUPPLIER_PAID, PURCHASE_REFUND, OPENING, MANUAL, TRANSFER
+    ) + DUE_REASONS
+    fun isValid(r: String) = r in ALL
+}
+
+object MoneySource {
+    const val BILL = "BILL"
+    const val CREDIT_NOTE = "CREDIT_NOTE"
+    const val DEBIT_NOTE = "DEBIT_NOTE"
+    const val CREDIT_TXN = "CREDIT_TXN"
+    const val PURCHASE = "PURCHASE"
+    const val PURCHASE_RETURN = "PURCHASE_RETURN"
+    const val PURCHASE_NOTE = "PURCHASE_NOTE"
+    const val MANUAL = "MANUAL"
+
+    val ALL = listOf(BILL, CREDIT_NOTE, DEBIT_NOTE, CREDIT_TXN, PURCHASE, PURCHASE_RETURN, PURCHASE_NOTE, MANUAL)
+    fun isValid(s: String) = s in ALL
+}
+
+/** One line of a payment: a mode (or CREDIT) and an amount in rupees. */
+data class PayLine(val mode: String, val amount: Double)
+
+sealed class SplitCheck {
+    object Ok : SplitCheck()
+    object NoLines : SplitCheck()
+    /** A line has an amount that is zero, negative or not a number. */
+    data class BadAmount(val mode: String) : SplitCheck()
+    data class UnknownMode(val mode: String) : SplitCheck()
+    /** Lines add up to [diff] rupees more (+) or less (-) than the total. */
+    data class SumMismatch(val diff: Double) : SplitCheck()
+}
+
+object PaymentSplit {
+
+    fun toPaise(rupees: Double): Long = Math.round(rupees * 100.0)
+    fun fromPaise(paise: Long): Double = paise / 100.0
+    fun round2(rupees: Double): Double = fromPaise(toPaise(rupees))
+
+    /** Adds up lines that use the same mode and drops empty ones. Order of first appearance is kept. */
+    fun merge(lines: List<PayLine>): List<PayLine> {
+        val sums = LinkedHashMap<String, Long>()
+        for (l in lines) {
+            val p = toPaise(l.amount)
+            if (p == 0L) continue
+            sums[l.mode] = (sums[l.mode] ?: 0L) + p
+        }
+        return sums.entries.filter { it.value != 0L }.map { PayLine(it.key, fromPaise(it.value)) }
+    }
+
+    /**
+     * Checks that [lines] settle exactly [total]. Same-mode lines are merged first.
+     * [allowed] is the set of modes the screen offers (CREDIT may be included for part credit).
+     */
+    fun validate(total: Double, lines: List<PayLine>, allowed: Collection<String> = MoneyMode.ALL): SplitCheck {
+        for (l in lines) {
+            if (l.amount.isNaN() || l.amount.isInfinite() || toPaise(l.amount) < 0L) return SplitCheck.BadAmount(l.mode)
+            if (l.mode !in allowed) return SplitCheck.UnknownMode(l.mode)
+        }
+        val merged = merge(lines)
+        if (merged.isEmpty()) return SplitCheck.NoLines
+        val diff = merged.sumOf { toPaise(it.amount) } - toPaise(total)
+        return if (diff == 0L) SplitCheck.Ok else SplitCheck.SumMismatch(fromPaise(diff))
+    }
+
+    /**
+     * The sheet's "last line auto-fills the remainder": sets [fillMode] to total minus every other line.
+     * If the others already exceed the total, the fill line is 0 (and validate() reports the mismatch).
+     */
+    fun fillRemainder(total: Double, lines: List<PayLine>, fillMode: String): List<PayLine> {
+        val others = merge(lines.filter { it.mode != fillMode })
+        val left = toPaise(total) - others.sumOf { toPaise(it.amount) }
+        return if (left > 0L) others + PayLine(fillMode, fromPaise(left)) else others
+    }
+
+    /**
+     * Splits [total] across the modes of [basis] in proportion to the basis amounts (used for refunds:
+     * "give back the same way it was paid"). Every line but the last is rounded down to a whole paisa,
+     * and the last line takes the leftover, so the lines always add up to exactly [total].
+     */
+    fun proportional(total: Double, basis: List<PayLine>): List<PayLine> {
+        val b = merge(basis).filter { toPaise(it.amount) > 0L }
+        val totalP = toPaise(total)
+        if (b.isEmpty() || totalP <= 0L) return emptyList()
+        val weight = b.sumOf { toPaise(it.amount) }
+        var left = totalP
+        val out = ArrayList<PayLine>()
+        for ((i, l) in b.withIndex()) {
+            val share = if (i == b.lastIndex) left else (totalP * toPaise(l.amount)) / weight
+            left -= share
+            if (share > 0L) out += PayLine(l.mode, fromPaise(share))
+        }
+        return out
+    }
+
+    /**
+     * Cuts [lines] in two: the first part takes [firstAmount] (lines are used in order), the second part
+     * gets the rest. Used when one refund sheet covers two reasons (paid money + a cash settlement).
+     */
+    fun allocate(lines: List<PayLine>, firstAmount: Double): Pair<List<PayLine>, List<PayLine>> {
+        var left = toPaise(firstAmount).coerceAtLeast(0L)
+        val first = ArrayList<PayLine>()
+        val second = ArrayList<PayLine>()
+        for (l in merge(lines)) {
+            val p = toPaise(l.amount)
+            val take = minOf(p, left)
+            left -= take
+            if (take > 0L) first += PayLine(l.mode, fromPaise(take))
+            if (p - take > 0L) second += PayLine(l.mode, fromPaise(p - take))
+        }
+        return first to second
+    }
+
+    /** Splits a bill's lines into the money that moves now and the part that goes on credit. */
+    fun separateCredit(lines: List<PayLine>): Pair<List<PayLine>, Double> {
+        val merged = merge(lines)
+        val credit = merged.filter { it.mode == MoneyMode.CREDIT }.sumOf { toPaise(it.amount) }
+        return merged.filter { it.mode != MoneyMode.CREDIT } to fromPaise(credit)
+    }
+
+    /** Most that may still be paid back for a document: what moved minus what was already paid back. Never below 0. */
+    fun refundCeiling(moved: Double, alreadyReturned: Double): Double =
+        fromPaise(maxOf(0L, toPaise(moved) - toPaise(alreadyReturned)))
+}
+
+/**
+ * How a bill's payment is written in `Bill.paymentMethod` and shown to people.
+ *
+ * One mode keeps the old plain value ("CASH", "UPI", "CARD", "CREDIT"). More than one is joined with
+ * "+" in a fixed order, e.g. "CASH+UPI" or "CASH+UPI+CREDIT". Because the word CREDIT stays inside
+ * the text, every existing "contains credit" check keeps working for part-credit bills, and the
+ * server needs no change.
+ */
+object PaymentMethodText {
+    private val ORDER = listOf(MoneyMode.CASH, MoneyMode.UPI, MoneyMode.CARD, MoneyMode.BANK, MoneyMode.CREDIT)
+
+    /** The value to store for these lines. [fallback] is used when there are no lines (a zero bill). */
+    fun encode(lines: List<PayLine>, fallback: String): String {
+        val modes = PaymentSplit.merge(lines).map { it.mode }.toSet()
+        if (modes.isEmpty()) return fallback
+        return ORDER.filter { it in modes }.joinToString("+")
+    }
+
+    fun parts(method: String): List<String> =
+        method.split('+').map { it.trim().uppercase() }.filter { it.isNotEmpty() }
+
+    fun isSplit(method: String) = parts(method).size > 1
+
+    /** True for a whole-credit bill and for a part-credit bill. */
+    fun hasCredit(method: String) = MoneyMode.CREDIT in parts(method)
+
+    /** True when any part of the bill is paid by UPI (pure or split). */
+    fun hasUpi(method: String) = MoneyMode.UPI in parts(method)
+
+    /** True only for a bill paid entirely by UPI (the payment-link / QR flow applies to it). */
+    fun isPureUpi(method: String) = parts(method) == listOf(MoneyMode.UPI)
+
+    /** "CASH+UPI" -> "Cash + UPI". A single plain value is returned unchanged. */
+    fun label(method: String): String {
+        val p = parts(method)
+        if (p.size <= 1) return if (p.firstOrNull() == MoneyMode.BANK) "Bank transfer" else method
+        return p.joinToString(" + ") { if (it == "UPI") "UPI" else it.lowercase().replaceFirstChar { c -> c.uppercase() } }
+    }
+}

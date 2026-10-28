@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:paddingHorizontal="26dp"
     android:paddingTop="20dp"
     android:paddingBottom="22dp">
@@ -64,7 +64,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="0"
-                android:textColor="#8A8474"
+                android:textColor="#77877D"
                 android:textSize="12sp"/>
         </LinearLayout>
 
@@ -81,7 +81,7 @@
                 android:layout_height="14dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_lc_x"
-                app:tint="#8A8272"
+                app:tint="#76867C"
                 android:contentDescription="Close"/>
         </FrameLayout>
     </FrameLayout>
@@ -92,7 +92,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@drawable/bg_inv_pay_seg_track"
+        android:background="@drawable/bg_lg_tab_track"
         android:padding="4dp"
         android:layout_marginTop="16dp">
         <TextView
@@ -162,7 +162,7 @@
                 android:background="@null"
                 android:gravity="center"
                 android:hint="0"
-                android:textColorHint="#B0A48C"
+                android:textColorHint="#98A49D"
                 android:textColor="#1A1A18"
                 android:textSize="31sp"
                 android:fontFamily="@font/googlesans_bold"
@@ -193,25 +193,25 @@
         <TextView android:id="@+id/tvPreset1"
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
             android:gravity="center" android:paddingVertical="8dp" android:text="5%"
-            android:textSize="12sp" android:textColor="#8A8272" android:fontFamily="@font/googlesans_semibold"
+            android:textSize="12sp" android:textColor="#76867C" android:fontFamily="@font/googlesans_semibold"
             android:background="@drawable/bg_inv_pay_gold_unselected" android:clickable="true" android:focusable="true"/>
         <TextView android:id="@+id/tvPreset2"
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
             android:layout_marginStart="7dp"
             android:gravity="center" android:paddingVertical="8dp" android:text="10%"
-            android:textSize="12sp" android:textColor="#8A8272" android:fontFamily="@font/googlesans_semibold"
+            android:textSize="12sp" android:textColor="#76867C" android:fontFamily="@font/googlesans_semibold"
             android:background="@drawable/bg_inv_pay_gold_unselected" android:clickable="true" android:focusable="true"/>
         <TextView android:id="@+id/tvPreset3"
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
             android:layout_marginStart="7dp"
             android:gravity="center" android:paddingVertical="8dp" android:text="15%"
-            android:textSize="12sp" android:textColor="#8A8272" android:fontFamily="@font/googlesans_semibold"
+            android:textSize="12sp" android:textColor="#76867C" android:fontFamily="@font/googlesans_semibold"
             android:background="@drawable/bg_inv_pay_gold_unselected" android:clickable="true" android:focusable="true"/>
         <TextView android:id="@+id/tvPreset4"
             android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
             android:layout_marginStart="7dp"
             android:gravity="center" android:paddingVertical="8dp" android:text="20%"
-            android:textSize="12sp" android:textColor="#8A8272" android:fontFamily="@font/googlesans_semibold"
+            android:textSize="12sp" android:textColor="#76867C" android:fontFamily="@font/googlesans_semibold"
             android:background="@drawable/bg_inv_pay_gold_unselected" android:clickable="true" android:focusable="true"/>
     </LinearLayout>
 
@@ -246,7 +246,7 @@
                 <TextView android:id="@+id/tvDiscOrig"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginStart="7dp"
-                    android:text="0" android:textColor="#A99E88" android:textSize="12sp"/>
+                    android:text="0" android:textColor="#7C8782" android:textSize="12sp"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -282,15 +282,16 @@
             android:textAllCaps="false"
             android:textSize="13.5sp"
             android:textStyle="bold"
-            android:textColor="#FCF3E5"
+            android:textColor="#FFFFFF"
             android:insetTop="0dp"
             android:insetBottom="0dp"
             android:stateListAnimator="@null"
-            app:backgroundTint="#0F6E56"
-            app:rippleColor="#085041"
+            android:background="@drawable/bg_lg_cta"
+            app:backgroundTint="@null"
+            app:rippleColor="#33FFFFFF"
             app:cornerRadius="14dp"
             app:icon="@drawable/ic_lc_check"
-            app:iconTint="#FCF3E5"
+            app:iconTint="#FFFFFF"
             app:iconSize="18dp"
             app:iconGravity="textStart"
             app:iconPadding="8dp"

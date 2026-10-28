@@ -170,6 +170,16 @@ class InvoiceActivity : AppCompatActivity() {
     private var isBillSaved = false
 
     /**
+     * Whatever way this screen is left (Close, "Save another bill", the back button, the back swipe),
+     * a saved bill must report RESULT_OK so the Dashboard clears its cart. Only the two buttons used
+     * to set it; the back button and swipe returned "cancelled" and left the old items in the cart.
+     */
+    override fun finish() {
+        if (isBillSaved) setResult(RESULT_OK)
+        super.finish()
+    }
+
+    /**
      * Set when the sale is on credit, consumed by [saveBill] after the bill row
      * is inserted. Held rather than written immediately so a bill that fails to
      * save can't leave a debt behind. Cleared as soon as it is applied, so a
@@ -223,6 +233,7 @@ class InvoiceActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_invoice)
+        com.example.easy_billing.util.KeyboardInsets.install(this)
         com.example.easy_billing.util.UserEventLogger.logAction("Invoice", "opened")
 
         bindViews()
@@ -542,7 +553,7 @@ class InvoiceActivity : AppCompatActivity() {
             val label = android.widget.TextView(this).apply {
                 text = opt
                 textSize = 14f
-                setTextColor(android.graphics.Color.parseColor(if (isSel) "#185FA5" else "#1A1A18"))
+                setTextColor(android.graphics.Color.parseColor(if (isSel) "#0F6E56" else "#1A1A18"))
                 layoutParams = android.widget.LinearLayout.LayoutParams(
                     0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f
                 )
@@ -551,7 +562,7 @@ class InvoiceActivity : AppCompatActivity() {
             if (isSel) {
                 row.addView(android.widget.ImageView(this).apply {
                     setImageResource(R.drawable.ic_lucide_check)
-                    setColorFilter(android.graphics.Color.parseColor("#185FA5"))
+                    setColorFilter(android.graphics.Color.parseColor("#0F6E56"))
                     layoutParams = android.widget.LinearLayout.LayoutParams(dpPx(16), dpPx(16))
                 })
             }
@@ -589,12 +600,14 @@ class InvoiceActivity : AppCompatActivity() {
             this, android.R.layout.simple_dropdown_item_1line, invoiceTypes
         )
         spinnerGstrInvoiceType.setAdapter(typeAdapter)
+        spinnerGstrInvoiceType.setDropDownBackgroundDrawable(androidx.core.content.ContextCompat.getDrawable(this, R.drawable.bg_lg_popover))
         spinnerGstrInvoiceType.setText(getString(R.string.purchase_invoice_type_regular), false)
 
         val natureAdapter = ArrayAdapter(
             this, android.R.layout.simple_dropdown_item_1line, listOf("B2B", "B2C", "URP2B")
         )
         spinnerEcoNatureOfSupply.setAdapter(natureAdapter)
+        spinnerEcoNatureOfSupply.setDropDownBackgroundDrawable(androidx.core.content.ContextCompat.getDrawable(this, R.drawable.bg_lg_popover))
         spinnerEcoNatureOfSupply.setText("B2C", false)
 
         val docAdapter = ArrayAdapter(
@@ -606,12 +619,14 @@ class InvoiceActivity : AppCompatActivity() {
             )
         )
         spinnerEcoDocumentType.setAdapter(docAdapter)
+        spinnerEcoDocumentType.setDropDownBackgroundDrawable(androidx.core.content.ContextCompat.getDrawable(this, R.drawable.bg_lg_popover))
         spinnerEcoDocumentType.setText(getString(R.string.invoice_document_type_invoice), false)
 
         val roleAdapter = ArrayAdapter(
             this, android.R.layout.simple_dropdown_item_1line, listOf("Supplier", "E-Commerce Operator")
         )
         spinnerEcoRole.setAdapter(roleAdapter)
+        spinnerEcoRole.setDropDownBackgroundDrawable(androidx.core.content.ContextCompat.getDrawable(this, R.drawable.bg_lg_popover))
         spinnerEcoRole.setText("Supplier", false)
 
         // Tap opens the styled chooser sheet (matches "Place of supply").
@@ -930,7 +945,7 @@ class InvoiceActivity : AppCompatActivity() {
     ) {
         tile.alpha = if (active) 1f else 0.55f
         if (active) {
-            tile.setBackgroundResource(R.drawable.bg_inv_tax_tile)
+            tile.setBackgroundResource(R.drawable.bg_lg_inv_subcard)
             label.setTextColor(0xFF8A6526.toInt())
             amount.setTextColor(0xFF18181B.toInt())
             amount.text = CurrencyHelper.format(this, taxAmount)
@@ -2091,6 +2106,8 @@ class InvoiceActivity : AppCompatActivity() {
                     tvQrStatus.text = getString(R.string.qr_payment_failed_retry)
                     return@launch
                 }
+                // Remember what this QR asks for, in case goods are returned before it is paid.
+                qrAmount?.let { com.example.easy_billing.util.UpiLinkAmounts.remember(this@InvoiceActivity, billNumber, it) }
 
                 val bitmap = withContext(Dispatchers.IO) {
                     try {
@@ -2620,6 +2637,7 @@ class InvoiceActivity : AppCompatActivity() {
         }
 
         val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(this)
+        dialog.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         val view = layoutInflater.inflate(R.layout.dialog_customer_picker, null)
 
         val etSearch = view.findViewById<EditText>(R.id.etSearchCustomer)
@@ -2637,11 +2655,14 @@ class InvoiceActivity : AppCompatActivity() {
             val allCustomers = repository.getAllCreditAccounts(shopId)
             var currentList = allCustomers.toMutableList()
 
-            val adapter = CreditAdapter(currentList) { customer ->
+            val adapter = CreditAdapter(currentList, showStripe = false) { customer ->
                 dialog.dismiss()
                 addCreditAndSaveBill(customer)
             }
             rvCustomers.adapter = adapter
+            adapter.sides = com.example.easy_billing.util.AccountSides.load(
+                com.example.easy_billing.db.AppDatabase.getDatabase(this@InvoiceActivity), shopId
+            )
             view.findViewById<android.widget.TextView>(R.id.tvAccountCount)?.text =
                 if (allCustomers.size == 1) getString(R.string.invoice_account_count_singular) else "${allCustomers.size} accounts"
 

@@ -41,7 +41,7 @@ class DebitNoteItemAdapter(
     private data class RowAccent(val accent: Int, val tileBg: Int, val tileText: Int)
 
     private val rowAccents = listOf(
-        RowAccent(Color.parseColor("#8A6526"), Color.parseColor("#F6F0E4"), Color.parseColor("#8A6526")),
+        RowAccent(Color.parseColor("#8A6526"), Color.parseColor("#FAEEDA"), Color.parseColor("#8A6526")),
         RowAccent(Color.parseColor("#0F6E56"), Color.parseColor("#E7F1EC"), Color.parseColor("#0F6E56")),
         RowAccent(Color.parseColor("#A32D2D"), Color.parseColor("#FCEBEB"), Color.parseColor("#A32D2D"))
     )
@@ -87,7 +87,7 @@ class DebitNoteItemAdapter(
         holder.viewItemStripe.setBackgroundColor(accent.accent)
         holder.tvAvatar.backgroundTintList = android.content.res.ColorStateList.valueOf(accent.tileBg)
         holder.tvAvatar.setTextColor(accent.tileText)
-        holder.btnDecrement.strokeColor = android.content.res.ColorStateList.valueOf(Color.parseColor("#E1DAC8"))
+        holder.btnDecrement.strokeColor = android.content.res.ColorStateList.valueOf(Color.parseColor("#D5DDD8"))
         holder.btnDecrement.setTextColor(accent.accent)
         holder.btnIncrement.backgroundTintList = android.content.res.ColorStateList.valueOf(accent.accent)
 

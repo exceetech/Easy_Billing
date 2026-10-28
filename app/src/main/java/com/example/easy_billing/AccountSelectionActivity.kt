@@ -128,7 +128,7 @@ class AccountSelectionActivity : BaseActivity() {
         val row = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setBackgroundResource(R.drawable.bg_send_option_row)
+            setBackgroundResource(R.drawable.bg_lg_row)
             setPadding(dp(13), dp(11), dp(13), dp(11))
             isClickable = true
             isFocusable = true
@@ -199,7 +199,7 @@ class AccountSelectionActivity : BaseActivity() {
             val activeText = TextView(this).apply {
                 text = "Active now"
                 textSize = 9.5f
-                setTextColor(android.graphics.Color.parseColor("#9A8F79"))
+                setTextColor(android.graphics.Color.parseColor("#7C8782"))
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT
                 ).apply { marginStart = dp(6) }
@@ -213,7 +213,7 @@ class AccountSelectionActivity : BaseActivity() {
         val chevron = ImageView(this).apply {
             layoutParams = LinearLayout.LayoutParams(dp(9), dp(9))
             setImageResource(R.drawable.ic_chevron_right)
-            imageTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#C9C3B4"))
+            imageTintList = android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#BBC2BE"))
         }
 
         row.addView(avatar)

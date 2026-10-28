@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark splash: deep green background, white "Ex", champagne-gold "POS". -->
+    <color name="splash_gradient_start">#10261F</color>
+    <color name="splash_gradient_center">#0B1B16</color>
+    <color name="splash_gradient_end">#08130F</color>
+    <color name="splash_bg">#0B1B16</color>
+    <color name="splash_wordmark_ex">#EFF5F1</color>
+    <color name="splash_wordmark_pos">#E2B866</color>
+    <color name="splash_sub">#9DB0A6</color>
+</resources>

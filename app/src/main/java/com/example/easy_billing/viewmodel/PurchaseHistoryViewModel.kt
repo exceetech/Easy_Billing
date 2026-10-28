@@ -35,6 +35,10 @@ class PurchaseHistoryViewModel(app: Application) : AndroidViewModel(app) {
         val countCancelled: Int = 0
     )
 
+    /** Money Book view of each listed purchase (how it was paid, refunds, notes still due). */
+    private val _paymentInfo = MutableStateFlow<Map<Int, com.example.easy_billing.util.PurchasePaymentInfo.Info>>(emptyMap())
+    val paymentInfo: StateFlow<Map<Int, com.example.easy_billing.util.PurchasePaymentInfo.Info>> = _paymentInfo.asStateFlow()
+
     private val _summary = MutableStateFlow(Summary())
     val summary: StateFlow<Summary> = _summary.asStateFlow()
 
@@ -68,14 +72,19 @@ class PurchaseHistoryViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             _isLoading.value  = true
             val list = db.purchaseDao().getRecent(limit)
+            val info = com.example.easy_billing.util.PurchasePaymentInfo.load(getApplication<Application>(), list)
+            _paymentInfo.value = info
             _purchases.value  = list
-            _summary.value    = computeSummary(list)
+            _summary.value    = computeSummary(list, info)
             _isLoading.value  = false
         }
     }
 
     /** Month figures ignore cancelled invoices; chip counts cover everything. */
-    private fun computeSummary(list: List<Purchase>): Summary {
+    private suspend fun computeSummary(
+        list: List<Purchase>,
+        info: Map<Int, com.example.easy_billing.util.PurchasePaymentInfo.Info>
+    ): Summary {
         val cal = java.util.Calendar.getInstance()
         val nowMonth = cal.get(java.util.Calendar.MONTH)
         val nowYear = cal.get(java.util.Calendar.YEAR)
@@ -98,9 +107,20 @@ class PurchaseHistoryViewModel(app: Application) : AndroidViewModel(app) {
                 else -> cCash++
             }
             if (!p.isCancelled && inThisMonth(p)) {
-                bought += p.invoiceValue
+                // Net of the purchase's own debit / credit notes, so a returned purchase is not counted in full.
+                val notes = try { db.purchaseReturnDao().getByOriginalInvoice(p.id) } catch (_: Exception) { emptyList() }
+                val net = (p.invoiceValue + notes.sumOf { if (it.noteType == "D") -it.invoiceValue else it.invoiceValue })
+                    .coerceAtLeast(0.0)
+                bought += net
                 boughtN++
-                if (p.isCredit) credit += p.invoiceValue else cash += p.invoiceValue
+                if (p.isCredit) {
+                    credit += net
+                } else {
+                    // Paid = money really paid out less supplier refunds received. A purchase from before payments
+                    // were tracked has no money rows: it counts at its net value, as it always did.
+                    val i = info[p.id]
+                    cash += if (i != null && i.tracked) (i.paidTotal - i.refunded).coerceAtLeast(0.0) else net
+                }
             }
         }
         return Summary(bought, boughtN, credit, cash, cAll, cCredit, cCash, cCancel)

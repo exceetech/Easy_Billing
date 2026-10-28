@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:textSize="11sp"
-                android:textColor="#9A8F79"
+                android:textColor="#7C8782"
                 android:includeFontPadding="false" />
         </LinearLayout>
     </LinearLayout>
@@ -62,6 +62,6 @@
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
         android:layout_marginHorizontal="14dp"
-        android:background="#F0EBDD" />
+        android:background="#E3E8E4" />
 
 </LinearLayout>

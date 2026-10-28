@@ -20,7 +20,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F3ECDD"
+    android:background="@drawable/bg_lg_page"
     tools:context=".GstReportsActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -114,7 +114,7 @@
                     android:text="@string/xml_gst_reports_gstin_label"
                     android:textSize="9.5sp"
                     android:letterSpacing="0.08"
-                    android:textColor="#9A8F79"
+                    android:textColor="#7C8782"
                     android:fontFamily="@font/googlesans_semibold" />
 
                 <TextView
@@ -135,7 +135,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@drawable/ic_history"
-            app:tint="#7A6E57"
+            app:tint="#626F67"
             android:contentDescription="Saved drafts" />
     </LinearLayout>
 
@@ -162,13 +162,14 @@
                 android:orientation="vertical"
                 android:layout_marginBottom="14dp">
 
-                <LinearLayout
+                <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                     android:id="@+id/cardGstFiling"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
                     android:orientation="vertical"
-                    android:background="@drawable/bg_addp_card">
+                    android:background="@drawable/bg_lg_card"
+                    >
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -476,7 +477,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/gst_simple_reminder_on"
-                                android:textColor="#6E6A60"
+                                android:textColor="#5B6660"
                                 android:textSize="14sp" />
                         </LinearLayout>
                         <com.google.android.material.materialswitch.MaterialSwitch
@@ -488,7 +489,7 @@
                             android:focusable="false"
                             android:checked="true" />
                     </LinearLayout>
-                </LinearLayout>
+                </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
                 <TextView
                     android:id="@+id/tvGstGstinWarn"
@@ -560,7 +561,7 @@
                             android:orientation="vertical"
                             android:gravity="center"
                             android:padding="14dp"
-                            android:background="@drawable/bg_addp_card">
+                            android:background="@drawable/bg_lg_card">
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -574,7 +575,7 @@
                                 android:layout_marginTop="4dp"
                                 android:gravity="center"
                                 android:text="@string/gst_comp_pay_label"
-                                android:textColor="#5B574D"
+                                android:textColor="#4F5953"
                                 android:textSize="14sp" />
                         </LinearLayout>
                         <LinearLayout
@@ -585,7 +586,7 @@
                             android:orientation="vertical"
                             android:gravity="center"
                             android:padding="14dp"
-                            android:background="@drawable/bg_addp_card">
+                            android:background="@drawable/bg_lg_card">
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -599,7 +600,7 @@
                                 android:layout_marginTop="4dp"
                                 android:gravity="center"
                                 android:text="@string/gst_comp_year_label"
-                                android:textColor="#5B574D"
+                                android:textColor="#4F5953"
                                 android:textSize="14sp" />
                         </LinearLayout>
                     </LinearLayout>
@@ -614,7 +615,7 @@
                         android:textColor="#FFFFFF"
                         android:textSize="16sp"
                         android:fontFamily="@font/googlesans_semibold"
-                        android:background="@drawable/bg_login_cta_green"
+                        android:background="@drawable/bg_lg_cta_green_12"
                         android:clickable="true"
                         android:focusable="true" />
                 </LinearLayout>
@@ -639,18 +640,19 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
                         android:text="@string/gst_simple_loading"
-                        android:textColor="#6E6A60"
+                        android:textColor="#5B6660"
                         android:textSize="16sp"
                         android:fontFamily="@font/googlesans_medium" />
                 </LinearLayout>
 
-                <LinearLayout
+                <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                     android:id="@+id/cardGstNumbers"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
                     android:orientation="vertical"
-                    android:background="@drawable/bg_addp_card"
+                    android:background="@drawable/bg_lg_card"
+                    
                     android:visibility="gone">
 
                     <LinearLayout
@@ -658,7 +660,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_customer_header"
+                        android:background="@drawable/bg_lg_hdr_green"
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="14dp">
                         <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -707,7 +709,7 @@
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
                             android:padding="12dp"
-                            android:background="@drawable/bg_inv_subcard_accent_green">
+                            android:background="@drawable/bg_lg_inv_subcard_accent_green">
                             <FrameLayout
                                 android:layout_width="32dp"
                                 android:layout_height="32dp"
@@ -738,7 +740,7 @@
                                     android:id="@+id/tvGstSales"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textColor="#8A8578"
+                                    android:textColor="#79897F"
                                     android:textSize="13sp" />
                             </LinearLayout>
                             <TextView
@@ -766,7 +768,7 @@
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
                             android:padding="12dp"
-                            android:background="@drawable/bg_inv_subcard_accent_blue">
+                            android:background="@drawable/bg_lg_inv_subcard_accent_blue">
                             <FrameLayout
                                 android:layout_width="32dp"
                                 android:layout_height="32dp"
@@ -797,7 +799,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@string/gst_simple_credit_caption"
-                                    android:textColor="#8A8578"
+                                    android:textColor="#79897F"
                                     android:textSize="13sp" />
                             </LinearLayout>
                             <TextView
@@ -871,7 +873,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:textColor="#6E6A60"
+                            android:textColor="#5B6660"
                             android:textSize="14sp"
                             android:visibility="gone" />
 
@@ -928,7 +930,7 @@
                             <View
                                 android:layout_width="match_parent"
                                 android:layout_height="1dp"
-                                android:background="#F1EBDC" />
+                                android:background="#E3E8E4" />
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
@@ -964,7 +966,7 @@
                             <View
                                 android:layout_width="match_parent"
                                 android:layout_height="1dp"
-                                android:background="#F1EBDC" />
+                                android:background="#E3E8E4" />
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
@@ -1000,7 +1002,7 @@
                             <View
                                 android:layout_width="match_parent"
                                 android:layout_height="1dp"
-                                android:background="#F1EBDC" />
+                                android:background="#E3E8E4" />
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
@@ -1055,7 +1057,7 @@
                             android:layout_marginTop="8dp"
                             android:paddingHorizontal="4dp"
                             android:text="@string/gst_simple_not_included"
-                            android:textColor="#8A8578"
+                            android:textColor="#79897F"
                             android:textSize="13sp"
                             android:visibility="gone" />
 
@@ -1063,7 +1065,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
                             android:layout_marginTop="12dp"
-                            android:background="#F1EBDC" />
+                            android:background="#E3E8E4" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -1076,7 +1078,7 @@
                                 android:layout_weight="1"
                                 android:layout_height="wrap_content"
                                 android:text="@string/gst_simple_estimate_short"
-                                android:textColor="#6E6A60"
+                                android:textColor="#5B6660"
                                 android:textSize="14sp" />
                             <TextView
                                 android:id="@+id/tvGstBills"
@@ -1088,7 +1090,7 @@
                                 android:fontFamily="@font/googlesans_semibold" />
                         </LinearLayout>
                     </LinearLayout>
-                </LinearLayout>
+                </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
                 <TextView
                     android:id="@+id/tvGstStatus"
@@ -1116,7 +1118,7 @@
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
                     android:padding="14dp"
-                    android:background="@drawable/bg_addp_card"
+                    android:background="@drawable/bg_lg_card"
                     android:clickable="true"
                     android:focusable="true"
                     android:visibility="gone">
@@ -1139,7 +1141,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="@string/gst_simple_filed_sub_off"
-                            android:textColor="#8A8578"
+                            android:textColor="#79897F"
                             android:textSize="14sp" />
                     </LinearLayout>
                     <com.google.android.material.materialswitch.MaterialSwitch
@@ -1163,7 +1165,8 @@
                     android:textSize="16sp"
                     android:fontFamily="@font/googlesans_semibold"
                     android:includeFontPadding="false"
-                    android:background="@drawable/bg_login_cta_green"
+                    app:backgroundTint="@null"
+                    android:background="@drawable/bg_lg_cta_green_12"
                     android:visibility="gone" />
 
                 <TextView
@@ -1197,7 +1200,7 @@
                 android:minWidth="210dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@drawable/bg_glass_input"
+                android:background="@drawable/bg_lg_input"
                 android:paddingStart="14dp"
                 android:paddingEnd="12dp"
                 android:paddingVertical="9dp"
@@ -1236,7 +1239,7 @@
                     android:layout_height="20dp"
                     android:layout_marginStart="10dp"
                     android:src="@drawable/ic_chevron_down"
-                    app:tint="#8A7F68"
+                    app:tint="#6B7770"
                     android:contentDescription="Change return type" />
             </LinearLayout>
 
@@ -1247,7 +1250,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginTop="14dp"
-                android:background="@drawable/bg_inv_value_card"
+                android:background="@drawable/bg_lg_card"
                 android:padding="16dp">
 
                 <!-- Financial-year stepper -->
@@ -1257,7 +1260,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/xml_gst_reports_fy_label"
                     android:textSize="10sp"
-                    android:textColor="#9A8F79"
+                    android:textColor="#7C8782"
                     android:letterSpacing="0.06"
                     android:layout_marginBottom="6dp"
                     android:fontFamily="@font/googlesans_semibold" />
@@ -1279,7 +1282,7 @@
                         android:padding="8dp"
                         android:background="@drawable/bg_stepper_btn"
                         android:src="@drawable/ic_chevron_left"
-                        app:tint="#8A7F68"
+                        app:tint="#6B7770"
                         android:clickable="true"
                         android:focusable="true"
                         android:contentDescription="Previous year" />
@@ -1306,7 +1309,7 @@
                             android:layout_marginTop="2dp"
                             android:text="@string/xml_gst_reports_fy_default_range"
                             android:textSize="10sp"
-                            android:textColor="#A89E88" />
+                            android:textColor="#7C8782" />
                     </LinearLayout>
 
                     <ImageView
@@ -1316,7 +1319,7 @@
                         android:padding="8dp"
                         android:background="@drawable/bg_stepper_btn"
                         android:src="@drawable/ic_chevron_right"
-                        app:tint="#8A7F68"
+                        app:tint="#6B7770"
                         android:clickable="true"
                         android:focusable="true"
                         android:contentDescription="Next year" />
@@ -1336,7 +1339,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/xml_gst_reports_period_label"
                         android:textSize="10sp"
-                        android:textColor="#9A8F79"
+                        android:textColor="#7C8782"
                         android:letterSpacing="0.06"
                         android:fontFamily="@font/googlesans_semibold" />
 
@@ -1359,8 +1362,7 @@
                             android:paddingHorizontal="14dp"
                             android:paddingVertical="6dp"
                             android:gravity="center"
-                            android:background="@drawable/bg_period_pill"
-                            android:backgroundTint="#1A1A18"
+                            android:background="@drawable/bg_lg_tab_active"
                             android:textColor="#FFFFFF"
                             android:clickable="true"
                             android:focusable="true" />
@@ -1379,7 +1381,7 @@
                             android:gravity="center"
                             android:background="@drawable/bg_period_pill"
                             android:backgroundTint="#00000000"
-                            android:textColor="#8A7F68"
+                            android:textColor="#6B7770"
                             android:clickable="true"
                             android:focusable="true" />
                     </LinearLayout>
@@ -1421,7 +1423,7 @@
                         android:insetTop="0dp"
                         android:insetBottom="0dp"
                         app:backgroundTint="@null"
-                        android:background="@drawable/bg_login_cta_green"
+                        android:background="@drawable/bg_lg_cta_green_12"
                         app:icon="@drawable/ic_lc_file_text"
                         app:iconTint="#FFFFFF"
                         app:iconSize="18dp"
@@ -1479,7 +1481,7 @@
                 app:cardCornerRadius="18dp"
                 app:cardBackgroundColor="#FFFFFF"
                 app:strokeWidth="0.5dp"
-                app:strokeColor="#ECE7DA">
+                app:strokeColor="#1F000000">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -1493,7 +1495,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/xml_gst_reports_total_tax_label"
                         android:textSize="11sp"
-                        android:textColor="#9A8F79" />
+                        android:textColor="#7C8782" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -1523,7 +1525,7 @@
                             android:layout_marginStart="10dp"
                             android:paddingBottom="4dp"
                             android:textSize="12sp"
-                            android:textColor="#9A8F79"
+                            android:textColor="#7C8782"
                             android:gravity="end"
                             android:singleLine="true"
                             tools:text="on ₹7,91,000 taxable" />
@@ -1542,7 +1544,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
                             android:background="@drawable/bg_credit_avatar"
-                            android:backgroundTint="#F6F0E4"
+                            android:backgroundTint="#EEF2F0"
                             android:padding="12dp">
                             <TextView
                                 android:id="@+id/tvSummaryInvoices"
@@ -1550,7 +1552,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="0"
                                 android:textSize="20sp"
-                                android:textColor="#3A322A"
+                                android:textColor="#2F3531"
                                 android:fontFamily="@font/googlesans_bold"
                                 android:includeFontPadding="false"
                                 tools:text="128" />
@@ -1560,7 +1562,7 @@
                                 android:layout_marginTop="2dp"
                                 android:text="@string/xml_gst_reports_invoices_label"
                                 android:textSize="10.5sp"
-                                android:textColor="#9A8F79" />
+                                android:textColor="#7C8782" />
                         </LinearLayout>
 
                         <View android:layout_width="10dp" android:layout_height="1dp" />
@@ -1649,7 +1651,7 @@
                 app:cardCornerRadius="18dp"
                 app:cardBackgroundColor="#FFFFFF"
                 app:strokeWidth="0.5dp"
-                app:strokeColor="#ECE7DA">
+                app:strokeColor="#1F000000">
 
                 <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/viewPager"
@@ -1666,7 +1668,7 @@
                 app:cardCornerRadius="18dp"
                 app:cardBackgroundColor="#FFFFFF"
                 app:strokeWidth="0.5dp"
-                app:strokeColor="#ECE7DA">
+                app:strokeColor="#1F000000">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -1699,12 +1701,12 @@
                             android:text="@string/xml_gst_reports_validate_btn" android:textSize="14sp" android:textColor="#1A1A18"
                             android:fontFamily="@font/googlesans_medium" />
                         <ImageView android:layout_width="17dp" android:layout_height="17dp"
-                            android:src="@drawable/ic_chevron_right" app:tint="#C9C3B4"
+                            android:src="@drawable/ic_chevron_right" app:tint="#BBC2BE"
                             android:contentDescription="@null" />
                     </LinearLayout>
 
                     <View android:layout_width="match_parent" android:layout_height="0.5dp"
-                        android:layout_marginHorizontal="14dp" android:background="#F0EBDD" />
+                        android:layout_marginHorizontal="14dp" android:background="#E3E8E4" />
 
                     <!-- Export Excel -->
                     <LinearLayout
@@ -1732,12 +1734,12 @@
                             android:text="@string/xml_gst_reports_export_excel_btn" android:textSize="14sp" android:textColor="#1A1A18"
                             android:fontFamily="@font/googlesans_medium" />
                         <ImageView android:layout_width="17dp" android:layout_height="17dp"
-                            android:src="@drawable/ic_chevron_right" app:tint="#C9C3B4"
+                            android:src="@drawable/ic_chevron_right" app:tint="#BBC2BE"
                             android:contentDescription="@null" />
                     </LinearLayout>
 
                     <View android:layout_width="match_parent" android:layout_height="0.5dp"
-                        android:layout_marginHorizontal="14dp" android:background="#F0EBDD" />
+                        android:layout_marginHorizontal="14dp" android:background="#E3E8E4" />
 
                     <!-- Export CSV -->
                     <LinearLayout
@@ -1765,12 +1767,12 @@
                             android:text="@string/xml_gst_reports_export_csv_btn" android:textSize="14sp" android:textColor="#1A1A18"
                             android:fontFamily="@font/googlesans_medium" />
                         <ImageView android:layout_width="17dp" android:layout_height="17dp"
-                            android:src="@drawable/ic_chevron_right" app:tint="#C9C3B4"
+                            android:src="@drawable/ic_chevron_right" app:tint="#BBC2BE"
                             android:contentDescription="@null" />
                     </LinearLayout>
 
                     <View android:layout_width="match_parent" android:layout_height="0.5dp"
-                        android:layout_marginHorizontal="14dp" android:background="#F0EBDD" />
+                        android:layout_marginHorizontal="14dp" android:background="#E3E8E4" />
 
                     <!-- Save as draft -->
                     <LinearLayout
@@ -1798,7 +1800,7 @@
                             android:text="@string/xml_gst_reports_save_draft_btn" android:textSize="14sp" android:textColor="#1A1A18"
                             android:fontFamily="@font/googlesans_medium" />
                         <ImageView android:layout_width="17dp" android:layout_height="17dp"
-                            android:src="@drawable/ic_chevron_right" app:tint="#C9C3B4"
+                            android:src="@drawable/ic_chevron_right" app:tint="#BBC2BE"
                             android:contentDescription="@null" />
                     </LinearLayout>
                 </LinearLayout>
@@ -1818,7 +1820,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/xml_gst_reports_saved_drafts_label"
                     android:textSize="11sp"
-                    android:textColor="#9A8F79"
+                    android:textColor="#7C8782"
                     android:letterSpacing="0.08"
                     android:layout_marginBottom="8dp"
                     android:fontFamily="@font/googlesans_semibold" />

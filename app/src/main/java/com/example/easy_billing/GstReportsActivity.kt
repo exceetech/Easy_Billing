@@ -401,10 +401,12 @@ class GstReportsActivity : AppCompatActivity() {
     private fun paintReturnType() {
         val active = if (isMonthly) segMonthly else segQuarterly
         val idle = if (isMonthly) segQuarterly else segMonthly
-        active.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#1A1A18"))
+        active.setBackgroundResource(R.drawable.bg_lg_tab_active)
+        active.backgroundTintList = null
         active.setTextColor(Color.parseColor("#FFFFFF"))
+        idle.setBackgroundResource(R.drawable.bg_period_pill)
         idle.backgroundTintList = ColorStateList.valueOf(Color.TRANSPARENT)
-        idle.setTextColor(Color.parseColor("#8A7F68"))
+        idle.setTextColor(Color.parseColor("#6B7770"))
     }
 
     /** Index of the current financial year within the available list. */
@@ -475,8 +477,8 @@ class GstReportsActivity : AppCompatActivity() {
         for (i in 0 until llPeriodStrip.childCount) {
             val pill = llPeriodStrip.getChildAt(i) as TextView
             val accent = Color.parseColor(periodPalette[i % periodPalette.size].second)
-            val strokeColor = if (i == index) accent else Color.parseColor("#E4DCC8")
-            val textColor = if (i == index) accent else Color.parseColor("#6E6A60")
+            val strokeColor = if (i == index) accent else Color.parseColor("#D5DDD8")
+            val textColor = if (i == index) accent else Color.parseColor("#5B6660")
             pill.background = android.graphics.drawable.GradientDrawable().apply {
                 shape = android.graphics.drawable.GradientDrawable.RECTANGLE
                 cornerRadius = 8f * d
@@ -896,7 +898,7 @@ class GstReportsActivity : AppCompatActivity() {
                 simpleChoice == 2 -> simpleYear to simpleMonth0
                 else -> null
             }
-            var tagBg = "#EEE7D8"; var tagFg = "#6E6A60"
+            var tagBg = "#D5DDD8"; var tagFg = "#5B6660"
             if (ym == null) {
                 num.text = "⋯"
                 mon.text = getString(if (simpleQuarterly) R.string.gst_simple_older_quarters else R.string.gst_simple_older)
@@ -925,12 +927,12 @@ class GstReportsActivity : AppCompatActivity() {
             tag.background = pill(tagBg, 12f)
             tag.setTextColor(Color.parseColor(tagFg))
             num.setTextColor(Color.parseColor(if (sel) "#FFFFFF" else "#1A1A18"))
-            mon.setTextColor(Color.parseColor(if (sel) "#FFFFFF" else "#5B574D"))
+            mon.setTextColor(Color.parseColor(if (sel) "#FFFFFF" else "#4F5953"))
             chips[i].background = android.graphics.drawable.GradientDrawable().apply {
                 shape = android.graphics.drawable.GradientDrawable.RECTANGLE
                 cornerRadius = 16f * d
-                setColor(Color.parseColor(if (sel) "#0F6E56" else "#FCFAF4"))
-                setStroke((1.5f * d).toInt(), Color.parseColor(if (sel) "#0F6E56" else "#EEE7D8"))
+                setColor(Color.parseColor(if (sel) "#0F6E56" else "#FFFFFF"))
+                setStroke((1.5f * d).toInt(), Color.parseColor(if (sel) "#0F6E56" else "#D5DDD8"))
             }
         }
         tvGstAsk.text = getString(if (simpleQuarterly) R.string.gst_simple_ask_q else R.string.gst_simple_ask)
@@ -1112,7 +1114,7 @@ class GstReportsActivity : AppCompatActivity() {
         rowGstFiled.visibility = View.VISIBLE
         swGstFiled.isChecked = filed
         tvGstFiledSub.text = getString(if (filed) R.string.gst_simple_filed_sub_on else R.string.gst_simple_filed_sub_off)
-        tvGstFiledSub.setTextColor(Color.parseColor(if (filed) "#16A34A" else "#8A8578"))
+        tvGstFiledSub.setTextColor(Color.parseColor(if (filed) "#16A34A" else "#79897F"))
         if (filed) tvGstDue.visibility = View.GONE
         // Tag + colour of the "You pay" box: green when filed, amber when due or late.
         val daysLate = ((com.example.easy_billing.util.appNow() - d3.time) / (24L * 3600 * 1000)).toInt().coerceAtLeast(1)
@@ -1314,7 +1316,7 @@ class GstReportsActivity : AppCompatActivity() {
                 shape = android.graphics.drawable.GradientDrawable.RECTANGLE
                 cornerRadius = 22f * d
                 setColor(Color.parseColor(if (selected) "#0F6E56" else "#FFFFFF"))
-                setStroke((1.5f * d).toInt(), Color.parseColor(if (selected) "#0F6E56" else "#EEE7D8"))
+                setStroke((1.5f * d).toInt(), Color.parseColor(if (selected) "#0F6E56" else "#D5DDD8"))
             }
             label.setTextColor(Color.parseColor(if (selected) "#FFFFFF" else "#1A1A18"))
 
@@ -1658,7 +1660,7 @@ class GstReportsActivity : AppCompatActivity() {
                 if (index != result.issues.lastIndex) {
                     val divider = View(this).apply {
                         layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1)
-                        setBackgroundColor(Color.parseColor("#F0EBDD"))
+                        setBackgroundColor(Color.parseColor("#E3E8E4"))
                     }
                     llIssuesList.addView(divider)
                 }

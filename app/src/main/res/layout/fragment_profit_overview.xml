@@ -11,7 +11,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3ECDD">
+    android:background="@android:color/transparent">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -43,20 +43,21 @@
          tvLossSales, tvProfitFromSales) mirror the same already-computed
          values into the "Today's sales" tab — no new calculations, just a
          second display of the same numbers. -->
-    <LinearLayout
+    <com.example.easy_billing.ui.glass.GlassClipLinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="14dp"
-        android:background="@drawable/bg_addp_card">
+        
+                android:background="@drawable/bg_lg_card">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="@drawable/bg_inv_customer_header"
+            android:background="@drawable/bg_lg_hdr_green"
             android:paddingHorizontal="16dp"
             android:paddingVertical="14dp">
             <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -95,7 +96,7 @@
                 android:layout_height="24dp"
                 android:padding="4dp"
                 android:src="@drawable/ic_info_circle"
-                app:tint="#C7B899"
+                app:tint="#ABB5AF"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/xml_profit_info_eyebrow"
                 android:clickable="true"
@@ -107,7 +108,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_margin="12dp"
-            android:background="@drawable/bg_login_tab_track"
+            android:background="@drawable/bg_lg_tab_track"
             android:padding="3dp">
 
             <TextView
@@ -121,7 +122,7 @@
                 android:textColor="#FFFFFF"
                 android:textSize="11.5sp"
                 android:fontFamily="@font/googlesans_semibold"
-                android:background="@drawable/bg_login_tab_active"
+                android:background="@drawable/bg_lg_tab_active"
                 android:clickable="true"
                 android:focusable="true"/>
 
@@ -133,7 +134,7 @@
                 android:gravity="center"
                 android:paddingVertical="9dp"
                 android:text="@string/xml_profit_tab_total"
-                android:textColor="#8C8576"
+                android:textColor="#7C8782"
                 android:textSize="11.5sp"
                 android:fontFamily="@font/googlesans_semibold"
                 android:background="?attr/selectableItemBackgroundBorderless"
@@ -156,7 +157,7 @@
                 android:gravity="center_vertical"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="11dp"
-                android:background="@drawable/bg_inv_subcard_accent_blue">
+                android:background="@drawable/bg_lg_inv_subcard_accent_blue">
 
                 <FrameLayout
                     android:layout_width="26dp"
@@ -191,7 +192,7 @@
                         android:text="@string/xml_profit_revenue_caption"
                         android:textSize="10.5sp"
                         android:fontFamily="serif"
-                        android:textColor="#8A8578" />
+                        android:textColor="#79897F" />
                 </LinearLayout>
 
                 <TextView
@@ -219,7 +220,7 @@
                 android:text="@string/xml_profit_op_minus"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="#9A8F79"/>
+                android:textColor="#7C8782"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -227,7 +228,7 @@
                 android:gravity="center_vertical"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="11dp"
-                android:background="@drawable/bg_inv_subcard_accent">
+                android:background="@drawable/bg_lg_inv_subcard_accent">
 
                 <FrameLayout
                     android:layout_width="26dp"
@@ -262,7 +263,7 @@
                         android:text="@string/xml_profit_cost_caption"
                         android:textSize="10.5sp"
                         android:fontFamily="serif"
-                        android:textColor="#8A8578" />
+                        android:textColor="#79897F" />
                 </LinearLayout>
 
                 <TextView
@@ -290,7 +291,7 @@
                 android:text="@string/xml_profit_op_minus"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="#9A8F79"/>
+                android:textColor="#7C8782"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -298,7 +299,7 @@
                 android:gravity="center_vertical"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="11dp"
-                android:background="@drawable/bg_inv_subcard_accent_red">
+                android:background="@drawable/bg_lg_inv_subcard_accent_red">
 
                 <FrameLayout
                     android:layout_width="26dp"
@@ -333,7 +334,7 @@
                         android:text="@string/xml_profit_loss_caption"
                         android:textSize="10.5sp"
                         android:fontFamily="serif"
-                        android:textColor="#8A8578" />
+                        android:textColor="#79897F" />
                 </LinearLayout>
 
                 <TextView
@@ -361,7 +362,7 @@
                 android:text="@string/xml_profit_op_equals"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="#9A8F79"/>
+                android:textColor="#7C8782"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -369,7 +370,7 @@
                 android:gravity="center_vertical"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="13dp"
-                android:background="@drawable/bg_inv_subcard_accent_green">
+                android:background="@drawable/bg_lg_inv_subcard_accent_green">
 
                 <FrameLayout
                     android:layout_width="32dp"
@@ -404,7 +405,7 @@
                         android:text="@string/xml_profit_profit_from_sales_caption"
                         android:textSize="10.5sp"
                         android:fontFamily="serif"
-                        android:textColor="#8A8578" />
+                        android:textColor="#79897F" />
                 </LinearLayout>
 
                 <TextView
@@ -441,7 +442,7 @@
                 android:gravity="center_vertical"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="11dp"
-                android:background="@drawable/bg_inv_subcard_accent_blue">
+                android:background="@drawable/bg_lg_inv_subcard_accent_blue">
 
                 <FrameLayout
                     android:layout_width="26dp"
@@ -476,7 +477,7 @@
                         android:text="@string/xml_profit_revenue_caption"
                         android:textSize="10.5sp"
                         android:fontFamily="serif"
-                        android:textColor="#8A8578" />
+                        android:textColor="#79897F" />
                 </LinearLayout>
 
                 <TextView
@@ -504,7 +505,7 @@
                 android:text="@string/xml_profit_op_minus"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="#9A8F79"/>
+                android:textColor="#7C8782"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -512,7 +513,7 @@
                 android:gravity="center_vertical"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="11dp"
-                android:background="@drawable/bg_inv_subcard_accent_amber">
+                android:background="@drawable/bg_lg_inv_subcard_accent_amber">
 
                 <FrameLayout
                     android:layout_width="26dp"
@@ -547,7 +548,7 @@
                         android:text="@string/xml_profit_expense_caption"
                         android:textSize="10.5sp"
                         android:fontFamily="serif"
-                        android:textColor="#8A8578" />
+                        android:textColor="#79897F" />
                 </LinearLayout>
 
                 <TextView
@@ -575,7 +576,7 @@
                 android:text="@string/xml_profit_op_minus"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="#9A8F79"/>
+                android:textColor="#7C8782"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -583,7 +584,7 @@
                 android:gravity="center_vertical"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="11dp"
-                android:background="@drawable/bg_inv_subcard_accent">
+                android:background="@drawable/bg_lg_inv_subcard_accent">
 
                 <FrameLayout
                     android:layout_width="26dp"
@@ -618,7 +619,7 @@
                         android:text="@string/xml_profit_cost_caption"
                         android:textSize="10.5sp"
                         android:fontFamily="serif"
-                        android:textColor="#8A8578" />
+                        android:textColor="#79897F" />
                 </LinearLayout>
 
                 <TextView
@@ -646,7 +647,7 @@
                 android:text="@string/xml_profit_op_minus"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="#9A8F79"/>
+                android:textColor="#7C8782"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -654,7 +655,7 @@
                 android:gravity="center_vertical"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="11dp"
-                android:background="@drawable/bg_inv_subcard_accent_red">
+                android:background="@drawable/bg_lg_inv_subcard_accent_red">
 
                 <FrameLayout
                     android:layout_width="26dp"
@@ -689,7 +690,7 @@
                         android:text="@string/xml_profit_loss_caption"
                         android:textSize="10.5sp"
                         android:fontFamily="serif"
-                        android:textColor="#8A8578" />
+                        android:textColor="#79897F" />
                 </LinearLayout>
 
                 <TextView
@@ -717,7 +718,7 @@
                 android:text="@string/xml_profit_op_equals"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:textColor="#9A8F79"/>
+                android:textColor="#7C8782"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -725,7 +726,7 @@
                 android:gravity="center_vertical"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="13dp"
-                android:background="@drawable/bg_inv_subcard_accent_green">
+                android:background="@drawable/bg_lg_inv_subcard_accent_green">
 
                 <FrameLayout
                     android:layout_width="32dp"
@@ -760,7 +761,7 @@
                         android:text="@string/xml_profit_total_profit_caption"
                         android:textSize="10.5sp"
                         android:fontFamily="serif"
-                        android:textColor="#8A8578" />
+                        android:textColor="#79897F" />
                     <LinearLayout
                         android:id="@+id/layoutMarginPill"
                         android:layout_width="wrap_content"
@@ -809,7 +810,7 @@
                     app:autoSizeMaxTextSize="24sp" />
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
+    </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
     <TextView
         android:layout_width="match_parent"
@@ -821,21 +822,22 @@
         android:textSize="10sp"
         android:fontFamily="serif"
         android:textStyle="italic"
-        android:textColor="#9A8F79"/>
+        android:textColor="#7C8782"/>
 
     <!-- By product — now its own card (outer teal-header card, same
          family as the Profit calculation card above), with each product
          rendered as its own bordered line-item card inside (see
          item_profit_simple.xml), matching the debit-note line-item
          design. -->
-    <LinearLayout
+    <com.example.easy_billing.ui.glass.GlassClipLinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="14dp"
         android:layout_marginBottom="14dp"
-        android:background="@drawable/bg_addp_card"
+        
+                android:background="@drawable/bg_lg_card"
         android:clipChildren="false"
         android:clipToPadding="false">
 
@@ -844,7 +846,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="@drawable/bg_inv_customer_header"
+            android:background="@drawable/bg_lg_hdr_green"
             android:paddingHorizontal="16dp"
             android:paddingVertical="14dp">
             <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -937,7 +939,7 @@
                     android:background="@null"
                     android:layout_marginStart="12dp"
                     android:hint="@string/xml_profit_search_hint"
-                    android:textColorHint="#A99E88"
+                    android:textColorHint="#929F97"
                     android:textColor="#1A1A18"
                     android:textSize="14.5sp"
                     android:includeFontPadding="false"
@@ -983,12 +985,12 @@
             android:paddingTop="30dp"
             android:paddingBottom="26dp"
             android:visibility="gone"
-            android:background="@drawable/bg_inv_value_card">
+            android:background="@drawable/bg_lg_card">
 
             <FrameLayout
                 android:layout_width="72dp"
                 android:layout_height="72dp"
-                android:background="@drawable/bg_imp_empty_circle">
+                android:background="@drawable/bg_circle_soft_grey">
                 <ImageView
                     android:layout_width="30dp"
                     android:layout_height="30dp"
@@ -1033,7 +1035,7 @@
                 android:gravity="center"
                 android:text="@string/xml_profit_empty_description"
                 android:textSize="12.5sp"
-                android:textColor="#8A8272"
+                android:textColor="#76867C"
                 android:lineSpacingExtra="3dp" />
 
             <View
@@ -1041,7 +1043,7 @@
                 android:layout_height="0.5dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="16dp"
-                android:background="#F1EBDD" />
+                android:background="#E3E8E4" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -1072,7 +1074,7 @@
                         android:layout_marginTop="1dp"
                         android:text="@string/xml_profit_hint_revenue_cost_margin"
                         android:textSize="11sp"
-                        android:textColor="#9A8F79" />
+                        android:textColor="#7C8782" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -1104,12 +1106,12 @@
                         android:layout_marginTop="1dp"
                         android:text="@string/xml_profit_hint_search_by_name"
                         android:textSize="11sp"
-                        android:textColor="#9A8F79" />
+                        android:textColor="#7C8782" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </FrameLayout>
-    </LinearLayout>
+    </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
     </LinearLayout>
     </androidx.core.widget.NestedScrollView>
@@ -1118,7 +1120,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#F3ECDD"
+        android:background="@android:color/transparent"
         android:paddingHorizontal="16dp"
         android:paddingVertical="10dp">
         <com.google.android.material.button.MaterialButton
@@ -1136,7 +1138,7 @@
             app:iconGravity="textStart"
             app:iconPadding="8dp"
             app:backgroundTint="@null"
-            android:background="@drawable/bg_login_cta_green"
+            android:background="@drawable/bg_lg_cta_green_12"
             app:cornerRadius="14dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"

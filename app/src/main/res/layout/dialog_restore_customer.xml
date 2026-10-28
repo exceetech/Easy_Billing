@@ -22,7 +22,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="20dp"
     android:orientation="vertical"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:paddingHorizontal="22dp"
     android:paddingTop="24dp"
     android:paddingBottom="20dp">
@@ -86,7 +86,7 @@
         android:layout_marginTop="10dp"
         android:gravity="center"
         android:text="@string/xml_restore_customer_body"
-        android:textColor="#8A8272"
+        android:textColor="#76867C"
         android:textSize="12.5sp"
         android:lineSpacingExtra="3dp" />
 
@@ -97,7 +97,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginTop="16dp"
-        android:background="@drawable/bg_credit_compare_card">
+        android:background="@drawable/bg_lg_field">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -114,10 +114,10 @@
                 android:gravity="center"
                 android:text="?"
                 android:textSize="14sp"
-                android:textColor="#8A8272"
+                android:textColor="#76867C"
                 android:fontFamily="@font/googlesans_semibold"
                 android:background="@drawable/bg_credit_avatar"
-                android:backgroundTint="#F3ECDD"
+                android:backgroundTint="#EEF2F0"
                 android:includeFontPadding="false" />
 
             <LinearLayout
@@ -129,7 +129,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/xml_restore_customer_saved_as_label"
-                    android:textColor="#A99E88"
+                    android:textColor="#7C8782"
                     android:textSize="9.5sp"
                     android:letterSpacing="0.08"
                     android:fontFamily="@font/googlesans_semibold" />
@@ -139,7 +139,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="1dp"
                     android:text=""
-                    android:textColor="#8A8272"
+                    android:textColor="#76867C"
                     android:textSize="13sp"
                     android:singleLine="true"
                     android:ellipsize="end" />
@@ -150,7 +150,7 @@
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
             android:layout_marginHorizontal="13dp"
-            android:background="#EFE7D6" />
+            android:background="#E3E8E4" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -218,7 +218,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
             android:text="@string/xml_restore_customer_balance_note"
-            android:textColor="#9A8F79"
+            android:textColor="#7C8782"
             android:textSize="10.5sp"
             android:lineSpacingExtra="2dp" />
     </LinearLayout>
@@ -228,7 +228,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="18dp"
-        android:background="@drawable/bg_login_cta_green"
+        android:background="@drawable/bg_lg_cta_green_12"
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
@@ -290,7 +290,7 @@
         android:text="@string/xml_restore_customer_cancel_button"
         android:textAllCaps="false"
         android:textSize="13sp"
-        android:textColor="#8A8272"
+        android:textColor="#76867C"
         android:fontFamily="@font/googlesans_medium"
         android:includeFontPadding="false"
         android:stateListAnimator="@null"

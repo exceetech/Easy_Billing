@@ -18,7 +18,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F3ECDD">
+    android:background="@drawable/bg_lg_page">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -90,7 +90,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@drawable/bg_credit_phone_chip"
+                android:background="@drawable/bg_lg_pill"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="3dp"
                 android:layout_marginTop="8dp">
@@ -124,7 +124,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:text="—"
-            android:textColor="#8A8272"
+            android:textColor="#76867C"
             android:textSize="11.5sp" />
     </LinearLayout>
 
@@ -141,11 +141,11 @@
             android:orientation="vertical">
 
             <!-- CARD 1 — amber, step 1: items to charge for -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_inv_card_cream"
+                android:background="@drawable/bg_lg_card"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="4dp">
 
@@ -154,7 +154,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_items_header"
+                    android:background="@drawable/bg_lg_hdr_amber"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp">
 
@@ -233,7 +233,7 @@
                         android:layout_marginBottom="14dp"
                         android:paddingHorizontal="12dp"
                         android:paddingVertical="11dp"
-                        android:background="@drawable/bg_inv_subcard_accent_amber">
+                        android:background="@drawable/bg_lg_inv_subcard_accent_amber">
 
                         <FrameLayout
                             android:layout_width="26dp"
@@ -277,7 +277,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="@string/activity_debit_note_taxable"
                                     android:textSize="10.5sp"
-                                    android:textColor="#8A8578" />
+                                    android:textColor="#79897F" />
 
                                 <TextView
                                     android:id="@+id/tvTaxableTile"
@@ -286,7 +286,7 @@
                                     android:layout_marginStart="4dp"
                                     android:text="0"
                                     android:textSize="10.5sp"
-                                    android:textColor="#8A8578"
+                                    android:textColor="#79897F"
                                     android:fontFamily="serif" />
 
                                 <TextView
@@ -295,7 +295,7 @@
                                     android:layout_marginStart="10dp"
                                     android:text="@string/activity_debit_note_gst"
                                     android:textSize="10.5sp"
-                                    android:textColor="#8A8578" />
+                                    android:textColor="#79897F" />
 
                                 <TextView
                                     android:id="@+id/tvAdditionalGst"
@@ -304,7 +304,7 @@
                                     android:layout_marginStart="4dp"
                                     android:text="0"
                                     android:textSize="10.5sp"
-                                    android:textColor="#8A8578"
+                                    android:textColor="#79897F"
                                     android:fontFamily="serif" />
 
                                 <LinearLayout
@@ -320,7 +320,7 @@
                                         android:layout_height="wrap_content"
                                         android:text="@string/activity_debit_note_cess"
                                         android:textSize="10.5sp"
-                                        android:textColor="#8A8578" />
+                                        android:textColor="#79897F" />
 
                                     <TextView
                                         android:id="@+id/tvAdditionalCess"
@@ -329,7 +329,7 @@
                                         android:layout_marginStart="4dp"
                                         android:text="0"
                                         android:textSize="10.5sp"
-                                        android:textColor="#8A8578"
+                                        android:textColor="#79897F"
                                         android:fontFamily="serif" />
                                 </LinearLayout>
                             </LinearLayout>
@@ -353,7 +353,7 @@
                     </LinearLayout>
 
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- Kept for the adapter binding; not surfaced in this
                  simplified design. -->
@@ -398,7 +398,7 @@
             android:gravity="center"
             android:includeFontPadding="false"
             app:backgroundTint="@null"
-            android:background="@drawable/bg_login_cta_green"
+            android:background="@drawable/bg_lg_cta_green_12"
             android:insetLeft="0dp"
             android:insetRight="0dp"
             android:insetTop="0dp"

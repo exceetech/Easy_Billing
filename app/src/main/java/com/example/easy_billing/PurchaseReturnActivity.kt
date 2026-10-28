@@ -537,14 +537,14 @@ class PurchaseReturnActivity : BaseActivity() {
             val label = TextView(this).apply {
                 text = opt
                 textSize = 14f
-                setTextColor(Color.parseColor(if (isSel) "#185FA5" else "#1A1A18"))
+                setTextColor(Color.parseColor(if (isSel) "#0F6E56" else "#1A1A18"))
                 layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
             }
             row.addView(label)
             if (isSel) {
                 row.addView(ImageView(this).apply {
                     setImageResource(R.drawable.ic_lucide_check)
-                    setColorFilter(Color.parseColor("#185FA5"))
+                    setColorFilter(Color.parseColor("#0F6E56"))
                     layoutParams = LinearLayout.LayoutParams(dpPx(16), dpPx(16))
                 })
             }
@@ -805,7 +805,7 @@ class PurchaseReturnActivity : BaseActivity() {
             badgeFrame.setBackgroundResource(R.drawable.bg_circle_soft_teal)
             badgeIcon.setImageResource(R.drawable.ic_lc_check)
             badgeIcon.imageTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#0F6E56"))
-            confirmBtn.setBackgroundResource(R.drawable.bg_login_cta_green)
+            confirmBtn.setBackgroundResource(R.drawable.bg_lg_cta_green_12)
             confirmBtn.icon = androidx.core.content.ContextCompat.getDrawable(this, R.drawable.ic_lc_check)
         }
         confirmBtn.text = posBtn

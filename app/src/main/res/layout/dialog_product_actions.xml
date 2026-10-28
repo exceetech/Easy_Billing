@@ -18,7 +18,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:layout_margin="20dp"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:paddingHorizontal="18dp"
     android:paddingTop="18dp"
     android:paddingBottom="18dp">
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="@drawable/bg_soft_card_row"
+            android:background="@drawable/bg_lg_field"
             android:paddingHorizontal="13dp"
             android:paddingVertical="8dp">
 
@@ -85,7 +85,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@drawable/bg_chooser_row"
+        android:background="@drawable/bg_lg_field"
         android:foreground="?attr/selectableItemBackground"
         android:paddingHorizontal="14dp"
         android:paddingVertical="13dp"
@@ -107,7 +107,7 @@
                 android:fontFamily="@font/googlesans_semibold"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:layout_marginTop="2dp" android:text="@string/dialog_product_actions_edit_body"
-                android:textColor="#8A8272" android:textSize="11.5sp"/>
+                android:textColor="#76867C" android:textSize="11.5sp"/>
         </LinearLayout>
         <ImageView android:layout_width="19dp" android:layout_height="19dp"
             android:src="@drawable/ic_lc_chevron_right" app:tint="#C7A15A" android:contentDescription="@null"/>
@@ -120,7 +120,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@drawable/bg_chooser_row"
+        android:background="@drawable/bg_lg_field"
         android:foreground="?attr/selectableItemBackground"
         android:paddingHorizontal="14dp"
         android:paddingVertical="13dp"
@@ -142,7 +142,7 @@
                 android:fontFamily="@font/googlesans_semibold"/>
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:layout_marginTop="2dp" android:text="@string/dialog_product_actions_delete_body"
-                android:textColor="#8A8272" android:textSize="11.5sp"/>
+                android:textColor="#76867C" android:textSize="11.5sp"/>
         </LinearLayout>
         <ImageView android:layout_width="19dp" android:layout_height="19dp"
             android:src="@drawable/ic_lc_chevron_right" app:tint="#C7A15A" android:contentDescription="@null"/>

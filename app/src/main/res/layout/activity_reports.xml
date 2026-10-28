@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4F0E6">
+    android:background="@drawable/bg_lg_page">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -152,7 +152,7 @@
             android:layout_marginEnd="6dp"
             android:checkable="true"
             app:chipBackgroundColor="@android:color/white"
-            app:chipStrokeColor="#E4DCC8"
+            app:chipStrokeColor="#D5DDD8"
             app:chipStrokeWidth="1.5dp"
             app:chipCornerRadius="8dp"
             app:chipStartPadding="0dp"
@@ -162,7 +162,7 @@
             app:chipMinTouchTargetSize="0dp"
             android:gravity="center"
             android:textAlignment="center"
-            android:textColor="#6E6A60"
+            android:textColor="#5B6660"
             android:fontFamily="@font/googlesans_medium"
             android:textSize="11sp"/>
 
@@ -175,7 +175,7 @@
             android:layout_marginEnd="6dp"
             android:checkable="true"
             app:chipBackgroundColor="@android:color/white"
-            app:chipStrokeColor="#E4DCC8"
+            app:chipStrokeColor="#D5DDD8"
             app:chipStrokeWidth="1.5dp"
             app:chipCornerRadius="8dp"
             app:chipStartPadding="0dp"
@@ -185,7 +185,7 @@
             app:chipMinTouchTargetSize="0dp"
             android:gravity="center"
             android:textAlignment="center"
-            android:textColor="#6E6A60"
+            android:textColor="#5B6660"
             android:fontFamily="@font/googlesans_medium"
             android:textSize="11sp"/>
 
@@ -198,7 +198,7 @@
             android:layout_marginEnd="6dp"
             android:checkable="true"
             app:chipBackgroundColor="@android:color/white"
-            app:chipStrokeColor="#E4DCC8"
+            app:chipStrokeColor="#D5DDD8"
             app:chipStrokeWidth="1.5dp"
             app:chipCornerRadius="8dp"
             app:chipStartPadding="0dp"
@@ -208,7 +208,7 @@
             app:chipMinTouchTargetSize="0dp"
             android:gravity="center"
             android:textAlignment="center"
-            android:textColor="#6E6A60"
+            android:textColor="#5B6660"
             android:fontFamily="@font/googlesans_medium"
             android:textSize="11sp"/>
 
@@ -220,7 +220,7 @@
             android:layout_height="30dp"
             android:checkable="true"
             app:chipBackgroundColor="@android:color/white"
-            app:chipStrokeColor="#E4DCC8"
+            app:chipStrokeColor="#D5DDD8"
             app:chipStrokeWidth="1.5dp"
             app:chipCornerRadius="8dp"
             app:chipStartPadding="0dp"
@@ -230,7 +230,7 @@
             app:chipMinTouchTargetSize="0dp"
             android:gravity="center"
             android:textAlignment="center"
-            android:textColor="#6E6A60"
+            android:textColor="#5B6660"
             android:fontFamily="@font/googlesans_medium"
             android:textSize="11sp"/>
 
@@ -298,7 +298,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/xml_reports_tab_trends"
-                android:textColor="#8C8576"
+                android:textColor="#7C8782"
                 android:textSize="12.5sp"
                 android:fontFamily="@font/googlesans_medium"/>
 
@@ -327,7 +327,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/xml_reports_tab_busy_times"
-                android:textColor="#8C8576"
+                android:textColor="#7C8782"
                 android:textSize="12.5sp"
                 android:fontFamily="@font/googlesans_medium"/>
 
@@ -356,7 +356,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/xml_reports_tab_best_sellers"
-                android:textColor="#8C8576"
+                android:textColor="#7C8782"
                 android:textSize="12.5sp"
                 android:fontFamily="@font/googlesans_medium"/>
 
@@ -402,7 +402,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/bg_login_cta_green"
+        android:background="@drawable/bg_lg_cta_green_12"
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"

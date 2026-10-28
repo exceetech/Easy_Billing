@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Glass CTA (dark): gradient with a soft edge highlight. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="14dp"/>
+            <gradient android:type="linear" android:angle="315" android:startColor="#3B4A63" android:centerColor="#1E293B" android:endColor="#0F172A"/>
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="14dp"/>
+            <stroke android:width="1dp" android:color="#33FFFFFF"/>
+        </shape>
+    </item>
+</layer-list>

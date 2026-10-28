@@ -2,6 +2,8 @@
 
     <!-- ================= MAIN THEME ================= -->
     <style name="Theme.EasyBilling" parent="Theme.Material3.Light.NoActionBar">
+        <item name="alertDialogTheme">@style/GlassAlertDialog</item>
+        <item name="materialAlertDialogTheme">@style/GlassAlertDialog</item>
 
         <item name="android:textViewStyle">@style/AppTextStyle</item>
 
@@ -18,15 +20,17 @@
         <item name="colorOnSecondaryContainer">@color/textPrimary</item>
 
         <!-- Background & Surface -->
-        <item name="android:windowBackground">@color/background</item>
+        <item name="android:windowBackground">@android:color/white</item>
         <item name="colorSurface">@color/surface</item>
         <item name="colorOnSurface">@color/textPrimary</item>
         <item name="colorSurfaceVariant">@color/divider</item>
         <item name="colorOnSurfaceVariant">@color/textSecondary</item>
 
         <!-- Status & Navigation Bar -->
-        <item name="android:statusBarColor">@color/primary</item>
-        <item name="android:navigationBarColor">@color/background</item>
+        <item name="android:statusBarColor">@android:color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@android:color/white</item>
+        <item name="android:windowLightNavigationBar">true</item>
 
         <!-- Typography -->
         <item name="android:textColorPrimary">@color/textPrimary</item>
@@ -61,13 +65,14 @@
          so the system splash actually appears before handoff to
          MainActivity. -->
     <style name="Theme.EasyBilling.Splash" parent="Theme.EasyBilling">
-        <item name="android:windowSplashScreenBackground">@color/champagne_bg</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
-        <item name="android:windowSplashScreenIconBackgroundColor">@color/champagne_bg</item>
-        <item name="android:windowBackground">@color/champagne_bg</item>
-        <item name="android:statusBarColor">@color/champagne_bg</item>
-        <item name="android:navigationBarColor">@color/champagne_bg</item>
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowSplashScreenBackground">@color/splash_bg</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_icon</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/splash_bg</item>
+        <item name="android:windowBackground">@drawable/bg_splash_gradient</item>
+        <item name="android:statusBarColor">@color/splash_bg</item>
+        <item name="android:navigationBarColor">@color/splash_bg</item>
+        <item name="android:windowLightStatusBar">@bool/splash_light_bars</item>
+        <item name="android:windowLightNavigationBar">@bool/splash_light_bars</item>
     </style>
 
     <!-- ================= CONFIRM PAYMENT (POPUP) THEME ================= -->
@@ -149,9 +154,9 @@
     <style name="Widget.EasyBilling.Toolbar"
         parent="Widget.Material3.Toolbar">
 
-        <item name="titleTextColor">@color/white</item>
-        <item name="android:background">@color/primary</item>
-        <item name="navigationIconTint">@color/white</item>
+        <item name="titleTextColor">#1A1A18</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="navigationIconTint">#1A1A18</item>
         <item name="titleTextAppearance">@style/TextAppearance.Material3.TitleLarge</item>
 
     </style>

@@ -8,6 +8,13 @@
     didn't adapt to different phone widths — see phone_compatibility_plan.md
     Phase 2.
 -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="false"
+    android:overScrollMode="never"
+    android:scrollbars="none">
+
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -129,7 +136,7 @@
                         android:text="@string/billing_cycle_default"
                         android:textSize="11.5sp"
                         android:fontFamily="@font/googlesans_medium"
-                        android:textColor="#8A8474"
+                        android:textColor="#77877D"
                         android:layout_marginTop="2dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
@@ -158,7 +165,7 @@
                         android:text="@string/plan_price"
                         android:textSize="12.5sp"
                         android:fontFamily="@font/googlesans_medium"
-                        android:textColor="#8A8474"
+                        android:textColor="#77877D"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"/>
@@ -213,7 +220,7 @@
                     android:text="@string/estimated_only_note"
                     android:textSize="10.5sp"
                     android:fontFamily="@font/googlesans_medium"
-                    android:textColor="#A99E88"
+                    android:textColor="#7C8782"
                     android:layout_marginTop="3dp"
                     android:lineSpacingExtra="1dp"
                     android:layout_width="match_parent"
@@ -324,7 +331,7 @@
                     android:layout_height="wrap_content"/>
 
                 <View
-                    android:background="#E5DFCB"
+                    android:background="#E3E8E4"
                     android:layout_marginTop="10dp"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"/>
@@ -339,7 +346,7 @@
                         android:text="@string/service_charge_pct"
                         android:textSize="12.5sp"
                         android:fontFamily="@font/googlesans_medium"
-                        android:textColor="#8A8474"
+                        android:textColor="#77877D"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"/>
@@ -367,7 +374,7 @@
                         android:text="@string/gst_18_pct"
                         android:textSize="12.5sp"
                         android:fontFamily="@font/googlesans_medium"
-                        android:textColor="#8A8474"
+                        android:textColor="#77877D"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"/>
@@ -384,7 +391,7 @@
                 </LinearLayout>
 
                 <View
-                    android:background="#E5DFCB"
+                    android:background="#E3E8E4"
                     android:layout_marginVertical="10dp"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"/>
@@ -453,7 +460,7 @@
                     android:textAllCaps="true"
                     android:fontFamily="@font/googlesans_medium"
                     android:textColor="#1A1A18"
-                    android:textColorHint="#8A8474"
+                    android:textColorHint="#77877D"
                     android:textCursorDrawable="@drawable/cursor_coupon_thin"
                     android:background="@drawable/bg_onboard_step_card"
                     android:paddingHorizontal="14dp"
@@ -472,7 +479,7 @@
                     android:textAllCaps="false"
                     android:textSize="13sp"
                     android:fontFamily="@font/googlesans_semibold"
-                    android:textColor="#FCF3E5"
+                    android:textColor="#EFF2F0"
                     android:includeFontPadding="false"
                     android:gravity="center"
                     android:insetLeft="0dp"
@@ -480,11 +487,12 @@
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:stateListAnimator="@null"
-                    app:backgroundTint="#9C7A45"
+                    android:background="@drawable/bg_lg_cta_gold_14"
+        app:backgroundTint="@null"
                     app:rippleColor="#7A5E33"
                     app:cornerRadius="14dp"
                     app:icon="@drawable/ic_lc_check"
-                    app:iconTint="#FCF3E5"
+                    app:iconTint="#EFF2F0"
                     app:iconSize="18dp"
                     app:iconGravity="textStart"
                     app:iconPadding="8dp"
@@ -518,14 +526,14 @@
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:src="@drawable/ic_lucide_shield_check"
-                    app:tint="#8A8474"
+                    app:tint="#77877D"
                     android:contentDescription="@null"/>
 
                 <TextView
                     android:text="@string/secured_by_razorpay"
                     android:textSize="11sp"
                     android:fontFamily="@font/googlesans_medium"
-                    android:textColor="#8A8474"
+                    android:textColor="#77877D"
                     android:layout_marginStart="6dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
@@ -556,7 +564,7 @@
                 android:textSize="14.5sp"
                 android:textStyle="bold"
                 android:fontFamily="@font/googlesans_semibold"
-                android:textColor="#FCF3E5"
+                android:textColor="#EFF2F0"
                 android:includeFontPadding="false"
                 android:gravity="center"
                 android:insetLeft="0dp"
@@ -564,7 +572,8 @@
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 android:stateListAnimator="@null"
-                app:backgroundTint="#0F6E56"
+                android:background="@drawable/bg_lg_cta_green_14"
+        app:backgroundTint="@null"
                 app:rippleColor="#085041"
                 app:cornerRadius="14dp"
                 android:layout_width="match_parent"
@@ -574,7 +583,7 @@
                 android:id="@+id/progressPayment"
                 android:visibility="gone"
                 android:layout_gravity="center"
-                android:indeterminateTint="#FCF3E5"
+                android:indeterminateTint="#EFF2F0"
                 android:layout_width="24dp"
                 android:layout_height="24dp"/>
 
@@ -652,3 +661,5 @@
     </FrameLayout>
 
 </FrameLayout>
+
+</ScrollView>

@@ -33,7 +33,7 @@ class MyFirebaseService : FirebaseMessagingService() {
             this,
             "easy_billing_channel"
         )
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_stat_expos)
             .setContentTitle(title)
             .setContentText(body)
             .setPriority(NotificationCompat.PRIORITY_HIGH)

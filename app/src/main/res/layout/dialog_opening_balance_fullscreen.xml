@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Set opening balance — full-screen champagne popup, same shell as dialog_add_stock_fullscreen.xml:
+    toolbar back-arrow is Cancel, eyebrow + title, summary card with the live total, two step cards
+    (cash, bank) with the big serif amount bar, an amber note, then Save / Cancel.
+    Ids bound by OpeningBalanceDialog: toolbar, tvTotal, etCash, etBank, barCash, barBank, tvError,
+    btnSave, btnCancel
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_lg_page">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:title=""
+        app:navigationIconTint="#1A1A18" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="20dp">
+
+            <!-- Eyebrow + title -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="14dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/mob_eyebrow"
+                    android:textColor="#B8895A"
+                    android:textSize="10sp"
+                    android:letterSpacing="0.16"
+                    android:fontFamily="@font/googlesans_semibold" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="1dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/mob_title_set"
+                        android:textColor="#1A1A18"
+                        android:textSize="23sp"
+                        android:letterSpacing="-0.02"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:includeFontPadding="false" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="7dp"
+                        android:text="@string/mob_title_opening"
+                        android:textColor="#0F6E56"
+                        android:textSize="23sp"
+                        android:fontFamily="serif"
+                        android:textStyle="italic"
+                        android:includeFontPadding="false" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="7dp"
+                        android:text="@string/mob_title_balance"
+                        android:textColor="#1A1A18"
+                        android:textSize="23sp"
+                        android:letterSpacing="-0.02"
+                        android:fontFamily="@font/googlesans_bold"
+                        android:includeFontPadding="false" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Summary card with the live total -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_lg_card"
+                android:padding="14dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <FrameLayout
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        android:background="@drawable/bg_credit_avatar"
+                        android:backgroundTint="#E3F1EC">
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_lc_indian_rupee"
+                            app:tint="#0F6E56"
+                            android:contentDescription="@null" />
+                    </FrameLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="11dp">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/mob_summary_title"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/googlesans_medium"
+                            android:textColor="#1A1A18"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:text="@string/mob_summary_sub"
+                            android:textSize="11sp"
+                            android:textColor="#76867C"
+                            android:maxLines="1"
+                            android:ellipsize="end" />
+                    </LinearLayout>
+                </LinearLayout>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="#E3E8E4" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/mob_total_label"
+                    android:textSize="9sp"
+                    android:textColor="#7C8782" />
+                <TextView
+                    android:id="@+id/tvTotal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="0"
+                    android:textSize="22sp"
+                    android:fontFamily="serif"
+                    android:textColor="#7C8782"
+                    android:includeFontPadding="false" />
+            </LinearLayout>
+
+            <!-- STEP 1 · CASH (green header) -->
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="14dp"
+                android:background="@drawable/bg_lg_card">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_lg_hdr_green"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                        <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring" />
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="1"
+                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/googlesans_bold" />
+                    </FrameLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/money_opening_cash"
+                            android:textColor="#123B31"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/googlesans_semibold" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/mob_cash_sub"
+                            android:textColor="#3E6F62"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <com.example.easy_billing.ui.glass.GlassClipLinearLayout
+                        android:id="@+id/barCash"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:orientation="horizontal"
+                        android:background="@drawable/bg_lg_amount_bar"
+                        >
+                        <TextView
+                            android:layout_width="56dp"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:text="₹"
+                            android:textSize="22sp"
+                            android:textColor="#1D6E6E"
+                            android:fontFamily="serif" />
+                        <View android:layout_width="1dp" android:layout_height="match_parent" android:background="#E3E8E4" />
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etCash"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:inputType="numberDecimal"
+                            android:textSize="26sp"
+                            android:textColor="#1A1A18"
+                            android:fontFamily="serif"
+                            android:textStyle="bold"
+                            android:background="@android:color/transparent"
+                            android:paddingStart="0dp"
+                            android:paddingEnd="56dp"
+                            android:hint="0"
+                            android:textColorHint="#B4BDB8"
+                            android:importantForAutofill="no" />
+                    </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+                </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+
+            <!-- STEP 2 · BANK (champagne header) -->
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="14dp"
+                android:background="@drawable/bg_lg_card">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_lg_hdr_amber"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp">
+                    <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
+                        <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring_champagne" />
+                        <TextView
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="2"
+                            android:textColor="#FFFFFF"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/googlesans_bold" />
+                    </FrameLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginStart="10dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/money_opening_bank"
+                            android:textColor="#4A3A16"
+                            android:textSize="15sp"
+                            android:fontFamily="@font/googlesans_semibold" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/money_bank_hint"
+                            android:textColor="#8A6526"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <com.example.easy_billing.ui.glass.GlassClipLinearLayout
+                        android:id="@+id/barBank"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:orientation="horizontal"
+                        android:background="@drawable/bg_lg_amount_bar"
+                        >
+                        <TextView
+                            android:layout_width="56dp"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:text="₹"
+                            android:textSize="22sp"
+                            android:textColor="#8A6526"
+                            android:fontFamily="serif" />
+                        <View android:layout_width="1dp" android:layout_height="match_parent" android:background="#E3E8E4" />
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etBank"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:inputType="numberDecimal"
+                            android:textSize="26sp"
+                            android:textColor="#1A1A18"
+                            android:fontFamily="serif"
+                            android:textStyle="bold"
+                            android:background="@android:color/transparent"
+                            android:paddingStart="0dp"
+                            android:paddingEnd="56dp"
+                            android:hint="0"
+                            android:textColorHint="#B4BDB8"
+                            android:importantForAutofill="no" />
+                    </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+                    <TextView
+                        android:id="@+id/tvError"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:visibility="gone"
+                        android:text="@string/money_opening_zero"
+                        android:textColor="#B23A3A"
+                        android:textSize="11.5sp"
+                        android:drawableStart="@drawable/ic_lc_alert_triangle"
+                        android:drawablePadding="6dp"
+                        android:drawableTint="#B23A3A"
+                        android:gravity="center_vertical" />
+                </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
+
+            <!-- Note -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginHorizontal="16dp"
+                android:background="@drawable/bg_money_band_amber"
+                android:paddingHorizontal="13dp"
+                android:paddingVertical="11dp">
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginTop="1dp"
+                    android:src="@drawable/ic_lc_clock"
+                    app:tint="#8A6526"
+                    android:contentDescription="@null" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="9dp"
+                    android:text="@string/money_opening_msg"
+                    android:textColor="#8A6526"
+                    android:textSize="11.5sp"
+                    android:lineSpacingMultiplier="1.1" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="18dp"
+        android:paddingTop="6dp">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/mob_save"
+            android:textColor="#FFFFFF"
+            android:textAllCaps="false"
+            android:textSize="13.5sp"
+            android:fontFamily="@font/googlesans_semibold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            app:backgroundTint="@null"
+            android:background="@drawable/bg_lg_cta"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:stateListAnimator="@null"
+            app:elevation="0dp"
+            app:icon="@drawable/ic_lc_check"
+            app:iconTint="#FFFFFF"
+            app:iconSize="17dp"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            app:cornerRadius="14dp" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="8dp"
+            android:text="@android:string/cancel"
+            android:textColor="#4C5650"
+            android:textAllCaps="false"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/googlesans_semibold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:background="@drawable/bg_inv_action_close"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:stateListAnimator="@null"
+            app:elevation="0dp"
+            app:icon="@drawable/ic_close"
+            app:iconTint="#4C5650"
+            app:iconSize="16dp"
+            app:iconGravity="textStart"
+            app:iconPadding="7dp"
+            app:cornerRadius="14dp"
+            app:backgroundTint="@null" />
+    </LinearLayout>
+</LinearLayout>

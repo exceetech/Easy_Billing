@@ -79,7 +79,7 @@ class PurchaseHistoryActivity : BaseActivity() {
         filterLabels = listOf(
             getString(R.string.purchase_history_filter_all_label),
             getString(R.string.purchase_history_filter_credit_label),
-            getString(R.string.purchase_history_filter_cash_label),
+            getString(R.string.purchase_history_filter_paid_label),
             getString(R.string.purchase_history_filter_cancelled_label)
         )
 
@@ -139,6 +139,9 @@ class PurchaseHistoryActivity : BaseActivity() {
         }
 
         observeViewModel()
+
+        // Finish a supplier-money step an earlier session never completed (app closed mid-way).
+        com.example.easy_billing.util.CreditAdjustmentPrompt.replayPendingPurchases(this) { viewModel.loadPurchases() }
     }
 
     override fun onResume() {
@@ -162,6 +165,9 @@ class PurchaseHistoryActivity : BaseActivity() {
         lifecycleScope.launch {
             viewModel.summary.collectLatest { s -> bindSummary(s) }
         }
+        lifecycleScope.launch {
+            viewModel.paymentInfo.collectLatest { info -> adapter.paymentInfo = info }
+        }
     }
 
     private fun bindSummary(s: PurchaseHistoryViewModel.Summary) {
@@ -175,7 +181,7 @@ class PurchaseHistoryActivity : BaseActivity() {
         filterLabels = listOf(
             "${getString(R.string.purchase_history_filter_all_label)} (${s.countAll})",
             "${getString(R.string.purchase_history_filter_credit_label)} (${s.countCredit})",
-            "${getString(R.string.purchase_history_filter_cash_label)} (${s.countCash})",
+            "${getString(R.string.purchase_history_filter_paid_label)} (${s.countCash})",
             "${getString(R.string.purchase_history_filter_cancelled_label)} (${s.countCancelled})"
         )
     }

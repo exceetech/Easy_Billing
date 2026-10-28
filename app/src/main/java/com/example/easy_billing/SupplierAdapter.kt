@@ -54,10 +54,11 @@ class SupplierAdapter(
         holder.state.text = item.state
 
         holder.avatar.text = if (name.isNotEmpty()) name[0].uppercase() else "?"
-        val slot = position % tileBg.size
-        holder.avatar.backgroundTintList = null
-        holder.avatar.setBackgroundResource(tileBg[slot])
-        holder.avatar.setTextColor(android.graphics.Color.parseColor(tileInk[slot]))
+        // Same monogram tile as the credit-account rows.
+        holder.avatar.setBackgroundResource(R.drawable.bg_credit_avatar)
+        holder.avatar.backgroundTintList =
+            android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#E1F5EE"))
+        holder.avatar.setTextColor(android.graphics.Color.parseColor("#085041"))
 
         // GSTIN is what tells two same-named suppliers apart, so it always
         // has a line of its own — even when there isn't one.

@@ -20,5 +20,8 @@ data class TransactionUI(
     val isSynced: Boolean = true,
 
     /** Invoice number this entry came from, where one exists. */
-    val reference: String? = null
+    val reference: String? = null,
+
+    /** IN / OUT from this payment's own Money Book record; null when none is found (old rows). */
+    val direction: String? = null
 )

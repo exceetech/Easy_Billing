@@ -23,6 +23,14 @@ object CreditSide {
         }
     }
 
+    /** What this account owes YOU (>= 0). A supplier you overpaid owes you; a customer owes you their due. */
+    fun receivable(due: Double, side: Side): Double =
+        if (side == Side.SUPPLIER) maxOf(-due, 0.0) else maxOf(due, 0.0)
+
+    /** What YOU owe this account (>= 0). A supplier's due, or a customer's advance. */
+    fun payable(due: Double, side: Side): Double =
+        if (side == Side.SUPPLIER) maxOf(due, 0.0) else maxOf(-due, 0.0)
+
     /** Direction of a "Record a payment" on this side; null when the owner must say. */
     fun payDirection(side: Side): String? = when (side) {
         Side.CUSTOMER -> MoneyDirection.IN

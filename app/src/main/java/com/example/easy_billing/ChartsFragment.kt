@@ -401,7 +401,7 @@ class ChartsFragment : Fragment(R.layout.fragment_charts), Filterable {
             setDrawAxisLine(false)
             setDrawGridLines(false)
 
-            textColor = Color.parseColor("#9A8F79")
+            textColor = Color.parseColor("#7C8782")
             textSize = 10f
 
             granularity = 1f

@@ -11,7 +11,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:padding="20dp">
 
     <LinearLayout
@@ -43,7 +43,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/dialog_audit_score_info_a_quick_health_check"
-        android:textColor="#9A8F79"
+        android:textColor="#7C8782"
         android:textSize="13sp"
         android:lineSpacingMultiplier="1.4"/>
 
@@ -61,7 +61,7 @@
             android:textColor="#1A1A18" android:textSize="12sp"
             android:fontFamily="@font/googlesans_semibold"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/dialog_audit_score_info_78100_few_or_no" android:textColor="#9A8F79" android:textSize="12sp"/>
+            android:text="@string/dialog_audit_score_info_78100_few_or_no" android:textColor="#7C8782" android:textSize="12sp"/>
     </LinearLayout>
 
     <!-- Fair -->
@@ -78,7 +78,7 @@
             android:textColor="#1A1A18" android:textSize="12sp"
             android:fontFamily="@font/googlesans_semibold"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/dialog_audit_score_info_6677_a_few_things" android:textColor="#9A8F79" android:textSize="12sp"/>
+            android:text="@string/dialog_audit_score_info_6677_a_few_things" android:textColor="#7C8782" android:textSize="12sp"/>
     </LinearLayout>
 
     <!-- Needs work -->
@@ -95,7 +95,7 @@
             android:textColor="#1A1A18" android:textSize="12sp"
             android:fontFamily="@font/googlesans_semibold"/>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="@string/dialog_audit_score_info_below_66_act_on" android:textColor="#9A8F79" android:textSize="12sp"/>
+            android:text="@string/dialog_audit_score_info_below_66_act_on" android:textColor="#7C8782" android:textSize="12sp"/>
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
@@ -104,7 +104,7 @@
         android:layout_height="42dp"
         android:layout_gravity="end"
         android:layout_marginTop="18dp"
-        android:background="@drawable/bg_login_cta_green"
+        android:background="@drawable/bg_lg_cta_green_12"
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"

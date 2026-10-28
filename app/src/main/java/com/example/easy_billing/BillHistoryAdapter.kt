@@ -17,9 +17,12 @@ import com.example.easy_billing.util.CurrencyHelper
 import java.text.SimpleDateFormat
 import java.util.*
 
+/** Open "money still due" notes of one bill (shown as a tag on its row). */
+data class DueSummary(val refund: Double, val extra: Double, val late: Boolean)
+
 private val BILL_DIFF_CALLBACK = object : DiffUtil.ItemCallback<BillResponse>() {
     override fun areItemsTheSame(oldItem: BillResponse, newItem: BillResponse): Boolean =
-        oldItem.bill_id == newItem.bill_id
+        oldItem.bill_id == newItem.bill_id && oldItem.local_id == newItem.local_id
 
     override fun areContentsTheSame(oldItem: BillResponse, newItem: BillResponse): Boolean =
         oldItem == newItem
@@ -52,6 +55,14 @@ class BillHistoryAdapter(
         val key = "${bill.bill_number}${bill.created_at}"
         val index = (key.hashCode() and 0x7FFFFFFF) % rowPalette.size
         return rowPalette[index]
+    }
+
+    private var dueInfo: Map<Int, DueSummary> = emptyMap()
+
+    /** Open due notes keyed by the phone's bill id. Rows are redrawn, because the bill data itself did not change. */
+    fun setDueInfo(info: Map<Int, DueSummary>) {
+        dueInfo = info
+        notifyItemRangeChanged(0, itemCount)
     }
 
     fun setSearchQuery(query: String) {
@@ -95,7 +106,8 @@ class BillHistoryAdapter(
         holder.tvAvatar.text = avatarText
 
         // Invoice number with search highlight
-        val invoiceLabel = "Invoice ${bill.bill_number}"
+        val invoiceLabel = if (bill.bill_number.isBlank()) context.getString(R.string.bill_history_not_synced_yet)
+            else "Invoice ${bill.bill_number}"
         holder.tvBillNumber.text = highlightText(invoiceLabel)
 
         // Caption — short date + payment method, e.g. "12 Apr · Cash"
@@ -115,19 +127,36 @@ class BillHistoryAdapter(
         // Cash/Card/Credit sales.
         holder.tvPaymentMethod.text = when {
             bill.is_cancelled -> context.getString(R.string.bill_history_status_cancelled)
-            isCredit -> context.getString(R.string.bill_history_status_on_credit)
+            // A UPI part that has not arrived is the more urgent fact, so it wins over "on credit".
             isUpi && bill.payment_status != "paid" -> context.getString(R.string.bill_history_status_pending_payment)
+            isCredit -> context.getString(R.string.bill_history_status_on_credit)
             else -> context.getString(R.string.bill_history_status_paid)
+        }
+
+        // Money still to hand back / collect on this bill (also on cancelled bills).
+        val due = bill.local_id?.let { dueInfo[it] }
+        val dueTag = when {
+            due == null -> null
+            due.refund > 0.005 && due.late ->
+                context.getString(R.string.bill_history_tag_late_refund, CurrencyHelper.format(context, due.refund))
+            due.refund > 0.005 ->
+                context.getString(R.string.bill_history_tag_refund_due, CurrencyHelper.format(context, due.refund))
+            due.extra > 0.005 ->
+                context.getString(R.string.bill_history_tag_extra_due, CurrencyHelper.format(context, due.extra))
+            else -> null
+        }
+        if (dueTag != null) {
+            holder.tvPaymentMethod.text = "${holder.tvPaymentMethod.text} · $dueTag"
         }
 
         // N1: cancelled (voided) bills stay visible, clearly marked, muted grey
         // regardless of their palette colour. Non-cancelled rows get a random
         // colour from the palette instead of a fixed status colour.
         if (bill.is_cancelled) {
-            holder.stripe.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#D8D0C0"))
-            holder.tvAvatar.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#F1EBDD"))
-            holder.tvAvatar.setTextColor(Color.parseColor("#A99E88"))
-            holder.tvPaymentMethod.setTextColor(Color.parseColor("#A99E88"))
+            holder.stripe.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#D5DDD8"))
+            holder.tvAvatar.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#E3E8E4"))
+            holder.tvAvatar.setTextColor(Color.parseColor("#929F97"))
+            holder.tvPaymentMethod.setTextColor(Color.parseColor("#929F97"))
             holder.tvBillAmount.paintFlags =
                 holder.tvBillAmount.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             holder.tvBillNumber.paintFlags =
@@ -138,7 +167,7 @@ class BillHistoryAdapter(
             holder.stripe.backgroundTintList = android.content.res.ColorStateList.valueOf(rowColor.stripe)
             holder.tvAvatar.backgroundTintList = android.content.res.ColorStateList.valueOf(rowColor.avatarBg)
             holder.tvAvatar.setTextColor(rowColor.avatarText)
-            holder.tvPaymentMethod.setTextColor(Color.parseColor("#A99E88"))
+            holder.tvPaymentMethod.setTextColor(Color.parseColor("#929F97"))
             holder.tvBillAmount.paintFlags =
                 holder.tvBillAmount.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
             holder.tvBillNumber.paintFlags =
@@ -150,6 +179,12 @@ class BillHistoryAdapter(
             if (isUpi && bill.payment_status != "paid") {
                 holder.tvPaymentMethod.setTextColor(Color.parseColor("#B2792E"))
             }
+        }
+
+        if (dueTag != null) {
+            // Needs attention: amber text, and a cancelled row is not dimmed so the tag stays readable.
+            holder.tvPaymentMethod.setTextColor(Color.parseColor("#B2792E"))
+            holder.itemView.alpha = 1f
         }
 
         holder.divider.visibility = if (position == currentList.lastIndex) View.GONE else View.VISIBLE

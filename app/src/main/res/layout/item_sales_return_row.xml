@@ -17,7 +17,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:layout_marginVertical="5dp"
-    android:background="@drawable/bg_inv_value_card">
+    android:background="@drawable/bg_lg_card">
 
     <View
         android:id="@+id/viewItemStripe"
@@ -85,7 +85,7 @@
                         android:paddingHorizontal="7dp"
                         android:paddingVertical="1dp"
                         android:background="@drawable/bg_credit_avatar"
-                        android:backgroundTint="#F1EBDD"
+                        android:backgroundTint="#E3E8E4"
                         android:textSize="9.5sp"
                         android:textColor="#8A6526"
                         android:visibility="gone"
@@ -108,7 +108,7 @@
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:textSize="10sp"
-                        android:textColor="#9A8F79"
+                        android:textColor="#7C8782"
                         android:singleLine="true"
                         android:ellipsize="end"
                         android:text="—"/>
@@ -119,7 +119,7 @@
                         android:layout_marginStart="4dp"
                         android:text="· Sold"
                         android:textSize="10sp"
-                        android:textColor="#9A8F79" />
+                        android:textColor="#7C8782" />
 
                     <TextView
                         android:id="@+id/tvQtySold"
@@ -127,7 +127,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="3dp"
                         android:textSize="10sp"
-                        android:textColor="#9A8F79"
+                        android:textColor="#7C8782"
                         android:text="0"/>
 
                     <!-- GST%/CESS% — tax-filing detail, not needed to decide
@@ -147,7 +147,7 @@
                             android:layout_marginStart="4dp"
                             android:text="·"
                             android:textSize="10sp"
-                            android:textColor="#9A8F79" />
+                            android:textColor="#7C8782" />
 
                         <TextView
                             android:id="@+id/tvGstRate"
@@ -155,7 +155,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"
                             android:textSize="10sp"
-                            android:textColor="#9A8F79"
+                            android:textColor="#7C8782"
                             android:text="0%"/>
 
                         <TextView
@@ -165,7 +165,7 @@
                             android:layout_marginStart="3dp"
                             android:text="GST"
                             android:textSize="10sp"
-                            android:textColor="#9A8F79" />
+                            android:textColor="#7C8782" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -201,7 +201,7 @@
             android:layout_height="0.5dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="9dp"
-            android:background="#F1EBDD" />
+            android:background="#E3E8E4" />
 
         <!-- Footer: label on the left, the same inline edge-to-edge
              −/qty/+ bar used in Reduce Stock / Purchase's debit-note row
@@ -222,13 +222,13 @@
                 android:fontFamily="@font/googlesans_medium"
                 android:text="Return quantity"/>
 
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="134dp"
                 android:layout_height="44dp"
                 android:layout_marginStart="10dp"
                 android:orientation="horizontal"
                 android:background="@drawable/bg_batch_edge_bar"
-                android:clipToOutline="true">
+                >
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDecrement"
@@ -255,7 +255,7 @@
                 <View
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
-                    android:background="#EDE6D5"/>
+                    android:background="#E3E8E4"/>
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etReturnQty"
@@ -271,12 +271,12 @@
                     android:background="@android:color/transparent"
                     android:padding="0dp"
                     android:hint="0"
-                    android:textColorHint="#C9BFA8"/>
+                    android:textColorHint="#B4BDB8"/>
 
                 <View
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
-                    android:background="#EDE6D5"/>
+                    android:background="#E3E8E4"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnIncrement"
@@ -296,10 +296,11 @@
                     android:stateListAnimator="@null"
                     app:elevation="0dp"
                     app:cornerRadius="0dp"
-                    app:backgroundTint="#1D6E6E"
+                    android:background="@drawable/bg_lg_cta_teal_0"
+        app:backgroundTint="@null"
                     app:strokeWidth="0dp"
                     app:rippleColor="#33FFFFFF"/>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
         </LinearLayout>
 
         <!-- Return value preview — only takes space once a qty is entered. -->

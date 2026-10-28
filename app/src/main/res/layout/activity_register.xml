@@ -15,11 +15,19 @@
     exactly as in the tablet version; only the OUTER arrangement changed
     from a horizontal weighted split to a vertical stack.
 -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:overScrollMode="never"
+    android:scrollbars="none"
+    android:background="@drawable/bg_lg_page">
+
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_login_doodle"
+    
     android:focusable="true"
     android:focusableInTouchMode="true">
 
@@ -32,10 +40,10 @@
         android:layout_marginVertical="22dp"
         android:foreground="@drawable/bg_login_card_glass_sheen"
         app:cardCornerRadius="22dp"
-        app:cardElevation="10dp"
-        app:cardBackgroundColor="#F2FBF9F4"
-        app:strokeColor="#D8C3A0"
-        app:strokeWidth="1.5dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="#D6FFFFFF"
+        app:strokeColor="#F2FFFFFF"
+        app:strokeWidth="1dp"
         app:rippleColor="#00000000"
         app:layout_constraintWidth_max="660dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -77,18 +85,20 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/activity_register_ex"
-                        android:textColor="#1A1A18"
-                        android:textSize="30sp"
+                        android:textColor="#0B3B30"
+                        android:textSize="38sp"
                         android:fontFamily="@font/marcellus"
-                        android:textStyle="bold"/>
+                android:includeFontPadding="false"
+                        android:textStyle="normal"/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/activity_register_pos"
-                        android:textColor="#B8895A"
-                        android:textSize="30sp"
+                        android:textColor="#8A6526"
+                        android:textSize="38sp"
                         android:fontFamily="@font/marcellus"
-                        android:textStyle="bold"/>
+                android:includeFontPadding="false"
+                        android:textStyle="normal"/>
                 </LinearLayout>
 
                 <TextView
@@ -97,7 +107,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:text="@string/point_of_sale_tagline"
-                    android:textColor="#9A8F79"
+                    android:textColor="#7C8782"
                     android:textSize="10sp"
                     android:letterSpacing="0.18"
                     android:fontFamily="@font/googlesans_semibold"/>
@@ -118,7 +128,7 @@
                             android:src="@drawable/ic_feat_receipt" android:contentDescription="@null"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginStart="10dp" android:text="@string/feature_gst_billing"
-                            android:textColor="#3A3733" android:textSize="13sp" android:fontFamily="@font/googlesans_medium"/>
+                            android:textColor="#333A36" android:textSize="13sp" android:fontFamily="@font/googlesans_medium"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -131,7 +141,7 @@
                             android:src="@drawable/ic_feat_package" android:contentDescription="@null"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginStart="10dp" android:text="@string/feature_live_inventory"
-                            android:textColor="#3A3733" android:textSize="13sp" android:fontFamily="@font/googlesans_medium"/>
+                            android:textColor="#333A36" android:textSize="13sp" android:fontFamily="@font/googlesans_medium"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -144,7 +154,7 @@
                             android:src="@drawable/ic_feat_chart" android:contentDescription="@null"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginStart="10dp" android:text="@string/feature_business_analytics"
-                            android:textColor="#3A3733" android:textSize="13sp" android:fontFamily="@font/googlesans_medium"/>
+                            android:textColor="#333A36" android:textSize="13sp" android:fontFamily="@font/googlesans_medium"/>
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -154,7 +164,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginHorizontal="24dp"
-                android:background="#E6DDCB"/>
+                android:background="#E3E8E4"/>
 
             <!-- ===== SIGN-UP FORM (was the right pane, now full width below the brand header) ===== -->
             <LinearLayout
@@ -170,7 +180,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:background="@drawable/bg_login_tab_track"
+                    android:background="@drawable/bg_lg_tab_track"
                     android:padding="3dp">
                     <TextView
                         android:id="@+id/tvBackToLogin"
@@ -180,7 +190,7 @@
                         android:gravity="center"
                         android:paddingVertical="8dp"
                         android:text="@string/login_2"
-                        android:textColor="#8C8576"
+                        android:textColor="#7C8782"
                         android:textSize="13sp"
                         android:fontFamily="@font/googlesans_semibold"
                         android:clickable="true"
@@ -196,78 +206,78 @@
                         android:textColor="#FFFFFF"
                         android:textSize="13sp"
                         android:fontFamily="@font/googlesans_semibold"
-                        android:background="@drawable/bg_login_tab_active"/>
+                        android:background="@drawable/bg_lg_tab_active"/>
                 </LinearLayout>
 
                 <TextView android:id="@+id/lblFullName" android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginTop="16dp" android:layout_marginBottom="6dp"
-                    android:text="@string/full_name_2" android:textSize="12.5sp" android:textColor="#9A968C"
+                    android:text="@string/full_name_2" android:textSize="12.5sp" android:textColor="#8D9992"
                     android:fontFamily="@font/googlesans_regular"/>
                 <FrameLayout
                     android:id="@+id/nameContainer"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:background="@drawable/bg_glass_input">
+                    android:background="@drawable/bg_lg_input">
                     <ImageView android:id="@+id/iconFullName" android:layout_width="18dp" android:layout_height="18dp"
                         android:layout_gravity="center_vertical|start" android:layout_marginStart="13dp"
                         android:src="@drawable/ic_lc_user" app:tint="#B8895A" android:contentDescription="@null"/>
                     <EditText android:id="@+id/etFullName" android:layout_width="match_parent" android:layout_height="match_parent"
                         android:background="@null" android:paddingStart="42dp" android:paddingEnd="13dp"
-                        android:hint="@string/as_per_your_id_hint" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:hint="@string/as_per_your_id_hint" android:textColor="#1A1A18" android:textColorHint="#929F97"
                         android:inputType="textPersonName" android:singleLine="true" android:textSize="15sp"/>
                 </FrameLayout>
 
                 <TextView android:id="@+id/lblEmail" android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginTop="12dp" android:layout_marginBottom="6dp"
-                    android:text="@string/email_address" android:textSize="12.5sp" android:textColor="#9A968C"
+                    android:text="@string/email_address" android:textSize="12.5sp" android:textColor="#8D9992"
                     android:fontFamily="@font/googlesans_regular"/>
                 <FrameLayout
                     android:id="@+id/emailContainer"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:background="@drawable/bg_glass_input">
+                    android:background="@drawable/bg_lg_input">
                     <ImageView android:id="@+id/iconEmail" android:layout_width="18dp" android:layout_height="18dp"
                         android:layout_gravity="center_vertical|start" android:layout_marginStart="13dp"
                         android:src="@drawable/ic_lc_mail" app:tint="#B8895A" android:contentDescription="@null"/>
                     <EditText android:id="@+id/etEmail" android:layout_width="match_parent" android:layout_height="match_parent"
                         android:background="@null" android:paddingStart="42dp" android:paddingEnd="13dp"
-                        android:hint="@string/for_login_receipts_hint" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:hint="@string/for_login_receipts_hint" android:textColor="#1A1A18" android:textColorHint="#929F97"
                         android:inputType="textEmailAddress" android:singleLine="true" android:textSize="15sp"/>
                 </FrameLayout>
 
                 <TextView android:id="@+id/lblPhone" android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginTop="12dp" android:layout_marginBottom="6dp"
-                    android:text="@string/invoice_hint_phone_number" android:textSize="12.5sp" android:textColor="#9A968C"
+                    android:text="@string/invoice_hint_phone_number" android:textSize="12.5sp" android:textColor="#8D9992"
                     android:fontFamily="@font/googlesans_regular"/>
                 <FrameLayout
                     android:id="@+id/phoneContainer"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:background="@drawable/bg_glass_input">
+                    android:background="@drawable/bg_lg_input">
                     <ImageView android:id="@+id/iconPhone" android:layout_width="18dp" android:layout_height="18dp"
                         android:layout_gravity="center_vertical|start" android:layout_marginStart="13dp"
                         android:src="@drawable/ic_lc_phone" app:tint="#B8895A" android:contentDescription="@null"/>
                     <EditText android:id="@+id/etPhoneNumber" android:layout_width="match_parent" android:layout_height="match_parent"
                         android:background="@null" android:paddingStart="42dp" android:paddingEnd="13dp"
-                        android:hint="@string/digit_mobile_hint" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:hint="@string/digit_mobile_hint" android:textColor="#1A1A18" android:textColorHint="#929F97"
                         android:inputType="phone" android:singleLine="true" android:textSize="15sp"/>
                 </FrameLayout>
 
                 <TextView android:id="@+id/lblShopName" android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:layout_marginTop="12dp" android:layout_marginBottom="6dp"
-                    android:text="@string/shop_name_2" android:textSize="12.5sp" android:textColor="#9A968C"
+                    android:text="@string/shop_name_2" android:textSize="12.5sp" android:textColor="#8D9992"
                     android:fontFamily="@font/googlesans_regular"/>
                 <FrameLayout
                     android:id="@+id/shopContainer"
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
-                    android:background="@drawable/bg_glass_input">
+                    android:background="@drawable/bg_lg_input">
                     <ImageView android:id="@+id/iconShop" android:layout_width="18dp" android:layout_height="18dp"
                         android:layout_gravity="center_vertical|start" android:layout_marginStart="13dp"
                         android:src="@drawable/ic_lc_store" app:tint="#B8895A" android:contentDescription="@null"/>
                     <EditText android:id="@+id/ShopName" android:layout_width="match_parent" android:layout_height="match_parent"
                         android:background="@null" android:paddingStart="42dp" android:paddingEnd="13dp"
-                        android:hint="@string/shown_on_your_bills_hint" android:textColor="#1A1A18" android:textColorHint="#A99E88"
+                        android:hint="@string/shown_on_your_bills_hint" android:textColor="#1A1A18" android:textColorHint="#929F97"
                         android:inputType="text" android:singleLine="true" android:textSize="15sp"/>
                 </FrameLayout>
 
@@ -276,7 +286,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="50dp"
                     android:layout_marginTop="16dp"
-                    android:background="@drawable/bg_login_cta_green"
+                    android:background="@drawable/bg_lg_cta"
+                        android:outlineSpotShadowColor="#0F6E56"
+                        android:outlineAmbientShadowColor="#0F6E56"
+                        android:elevation="6dp"
                     app:backgroundTint="@null"
                     android:text="@string/create_account_3"
                     android:textColor="#FFFFFF"
@@ -338,3 +351,5 @@
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

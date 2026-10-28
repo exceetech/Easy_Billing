@@ -11,7 +11,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F3ECDD">
+    android:background="@drawable/bg_lg_page">
 
     <!-- ════════════ PREMIUM MASTHEAD ════════════ -->
     <LinearLayout
@@ -30,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_drawer_header_card"
+            android:background="@drawable/bg_lg_drawer_hdr"
             android:clipChildren="false"
             android:clipToPadding="false"
             android:paddingHorizontal="17dp"
@@ -56,7 +56,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_margin="2dp"
-                        android:background="@drawable/bg_drawer_avatar_inner"
+                        android:background="@drawable/bg_lg_avatar_inner"
                         android:gravity="center"
                         android:text="@string/activity_invoice_m"
                         android:textColor="#F3E2C7"
@@ -180,12 +180,12 @@
                 android:padding="16dp">
 
                 <!-- 1. CUSTOMER CARD (Step 1) -->
-                <LinearLayout
+                <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                     android:id="@+id/cardCustomer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="@drawable/bg_inv_card_cream">
+                    android:background="@drawable/bg_lg_card">
 
                     <!-- Section header banner -->
                     <LinearLayout
@@ -193,7 +193,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_customer_header"
+                        android:background="@drawable/bg_lg_hdr_green"
                         android:paddingHorizontal="15dp"
                         android:paddingVertical="14dp">
 
@@ -257,14 +257,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:background="@drawable/bg_inv_subcard"
+                        android:background="@drawable/bg_lg_inv_subcard"
                         android:padding="12dp"
                         android:layout_marginTop="12dp"
                         android:layout_marginHorizontal="15dp">
 
                         <TextView
                             android:text="@string/invoice_contact_subheader"
-                            android:textColor="#9A8F79"
+                            android:textColor="#7C8782"
                             android:textSize="10.5sp"
                             android:textStyle="bold"
                             android:letterSpacing="0.07"
@@ -276,7 +276,7 @@
                         <FrameLayout
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
-                            android:background="@drawable/bg_inv_field_contrast">
+                            android:background="@drawable/bg_lg_field">
 
                             <FrameLayout
                                 android:layout_width="26dp"
@@ -302,7 +302,7 @@
                                 android:paddingEnd="14dp"
                                 android:hint="@string/invoice_hint_phone_number"
                                 android:textColor="#1A1A18"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:inputType="phone"
                                 android:singleLine="true"
                                 android:textSize="15sp"/>
@@ -313,7 +313,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:layout_marginTop="8dp"
-                            android:background="@drawable/bg_inv_field_contrast">
+                            android:background="@drawable/bg_lg_field">
 
                             <FrameLayout
                                 android:layout_width="26dp"
@@ -339,7 +339,7 @@
                                 android:paddingEnd="14dp"
                                 android:hint="@string/invoice_hint_customer_name"
                                 android:textColor="#1A1A18"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:inputType="textPersonName"
                                 android:singleLine="true"
                                 android:textSize="15sp"/>
@@ -357,7 +357,7 @@
                             <TextView
                                 android:text="@string/invoice_label_state_of_customer"
                                 android:textSize="12.5sp"
-                                android:textColor="#9A8F79"
+                                android:textColor="#7C8782"
                                 android:fontFamily="@font/googlesans_regular"
                                 android:layout_marginBottom="5dp"
                                 android:layout_width="wrap_content"
@@ -369,7 +369,7 @@
                                 android:layout_height="50dp"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
-                                android:background="@drawable/bg_inv_field_contrast"
+                                android:background="@drawable/bg_lg_field"
                                 android:foreground="?attr/selectableItemBackground"
                                 android:clickable="true"
                                 android:focusable="true"
@@ -397,7 +397,7 @@
                                     android:background="@null"
                                     android:hint="@string/invoice_hint_select_state"
                                     android:textColor="#1A1A18"
-                                    android:textColorHint="#A99E88"
+                                    android:textColorHint="#929F97"
                                     android:inputType="textCapWords"
                                     android:completionThreshold="1"
                                     android:singleLine="true"
@@ -421,7 +421,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_subcard_accent_amber"
+                        android:background="@drawable/bg_lg_inv_subcard_accent_amber"
                         android:paddingHorizontal="12dp"
                         android:paddingVertical="11dp"
                         android:layout_marginTop="13dp"
@@ -457,7 +457,7 @@
                             <TextView
                                 android:text="@string/invoice_business_customer_desc"
                                 android:textSize="10.5sp"
-                                android:textColor="#8A8578"
+                                android:textColor="#79897F"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"/>
                         </LinearLayout>
@@ -476,7 +476,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:background="@drawable/bg_inv_subcard_accent"
+                        android:background="@drawable/bg_lg_inv_subcard_accent"
                         android:padding="12dp"
                         android:layout_marginTop="10dp"
                         android:layout_marginHorizontal="15dp"
@@ -524,7 +524,7 @@
                             android:id="@+id/tilBusinessName"
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
-                            android:background="@drawable/bg_inv_field_contrast">
+                            android:background="@drawable/bg_lg_field">
 
                             <FrameLayout
                                 android:layout_width="26dp"
@@ -550,7 +550,7 @@
                                 android:paddingEnd="14dp"
                                 android:hint="@string/invoice_hint_business_name"
                                 android:textColor="#1A1A18"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:inputType="text"
                                 android:singleLine="true"
                                 android:textSize="15sp"/>
@@ -561,7 +561,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:layout_marginTop="10dp"
-                            android:background="@drawable/bg_inv_field_contrast">
+                            android:background="@drawable/bg_lg_field">
 
                             <FrameLayout
                                 android:layout_width="26dp"
@@ -587,7 +587,7 @@
                                 android:paddingEnd="14dp"
                                 android:hint="@string/invoice_hint_gst_number"
                                 android:textColor="#1A1A18"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:inputType="textCapCharacters"
                                 android:maxLength="15"
                                 android:textAllCaps="true"
@@ -599,15 +599,15 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="15dp"/>
-                </LinearLayout>
+                </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
                 <!-- 2. LINE ITEMS & CHARGES CARD (Step 2) -->
-                <LinearLayout
+                <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                     android:id="@+id/itemsCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="@drawable/bg_inv_card_cream"
+                    android:background="@drawable/bg_lg_card"
                     android:layout_marginTop="13dp">
 
                     <LinearLayout
@@ -615,7 +615,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_items_header"
+                        android:background="@drawable/bg_lg_hdr_amber"
                         android:paddingHorizontal="15dp"
                         android:paddingVertical="14dp">
 
@@ -680,14 +680,14 @@
                             android:id="@+id/rvInvoiceItems"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:background="@drawable/bg_inv_items_list_container"
+                            android:background="@drawable/bg_lg_card"
                             android:nestedScrollingEnabled="false"/>
 
                         <!-- CHARGES & Extra Discount -->
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
-                            android:background="#F1EBDD"
+                            android:background="#E3E8E4"
                             android:layout_marginTop="15dp"/>
 
                         <!-- Subtotal -->
@@ -700,7 +700,7 @@
 
                             <TextView
                                 android:text="@string/activity_invoice_xml_subtotal_label"
-                                android:textColor="#9A8F79"
+                                android:textColor="#7C8782"
                                 android:textSize="11sp"
                                 android:letterSpacing="0.08"
                                 android:layout_weight="1"
@@ -744,7 +744,7 @@
 
                             <TextView
                                 android:text="@string/activity_invoice_xml_discount_label"
-                                android:textColor="#9A8F79"
+                                android:textColor="#7C8782"
                                 android:textSize="11sp"
                                 android:letterSpacing="0.08"
                                 android:layout_width="wrap_content"
@@ -789,7 +789,7 @@
                                 <EditText
                                     android:id="@+id/etDiscount"
                                     android:hint="0"
-                                    android:textColorHint="#AEA48C"
+                                    android:textColorHint="#97A39C"
                                     android:textColor="#18181B"
                                     android:inputType="numberDecimal"
                                     android:background="@null"
@@ -807,7 +807,7 @@
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
-                            android:background="#EADFC9"
+                            android:background="#E3E8E4"
                             android:layout_marginTop="11dp"/>
 
                         <LinearLayout
@@ -837,15 +837,15 @@
                                 android:layout_height="wrap_content"/>
                         </LinearLayout>
                     </LinearLayout>
-                </LinearLayout>
+                </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
                 <!-- 3. GST OPTIONS (Step 4 - Advanced, collapsible) -->
-                <LinearLayout
+                <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                     android:id="@+id/cardGstOptions"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="@drawable/bg_inv_card_cream"
+                    android:background="@drawable/bg_lg_card"
                     android:layout_marginTop="13dp">
 
                     <LinearLayout
@@ -854,7 +854,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_items_header"
+                        android:background="@drawable/bg_lg_hdr_amber"
                         android:paddingHorizontal="15dp"
                         android:paddingVertical="14dp"
                         android:clickable="true"
@@ -923,7 +923,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:background="@drawable/bg_inv_field_contrast"
+                            android:background="@drawable/bg_lg_field"
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="11dp"
                             android:layout_marginBottom="10dp">
@@ -958,7 +958,7 @@
                                 <TextView
                                     android:text="@string/invoice_reverse_charge_desc"
                                     android:textSize="10.5sp"
-                                    android:textColor="#8A8578"
+                                    android:textColor="#79897F"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"/>
                             </LinearLayout>
@@ -976,7 +976,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:background="@drawable/bg_inv_field_contrast"
+                            android:background="@drawable/bg_lg_field"
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="10dp"
                             android:layout_marginBottom="12dp">
@@ -1004,7 +1004,7 @@
                                     android:background="@null"
                                     android:hint="@string/invoice_hint_tap_to_select"
                                     android:textColor="#1A1A18"
-                                    android:textColorHint="#A99E88"
+                                    android:textColorHint="#929F97"
                                     android:inputType="none"
                                     android:focusable="false"
                                     android:clickable="true"
@@ -1015,7 +1015,7 @@
                                     android:layout_width="16dp"
                                     android:layout_height="16dp"
                                     android:src="@drawable/ic_chevron_down"
-                                    app:tint="#B0A48C"
+                                    app:tint="#98A49D"
                                     android:contentDescription="@null"/>
                             </LinearLayout>
                         </LinearLayout>
@@ -1026,7 +1026,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:background="@drawable/bg_inv_field_contrast"
+                            android:background="@drawable/bg_lg_field"
                             android:paddingHorizontal="12dp"
                             android:paddingVertical="11dp">
 
@@ -1060,7 +1060,7 @@
                                 <TextView
                                     android:text="@string/invoice_ecommerce_examples"
                                     android:textSize="10.5sp"
-                                    android:textColor="#8A8578"
+                                    android:textColor="#79897F"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"/>
                             </LinearLayout>
@@ -1079,7 +1079,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:background="@drawable/bg_inv_subcard_accent_blue"
+                            android:background="@drawable/bg_lg_inv_subcard_accent_blue"
                             android:padding="12dp"
                             android:layout_marginTop="10dp"
                             android:visibility="gone">
@@ -1114,7 +1114,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
                                 android:layout_marginBottom="9dp"
-                                android:background="@drawable/bg_inv_field_contrast">
+                                android:background="@drawable/bg_lg_field">
 
                                 <EditText
                                     android:id="@+id/etEcommerceOperatorName"
@@ -1124,7 +1124,7 @@
                                     android:paddingHorizontal="13dp"
                                     android:hint="@string/invoice_hint_operator_name"
                                     android:textColor="#1A1A18"
-                                    android:textColorHint="#A99E88"
+                                    android:textColorHint="#929F97"
                                     android:inputType="textCapWords"
                                     android:singleLine="true"
                                     android:textSize="14sp"/>
@@ -1134,7 +1134,7 @@
                             <FrameLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
-                                android:background="@drawable/bg_inv_field_contrast">
+                                android:background="@drawable/bg_lg_field">
 
                                 <EditText
                                     android:id="@+id/etEcommerceGstin"
@@ -1144,7 +1144,7 @@
                                     android:paddingHorizontal="13dp"
                                     android:hint="@string/invoice_hint_operator_gstin"
                                     android:textColor="#1A1A18"
-                                    android:textColorHint="#A99E88"
+                                    android:textColorHint="#929F97"
                                     android:inputType="textCapCharacters"
                                     android:maxLength="15"
                                     android:singleLine="true"
@@ -1198,7 +1198,7 @@
                             </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
-                </LinearLayout>
+                </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             </LinearLayout>
         </ScrollView>
@@ -1229,19 +1229,19 @@
                 android:paddingBottom="16dp">
 
                 <!-- 4. TAX BREAKDOWN CARD (Step 3) -->
-                <LinearLayout
+                <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                     android:id="@+id/cardGstSummary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="@drawable/bg_inv_card_cream">
+                    android:background="@drawable/bg_lg_card">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_tax_header"
+                        android:background="@drawable/bg_lg_hdr_green"
                         android:paddingHorizontal="15dp"
                         android:paddingVertical="14dp">
 
@@ -1306,7 +1306,7 @@
                         <TextView
                             android:id="@+id/tvSupplyExplain"
                             android:text="@string/invoice_intrastate_explain"
-                            android:textColor="#9A8F79"
+                            android:textColor="#7C8782"
                             android:textSize="11sp"
                             android:layout_marginBottom="12dp"
                             android:layout_width="match_parent"
@@ -1325,7 +1325,7 @@
                                 android:layout_weight="1"
                                 android:layout_height="wrap_content"
                                 android:orientation="vertical"
-                                android:background="@drawable/bg_inv_tax_tile"
+                                android:background="@drawable/bg_lg_inv_subcard"
                                 android:paddingHorizontal="11dp"
                                 android:paddingVertical="10dp"
                                 android:layout_marginEnd="8dp">
@@ -1365,7 +1365,7 @@
                                     <TextView
                                         android:id="@+id/tvCgstRate"
                                         android:text="—"
-                                        android:textColor="#B0A48C"
+                                        android:textColor="#7C8782"
                                         android:textSize="9sp"
                                         android:layout_marginStart="4dp"
                                         android:layout_width="wrap_content"
@@ -1388,7 +1388,7 @@
                                 android:layout_weight="1"
                                 android:layout_height="wrap_content"
                                 android:orientation="vertical"
-                                android:background="@drawable/bg_inv_tax_tile"
+                                android:background="@drawable/bg_lg_inv_subcard"
                                 android:paddingHorizontal="11dp"
                                 android:paddingVertical="10dp">
 
@@ -1427,7 +1427,7 @@
                                     <TextView
                                         android:id="@+id/tvSgstRate"
                                         android:text="—"
-                                        android:textColor="#B0A48C"
+                                        android:textColor="#7C8782"
                                         android:textSize="9sp"
                                         android:layout_marginStart="4dp"
                                         android:layout_width="wrap_content"
@@ -1451,7 +1451,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:background="@drawable/bg_inv_tax_tile"
+                            android:background="@drawable/bg_lg_inv_subcard"
                             android:paddingHorizontal="11dp"
                             android:paddingVertical="10dp"
                             android:layout_marginTop="8dp">
@@ -1484,7 +1484,7 @@
                             <TextView
                                 android:id="@+id/tvIgstRate"
                                 android:text="@string/invoice_not_applicable"
-                                android:textColor="#B0A48C"
+                                android:textColor="#7C8782"
                                 android:textSize="9sp"
                                 android:layout_marginStart="4dp"
                                 android:layout_width="wrap_content"
@@ -1511,7 +1511,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:background="@drawable/bg_inv_tax_tile"
+                            android:background="@drawable/bg_lg_inv_subcard"
                             android:paddingHorizontal="11dp"
                             android:paddingVertical="10dp"
                             android:layout_marginTop="8dp">
@@ -1544,7 +1544,7 @@
                             <TextView
                                 android:id="@+id/tvCessRate"
                                 android:text=""
-                                android:textColor="#B0A48C"
+                                android:textColor="#7C8782"
                                 android:textSize="9sp"
                                 android:layout_marginStart="4dp"
                                 android:layout_width="wrap_content"
@@ -1624,15 +1624,15 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"/>
                     </LinearLayout>
-                </LinearLayout>
+                </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
                 <!-- 5. SUMMARY + TOTAL + PAYMENT + ACTIONS CARD (Step 5) -->
-                <LinearLayout
+                <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                     android:id="@+id/totalsCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="@drawable/bg_inv_card_cream"
+                    android:background="@drawable/bg_lg_card"
                     android:layout_marginTop="13dp">
 
                     <LinearLayout
@@ -1640,7 +1640,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_items_header"
+                        android:background="@drawable/bg_lg_hdr_amber"
                         android:paddingHorizontal="15dp"
                         android:paddingVertical="14dp">
 
@@ -1701,7 +1701,7 @@
 
                             <TextView
                                 android:text="@string/invoice_taxable_label"
-                                android:textColor="#9A8F79"
+                                android:textColor="#7C8782"
                                 android:textSize="11sp"
                                 android:letterSpacing="0.08"
                                 android:layout_weight="1"
@@ -1727,7 +1727,7 @@
 
                             <TextView
                                 android:text="@string/gst"
-                                android:textColor="#9A8F79"
+                                android:textColor="#7C8782"
                                 android:textSize="11sp"
                                 android:letterSpacing="0.08"
                                 android:layout_width="wrap_content"
@@ -1736,7 +1736,7 @@
                             <TextView
                                 android:id="@+id/tvGstPercent"
                                 android:text="(0%)"
-                                android:textColor="#B7AB91"
+                                android:textColor="#9FA9A3"
                                 android:textSize="11sp"
                                 android:layout_marginStart="5dp"
                                 android:layout_weight="1"
@@ -1764,7 +1764,7 @@
 
                             <TextView
                                 android:text="@string/invoice_round_off_label"
-                                android:textColor="#9A8F79"
+                                android:textColor="#7C8782"
                                 android:textSize="11sp"
                                 android:letterSpacing="0.08"
                                 android:layout_weight="1"
@@ -1791,7 +1791,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:background="@drawable/bg_inv_total_certificate_outer"
+                            android:background="@drawable/bg_lg_inv_total_outer"
                             android:padding="4dp"
                             android:layout_marginTop="14dp">
 
@@ -1800,7 +1800,7 @@
                                 android:layout_height="wrap_content"
                                 android:orientation="vertical"
                                 android:gravity="center_horizontal"
-                                android:background="@drawable/bg_inv_total_certificate_inner"
+                                android:background="@drawable/bg_lg_inv_total_inner"
                                 android:paddingVertical="14dp"
                                 android:paddingHorizontal="16dp">
 
@@ -1847,7 +1847,7 @@
 
                                 <TextView
                                     android:text="@string/invoice_incl_all_taxes"
-                                    android:textColor="#B0A48C"
+                                    android:textColor="#7C8782"
                                     android:textSize="10sp"
                                     android:layout_marginTop="4dp"
                                     android:layout_width="wrap_content"
@@ -1871,7 +1871,7 @@
                             android:layout_width="match_parent"
                             android:layout_marginTop="10dp"
                             android:orientation="horizontal"
-                            android:background="@drawable/bg_inv_pay_seg_track"
+                            android:background="@drawable/bg_lg_tab_track"
                             android:padding="3dp"
                             android:layout_height="wrap_content">
 
@@ -2004,7 +2004,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="60dp"
                             android:layout_marginTop="16dp"
-                            android:background="@drawable/bg_cart_cta_navy"
+                            android:background="@drawable/bg_lg_cta"
                             android:clickable="true"
                             android:focusable="true">
 
@@ -2078,7 +2078,7 @@
                             android:textColor="#FFFFFF"
                             android:insetTop="0dp"
                             android:insetBottom="0dp"
-                            android:background="@drawable/bg_login_cta_green"
+                            android:background="@drawable/bg_lg_cta_blue_14"
                             android:stateListAnimator="@null"
                             app:rippleColor="#1E3A8A"
                             app:icon="@drawable/ic_lc_send"
@@ -2086,7 +2086,7 @@
                             app:iconGravity="textStart"
                             app:iconPadding="7dp"
                             app:cornerRadius="14dp"
-                            app:backgroundTint="#2563AB"
+                            app:backgroundTint="@null"
                             android:includeFontPadding="false"
                             android:gravity="center"
                             android:insetLeft="0dp"
@@ -2106,7 +2106,7 @@
                             android:textColor="#0F6E56"
                             android:insetTop="0dp"
                             android:insetBottom="0dp"
-                            android:background="@drawable/bg_send_option_row"
+                            android:background="@drawable/bg_lg_row"
                             android:stateListAnimator="@null"
                             app:rippleColor="#CDEAE1"
                             app:icon="@drawable/ic_lc_check"
@@ -2168,7 +2168,8 @@
                                 android:textColor="#FFFFFF"
                                 android:insetTop="0dp"
                                 android:insetBottom="0dp"
-                                android:backgroundTint="#1E293B"
+                                android:background="@drawable/bg_lg_cta_dark_14"
+        app:backgroundTint="@null"
                                 android:stateListAnimator="@null"
                                 app:rippleColor="#334155"
                                 app:icon="@drawable/ic_print"
@@ -2183,7 +2184,7 @@
                                 android:visibility="gone"/>
                         </LinearLayout>
                     </LinearLayout>
-                </LinearLayout>
+                </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             </LinearLayout>
         </ScrollView>

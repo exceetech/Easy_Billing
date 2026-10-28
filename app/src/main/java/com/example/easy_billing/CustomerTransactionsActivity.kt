@@ -66,6 +66,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_customer_transactions)
+        com.example.easy_billing.util.KeyboardInsets.install(this)
         com.example.easy_billing.util.UserEventLogger.logAction("CustomerTransactions", "opened")
 
         setupToolbar(R.id.toolbar)
@@ -192,6 +193,42 @@ class CustomerTransactionsActivity : AppCompatActivity() {
     }
 
     // ================= LOAD =================
+    /** (type, amount in paise, timestamp) of a PAY / REFUND row -> "IN" / "OUT" from its Money Book record. */
+    private var payDirections: Map<Triple<String, Long, Long>, String> = emptyMap()
+
+    private fun dirKey(t: CreditTransaction) = Triple(t.type, Math.round(t.amount * 100.0), t.timestamp)
+
+    private fun directionFor(t: CreditTransaction): String? = payDirections[dirKey(t)]
+
+    /**
+     * The history shown may come from the server, whose rows carry no local id. Each PAY / REFUND row is
+     * matched to this device's own record of the same type and amount that is closest in time (within 6
+     * hours), and takes that record's Money Book direction. Rows with no match keep the old wording.
+     */
+    private suspend fun buildPayDirections(rows: List<CreditTransaction>): Map<Triple<String, Long, Long>, String> {
+        val wanted = setOf("PAY", "REFUND")
+        val local = db.creditTransactionDao().getByAccount(localAccountId, shopId).filter { it.type in wanted && it.id > 0 }
+        if (local.isEmpty()) return emptyMap()
+        val dirById = HashMap<Int, String>()
+        local.map { it.id }.chunked(500).forEach { ids ->
+            db.moneyEntryDao().directionsForSources(com.example.easy_billing.util.MoneySource.CREDIT_TXN, ids)
+                .forEach { dirById[it.sourceId] = it.direction }
+        }
+        val candidates = local.filter { dirById.containsKey(it.id) }.toMutableList()
+        val out = HashMap<Triple<String, Long, Long>, String>()
+        val window = 6L * 60L * 60L * 1000L
+        rows.filter { it.type in wanted }.sortedBy { it.timestamp }.forEach { r ->
+            val best = candidates
+                .filter { it.type == r.type && kotlin.math.abs(it.amount - r.amount) < 0.005 }
+                .minByOrNull { kotlin.math.abs(it.timestamp - r.timestamp) }
+            if (best != null && kotlin.math.abs(best.timestamp - r.timestamp) <= window) {
+                dirById[best.id]?.let { out[dirKey(r)] = it }
+                candidates.remove(best)
+            }
+        }
+        return out
+    }
+
     private fun loadTransactions() = lifecycleScope.launch {
 
         val token = getSharedPreferences("auth", MODE_PRIVATE)
@@ -249,6 +286,11 @@ class CustomerTransactionsActivity : AppCompatActivity() {
         }
         merged.addAll(unsent)
 
+        // Each payment's own Money Book direction, so the history words it the same way the Money Book does.
+        payDirections = withContext(Dispatchers.IO) {
+            try { buildPayDirections(merged) } catch (e: Exception) { emptyMap() }
+        }
+
         originalList.clear()
         originalList.addAll(merged.sortedByDescending { it.timestamp })
         // Wording only: a payment on a supplier account reads "Payment made", not "received".
@@ -285,7 +327,9 @@ class CustomerTransactionsActivity : AppCompatActivity() {
         val writtenOff: Double,
         /** The customer's advance handed back. Cash left the shop. */
         val refunded: Double,
-        val balance: Double
+        val balance: Double,
+        /** Payments saved as money OUT (you paid them). They lower the balance but are not "received". */
+        val paidOut: Double = 0.0
     )
 
     /**
@@ -293,7 +337,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
      *
      * They reconcile as:
      *
-     *     balance = billed − received − writtenOff + refunded
+     *     balance = billed − received − paidOut − writtenOff + refunded
      *
      * Four events, four columns. Two of them move cash and two don't, and
      * collapsing that into two buckets is what put a refund in Billed — where
@@ -308,6 +352,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
         var received = 0.0
         var writtenOff = 0.0
         var refunded = 0.0
+        var paidOut = 0.0
         var balance = 0.0
 
         for (txn in txns.sortedBy { it.timestamp }) {
@@ -328,16 +373,22 @@ class CustomerTransactionsActivity : AppCompatActivity() {
 
                 else -> {
                     billed += debitOf(txn)
-                    received += creditOf(txn)
+                    // A payment saved as money OUT is not money received.
+                    if (txn.type == "PAY" && directionFor(txn) == com.example.easy_billing.util.MoneyDirection.OUT)
+                        paidOut += creditOf(txn)
+                    else
+                        received += creditOf(txn)
                     balance = applyToBalance(balance, txn)
                 }
             }
         }
-        return LedgerTotals(billed, received, writtenOff, refunded, balance)
+        return LedgerTotals(billed, received, writtenOff, refunded, balance, paidOut)
     }
 
     private fun updateLedgerSummary() {
-        val (billed, received, writtenOff, refunded, balance) = computeTotals(originalList)
+        val totals = computeTotals(originalList)
+        val (billed, received, writtenOff, refunded, balance) = totals
+        val paidOut = totals.paidOut
 
         findViewById<TextView>(R.id.tvTotalBilled).text = money(billed)
         findViewById<TextView>(R.id.tvTotalReceived).text = money(received)
@@ -346,7 +397,10 @@ class CustomerTransactionsActivity : AppCompatActivity() {
         // neither, so the card keeps the shape it had before.
         val hasWrittenOff = writtenOff > 0.005
         val hasRefunded = refunded > 0.005
+        val hasPaidOut = paidOut > 0.005
 
+        findViewById<TextView>(R.id.tvPaidOut).text = money(paidOut)
+        findViewById<View>(R.id.rowPaidOut).visibility = if (hasPaidOut) View.VISIBLE else View.GONE
         findViewById<TextView>(R.id.tvWrittenOff).text = money(writtenOff)
         findViewById<TextView>(R.id.tvRefunded).text = money(refunded)
         findViewById<View>(R.id.rowWrittenOff).visibility =
@@ -354,14 +408,14 @@ class CustomerTransactionsActivity : AppCompatActivity() {
         findViewById<View>(R.id.rowRefunded).visibility =
             if (hasRefunded) View.VISIBLE else View.GONE
         findViewById<View>(R.id.layoutAdjustments).visibility =
-            if (hasWrittenOff || hasRefunded) View.VISIBLE else View.GONE
+            if (hasWrittenOff || hasRefunded || hasPaidOut) View.VISIBLE else View.GONE
         findViewById<TextView>(R.id.tvCurrentBalance).text = money(kotlin.math.abs(balance))
 
         findViewById<TextView>(R.id.tvBalanceCaption).apply {
             when {
                 balance > 0 -> { text = getString(R.string.credit_status_owes_you); setTextColor(android.graphics.Color.parseColor("#B23A3A")) }
                 balance < 0 -> { text = getString(R.string.credit_status_in_advance); setTextColor(android.graphics.Color.parseColor("#0F6E56")) }
-                else        -> { text = getString(R.string.credit_status_settled); setTextColor(android.graphics.Color.parseColor("#8A8272")) }
+                else        -> { text = getString(R.string.credit_status_settled); setTextColor(android.graphics.Color.parseColor("#76867C")) }
             }
         }
         findViewById<TextView>(R.id.tvCurrentBalance).setTextColor(
@@ -555,8 +609,8 @@ class CustomerTransactionsActivity : AppCompatActivity() {
         fun refresh() {
             tvStart.text = draftStart?.let { dayFmt.format(Date(it)) } ?: getString(R.string.txn_pick_a_date)
             tvEnd.text = draftEnd?.let { dayFmt.format(Date(it)) } ?: getString(R.string.txn_pick_a_date)
-            tvStart.setTextColor(Color.parseColor(if (draftStart != null) "#1A1A18" else "#A99E88"))
-            tvEnd.setTextColor(Color.parseColor(if (draftEnd != null) "#1A1A18" else "#A99E88"))
+            tvStart.setTextColor(Color.parseColor(if (draftStart != null) "#1A1A18" else "#929F97"))
+            tvEnd.setTextColor(Color.parseColor(if (draftEnd != null) "#1A1A18" else "#929F97"))
 
             // Counted against the same rule Apply will use, so the number can
             // never promise something different from the result.
@@ -641,7 +695,9 @@ class CustomerTransactionsActivity : AppCompatActivity() {
 
         // The same single walk the header and the printed statement use, so
         // this dialog cannot disagree with the figures on the screen behind it.
-        val (billed, received, writtenOff, refunded, balance) = computeTotals(txns)
+        val summaryTotals = computeTotals(txns)
+        val (billed, received, writtenOff, refunded, balance) = summaryTotals
+        val summaryPaidOut = summaryTotals.paidOut
 
         val view = layoutInflater.inflate(R.layout.dialog_ledger_summary, null)
 
@@ -674,6 +730,9 @@ class CustomerTransactionsActivity : AppCompatActivity() {
             if (hasWrittenOff) View.VISIBLE else View.GONE
         view.findViewById<View>(R.id.rowSumRefunded).visibility =
             if (hasRefunded) View.VISIBLE else View.GONE
+        view.findViewById<View>(R.id.rowSumPaidOut).visibility =
+            if (summaryPaidOut > 0.005) View.VISIBLE else View.GONE
+        view.findViewById<TextView>(R.id.tvSumPaidOut).text = "− ${money(summaryPaidOut)}"
         view.findViewById<TextView>(R.id.tvSumWrittenOff).text = "− ${money(writtenOff)}"
         view.findViewById<TextView>(R.id.tvSumRefunded).text = "+ ${money(refunded)}"
 
@@ -775,7 +834,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
                         // The same wording the ledger shows on screen. This
                         // used to print the raw code, so a customer's
                         // statement read "WRITE_OFF" and "PURCHASE_CREDIT".
-                        TransactionAdapter.labelFor(shownType, accountSide),
+                        TransactionAdapter.labelFor(shownType, accountSide, directionFor(it)),
                         debitStr,
                         if (credit > 0) "$currencySymbol%.2f".format(credit) else "-",
                         "$currencySymbol%.2f".format(balance)
@@ -788,7 +847,7 @@ class CustomerTransactionsActivity : AppCompatActivity() {
             // what the user saw on screen.
             val printed = computeTotals(originalList)
             val totalDebit = printed.billed
-            val totalCredit = printed.received
+            val totalCredit = printed.received + printed.paidOut
 
             withContext(Dispatchers.Main) {
 
@@ -984,7 +1043,8 @@ class CustomerTransactionsActivity : AppCompatActivity() {
                     // Lets the row say "not yet synced" and name the invoice it
                     // came from — both already stored, neither previously shown.
                     isSynced = txn.isSynced,
-                    reference = txn.referenceInvoice
+                    reference = txn.referenceInvoice,
+                    direction = directionFor(txn)
                 )
             )
         }

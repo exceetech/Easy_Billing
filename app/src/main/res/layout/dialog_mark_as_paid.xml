@@ -15,7 +15,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="20dp"
     android:orientation="vertical"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:paddingHorizontal="22dp"
     android:paddingTop="24dp"
     android:paddingBottom="20dp">
@@ -68,7 +68,7 @@
         android:text="@string/mark_as_paid_confirm_message"
         android:textSize="12sp"
         android:lineSpacingExtra="2dp"
-        android:textColor="#9A8F79" />
+        android:textColor="#7C8782" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -78,14 +78,14 @@
         android:paddingVertical="10dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@drawable/bg_send_option_row">
+        android:background="@drawable/bg_lg_field">
         <TextView
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/mark_as_paid_dialog_bill_label"
             android:textSize="12sp"
-            android:textColor="#9A8F79" />
+            android:textColor="#7C8782" />
         <TextView
             android:id="@+id/tvMarkPaidBillInfo"
             android:layout_width="wrap_content"
@@ -112,7 +112,7 @@
         android:fontFamily="@font/googlesans_semibold"
         android:includeFontPadding="false"
         android:gravity="center"
-        android:background="@drawable/bg_login_cta_green"
+        android:background="@drawable/bg_lg_cta_green_12"
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"

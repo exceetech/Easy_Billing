@@ -95,7 +95,7 @@ class Gstr2B2bAdapter(
         else
             "Tax ${money(holder.itemView.context, taxPaid)} · ITC ${money(holder.itemView.context, availed)}"
         holder.tvExtra.setTextColor(
-            Color.parseColor(if (blocked) "#A32D2D" else "#A89E88")
+            Color.parseColor(if (blocked) "#A32D2D" else "#7C8782")
         )
 
         holder.tvAmount.text = money(holder.itemView.context, r.taxableValue)

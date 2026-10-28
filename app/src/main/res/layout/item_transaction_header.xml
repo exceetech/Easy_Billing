@@ -22,7 +22,7 @@
         android:textAllCaps="true"
         android:textSize="9.5sp"
         android:letterSpacing="0.14"
-        android:textColor="#A99E88"
+        android:textColor="#7C8782"
         android:fontFamily="@font/googlesans_semibold"
         android:paddingStart="14dp"
         android:paddingEnd="14dp"

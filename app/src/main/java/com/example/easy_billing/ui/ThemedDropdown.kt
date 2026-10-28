@@ -81,7 +81,7 @@ object ThemedDropdown {
             row.addView(TextView(ctx).apply {
                 text = label
                 textSize = 14f
-                setTextColor(Color.parseColor(if (isSel) "#185FA5" else "#1A1A18"))
+                setTextColor(Color.parseColor(if (isSel) "#0F6E56" else "#1A1A18"))
                 layoutParams = LinearLayout.LayoutParams(
                     0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f
                 )
@@ -89,7 +89,7 @@ object ThemedDropdown {
             if (isSel) {
                 row.addView(ImageView(ctx).apply {
                     setImageResource(R.drawable.ic_lucide_check)
-                    setColorFilter(Color.parseColor("#185FA5"))
+                    setColorFilter(Color.parseColor("#0F6E56"))
                     layoutParams = LinearLayout.LayoutParams(dp(16), dp(16))
                 })
             }
@@ -160,7 +160,7 @@ object ThemedDropdown {
             text = "Choose a period to email as a PDF"
             textSize = 12.5f
             gravity = Gravity.CENTER
-            setTextColor(Color.parseColor("#9A8F79"))
+            setTextColor(Color.parseColor("#7C8782"))
             setPadding(0, dp(4), 0, dp(16))
         })
 
@@ -171,7 +171,7 @@ object ThemedDropdown {
             background = GradientDrawable().apply {
                 cornerRadius = dp(14).toFloat()
                 setColor(Color.WHITE)
-                setStroke(dp(1), Color.parseColor("#EFE9DA"))
+                setStroke(dp(1), Color.parseColor("#E1E8E4"))
             }
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
@@ -199,14 +199,14 @@ object ThemedDropdown {
             row.addView(ImageView(context).apply {
                 setImageResource(R.drawable.ic_chevron_down)
                 rotation = -90f
-                setColorFilter(Color.parseColor("#9A8F79"))
+                setColorFilter(Color.parseColor("#7C8782"))
                 layoutParams = LinearLayout.LayoutParams(dp(14), dp(14))
             })
             row.setOnClickListener { onSelect(i); dialog.dismiss() }
             list.addView(row)
             if (i != options.lastIndex) {
                 list.addView(View(context).apply {
-                    setBackgroundColor(Color.parseColor("#EFE9DA"))
+                    setBackgroundColor(Color.parseColor("#E1E8E4"))
                     layoutParams = LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT, dp(1) / 2
                     )
@@ -281,7 +281,7 @@ object ThemedDropdown {
         card.addView(TextView(context).apply {
             text = message
             textSize = 13f
-            setTextColor(Color.parseColor("#6E6A60"))
+            setTextColor(Color.parseColor("#5B6660"))
             setLineSpacing(dp(3).toFloat(), 1f)
             (layoutParams as? LinearLayout.LayoutParams
                 ?: LinearLayout.LayoutParams(
@@ -401,7 +401,7 @@ object ThemedDropdown {
             textSize = 12.5f
             gravity = Gravity.CENTER
             setLineSpacing(dp(2).toFloat(), 1f)
-            setTextColor(Color.parseColor("#9A8F79"))
+            setTextColor(Color.parseColor("#7C8782"))
             setPadding(0, dp(6), 0, dp(20))
         })
 

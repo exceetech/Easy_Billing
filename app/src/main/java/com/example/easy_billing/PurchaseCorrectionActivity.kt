@@ -106,8 +106,8 @@ class PurchaseCorrectionActivity : AppCompatActivity() {
     private val gold = Color.parseColor("#8A6526")
     private val green = Color.parseColor("#0F6E56")
     private val red = Color.parseColor("#B23A3A")
-    private val ink = Color.parseColor("#1F1B14")
-    private val muted = Color.parseColor("#6F6858")
+    private val ink = Color.parseColor("#181B19")
+    private val muted = Color.parseColor("#5E6962")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,6 +116,7 @@ class PurchaseCorrectionActivity : AppCompatActivity() {
         if (purchaseId <= 0) { finish(); return }
 
         setContentView(buildQtyUi())
+        com.example.easy_billing.util.KeyboardInsets.install(this)
         vm.loadPurchase(purchaseId)
 
         lifecycleScope.launch {
@@ -171,7 +172,7 @@ class PurchaseCorrectionActivity : AppCompatActivity() {
         orientation = LinearLayout.VERTICAL
         setPadding(dp(14), dp(12), dp(14), dp(12))
         background = GradientDrawable().apply {
-            setColor(Color.WHITE); cornerRadius = dp(14).toFloat(); setStroke(dp(1), Color.parseColor("#E7DFCC"))
+            setColor(Color.WHITE); cornerRadius = dp(14).toFloat(); setStroke(dp(1), Color.parseColor("#1F000000"))
         }
         layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             .apply { topMargin = dp(10) }
@@ -272,7 +273,7 @@ class PurchaseCorrectionActivity : AppCompatActivity() {
         root.addView(btnSave, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(50)).apply { topMargin = dp(14) })
 
         return ScrollView(this).apply {
-            setBackgroundColor(Color.parseColor("#FAF7F0"))
+            setBackgroundResource(R.drawable.bg_lg_page)
             isFillViewport = true
             addView(root)
         }
@@ -321,9 +322,9 @@ class PurchaseCorrectionActivity : AppCompatActivity() {
     }
 
     private fun accRow(sec: LinearLayout, label: String, value: String, color: String = "#1A1A18") {
-        sec.addView(View(this).apply { setBackgroundColor(Color.parseColor("#F3EDDD")); layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1)) })
+        sec.addView(View(this).apply { setBackgroundColor(Color.parseColor("#E3E8E4")); layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1)) })
         val r = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; setPadding(dp(12), dp(8), dp(12), dp(8)) }
-        r.addView(TextView(this).apply { text = label; textSize = 12.5f; setTextColor(Color.parseColor("#8A8272"))
+        r.addView(TextView(this).apply { text = label; textSize = 12.5f; setTextColor(Color.parseColor("#76867C"))
             layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(10) } })
         r.addView(TextView(this).apply { text = value; textSize = 12.5f; gravity = android.view.Gravity.END
             setTextColor(Color.parseColor(color)); typeface = semibold() ?: Typeface.DEFAULT_BOLD })
@@ -331,7 +332,7 @@ class PurchaseCorrectionActivity : AppCompatActivity() {
     }
 
     private fun accTaxGrid(sec: LinearLayout, cells: List<Triple<String, Double, Double>>) {
-        sec.addView(View(this).apply { setBackgroundColor(Color.parseColor("#F3EDDD")); layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1)) })
+        sec.addView(View(this).apply { setBackgroundColor(Color.parseColor("#E3E8E4")); layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1)) })
         val g = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
         cells.forEachIndexed { i, (name, amt, pctv) ->
             val used = amt > 0.004
@@ -342,15 +343,15 @@ class PurchaseCorrectionActivity : AppCompatActivity() {
             }
             c.addView(TextView(this).apply {
                 text = if (used) "$name ${pct(pctv)}%" else name
-                textSize = 10f; setTextColor(Color.parseColor("#8A8272")); typeface = semibold() ?: Typeface.DEFAULT_BOLD
+                textSize = 10f; setTextColor(Color.parseColor("#76867C")); typeface = semibold() ?: Typeface.DEFAULT_BOLD
             })
             c.addView(TextView(this).apply {
                 text = if (used) money(amt) else "–"; textSize = 12.5f
-                setTextColor(Color.parseColor(if (used) "#1A1A18" else "#C9BFA8"))
+                setTextColor(Color.parseColor(if (used) "#1A1A18" else "#B4BDB8"))
                 if (used) typeface = semibold() ?: Typeface.DEFAULT_BOLD
             })
             g.addView(c)
-            if (i < cells.lastIndex) g.addView(View(this).apply { setBackgroundColor(Color.parseColor("#F3EDDD")); layoutParams = LinearLayout.LayoutParams(dp(1), ViewGroup.LayoutParams.MATCH_PARENT) })
+            if (i < cells.lastIndex) g.addView(View(this).apply { setBackgroundColor(Color.parseColor("#E3E8E4")); layoutParams = LinearLayout.LayoutParams(dp(1), ViewGroup.LayoutParams.MATCH_PARENT) })
         }
         sec.addView(g)
     }
@@ -381,18 +382,18 @@ class PurchaseCorrectionActivity : AppCompatActivity() {
             val r = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(0, dp(6), 0, dp(6)) }
             val line = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
             line.addView(TextView(this).apply { text = label; textSize = 13f
-                setTextColor(Color.parseColor(if (bold) ink else "#6F6858"))
+                setTextColor(Color.parseColor(if (bold) ink else "#5E6962"))
                 if (bold) typeface = semibold() ?: Typeface.DEFAULT_BOLD
                 layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(10) } })
             line.addView(TextView(this).apply { text = value; textSize = 13.5f; gravity = android.view.Gravity.END
                 setTextColor(Color.parseColor(color)); typeface = semibold() ?: Typeface.DEFAULT_BOLD })
             r.addView(line)
             if (sub != null) r.addView(TextView(this).apply { text = sub; textSize = 11f
-                setTextColor(Color.parseColor("#8A8272")); setPadding(0, dp(2), 0, 0) })
+                setTextColor(Color.parseColor("#76867C")); setPadding(0, dp(2), 0, 0) })
             card.addView(r)
         }
         fun divider(dashed: Boolean = true) = card.addView(View(this).apply {
-            setBackgroundColor(Color.parseColor("#EFE8D6"))
+            setBackgroundColor(Color.parseColor("#E3E8E4"))
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1)) })
         for ((n, rw) in plan.rows.withIndex()) {
             val isD = rw.direction == "D"
@@ -674,7 +675,7 @@ class PurchaseCorrectionActivity : AppCompatActivity() {
             })
             col.addView(TextView(this).apply {
                 text = getString(R.string.correct_qty_item_sub, qty(it.quantity)); textSize = 10.5f
-                setTextColor(Color.parseColor("#8A8272"))
+                setTextColor(Color.parseColor("#76867C"))
             })
             val radio = View(this).apply { layoutParams = LinearLayout.LayoutParams(dp(22), dp(22)) }
             row.addView(av); row.addView(col); row.addView(radio)
@@ -701,7 +702,7 @@ class PurchaseCorrectionActivity : AppCompatActivity() {
             qtyAdd -> getString(R.string.correct_qty_hint_more)
             else -> getString(R.string.correct_qty_hint_less)
         }
-        tvQtyHint.setTextColor(if (overBy) red else Color.parseColor("#9A8F76"))
+        tvQtyHint.setTextColor(if (overBy) red else Color.parseColor("#818F87"))
         if (l == null) { setSaveEnabled(false); return }
 
         fun showMsg(msg: String, color: Int) {
@@ -962,7 +963,13 @@ class PurchaseCorrectionActivity : AppCompatActivity() {
     }
 
     private fun runAdjustments(list: List<PurchaseCorrectionRepository.Adjustment>, i: Int) {
-        if (i >= list.size) { finish(); return }
+        if (i == 0) {
+            // Several supplier refunds from one correction: ask "how did the supplier refund you?" once and reuse it.
+            val refundDocs = list.filter { it.isDebitNote }.map { it.docSeq }
+            com.example.easy_billing.util.BatchRefundSession.docs = if (refundDocs.size > 1) refundDocs.toSet() else emptySet()
+            com.example.easy_billing.util.BatchRefundSession.modes = null
+        }
+        if (i >= list.size) { com.example.easy_billing.util.BatchRefundSession.end(); finish(); return }
         val a = list[i]
         val kind = if (a.isDebitNote) Kind.PURCHASE_DEBIT_NOTE else Kind.PURCHASE_CREDIT_NOTE
         CreditAdjustmentPrompt.handlePurchase(
@@ -970,6 +977,12 @@ class PurchaseCorrectionActivity : AppCompatActivity() {
             amount = a.amount, documentLocalId = a.docSeq,
             onDone = { runAdjustments(list, i + 1) }
         )
+    }
+
+    override fun onDestroy() {
+        // Never leave a half-finished "reuse the refund answer" behind for a later screen.
+        com.example.easy_billing.util.BatchRefundSession.end()
+        super.onDestroy()
     }
 
     private fun showMessage(title: String, msg: String) {

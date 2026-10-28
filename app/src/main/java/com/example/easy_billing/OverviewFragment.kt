@@ -193,15 +193,16 @@ class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
         val ctx = requireContext()
 
         // ── "Today's Story" ladder: Revenue − Returns − Cancelled = Net Collected ──
-        tvRevenue.text = CurrencyHelper.format(ctx, data.total_revenue)
+        // The server's total_revenue is ALREADY net of returns and never includes cancelled bills, so: sales before
+        // returns = total_revenue + returns_total, and net sales = total_revenue (nothing more is taken off).
+        tvRevenue.text = CurrencyHelper.format(ctx, data.total_revenue + data.returns_total)
         tvReturns.text = CurrencyHelper.format(ctx, data.returns_total)
         tvCancelled.text = CurrencyHelper.format(ctx, data.cancelled_amount)
         tvCancelledCaption.text = if (data.cancelled_count > 0)
             getString(R.string.fragment_overview_cancelled_caption, data.cancelled_count)
         else getString(R.string.fragment_overview_cancelled_caption_none)
 
-        val netCollected = data.total_revenue - data.returns_total - data.cancelled_amount
-        tvNetCollected.text = CurrencyHelper.format(ctx, netCollected)
+        tvNetCollected.text = CurrencyHelper.format(ctx, data.total_revenue)
 
         // ── Three stat columns: bills · average sale · change vs previous period ──
         tvStatBills.text = data.total_bills.toString()
@@ -220,12 +221,12 @@ class OverviewFragment : Fragment(R.layout.fragment_overview), Filterable {
                 }
                 else -> {
                     tvStatGrowth.text = "0%"
-                    tvStatGrowth.setTextColor(android.graphics.Color.parseColor("#8A8578"))
+                    tvStatGrowth.setTextColor(android.graphics.Color.parseColor("#79897F"))
                 }
             }
         } else {
             tvStatGrowth.text = getString(R.string.dash)
-            tvStatGrowth.setTextColor(android.graphics.Color.parseColor("#8A8578"))
+            tvStatGrowth.setTextColor(android.graphics.Color.parseColor("#79897F"))
         }
 
     }

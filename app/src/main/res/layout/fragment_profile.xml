@@ -15,7 +15,7 @@
     android:id="@+id/swipeRefresh"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3ECDD">
+    android:background="@android:color/transparent">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -76,7 +76,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@drawable/bg_inv_value_card"
+                android:background="@drawable/bg_lg_card"
                 android:padding="16dp"
                 android:layout_marginBottom="20dp">
 
@@ -87,7 +87,7 @@
                     android:gravity="center"
                     android:background="@drawable/bg_profile_avatar_ring"
                     android:text="@string/fragment_profile_st"
-                    android:textColor="#8A6526"
+                    android:textColor="#0F6E56"
                     android:textSize="19sp"
                     android:fontFamily="serif"
                     android:textStyle="bold"/>
@@ -116,7 +116,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:text="@string/dashboard_owner_fallback"
-                        android:textColor="#9A8F79"
+                        android:textColor="#7C8782"
                         android:textSize="11.5sp"
                         android:singleLine="true"
                         android:ellipsize="end"/>
@@ -133,8 +133,8 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:background="@drawable/bg_imp_badge"
-                            android:backgroundTint="#DDEEEE"
+                            android:background="@drawable/bg_lg_pill"
+                            android:backgroundTint="#E1F5EE"
                             android:paddingHorizontal="8dp"
                             android:paddingVertical="4dp">
                             <ImageView android:layout_width="12dp" android:layout_height="12dp"
@@ -152,7 +152,7 @@
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
                             android:layout_marginStart="6dp"
-                            android:background="@drawable/bg_imp_badge"
+                            android:background="@drawable/bg_lg_pill"
                             android:backgroundTint="#FAEEDA"
                             android:paddingHorizontal="8dp"
                             android:paddingVertical="4dp">
@@ -168,11 +168,12 @@
             </LinearLayout>
 
             <!-- =================== STORE INFORMATION =================== -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_inv_card_cream"
+                
+                android:background="@drawable/bg_lg_card"
                 android:layout_marginBottom="20dp">
 
                 <LinearLayout
@@ -180,7 +181,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_customer_header"
+                    android:background="@drawable/bg_lg_hdr_green"
                     android:paddingHorizontal="15dp"
                     android:paddingVertical="14dp">
 
@@ -239,14 +240,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="@drawable/bg_inv_subcard"
+                    android:background="@drawable/bg_lg_inv_subcard"
                     android:padding="12dp"
                     android:layout_marginTop="12dp"
                     android:layout_marginHorizontal="15dp">
 
                     <TextView
                         android:text="STORE DETAILS"
-                        android:textColor="#9A8F79"
+                        android:textColor="#7C8782"
                         android:textSize="10.5sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.07"
@@ -259,7 +260,7 @@
                         android:layout_height="50dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_contrast"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp">
                         <FrameLayout
                             android:layout_width="26dp"
@@ -284,7 +285,7 @@
                         android:layout_marginTop="8dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_contrast"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp">
                         <FrameLayout
                             android:layout_width="26dp"
@@ -309,7 +310,7 @@
                         android:layout_marginTop="8dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_contrast"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp">
                         <FrameLayout
                             android:layout_width="26dp"
@@ -334,7 +335,7 @@
                         android:layout_marginTop="8dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_contrast"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp">
                         <FrameLayout
                             android:layout_width="26dp"
@@ -355,14 +356,15 @@
 
                 </LinearLayout>
                 <View android:layout_width="match_parent" android:layout_height="15dp"/>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- =================== GST PROFILE =================== -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_inv_card_cream"
+                
+                android:background="@drawable/bg_lg_card"
                 android:layout_marginBottom="20dp">
 
                 <LinearLayout
@@ -370,7 +372,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_items_header"
+                    android:background="@drawable/bg_lg_hdr_amber"
                     android:paddingHorizontal="15dp"
                     android:paddingVertical="14dp">
 
@@ -431,7 +433,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_subcard_accent"
+                    android:background="@drawable/bg_lg_inv_subcard_accent"
                     android:padding="12dp"
                     android:layout_marginTop="12dp"
                     android:layout_marginHorizontal="15dp">
@@ -450,7 +452,7 @@
                     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
                         android:orientation="vertical" android:layout_marginStart="12dp">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="@string/gstin" android:textSize="9.5sp" android:letterSpacing="0.05" android:textColor="#9A8F79"/>
+                            android:text="@string/gstin" android:textSize="9.5sp" android:letterSpacing="0.05" android:textColor="#7C8782"/>
                         <TextView android:id="@+id/tvGstinValue" android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginTop="2dp" android:text="—"
                             android:textSize="15sp" android:fontFamily="serif" android:textColor="#1A1A18" android:letterSpacing="0.04"/>
@@ -476,14 +478,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="@drawable/bg_inv_subcard"
+                    android:background="@drawable/bg_lg_inv_subcard"
                     android:padding="12dp"
                     android:layout_marginTop="10dp"
                     android:layout_marginHorizontal="15dp">
 
                     <TextView
                         android:text="REGISTRATION DETAILS"
-                        android:textColor="#9A8F79"
+                        android:textColor="#7C8782"
                         android:textSize="10.5sp"
                         android:textStyle="bold"
                         android:letterSpacing="0.07"
@@ -496,7 +498,7 @@
                         android:layout_height="50dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_contrast"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp">
                         <FrameLayout
                             android:layout_width="26dp"
@@ -521,7 +523,7 @@
                         android:layout_marginTop="8dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_contrast"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp">
                         <FrameLayout
                             android:layout_width="26dp"
@@ -546,7 +548,7 @@
                         android:layout_marginTop="8dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_contrast"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp">
                         <FrameLayout
                             android:layout_width="26dp"
@@ -571,7 +573,7 @@
                         android:layout_marginTop="8dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_contrast"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp">
                         <FrameLayout
                             android:layout_width="26dp"
@@ -592,7 +594,7 @@
 
                 </LinearLayout>
                 <View android:layout_width="match_parent" android:layout_height="15dp"/>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- =================== SIGN OUT =================== -->
             <com.google.android.material.button.MaterialButton

@@ -69,7 +69,7 @@ object PaymentLinesSheet {
         fun px(v: Int) = (v * dp).toInt()
         fun font(id: Int) = androidx.core.content.res.ResourcesCompat.getFont(activity, id)
         val INK = Color.parseColor("#1A1A18")
-        val MUTED = Color.parseColor("#8A8272")
+        val MUTED = Color.parseColor("#76867C")
         val BRAND = Color.parseColor("#0F6E56")
         val ERR = Color.parseColor("#B3261E")
 
@@ -80,7 +80,7 @@ object PaymentLinesSheet {
             orientation = LinearLayout.VERTICAL
             setPadding(px(22), px(14), px(22), px(22))
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(Color.parseColor("#FBF9F4"))
+                setColor(Color.parseColor("#FCFEFD"))
                 cornerRadii = floatArrayOf(px(26).toFloat(), px(26).toFloat(), px(26).toFloat(), px(26).toFloat(), 0f, 0f, 0f, 0f)
             }
         }
@@ -88,7 +88,7 @@ object PaymentLinesSheet {
         // Drag handle
         root.addView(View(activity).apply {
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(Color.parseColor("#DDD3BC")); cornerRadius = px(2).toFloat()
+                setColor(Color.parseColor("#D5DDD8")); cornerRadius = px(2).toFloat()
             }
         }, LinearLayout.LayoutParams(px(40), px(4)).apply { gravity = Gravity.CENTER_HORIZONTAL; bottomMargin = px(16) })
 
@@ -150,12 +150,11 @@ object PaymentLinesSheet {
             typeface = font(R.font.googlesans_bold)
             cornerRadius = px(15)
             insetTop = 0; insetBottom = 0
-            backgroundTintList = android.content.res.ColorStateList(
-                arrayOf(intArrayOf(android.R.attr.state_enabled), intArrayOf()),
-                intArrayOf(BRAND, Color.parseColor("#E7E1D0")))
+            backgroundTintList = null
+            setBackgroundResource(R.drawable.bg_lg_cta_green_16_state)
             setTextColor(android.content.res.ColorStateList(
                 arrayOf(intArrayOf(android.R.attr.state_enabled), intArrayOf()),
-                intArrayOf(Color.WHITE, Color.parseColor("#A89F88"))))
+                intArrayOf(Color.WHITE, Color.parseColor("#B4BDB8"))))
         }
 
         // Per-row visuals update together so a row with an amount turns green.
@@ -186,18 +185,18 @@ object PaymentLinesSheet {
                 val on = PaymentSplit.toPaise(fields[m]?.text?.toString()?.trim()?.toDoubleOrNull() ?: 0.0) > 0L
                 circles[m]?.background = android.graphics.drawable.GradientDrawable().apply {
                     shape = android.graphics.drawable.GradientDrawable.OVAL
-                    setColor(Color.parseColor(if (on) "#DDF2EA" else "#F1ECDD"))
+                    setColor(Color.parseColor(if (on) "#DDF2EA" else "#EEF2F0"))
                 }
                 icons[m]?.setColorFilter(if (on) BRAND else MUTED)
                 cards[m]?.background = android.graphics.drawable.GradientDrawable().apply {
                     cornerRadius = px(16).toFloat()
                     setColor(Color.parseColor(if (on) "#F3FAF7" else "#FFFFFF"))
-                    setStroke(px(2) * 3 / 4, Color.parseColor(if (on) "#0F6E56" else "#ECE7DA"))
+                    setStroke(px(2) * 3 / 4, Color.parseColor(if (on) "#0F6E56" else "#1F000000"))
                 }
                 boxes[m]?.background = android.graphics.drawable.GradientDrawable().apply {
                     cornerRadius = px(12).toFloat()
-                    setColor(Color.parseColor(if (on) "#FFFFFF" else "#FBFAF8"))
-                    setStroke(px(2) * 3 / 4, Color.parseColor(if (on) "#0F6E56" else "#E7DFCC"))
+                    setColor(Color.parseColor(if (on) "#FFFFFF" else "#F7F9F8"))
+                    setStroke(px(2) * 3 / 4, Color.parseColor(if (on) "#0F6E56" else "#1F000000"))
                 }
             }
         }
@@ -245,12 +244,12 @@ object PaymentLinesSheet {
             }
             boxes[m] = box
             box.addView(TextView(activity).apply {
-                text = "\u20B9"; textSize = 15f; setTextColor(Color.parseColor("#9A8F79"))
+                text = "\u20B9"; textSize = 15f; setTextColor(Color.parseColor("#7C8782"))
             })
             val et = EditText(activity).apply {
                 inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
                 hint = "0.00"
-                setHintTextColor(Color.parseColor("#C9C0A8"))
+                setHintTextColor(Color.parseColor("#B4BDB8"))
                 setTextColor(INK)
                 textSize = 18f
                 typeface = font(R.font.googlesans_bold)

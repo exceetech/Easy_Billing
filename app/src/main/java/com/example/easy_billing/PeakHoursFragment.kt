@@ -326,9 +326,9 @@ class PeakHoursFragment : Fragment(R.layout.fragment_peak_hours), Filterable {
                 position = XAxis.XAxisPosition.BOTTOM
                 setDrawGridLines(false)
                 setDrawAxisLine(true)
-                axisLineColor = Color.parseColor("#E4DCC8")
+                axisLineColor = Color.parseColor("#D5DDD8")
                 granularity = 1f
-                textColor = Color.parseColor("#9A8F79")
+                textColor = Color.parseColor("#7C8782")
                 yOffset = 6f
             }
         }

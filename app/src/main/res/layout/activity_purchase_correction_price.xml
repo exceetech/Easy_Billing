@@ -8,7 +8,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" android:background="#F3ECDD">
+    android:orientation="vertical" android:background="@drawable/bg_lg_page">
 
     <FrameLayout android:layout_width="match_parent" android:layout_height="?attr/actionBarSize">
         <ImageView android:id="@+id/btnQtyBack" android:layout_width="48dp" android:layout_height="48dp"
@@ -45,12 +45,13 @@
                 android:textSize="12.5sp" android:lineSpacingExtra="2dp"/>
 
             <!-- STEP 1 · ITEM -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="vertical" android:background="@drawable/bg_addp_card" android:layout_marginTop="12dp">
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" 
+                android:background="@drawable/bg_lg_card" android:layout_marginTop="12dp">
 
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center_vertical"
-            android:background="@drawable/bg_inv_customer_header" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
+            android:background="@drawable/bg_lg_hdr_green" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
             <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
                 <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -73,14 +74,15 @@
 
                 <LinearLayout android:id="@+id/llQtyItems" android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="vertical" android:padding="16dp"/>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- STEP 2 · PRICE -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="vertical" android:background="@drawable/bg_addp_card" android:layout_marginTop="12dp">
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" 
+                android:background="@drawable/bg_lg_card" android:layout_marginTop="12dp">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center_vertical"
-            android:background="@drawable/bg_inv_items_header" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
+            android:background="@drawable/bg_lg_hdr_amber" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
             <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
                 <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring_champagne"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -106,7 +108,7 @@
                         android:text="@string/correct_price_net_label" android:textSize="11sp" android:fontFamily="@font/googlesans_bold" android:textColor="#5C4A22"/>
                     <LinearLayout android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="6dp"
                         android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="12dp"
-                        android:background="@drawable/bg_inv_field_light_grey">
+                        android:background="@drawable/bg_lg_field">
                         <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                             <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_green"/>
                             <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_indian_rupee" app:tint="#16A34A" android:contentDescription="@null"/>
@@ -114,15 +116,15 @@
                         <EditText android:id="@+id/etNetPrice" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
                             android:layout_marginStart="12dp" android:background="@android:color/transparent" android:inputType="numberDecimal"
                             android:textSize="15sp" android:textColor="#1A1A18"
-                            android:padding="0dp" android:importantForAutofill="no" android:hint="0" android:textColorHint="#C9BFA8"/>
+                            android:padding="0dp" android:importantForAutofill="no" android:hint="0" android:textColorHint="#B4BDB8"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/correct_price_per_item"
-                            android:textSize="11sp" android:textColor="#8A8272"/>
+                            android:textSize="11sp" android:textColor="#76867C"/>
                     </LinearLayout>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="14dp"
                         android:text="@string/correct_price_gross_label" android:textSize="11sp" android:fontFamily="@font/googlesans_bold" android:textColor="#5C4A22"/>
                     <LinearLayout android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="6dp"
                         android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="12dp"
-                        android:background="@drawable/bg_inv_field_light_grey">
+                        android:background="@drawable/bg_lg_field">
                         <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                             <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_gold"/>
                             <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_indian_rupee" app:tint="#8A6526" android:contentDescription="@null"/>
@@ -130,19 +132,20 @@
                         <EditText android:id="@+id/etGrossPrice" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
                             android:layout_marginStart="12dp" android:background="@android:color/transparent" android:inputType="numberDecimal"
                             android:textSize="15sp" android:textColor="#1A1A18"
-                            android:padding="0dp" android:importantForAutofill="no" android:hint="0" android:textColorHint="#C9BFA8"/>
+                            android:padding="0dp" android:importantForAutofill="no" android:hint="0" android:textColorHint="#B4BDB8"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/correct_price_per_item"
-                            android:textSize="11sp" android:textColor="#8A8272"/>
+                            android:textSize="11sp" android:textColor="#76867C"/>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- STEP 3 · GST RATE -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="vertical" android:background="@drawable/bg_addp_card" android:layout_marginTop="12dp">
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" 
+                android:background="@drawable/bg_lg_card" android:layout_marginTop="12dp">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center_vertical"
-            android:background="@drawable/bg_inv_customer_header" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
+            android:background="@drawable/bg_lg_hdr_green" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
             <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
                 <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -170,13 +173,13 @@
                         android:clickable="true" android:focusable="true">
                         <TextView android:layout_width="46dp" android:layout_height="36dp" android:gravity="center"
                             android:text="0%" android:textSize="16sp" android:fontFamily="serif" android:textStyle="bold"
-                            android:textColor="#8A8272" android:background="@drawable/bg_gst_badge" android:backgroundTint="#F1ECDD"/>
+                            android:textColor="#76867C" android:background="@drawable/bg_gst_badge" android:backgroundTint="#EAEEEC"/>
                         <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
                             android:orientation="vertical" android:layout_marginStart="12dp">
                             <TextView android:id="@+id/tvGstTitle0" android:layout_width="match_parent" android:layout_height="wrap_content"
                                 android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                                android:text="@string/correct_price_gst_hint0" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                                android:text="@string/correct_price_gst_hint0" android:textSize="10.5sp" android:textColor="#76867C"/>
                         </LinearLayout>
                         <View android:id="@+id/checkGst0" android:layout_width="22dp" android:layout_height="22dp"
                             android:background="@drawable/bg_radio_unselected"/>
@@ -193,7 +196,7 @@
                             <TextView android:id="@+id/tvGstTitle1" android:layout_width="match_parent" android:layout_height="wrap_content"
                                 android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                                android:text="@string/correct_price_gst_hint5" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                                android:text="@string/correct_price_gst_hint5" android:textSize="10.5sp" android:textColor="#76867C"/>
                         </LinearLayout>
                         <View android:id="@+id/checkGst1" android:layout_width="22dp" android:layout_height="22dp"
                             android:background="@drawable/bg_radio_unselected"/>
@@ -210,7 +213,7 @@
                             <TextView android:id="@+id/tvGstTitle2" android:layout_width="match_parent" android:layout_height="wrap_content"
                                 android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                                android:text="@string/correct_price_gst_hint12" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                                android:text="@string/correct_price_gst_hint12" android:textSize="10.5sp" android:textColor="#76867C"/>
                         </LinearLayout>
                         <View android:id="@+id/checkGst2" android:layout_width="22dp" android:layout_height="22dp"
                             android:background="@drawable/bg_radio_unselected"/>
@@ -227,7 +230,7 @@
                             <TextView android:id="@+id/tvGstTitle3" android:layout_width="match_parent" android:layout_height="wrap_content"
                                 android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                                android:text="@string/correct_price_gst_hint18" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                                android:text="@string/correct_price_gst_hint18" android:textSize="10.5sp" android:textColor="#76867C"/>
                         </LinearLayout>
                         <View android:id="@+id/checkGst3" android:layout_width="22dp" android:layout_height="22dp"
                             android:background="@drawable/bg_radio_unselected"/>
@@ -244,13 +247,13 @@
                             <TextView android:id="@+id/tvGstTitle4" android:layout_width="match_parent" android:layout_height="wrap_content"
                                 android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                                android:text="@string/correct_price_gst_hint28" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                                android:text="@string/correct_price_gst_hint28" android:textSize="10.5sp" android:textColor="#76867C"/>
                         </LinearLayout>
                         <View android:id="@+id/checkGst4" android:layout_width="22dp" android:layout_height="22dp"
                             android:background="@drawable/bg_radio_unselected"/>
                     </LinearLayout>
                     <TextView android:id="@+id/tvGstSplit" android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp" android:textSize="11sp" android:textColor="#9A8F76" android:lineSpacingExtra="2dp"/>
+                        android:layout_marginTop="10dp" android:textSize="11sp" android:textColor="#818F87" android:lineSpacingExtra="2dp"/>
                     <TextView android:id="@+id/tvPriceAdvToggle" android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_marginTop="12dp" android:paddingVertical="4dp" android:clickable="true" android:focusable="true"
                         android:text="@string/correct_price_adv_show" android:textSize="12sp" android:textColor="#854F0B"
@@ -264,7 +267,7 @@
                                     android:textSize="11sp" android:fontFamily="@font/googlesans_bold" android:textColor="#5C4A22"/>
                                 <LinearLayout android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="4dp"
                                     android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="10dp"
-                                    android:background="@drawable/bg_inv_field_light_grey">
+                                    android:background="@drawable/bg_lg_field">
                                     <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                                         <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_green"/>
                                         <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_percent" app:tint="#0F6E56" android:contentDescription="@null"/>
@@ -272,7 +275,7 @@
                                     <EditText android:id="@+id/etCgstBox" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
                                         android:layout_marginStart="10dp" android:background="@android:color/transparent" android:inputType="numberDecimal"
                                         android:textSize="15sp" android:textColor="#1A1A18" android:importantForAutofill="no"
-                                        android:hint="0" android:textColorHint="#A99E88"/>
+                                        android:hint="0" android:textColorHint="#929F97"/>
                                 </LinearLayout>
                             </LinearLayout>
                             <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
@@ -281,7 +284,7 @@
                                     android:textSize="11sp" android:fontFamily="@font/googlesans_bold" android:textColor="#5C4A22"/>
                                 <LinearLayout android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="4dp"
                                     android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="10dp"
-                                    android:background="@drawable/bg_inv_field_light_grey">
+                                    android:background="@drawable/bg_lg_field">
                                     <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                                         <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_gold"/>
                                         <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_percent" app:tint="#8A6526" android:contentDescription="@null"/>
@@ -289,7 +292,7 @@
                                     <EditText android:id="@+id/etSgstBox" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
                                         android:layout_marginStart="10dp" android:background="@android:color/transparent" android:inputType="numberDecimal"
                                         android:textSize="15sp" android:textColor="#1A1A18" android:importantForAutofill="no"
-                                        android:hint="0" android:textColorHint="#A99E88"/>
+                                        android:hint="0" android:textColorHint="#929F97"/>
                                 </LinearLayout>
                             </LinearLayout>
                         </LinearLayout>
@@ -300,7 +303,7 @@
                                     android:textSize="11sp" android:fontFamily="@font/googlesans_bold" android:textColor="#5C4A22"/>
                                 <LinearLayout android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="4dp"
                                     android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="10dp"
-                                    android:background="@drawable/bg_inv_field_light_grey">
+                                    android:background="@drawable/bg_lg_field">
                                     <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                                         <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_purple"/>
                                         <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_percent" app:tint="#7A4FA3" android:contentDescription="@null"/>
@@ -308,7 +311,7 @@
                                     <EditText android:id="@+id/etIgstBox" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
                                         android:layout_marginStart="10dp" android:background="@android:color/transparent" android:inputType="numberDecimal"
                                         android:textSize="15sp" android:textColor="#1A1A18" android:importantForAutofill="no"
-                                        android:hint="0" android:textColorHint="#A99E88"/>
+                                        android:hint="0" android:textColorHint="#929F97"/>
                                 </LinearLayout>
                             </LinearLayout>
                             <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
@@ -317,7 +320,7 @@
                                     android:textSize="11sp" android:fontFamily="@font/googlesans_bold" android:textColor="#5C4A22"/>
                                 <LinearLayout android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="4dp"
                                     android:orientation="horizontal" android:gravity="center_vertical" android:paddingHorizontal="10dp"
-                                    android:background="@drawable/bg_inv_field_light_grey">
+                                    android:background="@drawable/bg_lg_field">
                                     <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                                         <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_blue"/>
                                         <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_percent" app:tint="#2A5CA8" android:contentDescription="@null"/>
@@ -325,21 +328,22 @@
                                     <EditText android:id="@+id/etCessBox" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
                                         android:layout_marginStart="10dp" android:background="@android:color/transparent" android:inputType="numberDecimal"
                                         android:textSize="15sp" android:textColor="#1A1A18" android:importantForAutofill="no"
-                                        android:hint="0" android:textColorHint="#A99E88"/>
+                                        android:hint="0" android:textColorHint="#929F97"/>
                                 </LinearLayout>
                             </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- STEP 3 · REASON -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="vertical" android:background="@drawable/bg_addp_card" android:layout_marginTop="12dp">
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" 
+                android:background="@drawable/bg_lg_card" android:layout_marginTop="12dp">
 
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center_vertical"
-            android:background="@drawable/bg_inv_items_header" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
+            android:background="@drawable/bg_lg_hdr_amber" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
             <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
                 <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring_champagne"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -355,8 +359,8 @@
                     android:text="@string/correct_qty_step3_sub" android:textColor="#8A6526" android:textSize="11sp"/>
             </LinearLayout>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:background="@drawable/bg_pill_grey_soft" android:paddingHorizontal="10dp" android:paddingVertical="3dp"
-            android:text="@string/correct_qty_optional" android:textColor="#8A8272" android:textSize="10sp"
+            android:background="@drawable/bg_lg_pill_grey" android:paddingHorizontal="10dp" android:paddingVertical="3dp"
+            android:text="@string/correct_qty_optional" android:textColor="#76867C" android:textSize="10sp"
             android:fontFamily="@font/googlesans_semibold"/>
         </LinearLayout>
 
@@ -375,7 +379,7 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_price_reason_price"
                         android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                        android:text="@string/correct_price_reason_price_desc" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                        android:text="@string/correct_price_reason_price_desc" android:textSize="10.5sp" android:textColor="#76867C"/>
                 </LinearLayout>
                 <View android:id="@+id/checkReason0" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
             </LinearLayout>
@@ -393,7 +397,7 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_price_reason_gst"
                         android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                        android:text="@string/correct_price_reason_gst_desc" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                        android:text="@string/correct_price_reason_gst_desc" android:textSize="10.5sp" android:textColor="#76867C"/>
                 </LinearLayout>
                 <View android:id="@+id/checkReason1" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
             </LinearLayout>
@@ -411,7 +415,7 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_price_reason_discount"
                         android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                        android:text="@string/correct_price_reason_discount_desc" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                        android:text="@string/correct_price_reason_discount_desc" android:textSize="10.5sp" android:textColor="#76867C"/>
                 </LinearLayout>
                 <View android:id="@+id/checkReason2" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
             </LinearLayout>
@@ -429,21 +433,22 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_price_reason_wrong"
                         android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                        android:text="@string/correct_price_reason_wrong_desc" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                        android:text="@string/correct_price_reason_wrong_desc" android:textSize="10.5sp" android:textColor="#76867C"/>
                 </LinearLayout>
                 <View android:id="@+id/checkReason3" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
             </LinearLayout>
 
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- STEP 4 · WHAT WILL CHANGE -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="vertical" android:background="@drawable/bg_addp_card" android:layout_marginTop="12dp">
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" 
+                android:background="@drawable/bg_lg_card" android:layout_marginTop="12dp">
 
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center_vertical"
-            android:background="@drawable/bg_inv_customer_header" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
+            android:background="@drawable/bg_lg_hdr_green" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
             <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
                 <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -463,7 +468,7 @@
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="vertical" android:padding="16dp">
                     <TextView android:id="@+id/tvQtyMsg" android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:textSize="13sp" android:textColor="#8A8272" android:lineSpacingExtra="2dp"/>
+                        android:textSize="13sp" android:textColor="#76867C" android:lineSpacingExtra="2dp"/>
                     <LinearLayout android:id="@+id/llQtyOk" android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:orientation="vertical" android:visibility="gone">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -485,7 +490,7 @@
                         <LinearLayout android:id="@+id/llQtyAcc" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="vertical" android:visibility="gone"/>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
         </LinearLayout>
     </ScrollView>
 
@@ -497,18 +502,18 @@
             android:layout_marginBottom="12dp" android:background="@drawable/bg_gold_accent_tick"/>
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center_vertical"
-            android:background="@drawable/bg_addp_footer_capsule" android:paddingStart="20dp" android:paddingEnd="8dp"
+            android:background="@drawable/bg_lg_footer" android:paddingStart="20dp" android:paddingEnd="8dp"
             android:paddingVertical="8dp" android:elevation="3dp" android:baselineAligned="false">
             <LinearLayout android:id="@+id/btnQtyCancel" android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:orientation="horizontal" android:gravity="center_vertical" android:clickable="true" android:focusable="true">
                 <ImageView android:layout_width="13dp" android:layout_height="13dp" android:src="@drawable/ic_close"
-                    app:tint="#B0A895" android:layout_marginEnd="6dp" android:contentDescription="@null"/>
+                    app:tint="#9DA8A1" android:layout_marginEnd="6dp" android:contentDescription="@null"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/cancel"
-                    android:textColor="#8A8272" android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold"/>
+                    android:textColor="#76867C" android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold"/>
             </LinearLayout>
             <LinearLayout android:id="@+id/btnQtySave" android:layout_width="0dp" android:layout_weight="1" android:layout_height="50dp"
                 android:layout_marginStart="14dp" android:orientation="horizontal" android:gravity="center"
-                android:background="@drawable/bg_addp_save_pill_sheen" android:clickable="true" android:focusable="true">
+                android:background="@drawable/bg_lg_cta" android:clickable="true" android:focusable="true">
                 <FrameLayout android:layout_width="20dp" android:layout_height="20dp" android:layout_marginEnd="8dp">
                     <View android:layout_width="20dp" android:layout_height="20dp" android:background="@drawable/bg_check_badge_translucent"/>
                     <ImageView android:layout_width="11dp" android:layout_height="11dp" android:layout_gravity="center"

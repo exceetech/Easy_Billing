@@ -24,7 +24,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="20dp"
     android:orientation="vertical"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:paddingHorizontal="22dp"
     android:paddingTop="24dp"
     android:paddingBottom="20dp">
@@ -60,7 +60,7 @@
         android:layout_marginTop="6dp"
         android:gravity="center"
         android:text="@string/dialog_session_expiring_subtitle"
-        android:textColor="#8A8272"
+        android:textColor="#76867C"
         android:textSize="12.5sp"
         android:lineSpacingExtra="3dp" />
 
@@ -114,7 +114,8 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="18dp"
-        app:backgroundTint="#0F6E56"
+        android:background="@drawable/bg_lg_cta_green_14"
+        app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:text="@string/dialog_session_expiring_got_it_btn"

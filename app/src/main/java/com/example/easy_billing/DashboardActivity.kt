@@ -230,7 +230,8 @@ class DashboardActivity : BaseActivity() {
         checkSubscription()
 
         window.setSoftInputMode(
-            android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+            android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN or
+                android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         )
 
         etSearch.clearFocus()
@@ -335,6 +336,9 @@ class DashboardActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        // First-run nudge: ask once for the opening balance (skippable, never repeats after Skip).
+        com.example.easy_billing.util.OpeningBalancePrompt.maybeShow(this)
 
         // LIVE / OFFLINE pills — paint now, then keep them reactive.
         updateLiveStatus()
@@ -1822,7 +1826,7 @@ class DashboardActivity : BaseActivity() {
 
                 btnDelete.text = getString(R.string.dialog_cant_remove_got_it)
                 btnDelete.icon = androidx.core.content.ContextCompat.getDrawable(this@DashboardActivity, R.drawable.ic_lucide_check)
-                btnDelete.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#8A6526"))
+                btnDelete.setBackgroundResource(R.drawable.bg_lg_cta_gold_14); btnDelete.backgroundTintList = null
 
                 // There is nothing to cancel here — only one honest action
                 // exists, so the second button doesn't pretend there's a
@@ -1859,7 +1863,7 @@ class DashboardActivity : BaseActivity() {
 
                 btnDelete.text = getString(R.string.dialog_confirm_remove_yes)
                 btnDelete.icon = androidx.core.content.ContextCompat.getDrawable(this@DashboardActivity, R.drawable.baseline_delete_24)
-                btnDelete.backgroundTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#B23A3A"))
+                btnDelete.setBackgroundResource(R.drawable.bg_lg_cta_red_14); btnDelete.backgroundTintList = null
 
                 btnCancel.visibility = View.VISIBLE
                 btnCancel.text = getString(R.string.dialog_confirm_remove_keep)
@@ -2273,26 +2277,35 @@ class DashboardActivity : BaseActivity() {
             // "premium feature, tap to learn more".
             data class GatedRow(
                 val rowId: Int, val iconId: Int, val lockId: Int,
-                val subId: Int, val defaultSub: String
+                val subId: Int, val defaultSub: String,
+                val chevronId: Int, val lockBtnId: Int, val chipId: Int
             )
 
             val gatedRows = listOf(
-                GatedRow(R.id.btnGstReports, R.id.iconGstReports, R.id.lockGstReports, R.id.subGstReports, getString(R.string.dashboard_gst_reports_subtitle)),
-                GatedRow(R.id.btnProfit, R.id.iconProfit, R.id.lockProfit, R.id.subProfit, getString(R.string.dashboard_profit_subtitle)),
-                GatedRow(R.id.btnAiInsights, R.id.iconAiInsights, R.id.lockAiInsights, R.id.subAiInsights, getString(R.string.dashboard_ai_insights_subtitle)),
+                GatedRow(R.id.btnGstReports, R.id.iconGstReports, R.id.lockGstReports, R.id.subGstReports, getString(R.string.dashboard_gst_reports_subtitle), R.id.chevronGstReports, R.id.lockBtnGstReports, R.id.chipGstReports),
+                GatedRow(R.id.btnProfit, R.id.iconProfit, R.id.lockProfit, R.id.subProfit, getString(R.string.dashboard_profit_subtitle), R.id.chevronProfit, R.id.lockBtnProfit, R.id.chipProfit),
+                GatedRow(R.id.btnAiInsights, R.id.iconAiInsights, R.id.lockAiInsights, R.id.subAiInsights, getString(R.string.dashboard_ai_insights_subtitle), R.id.chevronAiInsights, R.id.lockBtnAiInsights, R.id.chipAiInsights),
             )
 
             gatedRows.forEach { row ->
-                findViewById<View>(row.rowId)?.alpha = 1.0f
-                findViewById<ImageView>(row.iconId)?.alpha = if (isPremium) 1.0f else 0.55f
-                findViewById<View>(row.lockId)?.visibility = if (isPremium) View.GONE else View.VISIBLE
+                // Locked: a PREMIUM chip beside the title, a small gold lock on the
+                // right instead of the arrow, and a gold "Premium · tap to unlock"
+                // subtitle. Premium shops see the normal row.
+                findViewById<View>(row.rowId)?.apply { alpha = 1.0f; background = null }
+                findViewById<ImageView>(row.iconId)?.alpha = 1.0f
+                findViewById<View>(row.lockId)?.visibility = View.GONE
+                findViewById<View>(row.chipId)?.visibility = View.GONE // chip retired: subtitle says "Premium · Tap to unlock"
+                findViewById<View>(row.chevronId)?.visibility = if (isPremium) View.VISIBLE else View.GONE
+                findViewById<View>(row.lockBtnId)?.visibility = if (isPremium) View.GONE else View.VISIBLE
                 findViewById<TextView>(row.subId)?.apply {
                     if (isPremium) {
                         text = row.defaultSub
                         setTextColor(0xFF9A968C.toInt())
+                        setTypeface(typeface, android.graphics.Typeface.NORMAL)
                     } else {
-                        text = getString(R.string.dashboard_upgrade_to_unlock)
-                        setTextColor(0xFFB8895A.toInt())
+                        text = getString(R.string.dashboard_premium_tap_to_unlock)
+                        setTextColor(0xFF8A6526.toInt())
+                        setTypeface(typeface, android.graphics.Typeface.BOLD)
                     }
                 }
             }
@@ -2486,8 +2499,8 @@ class DashboardActivity : BaseActivity() {
             // per-category colour from the shared palette.
             val accent = if (tag.isEmpty()) android.graphics.Color.parseColor("#0F6E56")
                          else railChipColor(tag)
-            val strokeColor = if (selected) accent else android.graphics.Color.parseColor("#E4DCC8")
-            val textColor = if (selected) accent else android.graphics.Color.parseColor("#6E6A60")
+            val strokeColor = if (selected) accent else android.graphics.Color.parseColor("#D5DDD8")
+            val textColor = if (selected) accent else android.graphics.Color.parseColor("#5B6660")
 
             pill.background = android.graphics.drawable.GradientDrawable().apply {
                 shape = android.graphics.drawable.GradientDrawable.RECTANGLE
@@ -2622,7 +2635,7 @@ class DashboardActivity : BaseActivity() {
 
         val list = android.widget.LinearLayout(this).apply {
             orientation = android.widget.LinearLayout.VERTICAL
-            setBackgroundResource(R.drawable.bg_filter_popover)
+            setBackgroundResource(R.drawable.bg_lg_popover)
             setPadding(dp(6), dp(6), dp(6), dp(6))
         }
         val rows = mutableListOf<View>()
@@ -2630,7 +2643,7 @@ class DashboardActivity : BaseActivity() {
             val row = android.widget.LinearLayout(this).apply {
                 orientation = android.widget.LinearLayout.HORIZONTAL
                 gravity = android.view.Gravity.CENTER_VERTICAL
-                setBackgroundResource(R.drawable.bg_imp_card)
+                setBackgroundResource(R.drawable.bg_lg_card)
                 setPadding(dp(13), dp(12), dp(13), dp(12))
                 isClickable = true
                 isFocusable = true
@@ -2676,7 +2689,7 @@ class DashboardActivity : BaseActivity() {
         anchor.setBackgroundResource(R.drawable.bg_hdr_tile_active)
         anchor.animate().translationZ(8f * d).setDuration(150).start()
         popup.setOnDismissListener {
-            anchor.setBackgroundResource(R.drawable.bg_hdr_tile)
+            anchor.setBackgroundResource(R.drawable.bg_lg_tile)
             anchor.animate().translationZ(0f).setDuration(150).start()
         }
         popup.showAsDropDown(anchor, 0, dp(3), android.view.Gravity.END)
@@ -2884,7 +2897,7 @@ class DashboardActivity : BaseActivity() {
         filterAnchor.setBackgroundResource(R.drawable.bg_hdr_tile_active)
         filterAnchor.animate().translationZ(8f * popDensity).setDuration(150).start()
         popup.setOnDismissListener {
-            filterAnchor.setBackgroundResource(R.drawable.bg_hdr_tile)
+            filterAnchor.setBackgroundResource(R.drawable.bg_lg_tile)
             filterAnchor.animate().translationZ(0f).setDuration(150).start()
         }
 

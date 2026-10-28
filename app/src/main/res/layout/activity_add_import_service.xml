@@ -26,7 +26,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F3ECDD">
+    android:background="@drawable/bg_lg_page">
 
     <!-- Same toolbar as the list screen: transparent MaterialToolbar, back
          icon and click handling supplied by BaseActivity.setupToolbar. -->
@@ -129,18 +129,18 @@
             android:paddingBottom="16dp">
 
             <!-- ===================== INVOICE (step 1, teal) ===================== -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_addp_card">
+                android:background="@drawable/bg_lg_card">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_customer_header"
+                    android:background="@drawable/bg_lg_hdr_green"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp">
                     <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -217,13 +217,13 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/invoice_number_2"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                     <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
-                                android:background="@drawable/bg_inv_field_light_grey"
+                                android:background="@drawable/bg_lg_field"
                                 android:paddingHorizontal="12dp"
                                 android:clickable="true"
                                 android:focusable="true">
@@ -239,7 +239,7 @@
                                 android:layout_height="match_parent"
                                 android:background="@null"
                                 android:layout_marginStart="12dp"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
                                 android:id="@+id/etInvoiceNumber" android:hint="@string/as_printed_on_invoice" android:inputType="textCapCharacters" />
@@ -254,13 +254,13 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/purchase_invoice_date_label"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
-                                android:background="@drawable/bg_inv_field_light_grey"
+                                android:background="@drawable/bg_lg_field"
                                 android:paddingHorizontal="12dp"
                                 android:clickable="true"
                                 android:focusable="true">
@@ -274,7 +274,7 @@
                                 <ImageView
                                     android:layout_width="18dp" android:layout_height="18dp"
                                     android:layout_gravity="center_vertical|end" android:layout_marginEnd="14dp"
-                                    android:src="@drawable/ic_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
+                                    android:src="@drawable/ic_chevron_down" app:tint="#BBC2BE" android:contentDescription="@null"/>
                             </LinearLayout>
                         </LinearLayout>
 
@@ -292,7 +292,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="@string/invoice_value_2"
                                     android:textSize="12.5sp"
-                                    android:textColor="#9A8F79" />
+                                    android:textColor="#7C8782" />
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
@@ -311,7 +311,7 @@
                                 android:layout_height="50dp"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
-                                android:background="@drawable/bg_inv_subcard_accent_amber"
+                                android:background="@drawable/bg_lg_inv_subcard_accent_amber"
                                 android:paddingHorizontal="12dp"
                                 android:clickable="true"
                                 android:focusable="true">
@@ -325,7 +325,7 @@
                                 android:layout_height="match_parent"
                                 android:background="@null"
                                 android:layout_marginStart="12dp"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
                                 android:id="@+id/etInvoiceValue" android:fontFamily="serif" android:hint="@string/auto_calculated" android:inputType="numberDecimal" />
@@ -333,14 +333,14 @@
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- ===================== TAX & CREDIT (step 2, gold) ===================== -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_addp_card"
+                android:background="@drawable/bg_lg_card"
                 android:layout_marginTop="16dp">
 
                 <LinearLayout
@@ -348,7 +348,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_items_header"
+                    android:background="@drawable/bg_lg_hdr_amber"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp">
                     <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -378,7 +378,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/igst_calc_helper"
-                            android:textColor="#8A7550"
+                            android:textColor="#66746C"
                             android:textSize="11sp"/>
                     </LinearLayout>
                 </LinearLayout>
@@ -401,13 +401,13 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/gst_rate_pct"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                         <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
-                                android:background="@drawable/bg_inv_field_light_grey"
+                                android:background="@drawable/bg_lg_field"
                                 android:paddingHorizontal="12dp"
                                 android:clickable="true"
                                 android:focusable="true">
@@ -423,7 +423,7 @@
                                 android:layout_height="match_parent"
                                 android:background="@null"
                                 android:layout_marginStart="12dp"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
                                 android:id="@+id/etRate" android:hint="@string/applicable_rate" android:inputType="numberDecimal" />
@@ -440,13 +440,13 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/taxable_value_rupees"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                         <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
-                                android:background="@drawable/bg_inv_field_light_grey"
+                                android:background="@drawable/bg_lg_field"
                                 android:paddingHorizontal="12dp"
                                 android:clickable="true"
                                 android:focusable="true">
@@ -462,7 +462,7 @@
                                 android:layout_height="match_parent"
                                 android:background="@null"
                                 android:layout_marginStart="12dp"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
                                 android:id="@+id/etTaxableValue" android:hint="@string/value_before_tax" android:inputType="numberDecimal" />
@@ -482,7 +482,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/igst_paid_rupees"
                         android:textSize="12.5sp"
-                        android:textColor="#9A8F79" />
+                        android:textColor="#7C8782" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -501,7 +501,7 @@
                                 android:layout_height="50dp"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
-                                android:background="@drawable/bg_inv_subcard_accent_amber"
+                                android:background="@drawable/bg_lg_inv_subcard_accent_amber"
                                 android:paddingHorizontal="12dp"
                                 android:clickable="true"
                                 android:focusable="true">
@@ -515,7 +515,7 @@
                                 android:layout_height="match_parent"
                                 android:background="@null"
                                 android:layout_marginStart="12dp"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 
                                 android:textSize="15sp"
                                 android:id="@+id/etIgstPaid" android:textColor="#185FA5" android:hint="@string/auto_calculated" android:inputType="numberDecimal" />
@@ -525,7 +525,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="0.5dp"
                     android:layout_marginTop="12dp"
-                    android:background="#F1EBDD" />
+                    android:background="#E3E8E4" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -545,7 +545,7 @@
                         android:layout_marginStart="7dp"
                         android:text="@string/igst_calc_helper"
                         android:textSize="10.5sp"
-                        android:textColor="#9A8F79"
+                        android:textColor="#7C8782"
                         android:lineSpacingExtra="2dp" />
                 </LinearLayout>
 
@@ -576,21 +576,21 @@
                             android:text="@string/import_services_more_details_label"
                             android:textSize="12sp"
                             android:fontFamily="@font/googlesans_medium"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="@string/import_services_more_details_subtitle"
                             android:textSize="10.5sp"
-                            android:textColor="#9A968C"/>
+                            android:textColor="#8D9992"/>
                     </LinearLayout>
                     <ImageView
                         android:id="@+id/ivImportMoreDetailsChevron"
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/ic_lc_chevron_down"
-                        app:tint="#6E6A60"
+                        app:tint="#5B6660"
                         android:contentDescription="@null"/>
                 </LinearLayout>
 
@@ -610,7 +610,7 @@
                                 android:layout_height="50dp"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
-                                android:background="@drawable/bg_inv_field_light_grey"
+                                android:background="@drawable/bg_lg_field"
                                 android:paddingHorizontal="12dp"
                                 android:clickable="true"
                                 android:focusable="true">
@@ -622,7 +622,7 @@
                                 <ImageView
                                     android:layout_width="18dp" android:layout_height="18dp"
                                     android:layout_gravity="center_vertical|end" android:layout_marginEnd="14dp"
-                                    android:src="@drawable/ic_chevron_down" app:tint="#C9C3B4" android:contentDescription="@null"/>
+                                    android:src="@drawable/ic_chevron_down" app:tint="#BBC2BE" android:contentDescription="@null"/>
                     </LinearLayout>
 
                     <TextView
@@ -634,7 +634,7 @@
                                 android:layout_height="50dp"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
-                                android:background="@drawable/bg_inv_field_light_grey"
+                                android:background="@drawable/bg_lg_field"
                                 android:paddingHorizontal="12dp"
                                 android:clickable="true"
                                 android:focusable="true">
@@ -648,7 +648,7 @@
                                 android:layout_height="match_parent"
                                 android:background="@null"
                                 android:layout_marginStart="12dp"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
                                 android:id="@+id/etCessPaid" android:hint="@string/purchase_cess_paid_hint" android:inputType="numberDecimal" />
@@ -658,7 +658,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="0.5dp"
                         android:layout_marginTop="14dp"
-                        android:background="#F1EBDD" />
+                        android:background="#E3E8E4" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -682,7 +682,7 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/eligibility"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -705,7 +705,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:text="@string/import_services_eligibility_helper"
-                        android:textColor="#9A968C"
+                        android:textColor="#8D9992"
                         android:textSize="11.5sp"/>
 
                     <!--
@@ -733,13 +733,13 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/availed_itc_igst"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
-                                android:background="@drawable/bg_inv_field_light_grey"
+                                android:background="@drawable/bg_lg_field"
                                 android:paddingHorizontal="12dp"
                                 android:clickable="true"
                                 android:focusable="true">
@@ -753,7 +753,7 @@
                                 android:layout_height="match_parent"
                                 android:background="@null"
                                 android:layout_marginStart="12dp"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
                                 android:id="@+id/etAvailedItcIgst" android:hint="@string/up_to_tax_paid" android:inputType="numberDecimal" />
@@ -765,7 +765,7 @@
                                 android:layout_marginTop="4dp"
                                 android:text="@string/activity_add_import_service_of_000_paid"
                                 android:textSize="10sp"
-                                android:textColor="#9A8F79" />
+                                android:textColor="#7C8782" />
                         </LinearLayout>
 
                         <View android:layout_width="10dp" android:layout_height="1dp" />
@@ -778,13 +778,13 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/availed_itc_cess"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
-                                android:background="@drawable/bg_inv_field_light_grey"
+                                android:background="@drawable/bg_lg_field"
                                 android:paddingHorizontal="12dp"
                                 android:clickable="true"
                                 android:focusable="true">
@@ -798,7 +798,7 @@
                                 android:layout_height="match_parent"
                                 android:background="@null"
                                 android:layout_marginStart="12dp"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
                                 android:id="@+id/etAvailedItcCess" android:hint="@string/up_to_tax_paid" android:inputType="numberDecimal" />
@@ -810,12 +810,12 @@
                                 android:layout_marginTop="4dp"
                                 android:text="@string/activity_add_import_service_of_000_paid"
                                 android:textSize="10sp"
-                                android:textColor="#9A8F79" />
+                                android:textColor="#7C8782" />
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
         </LinearLayout>
     </ScrollView>
 
@@ -843,7 +843,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="@drawable/bg_addp_footer_capsule"
+            android:background="@drawable/bg_lg_footer"
             android:paddingStart="20dp"
             android:paddingEnd="8dp"
             android:paddingVertical="8dp"
@@ -858,14 +858,14 @@
                 android:textAllCaps="false"
                 android:textSize="13.5sp"
                 android:textStyle="bold"
-                android:textColor="#8A8272"
+                android:textColor="#6B7770"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 android:background="@android:color/transparent"
                 android:stateListAnimator="@null"
                 app:rippleColor="#00000000"
                 app:icon="@drawable/ic_close"
-                app:iconTint="#B0A895"
+                app:iconTint="#9AA59F"
                 app:iconSize="13dp"
                 app:iconGravity="textStart"
                 app:iconPadding="6dp"
@@ -889,7 +889,7 @@
                 android:fontFamily="@font/googlesans_semibold"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
-                android:background="@drawable/bg_addp_save_pill_sheen"
+                android:background="@drawable/bg_lg_cta_green_16"
                 android:stateListAnimator="@null"
                 app:rippleColor="#2E9C5B"
                 app:icon="@drawable/ic_check_badge_combo"

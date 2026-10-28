@@ -107,6 +107,20 @@ interface BillDao {
     """)
     suspend fun markPaymentStatus(billNumber: String, status: String, razorpayPaymentId: String?): Int
 
+    // Mark as paid on the phone first; the server is told by a sync step (paid_push_pending).
+    @Query("""
+        UPDATE bills
+        SET payment_status = 'paid', paid_push_pending = 1
+        WHERE id = :id AND payment_status != 'paid'
+    """)
+    suspend fun markPaidOnPhone(id: Int): Int
+
+    @Query("SELECT * FROM bills WHERE paid_push_pending = 1")
+    suspend fun getPaidPushPending(): List<Bill>
+
+    @Query("UPDATE bills SET paid_push_pending = 0 WHERE id = :id")
+    suspend fun clearPaidPush(id: Int)
+
     // ===== Profit-analytics pulse (Report 5 fix) =====
 
     // Only bills that already have a real server bill number (is_synced=1)

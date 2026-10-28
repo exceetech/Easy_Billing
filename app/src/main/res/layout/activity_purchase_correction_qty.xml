@@ -8,7 +8,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" android:background="#F3ECDD">
+    android:orientation="vertical" android:background="@drawable/bg_lg_page">
 
     <FrameLayout android:layout_width="match_parent" android:layout_height="?attr/actionBarSize">
         <ImageView android:id="@+id/btnQtyBack" android:layout_width="48dp" android:layout_height="48dp"
@@ -45,12 +45,13 @@
                 android:textSize="12.5sp" android:lineSpacingExtra="2dp"/>
 
             <!-- STEP 1 · ITEM -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="vertical" android:background="@drawable/bg_addp_card" android:layout_marginTop="12dp">
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" 
+                android:background="@drawable/bg_lg_card" android:layout_marginTop="12dp">
 
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center_vertical"
-            android:background="@drawable/bg_inv_customer_header" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
+            android:background="@drawable/bg_lg_hdr_green" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
             <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
                 <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -73,15 +74,16 @@
 
                 <LinearLayout android:id="@+id/llQtyItems" android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="vertical" android:padding="16dp"/>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- STEP 2 · WHAT HAPPENED -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="vertical" android:background="@drawable/bg_addp_card" android:layout_marginTop="12dp">
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" 
+                android:background="@drawable/bg_lg_card" android:layout_marginTop="12dp">
 
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center_vertical"
-            android:background="@drawable/bg_inv_customer_header" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
+            android:background="@drawable/bg_lg_hdr_green" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
             <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
                 <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -118,7 +120,7 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_qty_less_title"
                         android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                        android:text="@string/correct_qty_less_desc" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                        android:text="@string/correct_qty_less_desc" android:textSize="10.5sp" android:textColor="#76867C"/>
                 </LinearLayout>
                 <View android:id="@+id/checkQtyLess" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
             </LinearLayout>
@@ -136,45 +138,47 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_qty_more_title"
                         android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                        android:text="@string/correct_qty_more_desc" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                        android:text="@string/correct_qty_more_desc" android:textSize="10.5sp" android:textColor="#76867C"/>
                 </LinearLayout>
                 <View android:id="@+id/checkQtyMore" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
             </LinearLayout>
 
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="64dp" android:layout_marginTop="14dp"
-                        android:orientation="horizontal" android:background="@drawable/bg_batch_edge_bar" android:clipToOutline="true">
+                    <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:layout_width="match_parent" android:layout_height="64dp" android:layout_marginTop="14dp"
+                        android:orientation="horizontal" android:background="@drawable/bg_lg_amount_bar" >
                         <com.google.android.material.button.MaterialButton android:id="@+id/btnQtyMinus"
                             android:layout_width="64dp" android:layout_height="match_parent" android:minWidth="0dp" android:minHeight="0dp"
                             android:text="−" android:textAllCaps="false" android:textSize="26sp" android:textColor="#1D6E6E" android:padding="0dp"
                             android:insetLeft="0dp" android:insetRight="0dp" android:insetTop="0dp" android:insetBottom="0dp"
                             android:stateListAnimator="@null" app:elevation="0dp" app:cornerRadius="0dp"
                             app:backgroundTint="#FFFFFF" app:strokeWidth="0dp" app:rippleColor="#14000000"/>
-                        <View android:layout_width="1dp" android:layout_height="match_parent" android:background="#EDE6D5"/>
+                        <View android:layout_width="1dp" android:layout_height="match_parent" android:background="#E3E8E4"/>
                         <EditText android:id="@+id/etPens" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
                             android:gravity="center" android:inputType="numberDecimal" android:textSize="26sp" android:textColor="#1A1A18"
                             android:fontFamily="serif" android:textStyle="bold" android:background="@android:color/transparent"
-                            android:padding="0dp" android:hint="0" android:textColorHint="#C9BFA8"
+                            android:padding="0dp" android:hint="0" android:textColorHint="#B4BDB8"
                             android:importantForAutofill="no"/>
-                        <View android:layout_width="1dp" android:layout_height="match_parent" android:background="#EDE6D5"/>
+                        <View android:layout_width="1dp" android:layout_height="match_parent" android:background="#E3E8E4"/>
                         <com.google.android.material.button.MaterialButton android:id="@+id/btnQtyPlus"
                             android:layout_width="64dp" android:layout_height="match_parent" android:minWidth="0dp" android:minHeight="0dp"
                             android:text="+" android:textAllCaps="false" android:textSize="26sp" android:textColor="#FFFFFF" android:padding="0dp"
                             android:insetLeft="0dp" android:insetRight="0dp" android:insetTop="0dp" android:insetBottom="0dp"
                             android:stateListAnimator="@null" app:elevation="0dp" app:cornerRadius="0dp"
-                            app:backgroundTint="#1D6E6E" app:strokeWidth="0dp" app:rippleColor="#33FFFFFF"/>
-                    </LinearLayout>
+                            android:background="@drawable/bg_lg_cta_teal_0"
+        app:backgroundTint="@null" app:strokeWidth="0dp" app:rippleColor="#33FFFFFF"/>
+                    </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
                     <TextView android:id="@+id/tvQtyHint" android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp" android:gravity="center" android:textSize="10.5sp" android:textColor="#9A8F76"/>
+                        android:layout_marginTop="6dp" android:gravity="center" android:textSize="10.5sp" android:textColor="#818F87"/>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- STEP 3 · REASON -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="vertical" android:background="@drawable/bg_addp_card" android:layout_marginTop="12dp">
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" 
+                android:background="@drawable/bg_lg_card" android:layout_marginTop="12dp">
 
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center_vertical"
-            android:background="@drawable/bg_inv_customer_header" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
+            android:background="@drawable/bg_lg_hdr_green" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
             <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
                 <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -190,8 +194,8 @@
                     android:text="@string/correct_qty_step3_sub" android:textColor="#3E6F62" android:textSize="11sp"/>
             </LinearLayout>
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:background="@drawable/bg_pill_grey_soft" android:paddingHorizontal="10dp" android:paddingVertical="3dp"
-            android:text="@string/correct_qty_optional" android:textColor="#8A8272" android:textSize="10sp"
+            android:background="@drawable/bg_lg_pill_grey" android:paddingHorizontal="10dp" android:paddingVertical="3dp"
+            android:text="@string/correct_qty_optional" android:textColor="#76867C" android:textSize="10sp"
             android:fontFamily="@font/googlesans_semibold"/>
         </LinearLayout>
 
@@ -210,7 +214,7 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_qty_reason_qty"
                         android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                        android:text="@string/correct_qty_reason_qty_desc" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                        android:text="@string/correct_qty_reason_qty_desc" android:textSize="10.5sp" android:textColor="#76867C"/>
                 </LinearLayout>
                 <View android:id="@+id/checkReason0" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
             </LinearLayout>
@@ -228,7 +232,7 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_qty_reason_damaged"
                         android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                        android:text="@string/correct_qty_reason_damaged_desc" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                        android:text="@string/correct_qty_reason_damaged_desc" android:textSize="10.5sp" android:textColor="#76867C"/>
                 </LinearLayout>
                 <View android:id="@+id/checkReason1" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
             </LinearLayout>
@@ -246,7 +250,7 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_qty_reason_short"
                         android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                        android:text="@string/correct_qty_reason_short_desc" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                        android:text="@string/correct_qty_reason_short_desc" android:textSize="10.5sp" android:textColor="#76867C"/>
                 </LinearLayout>
                 <View android:id="@+id/checkReason2" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
             </LinearLayout>
@@ -264,21 +268,22 @@
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/correct_qty_reason_extra"
                         android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18"/>
                     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp"
-                        android:text="@string/correct_qty_reason_extra_desc" android:textSize="10.5sp" android:textColor="#8A8272"/>
+                        android:text="@string/correct_qty_reason_extra_desc" android:textSize="10.5sp" android:textColor="#76867C"/>
                 </LinearLayout>
                 <View android:id="@+id/checkReason3" android:layout_width="22dp" android:layout_height="22dp" android:background="@drawable/bg_radio_unselected"/>
             </LinearLayout>
 
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- STEP 4 · WHAT WILL CHANGE -->
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="vertical" android:background="@drawable/bg_addp_card" android:layout_marginTop="12dp">
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" 
+                android:background="@drawable/bg_lg_card" android:layout_marginTop="12dp">
 
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center_vertical"
-            android:background="@drawable/bg_inv_items_header" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
+            android:background="@drawable/bg_lg_hdr_amber" android:paddingHorizontal="16dp" android:paddingVertical="14dp">
             <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
                 <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring_champagne"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -298,7 +303,7 @@
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="vertical" android:padding="16dp">
                     <TextView android:id="@+id/tvQtyMsg" android:layout_width="match_parent" android:layout_height="wrap_content"
-                        android:textSize="13sp" android:textColor="#8A8272" android:lineSpacingExtra="2dp"/>
+                        android:textSize="13sp" android:textColor="#76867C" android:lineSpacingExtra="2dp"/>
                     <LinearLayout android:id="@+id/llQtyOk" android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:orientation="vertical" android:visibility="gone">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -320,7 +325,7 @@
                         <LinearLayout android:id="@+id/llQtyAcc" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="vertical" android:visibility="gone"/>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
         </LinearLayout>
     </ScrollView>
 
@@ -332,18 +337,18 @@
             android:layout_marginBottom="12dp" android:background="@drawable/bg_gold_accent_tick"/>
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
             android:orientation="horizontal" android:gravity="center_vertical"
-            android:background="@drawable/bg_addp_footer_capsule" android:paddingStart="20dp" android:paddingEnd="8dp"
+            android:background="@drawable/bg_lg_footer" android:paddingStart="20dp" android:paddingEnd="8dp"
             android:paddingVertical="8dp" android:elevation="3dp" android:baselineAligned="false">
             <LinearLayout android:id="@+id/btnQtyCancel" android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:orientation="horizontal" android:gravity="center_vertical" android:clickable="true" android:focusable="true">
                 <ImageView android:layout_width="13dp" android:layout_height="13dp" android:src="@drawable/ic_close"
-                    app:tint="#B0A895" android:layout_marginEnd="6dp" android:contentDescription="@null"/>
+                    app:tint="#9DA8A1" android:layout_marginEnd="6dp" android:contentDescription="@null"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/cancel"
-                    android:textColor="#8A8272" android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold"/>
+                    android:textColor="#76867C" android:textSize="13.5sp" android:fontFamily="@font/googlesans_semibold"/>
             </LinearLayout>
             <LinearLayout android:id="@+id/btnQtySave" android:layout_width="0dp" android:layout_weight="1" android:layout_height="50dp"
                 android:layout_marginStart="14dp" android:orientation="horizontal" android:gravity="center"
-                android:background="@drawable/bg_addp_save_pill_sheen" android:clickable="true" android:focusable="true">
+                android:background="@drawable/bg_lg_cta" android:clickable="true" android:focusable="true">
                 <FrameLayout android:layout_width="20dp" android:layout_height="20dp" android:layout_marginEnd="8dp">
                     <View android:layout_width="20dp" android:layout_height="20dp" android:background="@drawable/bg_check_badge_translucent"/>
                     <ImageView android:layout_width="11dp" android:layout_height="11dp" android:layout_gravity="center"

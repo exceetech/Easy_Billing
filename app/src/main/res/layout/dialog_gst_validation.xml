@@ -15,7 +15,7 @@
 
     android:orientation="vertical"
     android:padding="22dp"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -79,7 +79,7 @@
         android:id="@+id/tvMessage"
         android:text="@string/xml_gst_validation_message"
         android:textSize="12.5sp"
-        android:textColor="#8A8272"
+        android:textColor="#76867C"
         android:gravity="center"
         android:layout_marginTop="6dp"
         android:lineSpacingExtra="2dp"
@@ -92,7 +92,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/bg_inv_value_card"
+        android:background="@drawable/bg_lg_card"
         android:layout_marginTop="14dp"
         android:visibility="gone">
 
@@ -123,7 +123,8 @@
         android:textSize="13sp"
         android:fontFamily="@font/googlesans_semibold"
         android:includeFontPadding="false"
-        app:backgroundTint="#0F6E56"
+        android:background="@drawable/bg_lg_cta_green_14"
+        app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:stateListAnimator="@null"

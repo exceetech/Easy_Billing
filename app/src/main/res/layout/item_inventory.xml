@@ -90,7 +90,7 @@
                     android:layout_marginTop="3dp"
                     android:text="@string/xml_inventory_category_variant_placeholder"
                     android:textSize="10sp"
-                    android:textColor="#9A8F79"
+                    android:textColor="#7C8782"
                     android:maxLines="1"
                     android:ellipsize="end"/>
 
@@ -156,7 +156,7 @@
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
         android:layout_marginStart="18dp"
-        android:background="#F1EBDD" />
+        android:background="#E3E8E4" />
 
     <!-- Retained so InventoryAdapter's ViewHolder findViewById calls for
          legacy ids don't need touching outside this file; unused/hidden

@@ -15,7 +15,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4F0E6">
+    android:background="@drawable/bg_lg_page">
 
     <!-- Icon tile + two ambient pulsing rings, matching Quick Unlock. -->
     <View
@@ -96,7 +96,7 @@
         android:layout_marginTop="6dp"
         android:text="Choose an account to continue"
         android:textSize="13sp"
-        android:textColor="#8A8272"
+        android:textColor="#76867C"
         android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/titleRow"
         app:layout_constraintStart_toStartOf="parent"
@@ -140,7 +140,7 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:layout_marginBottom="14dp">
-            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" android:background="#EAE2D1"/>
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" android:background="#E3E8E4"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -150,8 +150,8 @@
                 android:textSize="9.5sp"
                 android:textStyle="bold"
                 android:letterSpacing="0.08"
-                android:textColor="#B8AF9C"/>
-            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" android:background="#EAE2D1"/>
+                android:textColor="#A5AFA9"/>
+            <View android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" android:background="#E3E8E4"/>
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
@@ -190,7 +190,7 @@
             android:layout_height="44dp"
             android:text="Create a new account"
             android:textAllCaps="false"
-            android:textColor="#8A8272"
+            android:textColor="#76867C"
             android:textStyle="bold"
             android:textSize="12.5sp"
             android:fontFamily="@font/googlesans_semibold"
@@ -205,7 +205,7 @@
             android:stateListAnimator="@null"
             app:elevation="0dp"
             app:icon="@drawable/ic_lucide_plus"
-            app:iconTint="#8A8272"
+            app:iconTint="#76867C"
             app:iconSize="13dp"
             app:iconGravity="textStart"
             app:iconPadding="8dp"

@@ -17,7 +17,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="24dp"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -93,7 +93,7 @@
         android:layout_marginTop="14dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@drawable/bg_soft_card_row"
+        android:background="@drawable/bg_lg_field"
         android:paddingHorizontal="13dp"
         android:paddingVertical="8dp">
 
@@ -177,7 +177,7 @@
         android:id="@+id/tvMessage"
         android:text="@string/dialog_confirm_delete_message_default"
         android:textSize="14sp"
-        android:textColor="#6E6656"
+        android:textColor="#5C6861"
         android:gravity="center"
         android:layout_marginTop="14dp"
         android:lineSpacingExtra="3dp"
@@ -191,7 +191,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
         android:orientation="horizontal"
-        android:background="@drawable/bg_soft_card_row"
+        android:background="@drawable/bg_lg_field"
         android:paddingHorizontal="12dp"
         android:paddingVertical="11dp"
         android:visibility="gone">
@@ -212,7 +212,7 @@
             android:layout_marginStart="9dp"
             android:text="@string/dialog_cant_remove_tip"
             android:textSize="12.5sp"
-            android:textColor="#6E6656"
+            android:textColor="#5C6861"
             android:lineSpacingExtra="2dp"/>
     </LinearLayout>
 
@@ -231,7 +231,8 @@
         android:fontFamily="@font/googlesans_semibold"
         android:includeFontPadding="false"
         android:gravity="center"
-        app:backgroundTint="#B23A3A"
+        android:background="@drawable/bg_lg_cta_red_15"
+        app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:insetLeft="0dp"

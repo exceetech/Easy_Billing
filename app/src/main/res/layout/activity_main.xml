@@ -16,11 +16,19 @@
     from a horizontal weighted split to a vertical stack, so none of that
     Kotlin code needed to change.
 -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:overScrollMode="never"
+    android:scrollbars="none"
+    android:background="@drawable/bg_lg_page">
+
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_login_doodle"
+    
     android:focusable="true"
     android:focusableInTouchMode="true">
 
@@ -34,10 +42,10 @@
         android:layout_marginVertical="24dp"
         android:foreground="@drawable/bg_login_card_glass_sheen"
         app:cardCornerRadius="22dp"
-        app:cardElevation="10dp"
-        app:cardBackgroundColor="#F2FBF9F4"
-        app:strokeColor="#D8C3A0"
-        app:strokeWidth="1.5dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="#D6FFFFFF"
+        app:strokeColor="#F2FFFFFF"
+        app:strokeWidth="1dp"
         app:rippleColor="#00000000"
         app:layout_constraintWidth_max="640dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -87,18 +95,20 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/ex_word"
-                        android:textColor="#1A1A18"
-                        android:textSize="30sp"
+                        android:textColor="#0B3B30"
+                        android:textSize="38sp"
                         android:fontFamily="@font/marcellus"
-                        android:textStyle="bold"/>
+                android:includeFontPadding="false"
+                        android:textStyle="normal"/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/pos_word"
-                        android:textColor="#B8895A"
-                        android:textSize="30sp"
+                        android:textColor="#8A6526"
+                        android:textSize="38sp"
                         android:fontFamily="@font/marcellus"
-                        android:textStyle="bold"/>
+                android:includeFontPadding="false"
+                        android:textStyle="normal"/>
                 </LinearLayout>
 
                 <TextView
@@ -107,7 +117,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
                     android:text="@string/point_of_sale_tagline"
-                    android:textColor="#9A8F79"
+                    android:textColor="#7C8782"
                     android:textSize="10sp"
                     android:letterSpacing="0.18"
                     android:fontFamily="@font/googlesans_semibold"/>
@@ -134,7 +144,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:text="@string/feature_gst_billing"
-                            android:textColor="#3A3733"
+                            android:textColor="#333A36"
                             android:textSize="13sp"
                             android:fontFamily="@font/googlesans_medium"/>
                     </LinearLayout>
@@ -155,7 +165,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:text="@string/feature_live_inventory"
-                            android:textColor="#3A3733"
+                            android:textColor="#333A36"
                             android:textSize="13sp"
                             android:fontFamily="@font/googlesans_medium"/>
                     </LinearLayout>
@@ -176,7 +186,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:text="@string/feature_business_analytics"
-                            android:textColor="#3A3733"
+                            android:textColor="#333A36"
                             android:textSize="13sp"
                             android:fontFamily="@font/googlesans_medium"/>
                     </LinearLayout>
@@ -188,7 +198,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginHorizontal="26dp"
-                android:background="#E6DDCB"/>
+                android:background="#E3E8E4"/>
 
             <!-- ===== FORM (was the right pane, now full width below the brand header) ===== -->
             <LinearLayout
@@ -205,7 +215,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:background="@drawable/bg_login_tab_track"
+                    android:background="@drawable/bg_lg_tab_track"
                     android:padding="3dp">
                     <TextView
                         android:layout_width="0dp"
@@ -217,7 +227,7 @@
                         android:textColor="#FFFFFF"
                         android:textSize="13sp"
                         android:fontFamily="@font/googlesans_semibold"
-                        android:background="@drawable/bg_login_tab_active"/>
+                        android:background="@drawable/bg_lg_tab_active"/>
                     <TextView
                         android:id="@+id/tvRegister"
                         android:layout_width="0dp"
@@ -226,7 +236,7 @@
                         android:gravity="center"
                         android:paddingVertical="8dp"
                         android:text="@string/sign_up"
-                        android:textColor="#8C8576"
+                        android:textColor="#7C8782"
                         android:textSize="13sp"
                         android:fontFamily="@font/googlesans_semibold"
                         android:clickable="true"
@@ -248,14 +258,14 @@
                         android:layout_marginBottom="6dp"
                         android:text="@string/email_address"
                         android:textSize="12.5sp"
-                        android:textColor="#9A968C"
+                        android:textColor="#8D9992"
                         android:fontFamily="@font/googlesans_regular"/>
 
                     <FrameLayout
                         android:id="@+id/usernameContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_glass_input">
+                        android:background="@drawable/bg_lg_input">
                         <ImageView
                             android:id="@+id/iconUsername"
                             android:layout_width="19dp"
@@ -276,7 +286,7 @@
                             android:paddingEnd="14dp"
                             android:hint="@string/email"
                             android:textColor="#1A1A18"
-                            android:textColorHint="#A99E88"
+                            android:textColorHint="#929F97"
                             android:inputType="textEmailAddress"
                             android:singleLine="true"
                             android:textSize="14sp"/>
@@ -290,14 +300,14 @@
                         android:layout_marginBottom="6dp"
                         android:text="@string/password"
                         android:textSize="12.5sp"
-                        android:textColor="#9A968C"
+                        android:textColor="#8D9992"
                         android:fontFamily="@font/googlesans_regular"/>
 
                     <FrameLayout
                         android:id="@+id/passwordContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_glass_input">
+                        android:background="@drawable/bg_lg_input">
                         <ImageView
                             android:id="@+id/iconPassword"
                             android:layout_width="19dp"
@@ -318,7 +328,7 @@
                             android:paddingEnd="46dp"
                             android:hint="@string/enter_your_password_hint"
                             android:textColor="#1A1A18"
-                            android:textColorHint="#A99E88"
+                            android:textColorHint="#929F97"
                             android:inputType="textPassword"
                             android:singleLine="true"
                             android:textSize="14sp"/>
@@ -354,7 +364,10 @@
                         android:layout_height="wrap_content"
                         android:minHeight="52dp"
                         android:layout_marginTop="14dp"
-                        android:background="@drawable/bg_login_cta_green"
+                        android:background="@drawable/bg_lg_cta"
+                        android:outlineSpotShadowColor="#0F6E56"
+                        android:outlineAmbientShadowColor="#0F6E56"
+                        android:elevation="6dp"
                         app:backgroundTint="@null"
                         android:text="@string/login"
                         android:textColor="#FFFFFF"
@@ -382,14 +395,14 @@
                         android:layout_width="15dp"
                         android:layout_height="15dp"
                         android:src="@drawable/ic_security_login"
-                        app:tint="#9A8F79"
+                        app:tint="#7C8782"
                         android:contentDescription="@null"/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="7dp"
                         android:text="@string/secured_encryption_note"
-                        android:textColor="#9A8F79"
+                        android:textColor="#7C8782"
                         android:textSize="10sp"/>
                 </LinearLayout>
 
@@ -452,7 +465,7 @@
         android:id="@+id/sessionCheckOverlay"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/bg_login_doodle"
+        android:background="@drawable/bg_lg_page"
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -468,3 +481,5 @@
     </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

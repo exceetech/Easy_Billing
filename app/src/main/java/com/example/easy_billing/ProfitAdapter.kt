@@ -173,7 +173,7 @@ class ProfitAdapter : ListAdapter<ProductProfitRaw, ProfitAdapter.VH>(Diff()) {
             "cost more than earned"
         holder.keptValue.text = if (keptNetPositive) money(netProfit) else "− ${money(-netProfit)}"
 
-        val keptBg = if (keptNetPositive) R.drawable.bg_inv_subcard_accent else R.drawable.bg_inv_subcard_accent_red
+        val keptBg = if (keptNetPositive) R.drawable.bg_lg_inv_subcard_accent else R.drawable.bg_lg_inv_subcard_accent_red
         holder.boxKept.setBackgroundResource(keptBg)
         val keptTextColor = if (keptNetPositive) "#0B4B3C" else "#7A2424"
         val keptCaptionColor = if (keptNetPositive) "#3E6E62" else "#9B5A5A"

@@ -165,7 +165,7 @@ class PurchaseLineDialog(
             if (etSSgst.text.isNullOrBlank() && v.sgst_percentage > 0)
                 etSSgst.setText(trimNum(v.sgst_percentage))
             if (etCessRate.text.isNullOrBlank())
-                etCessRate.setText(trimNum(v.cess_rate))
+                etCessRate.setText(if (v.cgst_percentage + v.sgst_percentage > 0) trimNum(v.cess_rate) else "0")
             if (spinnerSupplyClass.text.isNullOrBlank())
                 spinnerSupplyClass.setText(SupplyClassMapper.codeToDisplay("TAXABLE"), false)
         } finally {
@@ -316,6 +316,7 @@ class PurchaseLineDialog(
      */
     private fun applyImmersive(window: android.view.Window?) {
         window ?: return
+        com.example.easy_billing.util.KeyboardInsets.install(window)
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
             window.setDecorFitsSystemWindows(false)
             window.insetsController?.let { c ->
@@ -401,7 +402,7 @@ class PurchaseLineDialog(
                 tvTag.text = row?.tag
                 val isShop = row?.tag == activity.getString(R.string.add_product_tag_your_shop)
                 tvTag.setBackgroundResource(if (isShop) R.drawable.bg_search_tag_chip_shop else R.drawable.bg_search_tag_chip_neutral)
-                tvTag.setTextColor(android.graphics.Color.parseColor(if (isShop) "#0F6E56" else "#6E6A60"))
+                tvTag.setTextColor(android.graphics.Color.parseColor(if (isShop) "#0F6E56" else "#5B6660"))
             }
             return view
         }
@@ -634,6 +635,13 @@ class PurchaseLineDialog(
 
         /** Current rate shown by the sales trio, or null if none is set yet. */
         fun currentGstPct(): Double? {
+            if (userOverrotePurchaseTax &&
+                !(etPCgst.text.isNullOrBlank() && etPSgst.text.isNullOrBlank() && etPIgst.text.isNullOrBlank())) {
+                val pc = etPCgst.text?.toString()?.toDoubleOrNull() ?: 0.0
+                val ps = etPSgst.text?.toString()?.toDoubleOrNull() ?: 0.0
+                val pi = etPIgst.text?.toString()?.toDoubleOrNull() ?: 0.0
+                return (pc + ps).takeIf { it > 0 } ?: pi
+            }
             if (etSCgst.text.isNullOrBlank() && etSSgst.text.isNullOrBlank() && etSIgst.text.isNullOrBlank()) return null
             val c = etSCgst.text?.toString()?.toDoubleOrNull() ?: 0.0
             val s2 = etSSgst.text?.toString()?.toDoubleOrNull() ?: 0.0
@@ -648,13 +656,29 @@ class PurchaseLineDialog(
             etSIgst.setText(trimNum(pct))
         }
 
+        /** Locked product: change only this bill's supplier tax, never the product's saved rate. */
+        fun applySupplierOnlyPct(pct: Double) {
+            val intra = !viewModel.isImportedGoods.value && isIntraState(supplierState())
+            settingPurchaseTax = true
+            try {
+                if (intra) {
+                    etPCgst.setText(trimNum(pct / 2.0)); etPSgst.setText(trimNum(pct / 2.0)); etPIgst.setText("0")
+                } else {
+                    etPCgst.setText("0"); etPSgst.setText("0"); etPIgst.setText(trimNum(pct))
+                }
+            } finally { settingPurchaseTax = false }
+            userOverrotePurchaseTax = true
+        }
+        /** Extra lines under the tax split (cess, locked-rate note); filled in once the cess fields exist. */
+        var gstExtra: () -> String = { "" }
+
         val refreshGstUi = {
             val sBlank = etSCgst.text.isNullOrBlank() && etSSgst.text.isNullOrBlank() &&
                 etSIgst.text.isNullOrBlank()
             val sC = etSCgst.text?.toString()?.toDoubleOrNull() ?: 0.0
             val sS = etSSgst.text?.toString()?.toDoubleOrNull() ?: 0.0
             val sI = etSIgst.text?.toString()?.toDoubleOrNull() ?: 0.0
-            val pct: Double? = if (sBlank) null else ((sC + sS).takeIf { it > 0 } ?: sI)
+            val pct: Double? = currentGstPct()
 
             if (!etGstPct.hasFocus()) {
                 val shown = pct?.let { trimNum(it) } ?: ""
@@ -686,7 +710,7 @@ class PurchaseLineDialog(
             val pC = etPCgst.text?.toString()?.toDoubleOrNull() ?: 0.0
             val pS = etPSgst.text?.toString()?.toDoubleOrNull() ?: 0.0
             val pI = etPIgst.text?.toString()?.toDoubleOrNull() ?: 0.0
-            tvGstSplit.text = when {
+            val baseSplit = when {
                 sBlank && pC + pS + pI <= 0 -> activity.getString(R.string.purchase_line_gst_pick_hint)
                 pC + pS > 0 ->
                     "CGST ${trimNum(pC)}% \u00B7 \u20B9${"%.2f".format(taxable * pC / 100.0)}   " +
@@ -694,26 +718,29 @@ class PurchaseLineDialog(
                 pI > 0 -> "IGST ${trimNum(pI)}% \u00B7 \u20B9${"%.2f".format(taxable * pI / 100.0)}"
                 else -> activity.getString(R.string.purchase_line_gst_zero)
             }
+            tvGstSplit.text = baseSplit + gstExtra()
         }
 
         gstChips.forEachIndexed { i, chip ->
             chip.setOnClickListener {
                 // Locked (an existing product's saved rate) — same rule as the other master fields.
-                if (!etSCgst.isEnabled) return@setOnClickListener
                 etGstPct.clearFocus()
+                if (!etSCgst.isEnabled) { applySupplierOnlyPct(gstChipValues[i].toDouble()); return@setOnClickListener }
                 applyGstPct(gstChipValues[i].toDouble())
             }
         }
         // Stepper: -/+ one percent point at a time.
         btnGstMinus.setOnClickListener {
-            if (!etSCgst.isEnabled) return@setOnClickListener
             etGstPct.clearFocus()
-            applyGstPct(((currentGstPct() ?: 0.0) - 1.0).coerceAtLeast(0.0))
+            val m = ((currentGstPct() ?: 0.0) - 1.0).coerceAtLeast(0.0)
+            if (!etSCgst.isEnabled) { applySupplierOnlyPct(m); return@setOnClickListener }
+            applyGstPct(m)
         }
         btnGstPlus.setOnClickListener {
-            if (!etSCgst.isEnabled) return@setOnClickListener
             etGstPct.clearFocus()
-            applyGstPct(((currentGstPct() ?: 0.0) + 1.0).coerceAtMost(100.0))
+            val m = ((currentGstPct() ?: 0.0) + 1.0).coerceAtMost(100.0)
+            if (!etSCgst.isEnabled) { applySupplierOnlyPct(m); return@setOnClickListener }
+            applyGstPct(m)
         }
         // Typed custom rate (3, 0.25, 7.5 ...).
         etGstPct.addTextChangedListener {
@@ -841,6 +868,20 @@ class PurchaseLineDialog(
             }
         }
 
+        gstExtra = {
+            val sb = StringBuilder()
+            val rate = etCessRatePurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
+            val amt = etCessAmountPurchase.text?.toString()?.toDoubleOrNull() ?: 0.0
+            if (rate > 0 || amt > 0)
+                sb.append("\n").append(activity.getString(R.string.purchase_line_cess_line, trimNum(rate), "%.2f".format(amt),
+                    activity.getString(R.string.xml_purchase_line_dialog_tax_gst_details_label)))
+            if (!etSCgst.isEnabled && !etSCgst.text.isNullOrBlank())
+                sb.append("\n").append(activity.getString(R.string.purchase_line_tax_locked_note))
+            sb.toString()
+        }
+        listOf(etCessRatePurchase, etCessAmountPurchase).forEach { it.addTextChangedListener { refreshGstUi() } }
+        refreshGstUi()
+
         listOf(etTax, etCessRatePurchase, etPCgst, etPSgst, etPIgst).forEach {
             it.addTextChangedListener { recomputeCessAndItc() }
         }
@@ -855,7 +896,7 @@ class PurchaseLineDialog(
         val setProductMasterFieldsEnabled: (Boolean) -> Unit = { enabled ->
             val fields = listOf(
                 etSelling, switchTaxInclusive, etSCgst, etSSgst, etSIgst, etHsn, etUnit,
-                etGstPct, btnGstMinus, btnGstPlus,
+                etGstPct,
                 spinnerUqcPurchase, etHsnDescPurchase, etCessRatePurchase,
                 spinnerSupplyClassPurchase
             )
@@ -868,7 +909,10 @@ class PurchaseLineDialog(
                 it.alpha = if (enabled) 1.0f else 0.5f
                 (it.parent as? View)?.alpha = if (enabled) 1.0f else 0.6f
             }
-            view.findViewById<View>(R.id.llGstChips)?.alpha = if (enabled) 1.0f else 0.5f
+            view.findViewById<View>(R.id.llGstChips)?.alpha = 1.0f
+            btnGstMinus.isEnabled = true; btnGstPlus.isEnabled = true
+            btnGstMinus.alpha = 1.0f; btnGstPlus.alpha = 1.0f
+            refreshGstUi()
         }
 
         // Undoes everything the variant match writes. Called as soon as the typed
@@ -986,7 +1030,7 @@ class PurchaseLineDialog(
                                 etUnit.setText(match.unit, false)
                                 spinnerUqcPurchase.setText(UqcMapper.codeToDisplay(match.officialUqc) ?: "", false)
                                 etHsnDescPurchase.setText(match.hsnDescription ?: "")
-                                etCessRatePurchase.setText(trimNum(match.cessRate))
+                                etCessRatePurchase.setText(if (match.cgstPercentage + match.sgstPercentage + match.igstPercentage > 0) trimNum(match.cessRate) else "0")
                                 spinnerSupplyClassPurchase.setText(SupplyClassMapper.codeToDisplay(match.supplyClassification) ?: "", false)
                                 etCategoryPurchase.setText(match.category, false)
                                 applyingAutofill = false
@@ -1106,7 +1150,7 @@ class PurchaseLineDialog(
                                 if (etHsnDescPurchase.text.isNullOrBlank() && !match.hsnDescription.isNullOrBlank())
                                     etHsnDescPurchase.setText(match.hsnDescription)
                                 if (etCessRatePurchase.text.isNullOrBlank())
-                                    etCessRatePurchase.setText(trimNum(match.cessRate))
+                                    etCessRatePurchase.setText(if (match.cgstPercentage + match.sgstPercentage + match.igstPercentage > 0) trimNum(match.cessRate) else "0")
                                 if (spinnerSupplyClassPurchase.text.isNullOrBlank() && !match.supplyClassification.isNullOrBlank())
                                     SupplyClassMapper.codeToDisplay(match.supplyClassification)?.let { spinnerSupplyClassPurchase.setText(it, false) }
                                 if (etCategoryPurchase.text.isNullOrBlank() && !match.category.isNullOrBlank())
@@ -1325,6 +1369,7 @@ class PurchaseLineDialog(
             etSCgst.setText("")
             etSSgst.setText("")
             etSIgst.setText("")
+            clearPurchaseTax()
 
             if (hsn.length < 4) return@addTextChangedListener
             activity.lifecycleScope.launch {
@@ -1339,7 +1384,7 @@ class PurchaseLineDialog(
                     if (etHsnDescPurchase.text.isNullOrBlank() && !match.hsnDescription.isNullOrBlank())
                         etHsnDescPurchase.setText(match.hsnDescription)
                     if (etCessRatePurchase.text.isNullOrBlank())
-                        etCessRatePurchase.setText(trimNum(match.cessRate))
+                        etCessRatePurchase.setText(if (match.cgstPercentage + match.sgstPercentage + match.igstPercentage > 0) trimNum(match.cessRate) else "0")
                     if (spinnerUqcPurchase.text.isNullOrBlank() && !match.officialUqc.isNullOrBlank())
                         UqcMapper.codeToDisplay(match.officialUqc)?.let { spinnerUqcPurchase.setText(it, false) }
                     if (spinnerSupplyClassPurchase.text.isNullOrBlank() && !match.supplyClassification.isNullOrBlank())
@@ -1352,7 +1397,7 @@ class PurchaseLineDialog(
         // non-floating, so the window is full-screen from the moment it is
         // created. Resizing an AlertDialog after show() cost a frame and
         // showed as a blink.
-        val dialog = Dialog(activity, R.style.PurchaseLineFullScreen)
+        val dialog = Dialog(activity, R.style.OpeningBalanceFullScreen)
         dialog.setContentView(view)
 
         // Usual toolbar back arrow (BaseActivity.setupToolbar can't be used

@@ -20,15 +20,14 @@
   tvKeptCaption/tvKeptValue, segSold/segLoss/segRemaining,
   tvLegendSold/tvLegendLoss/tvLegendRemaining.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.easy_billing.ui.glass.GlassClipLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:layout_marginVertical="5dp"
-    android:background="@drawable/bg_inv_value_card"
-    android:foreground="@drawable/bg_profit_card_border"
-    android:clipToOutline="true">
+    android:background="@drawable/bg_lg_card"
+    android:foreground="@drawable/bg_lg_card">
 
     <View
         android:id="@+id/viewStripe"
@@ -90,7 +89,7 @@
                     android:layout_marginTop="3dp"
                     android:text="0 sold"
                     android:textSize="10sp"
-                    android:textColor="#9A8F79"
+                    android:textColor="#7C8782"
                     android:maxLines="1"
                     android:ellipsize="end"/>
 
@@ -162,7 +161,7 @@
                         android:layout_marginTop="1dp"
                         android:text="0 sold"
                         android:textSize="10.5sp"
-                        android:textColor="#9A8F79"/>
+                        android:textColor="#7C8782"/>
                 </LinearLayout>
                 <TextView
                     android:id="@+id/tvEarnedLine"
@@ -176,7 +175,7 @@
                     android:textColor="#1A1A18"/>
             </LinearLayout>
 
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EFE8D4" android:layout_marginStart="0dp"/>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E3E8E4" android:layout_marginStart="0dp"/>
 
             <!-- What it cost you to buy/make it -->
             <LinearLayout
@@ -204,7 +203,7 @@
                     android:textColor="#B23A3A"/>
             </LinearLayout>
 
-            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EFE8D4"/>
+            <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E3E8E4"/>
 
             <!-- Lost to damage or stock gone missing -->
             <LinearLayout
@@ -231,7 +230,7 @@
                         android:layout_marginTop="1dp"
                         android:text="@string/xml_profit_detail_loss_none"
                         android:textSize="10.5sp"
-                        android:textColor="#9A8F79"/>
+                        android:textColor="#7C8782"/>
                 </LinearLayout>
                 <TextView
                     android:id="@+id/tvLossLine"
@@ -253,7 +252,7 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:layout_marginTop="6dp"
-                android:background="@drawable/bg_inv_subcard_accent"
+                android:background="@drawable/bg_lg_inv_subcard_accent"
                 android:paddingHorizontal="14dp"
                 android:paddingVertical="12dp">
                 <LinearLayout
@@ -299,16 +298,16 @@
                 android:text="@string/xml_profit_detail_stock_title"
                 android:textSize="11sp"
                 android:textStyle="bold"
-                android:textColor="#7A7262"
+                android:textColor="#67756D"
                 android:letterSpacing="0.04"/>
 
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:id="@+id/layoutStockBar"
                 android:layout_width="match_parent"
                 android:layout_height="10dp"
                 android:orientation="horizontal"
                 android:background="@drawable/bg_profit_stock_bar_track"
-                android:clipToOutline="true">
+                >
                 <View
                     android:id="@+id/segSold"
                     android:layout_width="0dp"
@@ -326,8 +325,8 @@
                     android:layout_width="0dp"
                     android:layout_weight="0"
                     android:layout_height="match_parent"
-                    android:background="#C9BF9F"/>
-            </LinearLayout>
+                    android:background="#B4BDB8"/>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -349,7 +348,7 @@
                         android:layout_marginStart="6dp"
                         android:text="Sold 0"
                         android:textSize="11.5sp"
-                        android:textColor="#4A4536"/>
+                        android:textColor="#3C443F"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -366,7 +365,7 @@
                         android:layout_marginStart="6dp"
                         android:text="Lost 0"
                         android:textSize="11.5sp"
-                        android:textColor="#4A4536"/>
+                        android:textColor="#3C443F"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -375,7 +374,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical|end">
-                    <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_profit_legend_dot" android:backgroundTint="#C9BF9F"/>
+                    <View android:layout_width="8dp" android:layout_height="8dp" android:background="@drawable/bg_profit_legend_dot" android:backgroundTint="#B4BDB8"/>
                     <TextView
                         android:id="@+id/tvLegendRemaining"
                         android:layout_width="wrap_content"
@@ -383,7 +382,7 @@
                         android:layout_marginStart="6dp"
                         android:text="Left 0"
                         android:textSize="11.5sp"
-                        android:textColor="#4A4536"/>
+                        android:textColor="#3C443F"/>
                 </LinearLayout>
             </LinearLayout>
 
@@ -395,4 +394,4 @@
          divider is shown. -->
     <View android:id="@+id/viewRowDivider" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone"/>
 
-</LinearLayout>
+</com.example.easy_billing.ui.glass.GlassClipLinearLayout>

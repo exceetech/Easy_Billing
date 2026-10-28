@@ -7,7 +7,7 @@
     android:paddingVertical="10dp">
     <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical">
         <TextView android:id="@+id/tvFreqProdName" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="12.5sp" android:fontFamily="@font/googlesans_semibold" android:textColor="#1A1A18" android:singleLine="true" android:ellipsize="end"/>
-        <TextView android:id="@+id/tvFreqProdSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:textSize="10.5sp" android:textColor="#8A8578" android:singleLine="true" android:ellipsize="end"/>
+        <TextView android:id="@+id/tvFreqProdSub" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="1dp" android:textSize="10.5sp" android:textColor="#79897F" android:singleLine="true" android:ellipsize="end"/>
     </LinearLayout>
     <LinearLayout android:id="@+id/llFreqDots" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginHorizontal="8dp" android:orientation="horizontal" android:gravity="center_vertical"/>
     <TextView android:id="@+id/tvFreqProdTrend" android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingHorizontal="8dp" android:paddingVertical="3dp" android:textSize="11sp" android:textStyle="bold"/>

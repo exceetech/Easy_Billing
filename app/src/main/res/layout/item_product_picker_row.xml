@@ -42,7 +42,7 @@
                 android:layout_marginTop="2dp"
                 android:text="Variant"
                 android:textSize="11sp"
-                android:textColor="#9A8F79"
+                android:textColor="#7C8782"
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:visibility="gone"/>
@@ -63,6 +63,6 @@
         android:id="@+id/viewProductPickerDivider"
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:background="#F1EBDD"/>
+        android:background="#E3E8E4"/>
 
 </LinearLayout>

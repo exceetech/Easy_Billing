@@ -154,6 +154,8 @@ class InventoryReductionRepository private constructor(
         // amount handed back below. Only meaningful for PURCHASE_RETURN;
         // stays 0.0 for SCRAP (which has no supplier balance to adjust).
         var totalCreditableInvoiceValue = 0.0
+        // Money slices of a "return to supplier" clear (see [ReturnPosting]); stays empty for scrap.
+        val clearPostings = mutableListOf<ReturnPosting>()
 
         when (reason) {
             ClearReason.PURCHASE_RETURN -> {
@@ -226,6 +228,7 @@ class InventoryReductionRepository private constructor(
                         )
                     ).toInt()
                     totalCreditableInvoiceValue = invoiceValue
+                    clearPostings += ReturnPosting(null, Math.round(invoiceValue * 100.0) / 100.0, returnRowId)
 
                     InventoryManager.clearStock(
                         db = db, productId = productId,
@@ -249,10 +252,11 @@ class InventoryReductionRepository private constructor(
                         lines           = batchLines,
                         supplierGstin   = supplierGstin,
                         supplierName    = supplierName,
-                        isCredit        = false,
-                        creditAccountId = null
+                        isCredit        = isCredit,
+                        creditAccountId = creditAccountId
                     )
                     returnRowId = batchResult?.returnId ?: -1
+                    batchResult?.postings?.let { clearPostings += it }
                     totalCreditableInvoiceValue = batchResult?.totalInvoiceValue ?: 0.0
 
                     // Drift safety net: the batch ledger is SUPPOSED to sum
@@ -326,6 +330,7 @@ class InventoryReductionRepository private constructor(
                             )
                         ).toInt()
                         totalCreditableInvoiceValue += leftoverInvoice
+                        clearPostings += ReturnPosting(null, Math.round(leftoverInvoice * 100.0) / 100.0, returnRowId)
 
                         InventoryManager.clearStock(
                             db = db, productId = productId,
@@ -402,7 +407,7 @@ class InventoryReductionRepository private constructor(
                 CreditReturnInfo(creditAccountId, totalCreditableInvoiceValue, returnRowId)
             else null
 
-        ClearStockResult.Cleared(qty, reason, creditAdj)
+        ClearStockResult.Cleared(qty, reason, creditAdj, clearPostings)
     }
 
     /**
@@ -416,12 +421,25 @@ class InventoryReductionRepository private constructor(
         val documentId: Int
     )
 
+    /**
+     * One slice of a supplier return that has to be settled in money: how much of it belongs to one purchase
+     * invoice ([purchaseId]; null when the units can't be traced to an invoice), and the id of one of the
+     * [PurchaseReturn] rows it covers ([documentId], unique per slice - the idempotency key for the money rows).
+     * The caller runs each slice through the payment prompts after the return is saved.
+     */
+    data class ReturnPosting(
+        val purchaseId: Int?,
+        val amount: Double,
+        val documentId: Int
+    )
+
     sealed class ClearStockResult {
         object NoStock : ClearStockResult()
         data class Cleared(
             val quantity: Double,
             val reason: ClearReason,
-            val creditAdjustment: CreditReturnInfo? = null
+            val creditAdjustment: CreditReturnInfo? = null,
+            val postings: List<ReturnPosting> = emptyList()
         ) : ClearStockResult()
     }
 
@@ -448,7 +466,8 @@ class InventoryReductionRepository private constructor(
         val totalSgst: Double,
         val totalIgst: Double,
         val totalCess: Double = 0.0,
-        val creditAdjustment: CreditReturnInfo? = null
+        val creditAdjustment: CreditReturnInfo? = null,
+        val postings: List<ReturnPosting> = emptyList()
     )
 
     data class BatchScrapLine(
@@ -529,6 +548,9 @@ class InventoryReductionRepository private constructor(
         var grandTotalSgst: Double = 0.0
         var grandTotalIgst: Double = 0.0
         var grandTotalCess: Double = 0.0
+        // Money slices of this return, one per purchase invoice (null key = not traceable to an invoice).
+        val postingAmount = LinkedHashMap<Int?, Double>()
+        val postingDoc = HashMap<Int?, Int>()
 
         // Moving-average redesign, Phase 2: read the average cost ONCE,
         // before any batch/stock reduction below touches it. Every row
@@ -693,8 +715,10 @@ class InventoryReductionRepository private constructor(
                     state            = batchStateName,
                     supplierGstin    = batchSupplierGstin,
                     supplierName     = batchSupplierName,
-                    isCredit         = isCredit,
-                    creditAccountId  = creditAccountId,
+                    // A traceable batch follows how its own purchase was paid (same rule as a return made from the
+                    // purchase screen); only units that can't be traced use what the caller passed.
+                    isCredit         = if (parentPurchase != null) parentPurchase.isCredit else isCredit,
+                    creditAccountId  = if (parentPurchase != null) parentPurchase.creditAccountId else creditAccountId,
 
                     // Moving-average redesign, Phase 2: value leaving
                     // inventory at the frozen current average, minus what
@@ -736,6 +760,10 @@ class InventoryReductionRepository private constructor(
                     invoiceType            = "Regular"
                 )
             ).toInt()
+
+            val postKey = parentPurchase?.id
+            postingAmount[postKey] = (postingAmount[postKey] ?: 0.0) + roundedInvoice
+            if (!postingDoc.containsKey(postKey)) postingDoc[postKey] = returnId
 
             grandReturnId = returnId
             grandTotalQuantity += qty
@@ -788,7 +816,10 @@ class InventoryReductionRepository private constructor(
             totalCgst = grandTotalCgst,
             totalSgst = grandTotalSgst,
             totalIgst = grandTotalIgst,
-            totalCess = grandTotalCess
+            totalCess = grandTotalCess,
+            postings = postingAmount.map { (pid, amt) ->
+                ReturnPosting(pid, Math.round(amt * 100.0) / 100.0, postingDoc[pid] ?: grandReturnId)
+            }
         )
     }
 

@@ -13,7 +13,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4F0E6">
+    android:background="@drawable/bg_lg_page">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -97,14 +97,14 @@
                     android:layout_marginTop="1dp"
                     android:layout_marginEnd="7dp"
                     android:src="@drawable/ic_info_circle"
-                    app:tint="#9A968C"
+                    app:tint="#8D9992"
                     android:contentDescription="@null"/>
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/payment_setup_explainer"
-                    android:textColor="#9A8F79"
+                    android:textColor="#7C8782"
                     android:textSize="11sp"
                     android:lineSpacingExtra="2dp"/>
             </LinearLayout>
@@ -115,7 +115,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@drawable/bg_inv_subcard_accent_amber"
+                android:background="@drawable/bg_lg_inv_subcard_accent_amber"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="11dp"
                 android:layout_marginTop="18dp">
@@ -153,7 +153,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/payments_status_off"
-                        android:textColor="#8A8578"
+                        android:textColor="#79897F"
                         android:textSize="10.5sp"/>
                 </LinearLayout>
 
@@ -167,7 +167,7 @@
             <LinearLayout android:id="@+id/rowAdminToggle"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
                 android:orientation="horizontal" android:gravity="center_vertical"
-                android:background="@drawable/bg_inv_subcard_accent_blue"
+                android:background="@drawable/bg_lg_inv_subcard_accent_blue"
                 android:foreground="?attr/selectableItemBackground"
                 android:clickable="true" android:focusable="true"
                 android:visibility="gone"
@@ -183,7 +183,7 @@
                         android:layout_height="14dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_si_lock"
-                        app:tint="#185FA5"
+                        app:tint="#0F6E56"
                         android:contentDescription="@null"/>
                 </FrameLayout>
 
@@ -201,7 +201,7 @@
                     android:id="@+id/icAdminChevron"
                     android:layout_width="18dp" android:layout_height="18dp"
                     android:src="@drawable/ic_chevron_right"
-                    app:tint="#185FA5" android:contentDescription="@null"/>
+                    app:tint="#0F6E56" android:contentDescription="@null"/>
             </LinearLayout>
 
             <LinearLayout android:id="@+id/containerAdmin"
@@ -210,11 +210,12 @@
                 android:visibility="gone">
 
             <!-- ===================== CREDENTIALS ===================== -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_inv_card_cream"
+                
+                android:background="@drawable/bg_lg_card"
                 android:layout_marginTop="18dp">
 
                 <LinearLayout
@@ -222,7 +223,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_customer_header"
+                    android:background="@drawable/bg_lg_hdr_green"
                     android:paddingHorizontal="15dp"
                     android:paddingVertical="14dp">
                     <FrameLayout
@@ -286,13 +287,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/razorpay_key_id_label"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp">
                         <FrameLayout
                             android:layout_width="26dp"
@@ -315,7 +316,7 @@
                             android:layout_marginStart="12dp"
                             android:hint="@string/razorpay_key_id_hint"
                             android:textColor="#1A1A18"
-                            android:textColorHint="#A99E88"
+                            android:textColorHint="#929F97"
                             android:inputType="text"
                             android:singleLine="true"
                             android:textSize="15sp"/>
@@ -329,13 +330,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/razorpay_key_secret_label"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp">
                         <FrameLayout
                             android:layout_width="26dp"
@@ -358,7 +359,7 @@
                             android:layout_marginStart="12dp"
                             android:hint="@string/razorpay_key_secret_hint"
                             android:textColor="#1A1A18"
-                            android:textColorHint="#A99E88"
+                            android:textColorHint="#929F97"
                             android:inputType="textPassword"
                             android:singleLine="true"
                             android:textSize="15sp"/>
@@ -372,13 +373,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/razorpay_webhook_secret_label"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp">
                         <FrameLayout
                             android:layout_width="26dp"
@@ -389,7 +390,7 @@
                                 android:layout_height="14dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_lc_shield_check"
-                                app:tint="#185FA5"
+                                app:tint="#0F6E56"
                                 android:contentDescription="@null"/>
                         </FrameLayout>
                         <EditText
@@ -401,7 +402,7 @@
                             android:layout_marginStart="12dp"
                             android:hint="@string/razorpay_webhook_secret_hint"
                             android:textColor="#1A1A18"
-                            android:textColorHint="#A99E88"
+                            android:textColorHint="#929F97"
                             android:inputType="textPassword"
                             android:singleLine="true"
                             android:textSize="15sp"/>
@@ -421,26 +422,26 @@
                             android:layout_marginTop="1dp"
                             android:layout_marginEnd="7dp"
                             android:src="@drawable/ic_info_circle"
-                            app:tint="#9A968C"
+                            app:tint="#8D9992"
                             android:contentDescription="@null"/>
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/razorpay_helper_text"
-                            android:textColor="#9A8F79"
+                            android:textColor="#7C8782"
                             android:textSize="11sp"
                             android:lineSpacingExtra="2dp"/>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSavePaymentSetup"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginTop="18dp"
-                android:background="@drawable/bg_login_cta_green"
+                android:background="@drawable/bg_lg_cta_green_12"
                 app:backgroundTint="@null"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"

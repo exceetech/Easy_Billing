@@ -3,9 +3,9 @@
     <!-- Professional & Clear Palette -->
 
     <!-- Primary Branding - Deep, trustworthy blue -->
-    <color name="primary">#2563AB</color>
-    <color name="primaryDark">#1E3A8A</color>
-    <color name="primaryLight">#DBEAFE</color>
+    <color name="primary">#0F6E56</color>
+    <color name="primaryDark">#0A4D3D</color>
+    <color name="primaryLight">#E3F3EE</color>
     <color name="green">#4CAF50</color>
     <color name="red">#F44336</color>
 
@@ -66,9 +66,9 @@
     <color name="success_banner_bg">#10B981</color>
 
     <!-- AI Insights screen (theme tokens used from code) — champagne redesign -->
-    <color name="ai_row_alt">#FBF7EC</color>
+    <color name="ai_row_alt">#F3F6F4</color>
     <color name="ai_text_primary">#1A1A18</color>
-    <color name="ai_text_muted">#9A8F79</color>
+    <color name="ai_text_muted">#7C8782</color>
     <color name="ai_green">#0F6E56</color>
     <color name="band_green_bg">#DDEEEE</color>
     <color name="band_green_ink">#085041</color>
@@ -81,7 +81,16 @@
     <color name="band_green_strong">#085041</color>
     <color name="band_amber_strong">#8A6526</color>
     <color name="band_red_strong">#791F1F</color>
-    <color name="ai_neutral">#9A8F79</color>
+    <color name="ai_neutral">#7C8782</color>
 
     <color name="champagne_bg">#F3ECDD</color>
+
+    <!-- Splash screen: white glass (day) / deep green (night). Used by the system splash and SplashActivity only. -->
+    <color name="splash_gradient_start">#FFFFFF</color>
+    <color name="splash_gradient_center">#FFFFFF</color>
+    <color name="splash_gradient_end">#FFFFFF</color>
+    <color name="splash_bg">#FFFFFF</color>
+    <color name="splash_wordmark_ex">#0B3B30</color>
+    <color name="splash_wordmark_pos">#8A6526</color>
+    <color name="splash_sub">#7A6C4F</color>
 </resources>

@@ -252,7 +252,7 @@ class SubscriptionActivity : BaseActivity() {
 
         when (look) {
             StatusCardState.ACTIVE -> {
-                headerBg = R.drawable.bg_inv_customer_header
+                headerBg = R.drawable.bg_lg_hdr_green
                 ringBg = R.drawable.bg_step_circle_ring
                 pillBg = R.drawable.bg_pill_green
                 pillText = 0xFF16A34A.toInt()
@@ -268,7 +268,7 @@ class SubscriptionActivity : BaseActivity() {
                 headlineText = 0xFF1A1A18.toInt()
             }
             StatusCardState.TRIAL -> { /* unused: mapped to ACTIVE */
-                headerBg = R.drawable.bg_inv_customer_header
+                headerBg = R.drawable.bg_lg_hdr_green
                 ringBg = R.drawable.bg_step_circle_ring
                 pillBg = R.drawable.bg_pill_green
                 pillText = 0xFF16A34A.toInt()
@@ -647,7 +647,7 @@ class SubscriptionActivity : BaseActivity() {
                 layoutParams = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, dp(1)
                 ).apply { topMargin = dp(13); bottomMargin = dp(13) }
-                setBackgroundColor(0xFFF0EDE5.toInt())
+                setBackgroundColor(0xFFE3E8E4.toInt())
             })
 
             // ---- Feature checklist ----
@@ -794,9 +794,8 @@ class SubscriptionActivity : BaseActivity() {
         // app:backgroundTint), not a background drawable — swapping the
         // ColorStateList here is the equivalent of the old
         // setBackgroundResource() toggle between enabled/disabled art.
-        btnContinue.backgroundTintList = android.content.res.ColorStateList.valueOf(
-            if (enabled) 0xFF0F6E56.toInt() else 0xFFD8D0BC.toInt()
-        )
+        btnContinue.setBackgroundResource(if (enabled) R.drawable.bg_lg_cta else R.drawable.bg_lg_cta_disabled)
+        btnContinue.backgroundTintList = null
     }
 
     // ================= CONTINUE =================

@@ -8,7 +8,7 @@
     app:cardElevation="0dp"
     app:strokeWidth="0dp"
     app:cardUseCompatPadding="false"
-    app:cardBackgroundColor="#FBF9F4">
+    app:cardBackgroundColor="#FFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -59,20 +59,20 @@
                 android:layout_height="34dp"
                 android:padding="6dp"
                 android:src="@drawable/ic_dialog_close"
-                app:tint="#9A968C"
+                app:tint="#8D9992"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Close"/>
         </LinearLayout>
 
-        <!-- Navy receipt display -->
+        <!-- Emerald glass receipt display -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:background="@drawable/bg_qty_display_navy"
+            android:background="@drawable/bg_lg_cart_bar"
             android:padding="16dp"
             android:layout_marginTop="14dp">
 
@@ -87,14 +87,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
-                    android:textColor="#9FB0D4"
+                    android:textColor="#CCFFFFFF"
                     android:textSize="14sp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="  ×  "
-                    android:textColor="#9FB0D4"
+                    android:textColor="#CCFFFFFF"
                     android:textSize="14sp"/>
 
                 <TextView
@@ -102,7 +102,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
-                    android:textColor="#9FB0D4"
+                    android:textColor="#CCFFFFFF"
                     android:textSize="14sp"/>
             </LinearLayout>
 
@@ -110,7 +110,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginVertical="10dp"
-                android:background="#2A3A63"/>
+                android:background="#47FFFFFF"/>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -134,7 +134,7 @@
                     android:layout_marginStart="5dp"
                     android:layout_marginBottom="3dp"
                     android:text="@string/dialog_quantity_pad_total_label"
-                    android:textColor="#D4A574"
+                    android:textColor="#F3D9A4"
                     android:textSize="13sp"/>
             </LinearLayout>
         </LinearLayout>
@@ -165,7 +165,7 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDot"
                 style="@style/PosKeyLight"
-                android:textColor="#8A5A2B"
+                android:textColor="#0F6E56"
                 android:text="."/>
 
             <com.google.android.material.button.MaterialButton style="@style/PosKeyLight" android:text="0"/>
@@ -173,9 +173,9 @@
             <ImageButton
                 android:id="@+id/btnBackspace"
                 android:layout_width="0dp"
-                android:layout_height="52dp"
+                android:layout_height="54dp"
                 android:layout_columnWeight="1"
-                android:background="@drawable/bg_qty_key_red"
+                android:background="@drawable/bg_lg_key_bs"
                 android:src="@drawable/ic_qty_backspace"
                 app:tint="#B91C1C"
                 android:scaleType="centerInside"
@@ -193,8 +193,9 @@
             android:textColor="@android:color/white"
             android:fontFamily="@font/googlesans_semibold"
             android:layout_marginTop="14dp"
+            android:background="@drawable/bg_lg_cta"
             app:cornerRadius="14dp"
-            app:backgroundTint="#0F6E56"
+            app:backgroundTint="@null"
             app:icon="@drawable/ic_drawer_purchase"
             app:iconGravity="textStart"
             app:iconPadding="10dp"

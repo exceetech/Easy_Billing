@@ -51,15 +51,25 @@ class TransactionAdapter : ListAdapter<TransactionUI, RecyclerView.ViewHolder>(T
          */
         fun labelFor(
             type: String,
-            side: com.example.easy_billing.util.CreditSide.Side = com.example.easy_billing.util.CreditSide.Side.UNKNOWN
+            side: com.example.easy_billing.util.CreditSide.Side = com.example.easy_billing.util.CreditSide.Side.UNKNOWN,
+            // The payment's own Money Book direction wins over the account-level guess.
+            direction: String? = null
         ): String = when (type) {
             "ADD"              -> "Credit sale"
             // The ledger is shared by customers and suppliers: a payment on a supplier account is money paid OUT.
-            "PAY"              -> if (side == com.example.easy_billing.util.CreditSide.Side.SUPPLIER) "Payment made" else "Payment received"
+            "PAY"              -> when (direction) {
+                com.example.easy_billing.util.MoneyDirection.OUT -> "Payment made"
+                com.example.easy_billing.util.MoneyDirection.IN -> "Payment received"
+                else -> if (side == com.example.easy_billing.util.CreditSide.Side.SUPPLIER) "Payment made" else "Payment received"
+            }
             "PURCHASE_CREDIT"  -> "Purchase on credit"
             "PURCHASE_RETURN"  -> "Purchase return"
             "WRITE_OFF"        -> "Written off"
-            "REFUND"           -> if (side == com.example.easy_billing.util.CreditSide.Side.SUPPLIER) "Refund received" else "Refunded"
+            "REFUND"           -> when (direction) {
+                com.example.easy_billing.util.MoneyDirection.IN -> "Refund received"
+                com.example.easy_billing.util.MoneyDirection.OUT -> "Refunded"
+                else -> if (side == com.example.easy_billing.util.CreditSide.Side.SUPPLIER) "Refund received" else "Refunded"
+            }
             // Bill adjustments applied to the account.
             "SALE_RETURN"      -> "Credit note"
             "BILL_CANCEL"      -> "Bill cancelled"
@@ -100,7 +110,7 @@ class TransactionAdapter : ListAdapter<TransactionUI, RecyclerView.ViewHolder>(T
 
             // Raw type codes mean nothing to someone reading their own khata.
             // Shared with the printed statement so the two can't drift apart.
-            holder.tvType.text = labelFor(item.type, side)
+            holder.tvType.text = labelFor(item.type, side, item.direction)
             holder.tvType.setTextColor(Color.parseColor("#1A1A18"))
 
             // Time, plus whatever else is worth knowing about this entry: the
@@ -133,9 +143,21 @@ class TransactionAdapter : ListAdapter<TransactionUI, RecyclerView.ViewHolder>(T
                     holder.tvAmount.setTextColor(Color.parseColor("#B23A3A"))
                 }
                 "PAY", "PURCHASE_RETURN" -> {
-                    stripe = "#0F6E56"; tile = "#E1F5EE"; icon = R.drawable.ic_lc_arrow_down_left
-                    holder.tvAmount.text = "− $formatted"
-                    holder.tvAmount.setTextColor(Color.parseColor("#0F6E56"))
+                    // A payment with a known direction reads as money received (green) or
+                    // paid out (amber); the balance still goes down either way.
+                    if (item.type == "PAY" && item.direction == com.example.easy_billing.util.MoneyDirection.OUT) {
+                        stripe = "#8A6526"; tile = "#FAEEDA"; icon = R.drawable.ic_lc_arrow_up_right
+                        holder.tvAmount.text = "$formatted paid"
+                        holder.tvAmount.setTextColor(Color.parseColor("#8A6526"))
+                    } else if (item.type == "PAY" && item.direction == com.example.easy_billing.util.MoneyDirection.IN) {
+                        stripe = "#0F6E56"; tile = "#E1F5EE"; icon = R.drawable.ic_lc_arrow_down_left
+                        holder.tvAmount.text = "$formatted received"
+                        holder.tvAmount.setTextColor(Color.parseColor("#0F6E56"))
+                    } else {
+                        stripe = "#0F6E56"; tile = "#E1F5EE"; icon = R.drawable.ic_lc_arrow_down_left
+                        holder.tvAmount.text = "− $formatted"
+                        holder.tvAmount.setTextColor(Color.parseColor("#0F6E56"))
+                    }
                 }
                 // Credit note / cancelled bill lower the debt — same green,
                 // downward direction as a payment, but they are not cash in.
@@ -154,17 +176,21 @@ class TransactionAdapter : ListAdapter<TransactionUI, RecyclerView.ViewHolder>(T
                 // payment, and colouring them like one is what made a refund
                 // read as revenue.
                 "WRITE_OFF", "SETTLE" -> {
-                    stripe = "#8A6526"; tile = "#F3ECDD"; icon = R.drawable.ic_lucide_check
+                    stripe = "#8A6526"; tile = "#FAEEDA"; icon = R.drawable.ic_lucide_check
                     holder.tvAmount.text = "− $formatted"
                     holder.tvAmount.setTextColor(Color.parseColor("#8A6526"))
                 }
                 "REFUND" -> {
-                    stripe = "#8A6526"; tile = "#F3ECDD"; icon = R.drawable.ic_lc_arrow_up_right
-                    holder.tvAmount.text = "+ $formatted"
+                    stripe = "#8A6526"; tile = "#FAEEDA"; icon = R.drawable.ic_lc_arrow_up_right
+                    holder.tvAmount.text = when (item.direction) {
+                        com.example.easy_billing.util.MoneyDirection.OUT -> "$formatted paid"
+                        com.example.easy_billing.util.MoneyDirection.IN -> "$formatted received"
+                        else -> "+ $formatted"
+                    }
                     holder.tvAmount.setTextColor(Color.parseColor("#8A6526"))
                 }
                 else -> {
-                    stripe = "#E4DBC6"; tile = "#F3ECDD"; icon = R.drawable.ic_lc_arrow_up_right
+                    stripe = "#D5DDD8"; tile = "#EEF2F0"; icon = R.drawable.ic_lc_arrow_up_right
                     holder.tvAmount.text = formatted
                     holder.tvAmount.setTextColor(Color.parseColor("#1A1A18"))
                 }

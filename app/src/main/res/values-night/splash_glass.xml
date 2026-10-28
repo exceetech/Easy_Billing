@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Glass splash glow colours: emerald (top left) and champagne (bottom right). -->
+<resources>
+    <color name="splash_glow_emerald">#700F6E56</color>
+    <color name="splash_glow_emerald_mid">#380F6E56</color>
+    <color name="splash_glow_emerald_end">#000F6E56</color>
+    <color name="splash_glow_gold">#3D6EAFE1</color>
+    <color name="splash_glow_gold_mid">#1E6EAFE1</color>
+    <color name="splash_glow_gold_end">#006EAFE1</color>
+</resources>

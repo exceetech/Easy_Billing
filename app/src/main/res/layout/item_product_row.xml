@@ -9,7 +9,7 @@
         android:id="@+id/vDivider"
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
-        android:background="#EFE9DA"/>
+        android:background="#E3E8E4"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -29,7 +29,7 @@
             android:textStyle="bold"
             android:textColor="#8A6526"
             android:background="@drawable/bg_ov_pay_icon"
-            android:backgroundTint="#F3ECDD"/>
+            android:backgroundTint="#EEF2F0"/>
 
         <LinearLayout
             android:layout_width="0dp"
@@ -73,7 +73,7 @@
                 android:layout_height="wrap_content"
                 android:text="—"
                 android:textSize="11sp"
-                android:textColor="#9A8F79"
+                android:textColor="#7C8782"
                 android:layout_marginTop="1dp"/>
 
             <!-- Relative bar — sized to this row's share of the top seller -->

@@ -3,6 +3,7 @@ package com.example.easy_billing
 import com.example.easy_billing.R
 
 import android.content.Intent
+import androidx.room.withTransaction
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
@@ -63,6 +64,7 @@ class BillDetailsActivity : AppCompatActivity() {
     private lateinit var tvCustomerInfo: TextView
     private lateinit var tvCustomerPhone: TextView
     private lateinit var tvPaidThrough: TextView
+    private lateinit var llPaidBreakdown: LinearLayout
     private lateinit var tvSubTotal: TextView
     private lateinit var tvGst: TextView
     private lateinit var rowCess: View
@@ -91,6 +93,25 @@ class BillDetailsActivity : AppCompatActivity() {
 
     /** The local Room bills.id — resolved from the bill number after load. */
     private var localBillId: Int = -1
+    private var extraBillNumber: String = ""
+    private var quietPullDone = false
+    private var billLoaded = false
+
+    /** Why a phone-only action (cancel, return, debit note) can't run right now. */
+    private fun notOnPhoneMessage(): String = getString(
+        if (billLoaded) R.string.bill_only_on_server else R.string.billdetailsactivity_bill_not_loaded_yet_1
+    )
+
+    /**
+     * The bill number can arrive after this screen opened (the bill syncs meanwhile), so read it
+     * fresh from the phone's database when an action needs it.
+     */
+    private suspend fun freshBillNumber(): String {
+        val local = findLocalBill(AppDatabase.getDatabase(this))
+        val n = local?.billNumber.orEmpty()
+        if (n.isNotBlank()) resolvedBillNumber = n
+        return resolvedBillNumber
+    }
 
     /**
      * The bill_number resolved after [loadBillDetails] — used as the
@@ -117,6 +138,7 @@ class BillDetailsActivity : AppCompatActivity() {
         tvCustomerInfo   = findViewById(R.id.tvCustomerInfo)
         tvCustomerPhone  = findViewById(R.id.tvCustomerPhone)
         tvPaidThrough    = findViewById(R.id.tvPaidThrough)
+        llPaidBreakdown  = findViewById(R.id.llPaidBreakdown)
         tvSubTotal       = findViewById(R.id.tvSubTotal)
         tvGst            = findViewById(R.id.tvGst)
         rowCess          = findViewById(R.id.rowCess)
@@ -154,8 +176,12 @@ class BillDetailsActivity : AppCompatActivity() {
         toolbar.setNavigationOnClickListener { finish() }
 
         billId = intent.getIntExtra("BILL_ID", -1)
+        // Offline-first: the bill may exist only on this phone (no server id yet),
+        // so the caller can pass the phone's own id and/or the bill number.
+        localBillId = intent.getIntExtra("LOCAL_BILL_ID", -1)
+        extraBillNumber = intent.getStringExtra("BILL_NUMBER").orEmpty()
 
-        if (billId == -1) {
+        if (billId == -1 && localBillId == -1 && extraBillNumber.isBlank()) {
             Toast.makeText(this, getString(R.string.billdetailsactivity_invalid_bill_id), Toast.LENGTH_SHORT).show()
             // Was calling finish() in the same instant as the toast, which
             // tears the toast down with the activity before it's readable.
@@ -178,9 +204,6 @@ class BillDetailsActivity : AppCompatActivity() {
         // the two big buttons in the main row instead.
         btnSendToCustomer.setOnClickListener { showSendToCustomerOptions() }
         btnPrint.setOnClickListener { generatePdfAndPrint() }
-        layoutOwed.setOnClickListener {
-            startActivity(Intent(this, CreditAccountsActivity::class.java))
-        }
     }
 
     // Offline-session-timeout coverage (see SessionTimeoutGuard for why this
@@ -188,6 +211,7 @@ class BillDetailsActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         com.example.easy_billing.util.SessionTimeoutGuard.start(this)
+        refreshDueBanners()
     }
 
     override fun onPause() {
@@ -244,6 +268,57 @@ class BillDetailsActivity : AppCompatActivity() {
         return caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
+    /** The bill row on THIS phone, if any: by the phone's id first, then by bill number. */
+    private suspend fun findLocalBill(db: AppDatabase): Bill? = withContext(Dispatchers.IO) {
+        if (localBillId != -1) {
+            try { db.billDao().getBillById(localBillId) } catch (_: Exception) { null }
+                ?.let { return@withContext it }
+        }
+        val number = extraBillNumber.ifBlank { resolvedBillNumber }
+        if (number.isNotBlank()) db.billDao().getByBillNumber(number) else null
+    }
+
+    /** Same shape the server returns, built from the phone's own data. */
+    private suspend fun localToResponse(db: AppDatabase, b: Bill): com.example.easy_billing.network.BillDetailResponse =
+        withContext(Dispatchers.IO) {
+            val items = db.billItemDao().getItemsForBill(b.id).map {
+                com.example.easy_billing.network.BillItemResponse(
+                    shop_product_id = it.productId,
+                    product_name = it.productName,
+                    variant = it.variant,
+                    unit = it.unit,
+                    quantity = it.quantity,
+                    price = it.price,
+                    subtotal = it.subTotal
+                )
+            }
+            com.example.easy_billing.network.BillDetailResponse(
+                bill = com.example.easy_billing.network.BillResponse(
+                    bill_id = b.id,
+                    bill_number = b.billNumber,
+                    total_amount = b.total,
+                    gst = b.gst,
+                    discount = b.discount,
+                    payment_method = b.paymentMethod,
+                    created_at = b.date,
+                    invoice_type = b.customerType,
+                    customer_state_code = b.placeOfSupply.ifBlank { null },
+                    supply_type = b.supplyType,
+                    is_cancelled = b.isCancelled,
+                    payment_status = b.paymentStatus
+                ),
+                items = items
+            )
+        }
+
+    /** Phone data first; the server is asked only when this bill is not on the phone. */
+    private suspend fun loadDetailResponse(token: String): com.example.easy_billing.network.BillDetailResponse {
+        val db = AppDatabase.getDatabase(this)
+        val local = findLocalBill(db)
+        return if (local != null) localToResponse(db, local)
+        else RetrofitClient.api.getBillDetails(token, billId)
+    }
+
     private fun loadBillDetails() {
 
         lifecycleScope.launch {
@@ -255,10 +330,7 @@ class BillDetailsActivity : AppCompatActivity() {
 
             try {
 
-                val response = RetrofitClient.api.getBillDetails(
-                    token,
-                    billId
-                )
+                val response = loadDetailResponse(token)
 
                 val bill = response.bill
                 val items = response.items
@@ -278,18 +350,19 @@ class BillDetailsActivity : AppCompatActivity() {
                 tvBillDate.text = cleanDate
                 resolvedBillNumber = bill.bill_number
 
-                tvPaidThrough.text = "Paid via ${com.example.easy_billing.util.PaymentMethodText.label(bill.payment_method)}"
+                tvPaidThrough.text = com.example.easy_billing.util.PaymentMethodText.label(bill.payment_method)
+                tvPaidThrough.visibility = View.VISIBLE
+                tvPaidThrough.setTextColor(Color.parseColor("#1A1A18"))
+                showPaidBreakdown(null)
 
                 // Check if this bill is already cancelled in the local DB.
                 val db = AppDatabase.getDatabase(this@BillDetailsActivity)
-                val localBill = withContext(Dispatchers.IO) {
-                    db.billDao().getByBillNumber(bill.bill_number)
-                }
+                val localBill = findLocalBill(db)
                 // Split bill: show the amounts ("Cash ₹300 + UPI ₹200"), not just the modes.
                 localBill?.let { lb ->
                     withContext(Dispatchers.IO) {
                         com.example.easy_billing.util.BillPaymentText.breakdown(this@BillDetailsActivity, lb)
-                    }?.let { tvPaidThrough.text = "Paid via $it" }
+                    }?.let { showPaidBreakdown(it.split("\n")) }
                 }
                 // Customer — the GSTR-1 invoice snapshot (gst_sales_invoice)
                 // carries the name/phone/type entered at checkout for EVERY
@@ -334,13 +407,40 @@ class BillDetailsActivity : AppCompatActivity() {
                 val alreadyCancelled =
                     bill.is_cancelled || localBill?.isCancelled == true
                 localBillId = localBill?.id ?: -1
+                // A bill cancelled before the money notes were saved (app closed half-way, or cancelled by an
+                // older version) gets them now: pending UPI closed, a refund note for money still held.
+                if (localBill != null && localBill.isCancelled) {
+                    withContext(Dispatchers.IO) {
+                        try { com.example.easy_billing.util.CancelMoney.ensureRefundNote(db, localBill.id) }
+                        catch (e: Exception) { Log.e("BillDetailsActivity", "refund note repair failed", e) }
+                    }
+                    finishCancelledCreditIfNeeded(localBill)
+                }
+                refreshDueBanners()
 
                 val isUpiBill = com.example.easy_billing.util.PaymentMethodText.hasUpi(bill.payment_method)
+                lastPaymentMethod = bill.payment_method
                 // Server is the source of truth for payment_status (it's
                 // set only by the Razorpay webhook); localBill's synced
                 // copy is the fallback for an offline reopen.
                 val upiPaid = bill.payment_status == "paid" || localBill?.paymentStatus == "paid"
                 applyBillCancellationState(alreadyCancelled, isUpiBill, upiPaid)
+
+                // Opened from phone data: if online, quietly ask the server whether a UPI
+                // payment arrived, and refresh once if it did. Never blocks the screen.
+                if (localBill != null && localBill.isSynced && isUpiBill && !upiPaid &&
+                    !alreadyCancelled && !quietPullDone && isOnline()) {
+                    quietPullDone = true
+                    lifecycleScope.launch {
+                        try {
+                            kotlinx.coroutines.withTimeoutOrNull(4000L) { SyncManager(this@BillDetailsActivity).pullPaymentStatus() }
+                        } catch (_: Exception) { }
+                        val fresh = findLocalBill(db)
+                        if (fresh != null && (fresh.paymentStatus.equals("paid", ignoreCase = true) || fresh.isCancelled)) {
+                            loadBillDetails()
+                        }
+                    }
+                }
 
                 // Manual override — only relevant while there's actually
                 // something to override: a UPI bill, not cancelled, and
@@ -348,14 +448,6 @@ class BillDetailsActivity : AppCompatActivity() {
                 btnMarkAsPaid.visibility =
                     if (isUpiBill && !upiPaid && !alreadyCancelled) View.VISIBLE else View.GONE
 
-                // Reflects a webhook-confirmed "send to customer" UPI
-                // payment — independent of payment_method above, which is
-                // how the sale was recorded at checkout, not whether a
-                // separately-sent pay link was paid.
-                if (upiPaid) {
-                    tvPaidThrough.text = "${tvPaidThrough.text} · ${getString(R.string.send_to_customer_paid_badge)}"
-                    tvPaidThrough.setTextColor(Color.parseColor("#0F6E56"))
-                }
 
                 if (localBillId != -1) {
                     lifecycleScope.launch(Dispatchers.IO) {
@@ -379,25 +471,10 @@ class BillDetailsActivity : AppCompatActivity() {
                 tvCustomerInfo.text = displayName
                 tvCustomerNameTitle.text = displayName
 
-                // "Still owed" banner — same purpose as Purchase Details'
-                // layoutOwed, just the other direction: a credit sale
-                // owed BY the customer TO the shop. Bills don't track a
-                // partial-payment amount against the credit balance, so
-                // the figure shown is the bill's own total.
-                val isCreditSale = bill.payment_method.contains("credit", ignoreCase = true)
-                if (isCreditSale && !alreadyCancelled) {
-                    layoutOwed.visibility = View.VISIBLE
-                    // Part-credit bill: only the credit part is owed, not the whole bill.
-                    val owed = if (com.example.easy_billing.util.PaymentMethodText.isSplit(bill.payment_method) && localBill != null) {
-                        withContext(Dispatchers.IO) {
-                            db.creditTransactionDao().getByBill(localBill.id, shopId)
-                                .filter { it.type == "ADD" }.sumOf { it.amount }
-                        }
-                    } else bill.total_amount
-                    tvOwed.text = CurrencyHelper.format(this@BillDetailsActivity, owed)
-                } else {
-                    layoutOwed.visibility = View.GONE
-                }
+                // "Still owed" banner: this bill's own credit (sale + extra charges - returns/cancel),
+                // never more than the customer's balance. Redrawn on every resume too.
+                refreshOwedBanner()
+                billLoaded = true
 
                 // Avatar monogram — first letters of the first two words.
                 val words = displayName.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }
@@ -469,6 +546,107 @@ class BillDetailsActivity : AppCompatActivity() {
     // Remembered so the post-cancellation call site (which has no fresh
     // bill data to hand) can still render the pill correctly.
     private var lastIsUpiBill = false
+    private var lastPaymentMethod = ""
+
+    /** Shows / hides the "refund not recorded yet" and "extra not collected yet" banners for this bill. */
+    /**
+     * What this credit bill still has sitting as debt. Payments are saved on the customer
+     * account, not on a bill, so the figure is capped by the customer's current balance:
+     * a customer who has paid up (balance 0) no longer shows as owing on any bill.
+     */
+    private fun refreshOwedBanner() {
+        if (localBillId == -1) { layoutOwed.visibility = View.GONE; return }
+        lifecycleScope.launch {
+            val owed: com.example.easy_billing.util.BillCredit.Owed? = withContext(Dispatchers.IO) {
+                val db = AppDatabase.getDatabase(this@BillDetailsActivity)
+                val b = try { db.billDao().getBillById(localBillId) } catch (_: Exception) { null }
+                    ?: return@withContext null
+                com.example.easy_billing.util.BillCredit.owedForBill(db, b, shopId)
+            }
+            if (owed == null || owed.amount <= 0.005) {
+                layoutOwed.visibility = View.GONE
+                layoutOwed.setOnClickListener(null)
+                return@launch
+            }
+            tvOwed.text = CurrencyHelper.format(this@BillDetailsActivity, owed.amount)
+            layoutOwed.visibility = View.VISIBLE
+            val acc = owed.account
+            layoutOwed.setOnClickListener {
+                if (acc != null) {
+                    startActivity(
+                        Intent(this@BillDetailsActivity, CustomerTransactionsActivity::class.java)
+                            .putExtra("ACCOUNT_ID", acc.serverId ?: -1)
+                            .putExtra("LOCAL_ACCOUNT_ID", acc.id)
+                            .putExtra("ACCOUNT_NAME", acc.name)
+                            .putExtra("ACCOUNT_PHONE", acc.phone)
+                    )
+                } else startActivity(Intent(this@BillDetailsActivity, CreditAccountsActivity::class.java))
+            }
+        }
+    }
+
+    private var cancelCreditChecked = false
+
+    /**
+     * A cancelled credit bill whose "take it off the customer's balance" step never finished (app closed, or the
+     * question was dismissed) leaves the debt on the customer. Ask again, once per opening of the screen.
+     */
+    private suspend fun finishCancelledCreditIfNeeded(b: com.example.easy_billing.db.Bill) {
+        if (cancelCreditChecked) return
+        cancelCreditChecked = true
+        if (!com.example.easy_billing.util.PaymentMethodText.hasCredit(b.paymentMethod)) return
+        val shop = getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", -1)
+        if (shop <= 0) return
+        val open = withContext(Dispatchers.IO) {
+            val doc = CreditAdjustmentRepository.docId(CreditAdjustmentRepository.Kind.BILL_CANCEL, b.id)
+            AppDatabase.getDatabase(this@BillDetailsActivity).creditTransactionDao().countForDoc(doc, shop) == 0 &&
+                CreditAdjustmentRepository.creditShareOf(
+                    this@BillDetailsActivity, CreditAdjustmentRepository.Source.Bill(b.id), b.total
+                ) > 0.005
+        }
+        if (!open) return
+        CreditAdjustmentPrompt.handle(
+            activity = this,
+            billId = b.id,
+            kind = CreditAdjustmentRepository.Kind.BILL_CANCEL,
+            amount = b.total,
+            documentLocalId = b.id,
+            onDone = { refreshDueBanners() }
+        )
+    }
+
+    private fun refreshDueBanners() {
+        refreshOwedBanner()
+        val billId = localBillId
+        val layoutRefund = findViewById<View>(R.id.layoutRefundDue)
+        val layoutExtra = findViewById<View>(R.id.layoutExtraDue)
+        if (billId == -1) { layoutRefund.visibility = View.GONE; layoutExtra.visibility = View.GONE; return }
+        lifecycleScope.launch {
+            val dues = withContext(Dispatchers.IO) {
+                AppDatabase.getDatabase(this@BillDetailsActivity).moneyEntryDao()
+                    .openDues(com.example.easy_billing.util.MoneySource.BILL, billId)
+            }
+            val refund = dues.filter { it.direction == com.example.easy_billing.util.MoneyDirection.OUT }.sumOf { it.amount }
+            val extra = dues.filter { it.direction == com.example.easy_billing.util.MoneyDirection.IN }.sumOf { it.amount }
+            // A payment that arrived after the bill was cancelled gets its own wording.
+            val late = dues.any {
+                it.direction == com.example.easy_billing.util.MoneyDirection.OUT &&
+                    it.sourceType == com.example.easy_billing.util.MoneySource.LATE_PAYMENT
+            }
+            findViewById<TextView>(R.id.tvRefundDueTitle).setText(if (late) R.string.due_banner_late_title else R.string.due_banner_give)
+            findViewById<TextView>(R.id.tvRefundDueHint).setText(if (late) R.string.due_banner_late_hint else R.string.due_banner_action)
+            layoutRefund.visibility = if (refund > 0.0) View.VISIBLE else View.GONE
+            findViewById<TextView>(R.id.tvRefundDue).text = CurrencyHelper.format(this@BillDetailsActivity, refund)
+            layoutRefund.setOnClickListener {
+                com.example.easy_billing.util.SalesRefundPrompt.settleDue(this@BillDetailsActivity, billId) { refreshDueBanners() }
+            }
+            layoutExtra.visibility = if (extra > 0.0) View.VISIBLE else View.GONE
+            findViewById<TextView>(R.id.tvExtraDue).text = CurrencyHelper.format(this@BillDetailsActivity, extra)
+            layoutExtra.setOnClickListener {
+                com.example.easy_billing.util.SalesExtraPrompt.settleDue(this@BillDetailsActivity, billId) { refreshDueBanners() }
+            }
+        }
+    }
     private var lastUpiPaid = false
 
     /**
@@ -489,22 +667,22 @@ class BillDetailsActivity : AppCompatActivity() {
         // own tinted background again (not just plain text).
         when {
             cancelled -> {
-                tvCancelledBadge.text = "CANCELLED"
-                tvCancelledBadge.setTextColor(android.graphics.Color.parseColor("#8A8272"))
+                tvCancelledBadge.text = getString(R.string.bill_history_status_cancelled).uppercase()
+                tvCancelledBadge.setTextColor(android.graphics.Color.parseColor("#76867C"))
                 tvCancelledBadge.backgroundTintList =
-                    android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#EFEAE0"))
+                    android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#EAEEEC"))
             }
             // UPI bills get a real payment-status label instead of the
             // generic "not cancelled" one — this is the only payment
             // method with an actual webhook-confirmed paid/unpaid state.
             isUpiBill && !upiPaid -> {
-                tvCancelledBadge.text = "PENDING PAYMENT"
+                tvCancelledBadge.text = getString(R.string.bill_history_status_pending_payment).uppercase()
                 tvCancelledBadge.setTextColor(android.graphics.Color.parseColor("#8A6526"))
                 tvCancelledBadge.backgroundTintList =
                     android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F5EBD8"))
             }
             isUpiBill -> {
-                tvCancelledBadge.text = "PAID"
+                tvCancelledBadge.text = getString(R.string.bill_history_status_paid).uppercase()
                 tvCancelledBadge.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
                 tvCancelledBadge.backgroundTintList =
                     android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#E7F3EE"))
@@ -514,7 +692,7 @@ class BillDetailsActivity : AppCompatActivity() {
                 // cancelled," never anything about actual payment collection.
                 // Kept it distinct from the real UPI-paid badge above so
                 // the two don't read as the same signal.
-                tvCancelledBadge.text = "ACTIVE"
+                tvCancelledBadge.text = getString(R.string.bill_badge_active)
                 tvCancelledBadge.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
                 tvCancelledBadge.backgroundTintList =
                     android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#E7F3EE"))
@@ -531,7 +709,7 @@ class BillDetailsActivity : AppCompatActivity() {
      */
     private fun confirmCancellation() {
         if (localBillId == -1) {
-            Toast.makeText(this, getString(R.string.billdetailsactivity_bill_not_loaded_yet), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, notOnPhoneMessage(), Toast.LENGTH_LONG).show()
             return
         }
 
@@ -586,7 +764,8 @@ class BillDetailsActivity : AppCompatActivity() {
         com.example.easy_billing.util.UserEventLogger.logAction(
             "BillDetails", "cancel_bill_confirmed: bill_number=${resolvedBillNumber.ifBlank { "-" }}"
         )
-        if (resolvedBillNumber.isBlank()) {
+        // A bill saved offline has no number yet; it is found by the phone's own id instead.
+        if (resolvedBillNumber.isBlank() && localBillId == -1) {
             Toast.makeText(this, getString(R.string.billdetailsactivity_bill_number_not_resolved), Toast.LENGTH_SHORT).show()
             return
         }
@@ -596,8 +775,18 @@ class BillDetailsActivity : AppCompatActivity() {
                 val db   = AppDatabase.getDatabase(this@BillDetailsActivity)
                 val now  = System.currentTimeMillis()
 
+                // 0. A UPI payment may have landed that this phone has not heard about yet. Pull it first
+                // (best effort, short wait), so a bill that was really paid is treated as paid when cancelled.
+                val before = findLocalBill(db)
+                if (before != null && com.example.easy_billing.util.PaymentMethodText.hasUpi(before.paymentMethod) &&
+                    !before.paymentStatus.equals("paid", ignoreCase = true) && isOnline()) {
+                    try {
+                        kotlinx.coroutines.withTimeoutOrNull(4000L) { SyncManager(this@BillDetailsActivity).pullPaymentStatus() }
+                    } catch (_: Exception) { /* offline / slow: cancel anyway; a late payment is caught on the next sync */ }
+                }
+
                 // 1. Mark the legacy bills row.
-                val localBill = db.billDao().getByBillNumber(resolvedBillNumber)
+                val localBill = findLocalBill(db)
 
                 // INV-8 fix: markBillCancelled is now a conditional UPDATE
                 // (WHERE is_cancelled = 0) that returns how many rows it
@@ -608,10 +797,13 @@ class BillDetailsActivity : AppCompatActivity() {
                 // disabled-button guard). Only the former should ever
                 // restock inventory — restocking on a 0 would silently
                 // double-credit stock for a bill that was already voided.
-                val didCancelNow = localBill != null &&
+                // The void, the GST mark, the restock and the refund note are ONE transaction:
+                // either the bill is fully cancelled with its money note, or nothing changed.
+                val didCancelNow = db.withTransaction {
+                val cancelledNow = localBill != null &&
                     db.billDao().markBillCancelled(localBill.id, now) > 0
 
-                if (localBill != null && didCancelNow) {
+                if (localBill != null && cancelledNow) {
                     // 2. Mark gst_sales_invoice_table by bill_id FK.
                     val gstInvoice = db.gstSalesInvoiceDao().getByBillId(localBill.id)
                     if (gstInvoice != null) {
@@ -625,7 +817,7 @@ class BillDetailsActivity : AppCompatActivity() {
 
                 // 3.5. Restore inventory stock for cancelled items — only
                 // when this call actually performed the cancellation.
-                if (localBill != null && didCancelNow) {
+                if (localBill != null && cancelledNow) {
                     val items = db.billItemDao().getItemsForBill(localBill.id)
                     val gstInvoice = db.gstSalesInvoiceDao().getByBillId(localBill.id)
                     val gstItems = if (gstInvoice != null) db.gstSalesInvoiceItemDao().getByInvoice(gstInvoice.id) else emptyList()
@@ -688,19 +880,15 @@ class BillDetailsActivity : AppCompatActivity() {
                     }
                 }
 
-                // 4. Best-effort sync of cancellations to backend.
-                try {
-                    val sync = SyncManager(this@BillDetailsActivity)
-                    sync.syncGstCancellations()
-                    // Also void the analytics bills row so reports
-                    // exclude this invoice (covers non-GST bills too).
-                    sync.syncBillCancellations()
-                } catch (e: Exception) {
-                    e.printStackTrace() // will retry on next sync cycle
+                // 4. Money side of the void: close unpaid UPI / uncollected extra charges and save a
+                // "refund still due" note for every rupee received and not handed back. Same transaction.
+                if (localBill != null) com.example.easy_billing.util.CancelMoney.ensureRefundNote(db, localBill.id)
+                cancelledNow
                 }
 
                 withContext(Dispatchers.Main) {
                     applyBillCancellationState(cancelled = true)
+                    refreshOwedBanner()
                     Toast.makeText(
                         this@BillDetailsActivity,
                         getString(R.string.billdetailsactivity_invoice_voided_cancellation_will),
@@ -720,9 +908,21 @@ class BillDetailsActivity : AppCompatActivity() {
                             kind = CreditAdjustmentRepository.Kind.BILL_CANCEL,
                             amount = b.total,
                             documentLocalId = b.id,
-                            onDone = { }
+                            onDone = { refreshDueBanners() }
                         )
                     }
+                }
+
+                // 5. Best-effort sync of cancellations to the backend. Done AFTER the cancel is saved and
+                // shown, so a slow connection can never hold back the refund questions or lose them.
+                try {
+                    val sync = SyncManager(this@BillDetailsActivity)
+                    sync.syncGstCancellations()
+                    // Also void the analytics bills row so reports
+                    // exclude this invoice (covers non-GST bills too).
+                    sync.syncBillCancellations()
+                } catch (e: Exception) {
+                    e.printStackTrace() // will retry on next sync cycle
                 }
             } catch (e: Exception) {
                 Log.e("BillDetailsActivity", "Bill cancellation failed", e)
@@ -743,7 +943,7 @@ class BillDetailsActivity : AppCompatActivity() {
 
     private fun openSalesReturn() {
         if (localBillId == -1) {
-            Toast.makeText(this, getString(R.string.billdetailsactivity_bill_not_loaded_yet_1), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, notOnPhoneMessage(), Toast.LENGTH_LONG).show()
             return
         }
         lifecycleScope.launch(Dispatchers.IO) {
@@ -765,7 +965,7 @@ class BillDetailsActivity : AppCompatActivity() {
 
     private fun openDebitNote() {
         if (localBillId == -1) {
-            Toast.makeText(this, getString(R.string.billdetailsactivity_bill_not_loaded_yet_1), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, notOnPhoneMessage(), Toast.LENGTH_LONG).show()
             return
         }
         lifecycleScope.launch(Dispatchers.IO) {
@@ -860,7 +1060,7 @@ class BillDetailsActivity : AppCompatActivity() {
                 )
                 imageTintList = ColorStateList.valueOf(Color.parseColor(hex))
                 backgroundTintList = ColorStateList.valueOf(
-                    Color.parseColor(if (isCredit) "#F3ECDD" else "#E4F1EC")
+                    Color.parseColor(if (isCredit) "#EEF2F0" else "#E4F1EC")
                 )
             }
             card.findViewById<TextView>(R.id.tvReturnValue).apply {
@@ -891,10 +1091,7 @@ class BillDetailsActivity : AppCompatActivity() {
 
                 val db = AppDatabase.getDatabase(this@BillDetailsActivity)
 
-                val response = RetrofitClient.api.getBillDetails(
-                    token,
-                    billId
-                )
+                val response = loadDetailResponse(token)
 
                 val bill = Bill(
                     id = response.bill.bill_id,
@@ -912,7 +1109,8 @@ class BillDetailsActivity : AppCompatActivity() {
                     // bill never silently falls back to the "B2C" default.
                     customerType = response.bill.invoice_type ?: "B2C",
                     placeOfSupply = response.bill.customer_state_code ?: "",
-                    supplyType = response.bill.supply_type ?: "intrastate"
+                    supplyType = response.bill.supply_type ?: "intrastate",
+                    isCancelled = response.bill.is_cancelled
                 )
 
                 val billItems = response.items.map {
@@ -1011,7 +1209,19 @@ class BillDetailsActivity : AppCompatActivity() {
 
             try {
                 val db = AppDatabase.getDatabase(this@BillDetailsActivity)
-                val response = RetrofitClient.api.getBillDetails(token, billId)
+                // The invoice link and any payment link live on the server, so a bill
+                // that has not synced yet cannot be sent from here.
+                val pending = findLocalBill(db)
+                if (pending != null && pending.billNumber.isNotBlank()) resolvedBillNumber = pending.billNumber
+                if (pending != null && pending.billNumber.isBlank()) {
+                    Toast.makeText(this@BillDetailsActivity, getString(R.string.bill_needs_internet_sync), Toast.LENGTH_LONG).show()
+                    return@launch
+                }
+                val response = loadDetailResponse(token)
+                if (response.bill.is_cancelled || pending?.isCancelled == true) {
+                    Toast.makeText(this@BillDetailsActivity, getString(R.string.send_cancelled_blocked), Toast.LENGTH_LONG).show()
+                    return@launch
+                }
 
                 val bill = Bill(
                     id = response.bill.bill_id,
@@ -1098,6 +1308,46 @@ class BillDetailsActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Split bill: one tidy line per payment method (method left, amount right) in a
+     * small white box, instead of one long "Cash + Card + Bank transfer" sentence.
+     * [lines] are "Method amount" strings; null clears the box.
+     */
+    private fun showPaidBreakdown(lines: List<String>?) {
+        val dp = resources.displayMetrics.density
+        fun row(left: String, right: String?, color: Int, last: Boolean) {
+            val r = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = android.view.Gravity.CENTER_VERTICAL
+                setPadding(0, (9 * dp).toInt(), 0, (9 * dp).toInt())
+            }
+            r.addView(TextView(this).apply {
+                text = left; textSize = 12.5f; setTextColor(color)
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+            })
+            if (right != null) r.addView(TextView(this).apply {
+                text = right; textSize = 12.5f; setTextColor(Color.parseColor("#1A1A18"))
+                gravity = android.view.Gravity.END
+                typeface = androidx.core.content.res.ResourcesCompat.getFont(this@BillDetailsActivity, R.font.googlesans_semibold)
+            })
+            llPaidBreakdown.addView(r)
+            if (!last) llPaidBreakdown.addView(View(this).apply {
+                setBackgroundColor(Color.parseColor("#E3E8E4"))
+                layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (1 * dp).toInt().coerceAtLeast(1))
+            })
+        }
+        llPaidBreakdown.removeAllViews()
+        if (lines.isNullOrEmpty()) { llPaidBreakdown.visibility = View.GONE; return }
+        lines.forEachIndexed { i, line ->
+            val cut = line.lastIndexOf(' ')
+            val method = if (cut > 0) line.substring(0, cut) else line
+            val amount = if (cut > 0) line.substring(cut + 1) else null
+            row(method, amount, Color.parseColor("#5E6962"), i == lines.lastIndex)
+        }
+        llPaidBreakdown.visibility = View.VISIBLE
+        tvPaidThrough.visibility = View.GONE
+    }
+
     // ===== Manual "mark as paid" override =====
 
     private fun confirmMarkAsPaid() {
@@ -1110,11 +1360,26 @@ class BillDetailsActivity : AppCompatActivity() {
         // Reuses the total already rendered on screen (tvTotal) rather
         // than re-deriving it — this dialog is purely a confirmation
         // over what's already showing, no new data fetch needed.
-        val amountText = tvTotal.text?.toString().orEmpty()
-        tvBillInfo.text = when {
-            resolvedBillNumber.isNotBlank() && amountText.isNotBlank() -> "$resolvedBillNumber · $amountText"
-            resolvedBillNumber.isNotBlank() -> resolvedBillNumber
-            else -> amountText
+        var amountText = tvTotal.text?.toString().orEmpty()
+        fun showInfo() {
+            tvBillInfo.text = when {
+                resolvedBillNumber.isNotBlank() && amountText.isNotBlank() -> "$resolvedBillNumber · $amountText"
+                resolvedBillNumber.isNotBlank() -> resolvedBillNumber
+                else -> amountText
+            }
+        }
+        showInfo()
+        // Split bill: only the UPI part is being confirmed, so show that amount, not the whole bill.
+        if (localBillId != -1) lifecycleScope.launch {
+            val upi = withContext(Dispatchers.IO) {
+                AppDatabase.getDatabase(this@BillDetailsActivity).moneyEntryDao()
+                    .upiAmountForSource(com.example.easy_billing.util.MoneySource.BILL, localBillId)
+            }
+            val whole = tvTotal.text?.toString().orEmpty()
+            if (upi > 0.0 && com.example.easy_billing.util.PaymentMethodText.isSplit(lastPaymentMethod)) {
+                amountText = CurrencyHelper.format(this@BillDetailsActivity, upi) + " (UPI part)"
+                showInfo()
+            } else amountText = whole
         }
 
         val dialog = AlertDialog.Builder(this).setView(dialogView).create()
@@ -1130,13 +1395,77 @@ class BillDetailsActivity : AppCompatActivity() {
     }
 
     private fun markAsPaid() {
-        val billNumber = resolvedBillNumber
-        if (billNumber.isBlank()) {
-            Toast.makeText(this, getString(R.string.mark_as_paid_failed), Toast.LENGTH_SHORT).show()
+        if (resolvedBillNumber.isBlank() && localBillId == -1) {
+            Toast.makeText(this, getString(R.string.bill_needs_internet_sync), Toast.LENGTH_LONG).show()
             return
         }
-
+        if (localBillId == -1) { markAsPaidNow(0.0); return }
+        // A pay link made before a return still asks for the older, larger amount. If so, ask what really came in.
         lifecycleScope.launch {
+            val db = AppDatabase.getDatabase(this@BillDetailsActivity)
+            val (owed, asked) = withContext(Dispatchers.IO) {
+                try {
+                    com.example.easy_billing.util.UpiReceipt.linkAboveOwed(
+                        this@BillDetailsActivity, db, db.billDao().getBillById(localBillId)
+                    )
+                } catch (_: Exception) { 0.0 to 0.0 }
+            }
+            if (asked <= 0.004) { markAsPaidNow(0.0); return@launch }
+            val fmt = { v: Double -> CurrencyHelper.format(this@BillDetailsActivity, v) }
+            AlertDialog.Builder(this@BillDetailsActivity)
+                .setTitle(getString(R.string.mark_paid_amount_title))
+                .setMessage(getString(R.string.mark_paid_amount_msg, fmt(asked), fmt(owed)))
+                .setPositiveButton(getString(R.string.mark_paid_amount_owed_btn, fmt(owed))) { d, _ ->
+                    d.dismiss(); markAsPaidNow(0.0)
+                }
+                .setNegativeButton(getString(R.string.mark_paid_amount_link_btn, fmt(asked))) { d, _ ->
+                    d.dismiss(); markAsPaidNow(asked)
+                }
+                .setNeutralButton(android.R.string.cancel) { d, _ -> d.dismiss() }
+                .show()
+        }
+    }
+
+    /** [paidFull] > 0 means the customer paid that whole older link amount; the part above what is owed is noted as a refund due. */
+    private fun markAsPaidNow(paidFull: Double) {
+        lifecycleScope.launch {
+            val billNumber = freshBillNumber()
+            // Bill is on this phone: mark it paid here first (works offline), then tell the server.
+            if (localBillId != -1) {
+                val db = AppDatabase.getDatabase(this@BillDetailsActivity)
+                withContext(Dispatchers.IO) {
+                    db.withTransaction {
+                        db.billDao().markPaidOnPhone(localBillId)
+                        db.moneyEntryDao().markReceived(
+                            com.example.easy_billing.util.MoneySource.BILL, localBillId, com.example.easy_billing.util.MoneyMode.UPI,
+                            com.example.easy_billing.util.appNow()
+                        )
+                        if (paidFull > 0.004) {
+                            val got = db.moneyEntryDao().receivedUpiForBill(localBillId)
+                            com.example.easy_billing.util.UpiReceipt.recordOverpay(
+                                db, db.billDao().getBillById(localBillId),
+                                com.example.easy_billing.util.PaymentSplit.round2(paidFull - got)
+                            )
+                        }
+                    }
+                }
+                var told = false
+                if (billNumber.isNotBlank() && isOnline()) {
+                    val st = com.example.easy_billing.repository.PosPaymentRepository.markPaid(this@BillDetailsActivity, billNumber)
+                    if (st == "paid") {
+                        withContext(Dispatchers.IO) { db.billDao().clearPaidPush(localBillId) }
+                        told = true
+                    }
+                }
+                Toast.makeText(
+                    this@BillDetailsActivity,
+                    getString(if (told) R.string.mark_as_paid_success else R.string.mark_as_paid_saved_offline),
+                    Toast.LENGTH_LONG
+                ).show()
+                loadBillDetails()
+                return@launch
+            }
+
             val status = com.example.easy_billing.repository.PosPaymentRepository.markPaid(
                 this@BillDetailsActivity, billNumber
             )
@@ -1151,7 +1480,8 @@ class BillDetailsActivity : AppCompatActivity() {
                     // Payment tracking: the UPI money for this bill is now received.
                     db.billDao().getByBillNumber(billNumber)?.let { b ->
                         db.moneyEntryDao().markReceived(
-                            com.example.easy_billing.util.MoneySource.BILL, b.id, com.example.easy_billing.util.MoneyMode.UPI
+                            com.example.easy_billing.util.MoneySource.BILL, b.id, com.example.easy_billing.util.MoneyMode.UPI,
+                            com.example.easy_billing.util.appNow()
                         )
                     }
                 }

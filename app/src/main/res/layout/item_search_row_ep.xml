@@ -39,7 +39,7 @@
             android:paddingHorizontal="8dp"
             android:paddingVertical="2dp"
             android:background="@drawable/bg_search_tag_chip_neutral"
-            android:textColor="#6E6A60"
+            android:textColor="#5B6660"
             android:textSize="10sp"
             android:fontFamily="@font/googlesans_medium"
             android:singleLine="true"/>
@@ -48,6 +48,6 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#F2EEE2"/>
+        android:background="#E3E8E4"/>
 
 </LinearLayout>

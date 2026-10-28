@@ -15,7 +15,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="20dp"
     android:orientation="vertical"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:paddingHorizontal="22dp"
     android:paddingTop="26dp"
     android:paddingBottom="20dp">
@@ -79,7 +79,7 @@
         android:gravity="center"
         android:text="@string/biometric_dialog_message"
         android:textSize="12sp"
-        android:textColor="#9A8F79"
+        android:textColor="#7C8782"
         android:lineSpacingExtra="2dp" />
 
     <com.google.android.material.button.MaterialButton
@@ -87,7 +87,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="18dp"
-        android:background="@drawable/bg_login_cta_green"
+        android:background="@drawable/bg_lg_cta_green_12"
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
@@ -116,7 +116,7 @@
         android:layout_height="46dp"
         android:layout_marginTop="8dp"
         android:text="@string/biometric_dialog_decline"
-        android:textColor="#6B6353"
+        android:textColor="#59655E"
         android:textStyle="bold"
         android:textAllCaps="false"
         android:textSize="13.5sp"

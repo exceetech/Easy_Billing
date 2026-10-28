@@ -62,7 +62,7 @@ class Gstr1DocsAdapter(
         holder.tvAmount.text = r.totalNumber.toString()
         holder.tvAmount.setTextColor(Color.parseColor("#1A1A18"))
         holder.tvTax.text = if (r.totalNumber == 1) "document" else "documents"
-        holder.tvTax.setTextColor(Color.parseColor("#9A8F79"))
+        holder.tvTax.setTextColor(Color.parseColor("#7C8782"))
 
         holder.tvSubAmount.visibility = if (hasCancelled) View.VISIBLE else View.GONE
         if (hasCancelled) {

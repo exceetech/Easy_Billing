@@ -16,7 +16,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F3ECDD"
+    android:background="@drawable/bg_lg_page"
     android:paddingBottom="16dp">
 
     <!-- ══ Toolbar (usual back arrow) ══ -->
@@ -118,11 +118,12 @@
             android:paddingHorizontal="18dp">
 
             <!-- ─ PRODUCT DETAILS ─ -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_addp_card">
+                
+                android:background="@drawable/bg_lg_card">
 
                     <!-- Step 1 header banner -->
                     <LinearLayout
@@ -130,7 +131,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_customer_header"
+                        android:background="@drawable/bg_lg_hdr_green"
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="14dp">
                         <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -238,7 +239,7 @@
                             android:popupBackground="@drawable/bg_search_dropdown_simple"
                             android:layout_marginStart="12dp"
                             android:hint="@string/add_product_search_hint"
-                            android:textColorHint="#A99E88"
+                            android:textColorHint="#929F97"
                             android:textColor="#1A1A18"
                             android:textSize="14.5sp"
                             android:inputType="textCapWords"
@@ -251,7 +252,7 @@
                         android:layout_marginBottom="8dp"
                         android:text="@string/add_product_search_subtitle"
                         android:textSize="10sp"
-                        android:textColor="#C9BEA0"/>
+                        android:textColor="#B0B9B4"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -260,13 +261,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/purchase_field_product"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp">
                         <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                             <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_blue"/>
@@ -281,7 +282,7 @@
                             android:popupBackground="@drawable/bg_pos_dropdown"
                             android:layout_marginStart="12dp"
                             android:hint="@string/add_product_name_hint"
-                            android:textColorHint="#A99E88"
+                            android:textColorHint="#929F97"
                             android:textColor="#1A1A18"
                             android:textSize="15sp"
                             android:inputType="textCapWords"
@@ -295,13 +296,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/add_product_brand_label"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp">
                         <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                             <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_purple"/>
@@ -316,7 +317,7 @@
                             android:popupBackground="@drawable/bg_pos_dropdown"
                             android:layout_marginStart="12dp"
                             android:hint="@string/add_product_brand_hint"
-                            android:textColorHint="#A99E88"
+                            android:textColorHint="#929F97"
                             android:textColor="#1A1A18"
                             android:textSize="15sp"
                             android:inputType="textCapWords"
@@ -330,13 +331,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/add_product_variant_label"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp">
                         <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                             <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_teal"/>
@@ -354,7 +355,7 @@
                             app:drawableEndCompat="@drawable/ic_lc_chevron_down"
                             android:drawableTint="#B8895A"
                             android:hint="@string/add_product_variant_hint"
-                            android:textColorHint="#A99E88"
+                            android:textColorHint="#929F97"
                             android:textColor="#1A1A18"
                             android:textSize="15sp"
                             android:inputType="textCapWords"
@@ -368,13 +369,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/add_product_unit_label"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp"
                         android:clickable="true"
                         android:focusable="true">
@@ -394,7 +395,7 @@
                             app:drawableEndCompat="@drawable/ic_lc_chevron_down"
                             android:drawableTint="#B8895A"
                             android:hint="@string/invoice_hint_tap_to_select"
-                            android:textColorHint="#A99E88"
+                            android:textColorHint="#929F97"
                             android:textColor="#1A1A18"
                             android:textSize="15sp"/>
                     </LinearLayout>
@@ -406,13 +407,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/add_product_category_label"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp"
                         android:clickable="true"
                         android:focusable="true">
@@ -432,19 +433,20 @@
                             app:drawableEndCompat="@drawable/ic_lc_chevron_down"
                             android:drawableTint="#B8895A"
                             android:hint="@string/invoice_hint_tap_to_select"
-                            android:textColorHint="#A99E88"
+                            android:textColorHint="#929F97"
                             android:textColor="#1A1A18"
                             android:textSize="15sp"/>
                     </LinearLayout>
                     </LinearLayout>
-                </LinearLayout>
+                </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- ─ PRICING & TAX ─ -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_addp_card"
+                
+                android:background="@drawable/bg_lg_card"
                 android:layout_marginTop="16dp">
 
                     <!-- Step 2 header banner -->
@@ -453,7 +455,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_items_header"
+                        android:background="@drawable/bg_lg_hdr_amber"
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="14dp">
                         <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -511,11 +513,11 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/add_product_selling_price_label"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
-                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:background="@drawable/bg_lg_field"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
                         android:paddingHorizontal="12dp">
@@ -531,7 +533,7 @@
                             android:background="@null"
                             android:layout_marginStart="12dp"
                             android:hint="@string/add_product_rate_per_unit_hint"
-                            android:textColorHint="#A99E88"
+                            android:textColorHint="#929F97"
                             android:textColor="#1A1A18"
                             android:textSize="15sp"
                             android:inputType="numberDecimal"/>
@@ -542,7 +544,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:background="@drawable/bg_lg_field"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
                         android:paddingStart="14dp"
@@ -563,7 +565,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/add_product_price_mrp_note"
-                                android:textColor="#8A8272"
+                                android:textColor="#76867C"
                                 android:textSize="11.5sp"/>
                         </LinearLayout>
                         <com.google.android.material.materialswitch.MaterialSwitch
@@ -572,14 +574,15 @@
                             android:checked="false"/>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- ─ GST & COMPLIANCE ─ -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_addp_card"
+                
+                android:background="@drawable/bg_lg_card"
                 android:layout_marginTop="16dp">
 
                 <LinearLayout
@@ -588,7 +591,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_tax_header"
+                    android:background="@drawable/bg_lg_hdr_green"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp"
                     android:clickable="true"
@@ -665,13 +668,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/add_product_hsn_sac_label"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:background="@drawable/bg_lg_field"
                             android:paddingHorizontal="12dp">
                         <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                             <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_blue"/>
@@ -686,7 +689,7 @@
                                 android:popupBackground="@drawable/bg_pos_dropdown"
                                 android:layout_marginStart="12dp"
                                 android:hint="@string/add_product_tax_code_hint"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
                                 android:inputType="number"
@@ -714,13 +717,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/invoice_cgst_label"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="48dp"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
-                                android:background="@drawable/bg_inv_field_light_grey"
+                                android:background="@drawable/bg_lg_field"
                                 android:paddingHorizontal="12dp">
                             <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                                 <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_teal"/>
@@ -734,7 +737,7 @@
                                     android:background="@null"
                                     android:layout_marginStart="12dp"
                                     android:hint="@string/add_product_central_tax_hint"
-                                    android:textColorHint="#A99E88"
+                                    android:textColorHint="#929F97"
                                     android:textColor="#1A1A18"
                                     android:textSize="15sp"
                                     android:inputType="numberDecimal"/>
@@ -754,13 +757,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/invoice_sgst_label"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="48dp"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
-                                android:background="@drawable/bg_inv_field_light_grey"
+                                android:background="@drawable/bg_lg_field"
                                 android:paddingHorizontal="12dp">
                             <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                                 <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_gold"/>
@@ -774,7 +777,7 @@
                                     android:background="@null"
                                     android:layout_marginStart="12dp"
                                     android:hint="@string/add_product_state_tax_hint"
-                                    android:textColorHint="#A99E88"
+                                    android:textColorHint="#929F97"
                                     android:textColor="#1A1A18"
                                     android:textSize="15sp"
                                     android:inputType="numberDecimal"/>
@@ -794,13 +797,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/add_product_igst_auto_label"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="48dp"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
-                                android:background="@drawable/bg_inv_field_light_grey"
+                                android:background="@drawable/bg_lg_field"
                                 android:paddingHorizontal="12dp">
                             <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                                 <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_purple"/>
@@ -814,7 +817,7 @@
                                     android:background="@null"
                                     android:layout_marginStart="12dp"
                                     android:hint="@string/add_product_auto_filled_hint"
-                                    android:textColorHint="#A99E88"
+                                    android:textColorHint="#929F97"
                                     android:textColor="#1A1A18"
                                     android:textSize="15sp"
                                     android:enabled="false"
@@ -835,13 +838,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/add_product_hsn_description_label"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:background="@drawable/bg_lg_field"
                             android:paddingHorizontal="12dp">
                         <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                             <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_teal"/>
@@ -855,7 +858,7 @@
                                 android:background="@null"
                                 android:layout_marginStart="12dp"
                                 android:hint="@string/add_product_short_description_hint"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
                                 android:maxLines="1"
@@ -885,13 +888,13 @@
                             android:text="@string/add_product_more_tax_details_label"
                             android:textSize="12sp"
                             android:fontFamily="@font/googlesans_medium"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                         <ImageView
                             android:id="@+id/ivMoreTaxDetailsChevron"
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_lc_chevron_down"
-                            app:tint="#6E6A60"
+                            app:tint="#5B6660"
                             android:contentDescription="@null"/>
                     </LinearLayout>
 
@@ -921,13 +924,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/add_product_official_uqc_label"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
-                                android:background="@drawable/bg_inv_field_light_grey"
+                                android:background="@drawable/bg_lg_field"
                                 android:paddingHorizontal="12dp"
                                 android:clickable="true"
                                 android:focusable="true">
@@ -947,7 +950,7 @@
                                     app:drawableEndCompat="@drawable/ic_lc_chevron_down"
                                     android:drawableTint="#B8895A"
                                     android:hint="@string/add_product_auto_from_unit_hint"
-                                    android:textColorHint="#A99E88"
+                                    android:textColorHint="#929F97"
                                     android:textColor="#1A1A18"
                                     android:textSize="15sp"/>
                             </LinearLayout>
@@ -966,13 +969,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/add_product_supply_classification_label"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
-                                android:background="@drawable/bg_inv_field_light_grey"
+                                android:background="@drawable/bg_lg_field"
                                 android:paddingHorizontal="12dp"
                                 android:clickable="true"
                                 android:focusable="true">
@@ -992,7 +995,7 @@
                                     app:drawableEndCompat="@drawable/ic_lc_chevron_down"
                                     android:drawableTint="#B8895A"
                                     android:hint="@string/invoice_hint_tap_to_select"
-                                    android:textColorHint="#A99E88"
+                                    android:textColorHint="#929F97"
                                     android:textColor="#1A1A18"
                                     android:textSize="15sp"/>
                             </LinearLayout>
@@ -1011,13 +1014,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/add_product_cess_label"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="50dp"
                                 android:orientation="horizontal"
                                 android:gravity="center_vertical"
-                                android:background="@drawable/bg_inv_field_light_grey"
+                                android:background="@drawable/bg_lg_field"
                                 android:paddingHorizontal="12dp">
                             <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                                 <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_gold"/>
@@ -1031,7 +1034,7 @@
                                     android:background="@null"
                                     android:layout_marginStart="12dp"
                                     android:hint="@string/add_product_if_applicable_hint"
-                                    android:textColorHint="#A99E88"
+                                    android:textColorHint="#929F97"
                                     android:textColor="#1A1A18"
                                     android:textSize="15sp"
                                     android:inputType="numberDecimal"/>
@@ -1040,14 +1043,15 @@
                     </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- ─ OPENING STOCK ─ -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_addp_card"
+                
+                android:background="@drawable/bg_lg_card"
                 android:layout_marginTop="16dp">
 
                 <!-- Step 4 header banner -->
@@ -1056,12 +1060,12 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_customer_header"
+                    android:background="@drawable/bg_lg_hdr_amber"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp">
 
                     <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
-                        <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring"/>
+                        <View android:layout_width="28dp" android:layout_height="28dp" android:background="@drawable/bg_step_circle_ring_champagne"/>
                         <TextView
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_gravity="center"
@@ -1081,7 +1085,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/add_product_opening_stock_title"
-                            android:textColor="#123B31"
+                            android:textColor="#4A3A16"
                             android:textSize="15sp"
                             android:fontFamily="@font/googlesans_semibold"/>
                         <TextView
@@ -1089,7 +1093,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:text="@string/add_product_opening_stock_subtitle"
-                            android:textColor="#3E6F62"
+                            android:textColor="#8A6526"
                             android:textSize="11sp"/>
                     </LinearLayout>
 
@@ -1113,13 +1117,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/quantity"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp">
                         <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                             <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_teal"/>
@@ -1133,7 +1137,7 @@
                             android:background="@null"
                             android:layout_marginStart="12dp"
                             android:hint="@string/add_product_current_stock_hint"
-                            android:textColorHint="#A99E88"
+                            android:textColorHint="#929F97"
                             android:textColor="#1A1A18"
                             android:textSize="15sp"
                             android:inputType="numberDecimal"/>
@@ -1159,12 +1163,12 @@
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:text="@string/add_product_no_input_credit_note"
-                            android:textColor="#8A7A5C"
+                            android:textColor="#6C7A72"
                             android:textSize="10.5sp"
                             android:lineSpacingExtra="2dp"/>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
         </LinearLayout>
     </ScrollView>
 
@@ -1199,7 +1203,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@drawable/bg_addp_footer_capsule"
+                android:background="@drawable/bg_lg_footer"
                 android:paddingStart="20dp"
                 android:paddingEnd="8dp"
                 android:paddingVertical="8dp"
@@ -1218,14 +1222,14 @@
                         android:layout_width="13dp"
                         android:layout_height="13dp"
                         android:src="@drawable/ic_close"
-                        app:tint="#B0A895"
+                        app:tint="#9DA8A1"
                         android:layout_marginEnd="6dp"
                         android:contentDescription="@null"/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/cancel"
-                        android:textColor="#8A8272"
+                        android:textColor="#76867C"
                         android:textSize="13.5sp"
                         android:textStyle="bold"
                         android:fontFamily="@font/googlesans_semibold"/>
@@ -1239,7 +1243,7 @@
                     android:layout_marginStart="14dp"
                     android:orientation="horizontal"
                     android:gravity="center"
-                    android:background="@drawable/bg_addp_save_pill_sheen"
+                    android:background="@drawable/bg_lg_cta"
                     android:clickable="true"
                     android:focusable="true">
                     <FrameLayout

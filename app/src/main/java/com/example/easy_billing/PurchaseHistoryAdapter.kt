@@ -38,6 +38,10 @@ class PurchaseHistoryAdapter(
         submitList(initialItems)
     }
 
+    /** Money Book view per purchase id; set by the screen once loaded. Rows redraw when it changes. */
+    var paymentInfo: Map<Int, com.example.easy_billing.util.PurchasePaymentInfo.Info> = emptyMap()
+        set(value) { field = value; notifyDataSetChanged() }
+
     private val dateFmt = SimpleDateFormat("dd MMM", Locale.getDefault())
     private val timeFmt = SimpleDateFormat("hh:mm a", Locale.getDefault())
 
@@ -76,10 +80,11 @@ class PurchaseHistoryAdapter(
         val strike = Paint.STRIKE_THRU_TEXT_FLAG
         when {
             cancelled -> {
-                holder.stripe.setBackgroundColor(Color.parseColor("#D8D0C0"))
-                setAvatar(holder, "#F1EBDD", "#A99E88")
-                holder.tvStatus.text = ctx.getString(R.string.purchase_history_status_cancelled)
-                holder.tvStatus.setTextColor(Color.parseColor("#A99E88"))
+                holder.stripe.setBackgroundColor(Color.parseColor("#D5DDD8"))
+                setAvatar(holder, "#E3E8E4", "#929F97")
+                holder.tvStatus.text = ctx.getString(R.string.purchase_history_status_cancelled) +
+                    com.example.easy_billing.util.PurchasePaymentInfo.dueSuffix(ctx, paymentInfo[item.id])
+                holder.tvStatus.setTextColor(Color.parseColor("#929F97"))
                 holder.itemView.alpha = 0.55f
                 holder.tvSupplier.paintFlags = holder.tvSupplier.paintFlags or strike
                 holder.tvAmount.paintFlags = holder.tvAmount.paintFlags or strike
@@ -87,7 +92,8 @@ class PurchaseHistoryAdapter(
             item.isCredit -> {
                 holder.stripe.setBackgroundColor(Color.parseColor("#B23A3A"))
                 setAvatar(holder, "#FBEDED", "#B23A3A")
-                holder.tvStatus.text = ctx.getString(R.string.purchase_history_status_credit)
+                holder.tvStatus.text = ctx.getString(R.string.purchase_history_status_credit) +
+                    com.example.easy_billing.util.PurchasePaymentInfo.dueSuffix(ctx, paymentInfo[item.id])
                 holder.tvStatus.setTextColor(Color.parseColor("#B23A3A"))
                 holder.itemView.alpha = 1f
                 holder.tvSupplier.paintFlags = holder.tvSupplier.paintFlags and strike.inv()
@@ -96,7 +102,13 @@ class PurchaseHistoryAdapter(
             else -> {
                 holder.stripe.setBackgroundColor(Color.parseColor("#1D6E6E"))
                 setAvatar(holder, "#DDEEEE", "#1D6E6E")
-                holder.tvStatus.text = ctx.getString(R.string.purchase_history_status_paid_cash)
+                // How it was really paid (Cash / UPI / Card / Bank / Split). A purchase from before payments were
+                // tracked has no money rows, so it just says "paid" rather than guessing a mode.
+                val info = paymentInfo[item.id]
+                val mode = info?.let { com.example.easy_billing.util.PurchasePaymentInfo.modeText(ctx, it) }
+                holder.tvStatus.text = (if (mode != null) ctx.getString(R.string.purchase_history_status_paid_by, mode)
+                    else ctx.getString(R.string.purchase_history_status_paid)) +
+                    com.example.easy_billing.util.PurchasePaymentInfo.dueSuffix(ctx, info)
                 holder.tvStatus.setTextColor(Color.parseColor("#1D6E6E"))
                 holder.itemView.alpha = 1f
                 holder.tvSupplier.paintFlags = holder.tvSupplier.paintFlags and strike.inv()

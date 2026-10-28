@@ -13,7 +13,7 @@ import com.example.easy_billing.util.CurrencyHelper
 /** Small helpers shared by the Money card and the Statement screen (views are built in code). */
 object MoneyViews {
     const val INK = "#1A1A18"
-    const val MUTED = "#8C8576"
+    const val MUTED = "#7C8782"
     const val GREEN = "#0F6E56"
     const val RED = "#B23A3A"
 
@@ -52,7 +52,7 @@ object MoneyViews {
     }
 
     fun divider(ctx: Context) = android.view.View(ctx).apply {
-        setBackgroundColor(Color.parseColor("#F0EADC"))
+        setBackgroundColor(Color.parseColor("#E3E8E4"))
         layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(ctx, 1)).also {
             it.topMargin = dp(ctx, 6); it.bottomMargin = dp(ctx, 6)
         }
@@ -70,6 +70,8 @@ object MoneyViews {
             "PURCHASE_REFUND" -> R.string.money_reason_purchase_refund
             "OPENING" -> R.string.money_reason_opening
             "TRANSFER" -> R.string.money_reason_transfer
+            "SALE_REFUND_DUE", "ADVANCE_REFUND_DUE", "PURCHASE_PAID_DUE" -> R.string.money_reason_due_give
+            "SALE_EXTRA_DUE", "PURCHASE_REFUND_DUE" -> R.string.money_reason_due_collect
             else -> R.string.money_reason_manual
         }
     )

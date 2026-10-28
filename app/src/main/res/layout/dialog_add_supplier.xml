@@ -8,13 +8,20 @@
     Ids bound by SupplierPicker.showAddSupplierDialog: etSupName,
     etSupGstin, etSupState, tvSupStateHint, btnSupCancel, btnSupSave.
 -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="false"
+    android:overScrollMode="never"
+    android:scrollbars="none">
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="20dp"
     android:orientation="vertical"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:paddingHorizontal="22dp"
     android:paddingTop="26dp"
     android:paddingBottom="20dp">
@@ -23,14 +30,14 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_gravity="center_horizontal"
-        android:background="@drawable/bg_dialog_soft_amber_circle">
+        android:background="@drawable/bg_circle_soft_green">
 
         <ImageView
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_gravity="center"
             android:src="@drawable/ic_lc_store"
-            app:tint="#B8895A"
+            app:tint="#0F6E56"
             android:contentDescription="@null" />
     </FrameLayout>
 
@@ -40,7 +47,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="12dp"
         android:text="@string/dialog_add_supplier_supplier"
-        android:textColor="#B8895A"
+        android:textColor="#0F6E56"
         android:textSize="10sp"
         android:letterSpacing="0.16"
         android:fontFamily="@font/googlesans_semibold" />
@@ -79,7 +86,7 @@
         android:layout_marginTop="6dp"
         android:gravity="center"
         android:text="@string/dialog_add_supplier_gstin_is_optional_leave"
-        android:textColor="#8A8272"
+        android:textColor="#6B7C73"
         android:textSize="12sp"
         android:lineSpacingExtra="2dp" />
 
@@ -91,20 +98,20 @@
         android:layout_marginBottom="6dp"
         android:text="@string/dialog_add_supplier_supplier_name"
         android:textSize="12.5sp"
-        android:textColor="#9A968C"
+        android:textColor="#7A8780"
         android:fontFamily="@font/googlesans_regular" />
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@drawable/bg_glass_input">
+        android:background="@drawable/bg_lg_input">
         <ImageView
             android:layout_width="19dp"
             android:layout_height="19dp"
             android:layout_gravity="center_vertical|start"
             android:layout_marginStart="14dp"
             android:src="@drawable/ic_lc_user"
-            app:tint="#B8895A"
+            app:tint="#0F6E56"
             android:contentDescription="@null" />
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etSupName"
@@ -116,7 +123,7 @@
             android:gravity="center_vertical"
             android:hint="@string/dialog_add_supplier_supplier_name_1"
             android:textColor="#1A1A18"
-            android:textColorHint="#A99E88"
+            android:textColorHint="#9AA5A0"
             android:textSize="14sp"
             android:inputType="textCapWords"
             android:singleLine="true"
@@ -132,20 +139,20 @@
         android:layout_marginBottom="6dp"
         android:text="@string/dialog_add_supplier_gstin"
         android:textSize="12.5sp"
-        android:textColor="#9A968C"
+        android:textColor="#7A8780"
         android:fontFamily="@font/googlesans_regular" />
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@drawable/bg_glass_input">
+        android:background="@drawable/bg_lg_input">
         <ImageView
             android:layout_width="19dp"
             android:layout_height="19dp"
             android:layout_gravity="center_vertical|start"
             android:layout_marginStart="14dp"
             android:src="@drawable/ic_lc_id_card"
-            app:tint="#B8895A"
+            app:tint="#0F6E56"
             android:contentDescription="@null" />
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etSupGstin"
@@ -157,7 +164,7 @@
             android:gravity="center_vertical"
             android:hint="@string/dialog_add_supplier_15character_gstin"
             android:textColor="#1A1A18"
-            android:textColorHint="#A99E88"
+            android:textColorHint="#9AA5A0"
             android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
             android:inputType="textCapCharacters"
             android:maxLength="15"
@@ -175,20 +182,20 @@
         android:layout_marginBottom="6dp"
         android:text="@string/dialog_add_supplier_state"
         android:textSize="12.5sp"
-        android:textColor="#9A968C"
+        android:textColor="#7A8780"
         android:fontFamily="@font/googlesans_regular" />
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@drawable/bg_glass_input">
+        android:background="@drawable/bg_lg_input">
         <ImageView
             android:layout_width="19dp"
             android:layout_height="19dp"
             android:layout_gravity="center_vertical|start"
             android:layout_marginStart="14dp"
             android:src="@drawable/ic_lc_map_pin"
-            app:tint="#B8895A"
+            app:tint="#0F6E56"
             android:contentDescription="@null" />
         <TextView
             android:id="@+id/etSupState"
@@ -199,7 +206,7 @@
             android:paddingEnd="38dp"
             android:hint="@string/dialog_add_supplier_select_state"
             android:textColor="#1A1A18"
-            android:textColorHint="#A99E88"
+            android:textColorHint="#9AA5A0"
             android:singleLine="true"
             android:ellipsize="end"
             android:textSize="14sp"
@@ -210,7 +217,7 @@
             android:layout_gravity="center_vertical|end"
             android:layout_marginEnd="14dp"
             android:src="@drawable/ic_lc_chevron_down"
-            app:tint="#C9C3B4"
+            app:tint="#B4BDB8"
             android:contentDescription="@null" />
     </FrameLayout>
 
@@ -231,7 +238,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="20dp"
-        android:background="@drawable/bg_login_cta_green"
+        android:background="@drawable/bg_lg_cta"
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"
@@ -287,3 +294,5 @@
         app:rippleColor="#F6D8D4" />
 
 </LinearLayout>
+
+</ScrollView>

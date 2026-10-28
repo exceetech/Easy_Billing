@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4F0E6">
+    android:background="@drawable/bg_lg_page">
 
     <!-- ── HEADER (toolbar + title row) ── -->
     <com.google.android.material.appbar.MaterialToolbar
@@ -87,12 +87,13 @@
 
             <!-- ── AUDIT SCORE (header-banner card that recolors green/amber/red
                  by health band — see AiDashboardActivity.applyScoreBand()) ── -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginBottom="12dp"
-                android:background="@drawable/bg_inv_card_cream">
+                
+                android:background="@drawable/bg_lg_card">
 
                 <LinearLayout
                     android:id="@+id/scoreHeader"
@@ -102,7 +103,7 @@
                     android:gravity="center_vertical"
                     android:paddingHorizontal="15dp"
                     android:paddingVertical="14dp"
-                    android:background="@drawable/bg_inv_customer_header">
+                    android:background="@drawable/bg_lg_hdr_green">
 
                     <FrameLayout
                         android:id="@+id/scoreIconBadge"
@@ -145,7 +146,7 @@
                         android:text="@string/dash"
                         android:textColor="#085041" android:textSize="9sp" android:letterSpacing="0.06"
                         android:fontFamily="@font/googlesans_semibold"
-                        android:background="@drawable/bg_imp_badge" android:backgroundTint="#DDEEEE"
+                        android:background="@drawable/bg_lg_pill" android:backgroundTint="#DDEEEE"
                         android:paddingHorizontal="8dp" android:paddingVertical="4dp"/>
                 </LinearLayout>
 
@@ -174,7 +175,7 @@
                         android:layout_marginStart="14dp"
                         android:layout_marginEnd="8dp"
                         android:text="@string/ai_dashboard_audit_score_desc"
-                        android:textColor="#9A8F79" android:textSize="11sp" android:lineSpacingMultiplier="1.3"/>
+                        android:textColor="#7C8782" android:textSize="11sp" android:lineSpacingMultiplier="1.3"/>
 
                     <ImageButton
                         android:id="@+id/btnScoreInfo"
@@ -184,10 +185,10 @@
                         android:src="@drawable/ic_info_circle"
                         android:scaleType="centerInside"
                         android:padding="5dp"
-                        app:tint="#9A968C"
+                        app:tint="#8D9992"
                         android:contentDescription="What is the audit score?" />
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- ── ROW 1: URGENT / LEAKS / WINS (recolored to the champagne
                  red/gold/teal palette instead of the old red/amber/green) ── -->
@@ -203,8 +204,7 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="@drawable/bg_imp_block_red"
-                    android:backgroundTint="#791F1F"
+                    android:background="@drawable/bg_lg_cta_red_16"
                     android:padding="13dp">
                     <ImageView android:layout_width="17dp" android:layout_height="17dp"
                         android:src="@drawable/ic_kpi_alert" app:tint="#F0C4C4" android:contentDescription="@null"/>
@@ -224,8 +224,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:layout_marginStart="10dp"
-                    android:background="@drawable/bg_imp_block_amber"
-                    android:backgroundTint="#8A6526"
+                    android:background="@drawable/bg_lg_cta_gold_16"
                     android:padding="13dp">
                     <ImageView android:layout_width="17dp" android:layout_height="17dp"
                         android:src="@drawable/ic_trending_down" app:tint="#F5DBAE" android:contentDescription="@null"/>
@@ -245,8 +244,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:layout_marginStart="10dp"
-                    android:background="@drawable/bg_imp_block_green"
-                    android:backgroundTint="#085041"
+                    android:background="@drawable/bg_lg_cta_green_16"
                     android:padding="13dp">
                     <ImageView android:layout_width="17dp" android:layout_height="17dp"
                         android:src="@drawable/ic_kpi_badge_check" app:tint="#9FE1CB" android:contentDescription="@null"/>
@@ -263,13 +261,14 @@
 
             <!-- ── ROW 2: TOP PRODUCT VELOCITY (before insights) — themed
                  header-banner card, champagne family ── -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:id="@+id/bentoRow3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginBottom="12dp"
-                android:background="@drawable/bg_inv_card_cream">
+                
+                android:background="@drawable/bg_lg_card">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -278,7 +277,7 @@
                     android:gravity="center_vertical"
                     android:paddingHorizontal="15dp"
                     android:paddingVertical="14dp"
-                    android:background="@drawable/bg_inv_customer_header">
+                    android:background="@drawable/bg_lg_hdr_green">
 
                     <FrameLayout
                         android:layout_width="38dp"
@@ -334,7 +333,7 @@
                             android:layout_weight="2"
                             android:paddingStart="15dp"
                             android:text="@string/ai_dashboard_col_product"
-                            android:textColor="#9A8F79"
+                            android:textColor="#7C8782"
                             android:textSize="10sp"
                             android:letterSpacing="0.04"
                             android:textStyle="bold"/>
@@ -344,7 +343,7 @@
                             android:layout_weight="1"
                             android:text="@string/ai_dashboard_col_qty"
                             android:gravity="center"
-                            android:textColor="#9A8F79"
+                            android:textColor="#7C8782"
                             android:textSize="10sp"
                             android:letterSpacing="0.04"
                             android:textStyle="bold"/>
@@ -355,13 +354,13 @@
                             android:paddingEnd="15dp"
                             android:text="@string/ai_dashboard_col_revenue"
                             android:gravity="end"
-                            android:textColor="#9A8F79"
+                            android:textColor="#7C8782"
                             android:textSize="10sp"
                             android:letterSpacing="0.04"
                             android:textStyle="bold"/>
                     </TableRow>
                 </TableLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- ── ROW 3: INSIGHTS LIST ── -->
             <LinearLayout
@@ -411,11 +410,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/ai_dashboard_insights_empty"
-                android:textColor="#9A8F79"
+                android:textColor="#7C8782"
                 android:textSize="13sp"
                 android:gravity="center"
                 android:padding="20dp"
-                android:background="@drawable/bg_imp_card"
+                android:background="@drawable/bg_lg_card"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="20dp"
                 android:visibility="gone"/>

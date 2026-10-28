@@ -12,7 +12,7 @@
 <LinearLayout
     android:layout_width="match_parent" android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:paddingHorizontal="22dp" android:paddingTop="24dp" android:paddingBottom="20dp">
 
     <FrameLayout android:layout_width="58dp" android:layout_height="58dp" android:layout_gravity="center_horizontal"
@@ -36,11 +36,11 @@
     </LinearLayout>
 
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp"
-        android:gravity="center" android:text="@string/correct_confirm_body" android:textColor="#8A8272"
+        android:gravity="center" android:text="@string/correct_confirm_body" android:textColor="#76867C"
         android:textSize="12.5sp" android:lineSpacingExtra="3dp"/>
 
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp"
-        android:orientation="vertical" android:background="@drawable/bg_summary_white" android:padding="14dp">
+        android:orientation="vertical" android:background="@drawable/bg_lg_card" android:padding="14dp">
         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:text="@string/correct_qty_bill_changes" android:textSize="11sp"
             android:fontFamily="@font/googlesans_bold" android:textColor="#5C4A22"/>
@@ -64,7 +64,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnConfirmSave" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="18dp"
-        android:background="@drawable/bg_cta_save_green" app:backgroundTint="@null"
+        android:background="@drawable/bg_lg_cta_green_14" app:backgroundTint="@null"
         android:insetTop="0dp" android:insetBottom="0dp" android:insetLeft="0dp" android:insetRight="0dp"
         android:text="@string/correct_confirm_yes" android:textAllCaps="false" android:textSize="13.5sp"
         android:textColor="@android:color/white" android:fontFamily="@font/googlesans_semibold"
@@ -80,6 +80,6 @@
         android:textColor="#6B5A3A" android:fontFamily="@font/googlesans_semibold"
         android:includeFontPadding="false" android:gravity="center" android:stateListAnimator="@null"
         app:icon="@drawable/ic_chevron_left" app:iconTint="#6B5A3A" app:iconSize="16dp"
-        app:iconGravity="textStart" app:iconPadding="8dp" app:cornerRadius="14dp" app:rippleColor="#EAE2D1"/>
+        app:iconGravity="textStart" app:iconPadding="8dp" app:cornerRadius="14dp" app:rippleColor="#1F000000"/>
 </LinearLayout>
 </ScrollView>

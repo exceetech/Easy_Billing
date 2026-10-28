@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.easy_billing.ui.glass.GlassClipLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="9dp"
     android:orientation="horizontal"
-    android:background="@drawable/bg_imp_card"
+    android:background="@drawable/bg_lg_card"
     android:foreground="?attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
-    android:clipToOutline="true"
     android:clipChildren="true">
 
     <!-- Left accent bar, colored per insight type (fire/leak/gold) — spans
@@ -60,7 +59,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="Description"
-            android:textColor="#9A8F79"
+            android:textColor="#7C8782"
             android:textSize="12sp"
             android:lineSpacingMultiplier="1.3"
             android:maxLines="3"
@@ -91,4 +90,4 @@
                 android:contentDescription="@null" />
         </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</com.example.easy_billing.ui.glass.GlassClipLinearLayout>

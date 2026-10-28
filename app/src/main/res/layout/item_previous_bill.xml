@@ -74,7 +74,7 @@
                     android:layout_marginTop="2dp"
                     android:text="12 Apr · Cash"
                     android:textSize="11sp"
-                    android:textColor="#9A8F79"
+                    android:textColor="#7C8782"
                     android:singleLine="true"
                     android:ellipsize="end" />
 
@@ -105,7 +105,7 @@
                     android:layout_marginTop="1dp"
                     android:text="@string/bill_history_status_paid"
                     android:textSize="9.5sp"
-                    android:textColor="#A99E88" />
+                    android:textColor="#7C8782" />
 
             </LinearLayout>
 
@@ -118,6 +118,6 @@
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
         android:layout_marginHorizontal="14dp"
-        android:background="#F1EBDD" />
+        android:background="#E3E8E4" />
 
 </LinearLayout>

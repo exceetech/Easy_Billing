@@ -58,7 +58,7 @@ class AiInsightListAdapter(
         "fire" -> TypeStyle(context.getString(R.string.ai_insight_header_fire), c(R.color.band_red_bg), c(R.color.band_red_ink), c(R.color.band_red_ink), R.drawable.ic_kpi_alert)
         "leak" -> TypeStyle(context.getString(R.string.ai_insight_header_leak), c(R.color.band_amber_bg), c(R.color.band_amber_ink), c(R.color.band_amber_ink), R.drawable.ic_trending_down)
         "gold" -> TypeStyle(context.getString(R.string.ai_insight_header_gold), c(R.color.band_green_bg), c(R.color.ai_green), c(R.color.ai_green), R.drawable.ic_kpi_badge_check)
-        else -> TypeStyle(context.getString(R.string.ai_insight_header_default), Color.parseColor("#F1EFE8"), c(R.color.ai_neutral), Color.parseColor("#C9C3B4"), R.drawable.ic_kpi_badge_check)
+        else -> TypeStyle(context.getString(R.string.ai_insight_header_default), Color.parseColor("#EAEEEC"), c(R.color.ai_neutral), Color.parseColor("#B4BDB8"), R.drawable.ic_kpi_badge_check)
     }
 
     fun submit(insights: List<AiInsight>) {

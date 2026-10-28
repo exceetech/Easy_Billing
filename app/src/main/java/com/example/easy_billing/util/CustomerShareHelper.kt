@@ -94,15 +94,20 @@ object CustomerShareHelper {
         var linkAmount: Double? = null
         val payLinkUrl: String? = if (needsPaymentLink) {
             // Split bill: the link asks for the UPI part only; pure UPI asks for the whole bill.
-            val upiPart: Double? = if (PaymentMethodText.isPureUpi(bill.paymentMethod)) null
-                else AppDatabase.getDatabase(context).moneyEntryDao()
-                    .upiAmountForSource(MoneySource.BILL, bill.id).takeIf { it > 0.0 }
+            // After a return on an unpaid UPI bill the customer owes less than the bill total, so a pure-UPI
+            // link must ask for that lower amount too (it is only left to the server when nothing changed).
+            val owedUpi = AppDatabase.getDatabase(context).moneyEntryDao()
+                .upiAmountForSource(MoneySource.BILL, bill.id)
+            val upiPart: Double? = if (PaymentMethodText.isPureUpi(bill.paymentMethod)) {
+                if (owedUpi > 0.0 && owedUpi < bill.total - 0.005) owedUpi else null
+            } else owedUpi.takeIf { it > 0.0 }
             linkAmount = upiPart
             val link = PosPaymentRepository.createPaymentLink(context, bill.billNumber, customerName, customerPhone, upiPart)
             if (link == null) {
                 Toast.makeText(context, context.getString(R.string.send_to_customer_link_failed), Toast.LENGTH_LONG).show()
                 return false
             }
+            upiPart?.let { UpiLinkAmounts.remember(context, bill.billNumber, it) }
             link.payment_link_url
         } else null
 

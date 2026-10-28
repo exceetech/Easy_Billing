@@ -108,10 +108,10 @@ class CreditDebitNotesActivity : BaseActivity() {
             if (type == "D") R.drawable.bg_credit_tile_teal else android.R.color.transparent
         )
         tvTabCreditLabel.setTextColor(
-            android.graphics.Color.parseColor(if (type == "C") "#085041" else "#9A8F79")
+            android.graphics.Color.parseColor(if (type == "C") "#085041" else "#7C8782")
         )
         tvTabDebitLabel.setTextColor(
-            android.graphics.Color.parseColor(if (type == "D") "#085041" else "#9A8F79")
+            android.graphics.Color.parseColor(if (type == "D") "#085041" else "#7C8782")
         )
         render()
     }

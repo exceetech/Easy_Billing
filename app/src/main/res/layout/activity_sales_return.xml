@@ -18,7 +18,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F3ECDD">
+    android:background="@drawable/bg_lg_page">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -89,7 +89,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@drawable/bg_credit_phone_chip"
+                android:background="@drawable/bg_lg_pill"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="3dp"
                 android:layout_marginTop="8dp">
@@ -123,7 +123,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:text="—"
-            android:textColor="#8A8272"
+            android:textColor="#76867C"
             android:textSize="11.5sp" />
     </LinearLayout>
 
@@ -140,11 +140,11 @@
             android:orientation="vertical">
 
             <!-- CARD 1 — teal, step 1: items to return -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_addp_card"
+                android:background="@drawable/bg_lg_card"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="4dp">
 
@@ -153,7 +153,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_customer_header"
+                    android:background="@drawable/bg_lg_hdr_green"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp">
 
@@ -231,7 +231,7 @@
                         android:layout_marginBottom="14dp"
                         android:paddingHorizontal="12dp"
                         android:paddingVertical="11dp"
-                        android:background="@drawable/bg_inv_subcard_accent">
+                        android:background="@drawable/bg_lg_inv_subcard_accent">
 
                         <FrameLayout
                             android:layout_width="26dp"
@@ -275,7 +275,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="@string/activity_sales_return_taxable"
                                     android:textSize="10.5sp"
-                                    android:textColor="#8A8578" />
+                                    android:textColor="#79897F" />
 
                                 <TextView
                                     android:id="@+id/tvTaxableTile"
@@ -284,7 +284,7 @@
                                     android:layout_marginStart="4dp"
                                     android:text="0"
                                     android:textSize="10.5sp"
-                                    android:textColor="#8A8578"
+                                    android:textColor="#79897F"
                                     android:fontFamily="serif" />
 
                                 <TextView
@@ -293,7 +293,7 @@
                                     android:layout_marginStart="10dp"
                                     android:text="@string/activity_sales_return_gst_reversal"
                                     android:textSize="10.5sp"
-                                    android:textColor="#8A8578" />
+                                    android:textColor="#79897F" />
 
                                 <TextView
                                     android:id="@+id/tvGstReversal"
@@ -302,7 +302,7 @@
                                     android:layout_marginStart="4dp"
                                     android:text="0"
                                     android:textSize="10.5sp"
-                                    android:textColor="#8A8578"
+                                    android:textColor="#79897F"
                                     android:fontFamily="serif" />
 
                                 <LinearLayout
@@ -318,7 +318,7 @@
                                         android:layout_height="wrap_content"
                                         android:text="@string/activity_sales_return_cess_reversal"
                                         android:textSize="10.5sp"
-                                        android:textColor="#8A8578" />
+                                        android:textColor="#79897F" />
 
                                     <TextView
                                         android:id="@+id/tvCessReversal"
@@ -327,7 +327,7 @@
                                         android:layout_marginStart="4dp"
                                         android:text="0"
                                         android:textSize="10.5sp"
-                                        android:textColor="#8A8578"
+                                        android:textColor="#79897F"
                                         android:fontFamily="serif" />
                                 </LinearLayout>
                             </LinearLayout>
@@ -351,7 +351,7 @@
                     </LinearLayout>
 
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
         </LinearLayout>
 
@@ -380,7 +380,7 @@
             android:gravity="center"
             android:includeFontPadding="false"
             app:backgroundTint="@null"
-            android:background="@drawable/bg_login_cta_green"
+            android:background="@drawable/bg_lg_cta_green_12"
             android:insetLeft="0dp"
             android:insetRight="0dp"
             android:insetTop="0dp"

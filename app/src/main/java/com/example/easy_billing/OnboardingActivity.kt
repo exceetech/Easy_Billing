@@ -197,7 +197,7 @@ class OnboardingActivity : BaseActivity() {
                 gravity = android.view.Gravity.CENTER_VERTICAL
                 setPadding(dp(14), dp(12), dp(14), dp(12))
                 setBackgroundResource(
-                    if (isCurrent) R.drawable.bg_onboard_step_current else R.drawable.bg_onboard_step_card
+                    if (isCurrent) R.drawable.bg_lg_step_current else R.drawable.bg_lg_step_card
                 )
                 alpha = if (isPending) 0.65f else 1f
                 layoutParams = LinearLayout.LayoutParams(
@@ -233,7 +233,7 @@ class OnboardingActivity : BaseActivity() {
                 )
                 setBackgroundResource(
                     if (done || isCurrent) R.drawable.bg_onboard_avatar_current
-                    else R.drawable.bg_onboard_avatar_pending
+                    else R.drawable.bg_lg_avatar_pending
                 )
                 layoutParams = LinearLayout.LayoutParams(dp(32), dp(32))
             }
@@ -308,7 +308,7 @@ class OnboardingActivity : BaseActivity() {
                     when {
                         isDone -> R.drawable.bg_stepper_node_done
                         isCurrent -> R.drawable.bg_stepper_node_current
-                        else -> R.drawable.bg_stepper_node_pending
+                        else -> R.drawable.bg_lg_node_pending
                     }
                 )
                 layoutParams = LinearLayout.LayoutParams(nodeSize, nodeSize)
@@ -337,7 +337,7 @@ class OnboardingActivity : BaseActivity() {
 
             if (index != total - 1) {
                 val connector = View(this).apply {
-                    setBackgroundColor(if (index < completedCount) 0xFF0F6E56.toInt() else 0xFFE7DEC8.toInt())
+                    setBackgroundColor(if (index < completedCount) 0xFF0F6E56.toInt() else 0xFFD5DDD8.toInt())
                     layoutParams = LinearLayout.LayoutParams(0, dp(2), 1f)
                 }
                 llOnboardStepper.addView(connector)

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Glass card separated from the page: faint emerald-tinted edge, white inner highlight, soft tinted pane with a sheen. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="18dp"/>
+            <gradient android:type="linear" android:angle="270"
+                android:startColor="#FFFFFFFF" android:endColor="#FFE8F1EC"/>
+            <stroke android:width="1dp" android:color="#380F6E56"/>
+        </shape>
+    </item>
+    <item android:top="1dp" android:left="1dp" android:right="1dp" android:bottom="1dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="18dp"/>
+            <gradient android:type="linear" android:angle="315"
+                android:startColor="#99FFFFFF" android:centerColor="#1AFFFFFF" android:endColor="#00FFFFFF"/>
+            <stroke android:width="1dp" android:color="#CCFFFFFF"/>
+        </shape>
+    </item>
+</layer-list>

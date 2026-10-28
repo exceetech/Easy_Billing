@@ -16,7 +16,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F3ECDD">
+    android:background="@drawable/bg_lg_page">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -90,7 +90,7 @@
                 android:orientation="vertical"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/bg_inv_value_card"
+                android:background="@drawable/bg_lg_card"
                 android:padding="14dp">
 
                 <LinearLayout
@@ -136,7 +136,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:textSize="9.5sp"
-                            android:textColor="#8A8272"
+                            android:textColor="#76867C"
                             android:maxLines="1"
                             android:ellipsize="end"
                             android:visibility="gone"/>
@@ -148,7 +148,7 @@
                     android:layout_height="0.5dp"
                     android:layout_marginTop="12dp"
                     android:layout_marginBottom="10dp"
-                    android:background="#F1EBDD"/>
+                    android:background="#E3E8E4"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -160,7 +160,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/dialog_reduce_stock_fullscreen_available_now"
                         android:textSize="9sp"
-                        android:textColor="#9A8F79"/>
+                        android:textColor="#7C8782"/>
 
                     <TextView
                         android:id="@+id/tvCurrentStockLabel"
@@ -214,18 +214,18 @@
                 <!-- ─ STEP 1 · REASON (champagne, matches Add Purchase /
                      Reduce Stock step 2) — five big visible rows replace
                      the old hidden ThemedDropdown picker. ─ -->
-                <LinearLayout
+                <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:background="@drawable/bg_addp_card">
+                    android:background="@drawable/bg_lg_card">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_items_header"
+                        android:background="@drawable/bg_lg_hdr_amber"
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="14dp">
                         <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -313,7 +313,7 @@
                                     android:layout_marginTop="1dp"
                                     android:text="@string/dialog_reduce_stock_manual_reason_sold_desc"
                                     android:textSize="10.5sp"
-                                    android:textColor="#8A8272"/>
+                                    android:textColor="#76867C"/>
                             </LinearLayout>
 
                             <View
@@ -360,7 +360,7 @@
                                     android:layout_marginTop="1dp"
                                     android:text="@string/dialog_reduce_stock_manual_reason_damaged_desc"
                                     android:textSize="10.5sp"
-                                    android:textColor="#8A8272"/>
+                                    android:textColor="#76867C"/>
                             </LinearLayout>
 
                             <View
@@ -407,7 +407,7 @@
                                     android:layout_marginTop="1dp"
                                     android:text="@string/dialog_reduce_stock_manual_reason_given_desc"
                                     android:textSize="10.5sp"
-                                    android:textColor="#8A8272"/>
+                                    android:textColor="#76867C"/>
                             </LinearLayout>
 
                             <View
@@ -454,7 +454,7 @@
                                     android:layout_marginTop="1dp"
                                     android:text="@string/dialog_reduce_stock_manual_reason_correction_desc"
                                     android:textSize="10.5sp"
-                                    android:textColor="#8A8272"/>
+                                    android:textColor="#76867C"/>
                             </LinearLayout>
 
                             <View
@@ -479,7 +479,7 @@
                                 android:layout_width="36dp"
                                 android:layout_height="36dp">
                                 <View android:layout_width="36dp" android:layout_height="36dp" android:background="@drawable/bg_circle_soft_grey"/>
-                                <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_gravity="center" android:src="@drawable/ic_lc_help_circle" app:tint="#6E6A60" android:contentDescription="@null"/>
+                                <ImageView android:layout_width="17dp" android:layout_height="17dp" android:layout_gravity="center" android:src="@drawable/ic_lc_help_circle" app:tint="#5B6660" android:contentDescription="@null"/>
                             </FrameLayout>
 
                             <LinearLayout
@@ -501,7 +501,7 @@
                                     android:layout_marginTop="1dp"
                                     android:text="@string/dialog_reduce_stock_manual_reason_other_desc"
                                     android:textSize="10.5sp"
-                                    android:textColor="#8A8272"/>
+                                    android:textColor="#76867C"/>
                             </LinearLayout>
 
                             <View
@@ -512,7 +512,7 @@
                         </LinearLayout>
 
                     </LinearLayout>
-                </LinearLayout>
+                </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             </LinearLayout>
 
@@ -539,7 +539,7 @@
             android:gravity="center"
             android:includeFontPadding="false"
             app:backgroundTint="@null"
-            android:background="@drawable/bg_cta_red"
+            android:background="@drawable/bg_lg_cta_red_14"
             android:insetLeft="0dp"
             android:insetRight="0dp"
             android:insetTop="0dp"

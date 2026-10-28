@@ -18,7 +18,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="20dp"
     android:orientation="vertical"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:paddingHorizontal="22dp"
     android:paddingTop="24dp"
     android:paddingBottom="20dp">
@@ -84,7 +84,7 @@
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:layout_marginTop="16dp"
-        android:background="@drawable/bg_imp_field"
+        android:background="@drawable/bg_lg_field"
         android:padding="11dp">
         <TextView
             android:id="@+id/tvOwesCaption"
@@ -92,7 +92,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/dialog_add_payment_currently_owes"
-            android:textColor="#9A8F79"
+            android:textColor="#7C8782"
             android:textSize="11.5sp" />
         <TextView
             android:id="@+id/tvOwes"
@@ -113,13 +113,13 @@
         android:layout_marginBottom="6dp"
         android:text="@string/dialog_add_payment_amount_received"
         android:textSize="12.5sp"
-        android:textColor="#9A968C"
+        android:textColor="#8D9992"
         android:fontFamily="@font/googlesans_regular" />
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="52dp"
-        android:background="@drawable/bg_glass_input">
+        android:background="@drawable/bg_lg_input">
         <ImageView
             android:layout_width="19dp"
             android:layout_height="19dp"
@@ -137,7 +137,7 @@
             android:paddingStart="44dp"
             android:paddingEnd="14dp"
             android:textColor="#1A1A18"
-            android:textColorHint="#A99E88"
+            android:textColorHint="#929F97"
             android:textSize="20sp"
             android:fontFamily="serif"
             android:includeFontPadding="false"
@@ -161,7 +161,7 @@
             android:gravity="center"
             android:paddingVertical="7dp"
             android:background="@drawable/bg_payment_quick_chip"
-            android:textColor="#8A7F68"
+            android:textColor="#6B7770"
             android:textSize="12sp"
             android:fontFamily="@font/googlesans_medium"
             android:includeFontPadding="false"
@@ -176,7 +176,7 @@
             android:gravity="center"
             android:paddingVertical="7dp"
             android:background="@drawable/bg_payment_quick_chip"
-            android:textColor="#8A7F68"
+            android:textColor="#6B7770"
             android:textSize="12sp"
             android:fontFamily="@font/googlesans_medium"
             android:includeFontPadding="false"
@@ -204,7 +204,7 @@
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
         android:layout_marginTop="13dp"
-        android:background="#F1EBDD" />
+        android:background="#E3E8E4" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -218,7 +218,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="@string/dialog_add_payment_balance_after"
-            android:textColor="#9A8F79"
+            android:textColor="#7C8782"
             android:textSize="11.5sp" />
         <TextView
             android:id="@+id/tvBalanceAfter"
@@ -236,7 +236,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="18dp"
-        android:background="@drawable/bg_login_cta_green"
+        android:background="@drawable/bg_lg_cta_green_12"
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"

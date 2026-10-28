@@ -53,7 +53,7 @@ class ProductRowAdapter(
         holder.vDivider.visibility = if (position == 0) View.GONE else View.VISIBLE
         holder.tvRank.text = "${position + 1}"
         holder.tvRank.backgroundTintList = android.content.res.ColorStateList.valueOf(
-            Color.parseColor(if (position == 0) "#F7E7B8" else "#F3ECDD")
+            Color.parseColor(if (position == 0) "#F7E7B8" else "#EEF2F0")
         )
         holder.tvRank.setTextColor(Color.parseColor(if (position == 0) "#8A6526" else "#8A6526"))
         holder.tvStar.visibility = if (row.isBest) View.VISIBLE else View.GONE

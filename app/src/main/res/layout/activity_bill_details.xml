@@ -12,15 +12,11 @@
     btnMarkAsPaid, layoutOwed, tvOwed, tvCustomerAvatar, tvCustomerInfo,
     tvCustomerPhone, tvInvoiceTypeBadge, llBillItems, cardBillNotes,
     llBillNotes, rowNetBillNotes, tvNetOriginalBillAmount,
-    tvNetAfterBillNotes, btnCreditNote, btnDebitNote, btnMoreActions,
+    tvNetAfterBillNotes, btnCreditNote, btnDebitNote, btnSendToCustomer, btnPrint,
     btnCancelBill, progressBillDetails.
-    (Send to Customer / Print no longer have their own buttons here —
-    tapping btnMoreActions (icon-only, three dots) opens an icon-badged
-    dropdown card [dropdown_bill_more_actions.xml] with those two actions
-    instead, since Add return/refund and Add extra charge are now the two
-    big buttons in this row. The status pill is tvCancelledBadge, back in
-    its original top-right spot next to tvCustomerNameTitle; there is no
-    btnPrintHeader any more.)
+    (Share and Print are two buttons in their own row. The status pill is
+    tvCancelledBadge, in its original top-right spot next to
+    tvCustomerNameTitle.)
 -->
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -32,7 +28,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F3ECDD">
+    android:background="@drawable/bg_lg_page">
 
     <!-- ===================== TOOLBAR (back only — Print moved to the
          bottom action area, next to Send to Customer, for more visual
@@ -116,7 +112,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/activity_bill_details_invoice_0001"
-                android:textColor="#9A8F79"
+                android:textColor="#7C8782"
                 android:textSize="11.5sp" />
 
             <TextView
@@ -124,7 +120,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
                 android:text="·"
-                android:textColor="#9A8F79"
+                android:textColor="#7C8782"
                 android:textSize="11.5sp" />
 
             <TextView
@@ -133,7 +129,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
                 android:text="—"
-                android:textColor="#9A8F79"
+                android:textColor="#7C8782"
                 android:textSize="11.5sp" />
 
         </LinearLayout>
@@ -154,19 +150,19 @@
             android:orientation="vertical">
 
             <!-- ===================== CARD 1 · BILL SUMMARY (teal, step 1) ===================== -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginHorizontal="16dp"
-                android:background="@drawable/bg_addp_card">
+                android:background="@drawable/bg_lg_card">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_customer_header"
+                    android:background="@drawable/bg_lg_hdr_green"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp">
                     <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -212,7 +208,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/bill_details_total_label"
                         android:textSize="10sp"
-                        android:textColor="#9A8F79"
+                        android:textColor="#7C8782"
                         android:fontFamily="@font/googlesans_medium" />
 
                     <TextView
@@ -243,7 +239,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
                             android:background="@drawable/bg_credit_avatar"
-                            android:backgroundTint="#F6F0E4"
+                            android:backgroundTint="#EEF2F0"
                             android:paddingHorizontal="8dp"
                             android:paddingVertical="10dp">
                             <TextView
@@ -252,7 +248,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="0"
                                 android:textSize="14sp"
-                                android:textColor="#3A322A"
+                                android:textColor="#2F3531"
                                 android:fontFamily="serif"
                                 android:singleLine="true"
                                 android:ellipsize="end" />
@@ -262,7 +258,7 @@
                                 android:layout_marginTop="1dp"
                                 android:text="@string/bill_details_taxable_label"
                                 android:textSize="9.5sp"
-                                android:textColor="#9A8F79" />
+                                android:textColor="#7C8782" />
                         </LinearLayout>
 
                         <View android:layout_width="6dp" android:layout_height="1dp" />
@@ -334,14 +330,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="0.5dp"
                         android:layout_marginTop="12dp"
-                        android:background="#E4DFD0" />
+                        android:background="#D6DED9" />
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:paddingVertical="7dp">
                         <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                            android:text="@string/activity_bill_details_discount" android:textSize="11.5sp" android:textColor="#9A8F79" />
+                            android:text="@string/activity_bill_details_discount" android:textSize="11.5sp" android:textColor="#7C8782" />
                         <TextView android:id="@+id/tvDiscount" android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="0" android:textSize="11.5sp" android:textColor="#B23A3A"
                             android:fontFamily="@font/googlesans_semibold" android:gravity="end" />
@@ -350,41 +346,61 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="0.5dp"
-                        android:background="#E4DFD0" />
+                        android:background="#D6DED9" />
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:paddingVertical="7dp">
-                        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                            android:text="@string/activity_bill_details_paid_via_cash" android:textSize="11.5sp" android:textColor="#9A8F79" />
-                        <TextView android:id="@+id/tvPaidThrough" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="—" android:textSize="11.5sp" android:textColor="#1A1A18"
-                            android:fontFamily="@font/googlesans_semibold" android:gravity="end" />
+                        android:orientation="vertical"
+                        android:paddingVertical="8dp">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+                            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
+                                android:text="@string/bill_details_paid_via_label" android:textSize="11.5sp" android:textColor="#7C8782" />
+                            <TextView android:id="@+id/tvPaidThrough" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:text="—" android:textSize="12sp" android:textColor="#1A1A18"
+                                android:fontFamily="@font/googlesans_semibold" android:gravity="end" />
+                        </LinearLayout>
+
+                        <!-- One line per payment method when the bill was split:
+                             method on the left, amount on the right. Filled in code. -->
+                        <LinearLayout
+                            android:id="@+id/llPaidBreakdown"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:orientation="vertical"
+                            android:background="@drawable/bg_lg_card"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="2dp"
+                            android:visibility="gone" />
+
+                        <!-- Shown only while a UPI payment is still pending. -->
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnMarkAsPaid"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:minWidth="0dp"
-                            android:minHeight="0dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:layout_marginTop="10dp"
                             android:insetTop="0dp"
                             android:insetBottom="0dp"
-                            android:insetLeft="0dp"
-                            android:insetRight="0dp"
-                            android:paddingHorizontal="8dp"
-                            android:paddingVertical="2dp"
                             android:text="@string/bill_details_mark_paid_inline"
                             android:textAllCaps="false"
-                            android:textSize="10.5sp"
-                            android:textColor="#0F6E56"
+                            android:textSize="13sp"
+                            android:textColor="#FFFFFF"
                             android:fontFamily="@font/googlesans_semibold"
-                            android:background="@android:color/transparent"
-                            app:backgroundTint="@null"
-                            app:cornerRadius="8dp"
+                            android:includeFontPadding="false"
+                            android:background="@drawable/bg_lg_cta_green_14"
+        app:backgroundTint="@null"
+                            app:cornerRadius="14dp"
+                            app:icon="@drawable/ic_lc_check"
+                            app:iconTint="#FFFFFF"
+                            app:iconSize="16dp"
+                            app:iconGravity="textStart"
+                            app:iconPadding="6dp"
                             android:stateListAnimator="@null"
-                            style="@style/Widget.MaterialComponents.Button.TextButton"
                             android:visibility="gone" />
                     </LinearLayout>
 
@@ -400,7 +416,7 @@
                         android:layout_marginTop="10dp"
                         android:paddingHorizontal="12dp"
                         android:paddingVertical="11dp"
-                        android:background="@drawable/bg_inv_subcard_accent">
+                        android:background="@drawable/bg_lg_inv_subcard_accent">
 
                         <TextView
                             android:id="@+id/tvCustomerAvatar"
@@ -437,7 +453,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="1dp"
                                 android:text="—"
-                                android:textColor="#9A8F79"
+                                android:textColor="#7C8782"
                                 android:textSize="10.5sp"
                                 android:visibility="gone"/>
 
@@ -475,7 +491,7 @@
                         android:layout_marginTop="10dp"
                         android:paddingHorizontal="12dp"
                         android:paddingVertical="11dp"
-                        android:background="@drawable/bg_inv_subcard_accent_red"
+                        android:background="@drawable/bg_lg_inv_subcard_accent_red"
                         android:clickable="true"
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
@@ -514,24 +530,94 @@
                             android:textStyle="bold"
                             android:textColor="#791F1F" android:fontFamily="serif" />
                     </LinearLayout>
+
+                    <!-- Money still due on this bill (refund not recorded yet / extra charge not collected yet). -->
+                    <LinearLayout
+                        android:id="@+id/layoutRefundDue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="10dp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="11dp"
+                        android:background="@drawable/bg_lg_inv_subcard_accent_red"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView android:id="@+id/tvRefundDueTitle" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="@string/due_banner_give"
+                                android:textSize="12.5sp" android:textStyle="bold" android:textColor="#1A1A18" />
+                            <TextView android:id="@+id/tvRefundDueHint" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/due_banner_action" android:textSize="10.5sp" android:textColor="#B23A3A" />
+                        </LinearLayout>
+
+                        <TextView android:id="@+id/tvRefundDue" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp" android:text="0" android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#791F1F" android:fontFamily="serif" />
+                    </LinearLayout>
+
+                    <!-- Money still due on this bill (refund not recorded yet / extra charge not collected yet). -->
+                    <LinearLayout
+                        android:id="@+id/layoutExtraDue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="10dp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="11dp"
+                        android:background="@drawable/bg_lg_inv_subcard_accent_red"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:visibility="gone">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="@string/due_banner_collect"
+                                android:textSize="12.5sp" android:textStyle="bold" android:textColor="#1A1A18" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/due_banner_action" android:textSize="10.5sp" android:textColor="#B23A3A" />
+                        </LinearLayout>
+
+                        <TextView android:id="@+id/tvExtraDue" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp" android:text="0" android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#791F1F" android:fontFamily="serif" />
+                    </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- ===================== CARD 2 · ITEMS SOLD (gold, step 2) ===================== -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/bg_addp_card">
+                android:background="@drawable/bg_lg_card">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_items_header"
+                    android:background="@drawable/bg_lg_hdr_amber"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp">
                     <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -572,29 +658,29 @@
                      RecyclerView, which could render only the first row when
                      measured wrap_content inside this screen's outer
                      ScrollView. See BillDetailsActivity.buildBillItemsList(). -->
-                <LinearLayout
+                <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                     android:id="@+id/llBillItems"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="8dp"
-                    android:clipToOutline="true"
+                    
                     android:clipChildren="true"/>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- ===================== CARD 3 · CREDIT & DEBIT NOTES (teal, step 3) =====================
                  Whole card hidden together when there are none — same rule
                  as Purchase Details' Returns card — so a plain paid bill
                  never shows a stray third card. -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:id="@+id/cardBillNotes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/bg_addp_card"
+                android:background="@drawable/bg_lg_card"
                 android:visibility="gone">
 
                 <LinearLayout
@@ -602,7 +688,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_customer_header"
+                    android:background="@drawable/bg_lg_hdr_green"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp">
                     <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -660,7 +746,7 @@
                     android:layout_marginBottom="12dp"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="11dp"
-                    android:background="@drawable/bg_inv_subcard_accent_green"
+                    android:background="@drawable/bg_lg_inv_subcard_accent_green"
                     android:visibility="gone">
 
                     <FrameLayout
@@ -698,7 +784,7 @@
                             android:text=""
                             android:textSize="10.5sp"
                             android:fontFamily="serif"
-                            android:textColor="#8A8578" />
+                            android:textColor="#79897F" />
                     </LinearLayout>
 
                     <TextView
@@ -717,7 +803,7 @@
                         app:autoSizeMinTextSize="16sp"
                         app:autoSizeMaxTextSize="22sp" />
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
         </LinearLayout>
     </ScrollView>
@@ -760,7 +846,7 @@
                 android:gravity="center"
                 android:paddingHorizontal="2dp"
                 app:backgroundTint="@null"
-                android:background="@drawable/bg_cta_credit_green"
+                android:background="@drawable/bg_lg_cta_green_14"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 app:icon="@drawable/ic_lc_arrow_down_left"
@@ -792,7 +878,7 @@
                 android:gravity="center"
                 android:paddingHorizontal="2dp"
                 app:backgroundTint="@null"
-                android:background="@drawable/bg_cta_debit_amber"
+                android:background="@drawable/bg_lg_cta_gold_14"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 app:icon="@drawable/ic_lc_arrow_up_right"
@@ -829,7 +915,8 @@
                 android:autoSizeStepGranularity="1sp"
                 android:fontFamily="@font/googlesans_semibold"
                 android:includeFontPadding="false"
-                android:backgroundTint="#2563AB"
+                android:background="@drawable/bg_lg_cta_blue_14"
+        app:backgroundTint="@null"
                 app:rippleColor="#1E3A8A"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
@@ -860,7 +947,8 @@
                 android:autoSizeStepGranularity="1sp"
                 android:fontFamily="@font/googlesans_semibold"
                 android:includeFontPadding="false"
-                android:backgroundTint="#1A1A18"
+                android:background="@drawable/bg_lg_cta_ink_14"
+        app:backgroundTint="@null"
                 app:rippleColor="#3A3A36"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"

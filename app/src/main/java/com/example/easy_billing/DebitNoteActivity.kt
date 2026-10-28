@@ -20,6 +20,7 @@ import com.example.easy_billing.viewmodel.DebitNoteViewModel
 import com.google.android.material.button.MaterialButton
 import com.example.easy_billing.sync.SyncManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -146,7 +147,7 @@ class DebitNoteActivity : BaseActivity() {
                     is CreditNoteRepository.Result.Success -> {
                         Toast.makeText(
                             this@DebitNoteActivity,
-                            "Products added to ${result.creditNote.noteNumber} successfully.",
+                            getString(R.string.note_debit_done, result.creditNote.noteNumber),
                             Toast.LENGTH_LONG
                         ).show()
                         viewModel.clearResult()
@@ -167,14 +168,42 @@ class DebitNoteActivity : BaseActivity() {
                             // Paid at the counter: the extra charge is collected now - record how.
                             collectExtraCharge(noteBill, note.id, note.totalAmount) { finish() }
                         } else {
-                            CreditAdjustmentPrompt.handle(
-                                activity = this@DebitNoteActivity,
-                                billId = note.originalInvoiceId,
-                                kind = CreditAdjustmentRepository.Kind.DEBIT_NOTE,
-                                amount = note.totalAmount,
-                                documentLocalId = note.id,
-                                onDone = { finish() }
-                            )
+                            val addToBalance = {
+                                CreditAdjustmentPrompt.handle(
+                                    activity = this@DebitNoteActivity,
+                                    billId = note.originalInvoiceId,
+                                    kind = CreditAdjustmentRepository.Kind.DEBIT_NOTE,
+                                    amount = note.totalAmount,
+                                    documentLocalId = note.id,
+                                    onDone = { finish() }
+                                )
+                            }
+                            // Part paid now, part on credit: the extra charge may be paid at the counter or
+                            // added to the balance. A bill that is wholly on credit keeps adding silently.
+                            val paidNow = if (noteBill == null) 0.0 else withContext(Dispatchers.IO) {
+                                try {
+                                    val dao = com.example.easy_billing.db.AppDatabase.getDatabase(this@DebitNoteActivity).moneyEntryDao()
+                                    // Money already received, plus UPI still waiting to arrive: either way part of the bill is not on credit.
+                                    com.example.easy_billing.repository.MoneyBook(dao).refundCeiling(
+                                        com.example.easy_billing.util.MoneySource.BILL, noteBill.id,
+                                        com.example.easy_billing.util.MoneyDirection.IN
+                                    ) + dao.pendingUpiRows(noteBill.id).sumOf { it.amount }
+                                } catch (_: Exception) { 0.0 }
+                            }
+                            if (noteBill != null && paidNow > 0.004) {
+                                val amt = CurrencyHelper.format(this@DebitNoteActivity, note.totalAmount)
+                                AlertDialog.Builder(this@DebitNoteActivity)
+                                    .setTitle(getString(R.string.debit_where_title))
+                                    .setMessage(getString(R.string.debit_where_msg, amt))
+                                    .setCancelable(false)
+                                    .setPositiveButton(getString(R.string.debit_where_add_btn)) { d, _ ->
+                                        d.dismiss(); addToBalance()
+                                    }
+                                    .setNegativeButton(getString(R.string.debit_where_collect_btn)) { d, _ ->
+                                        d.dismiss(); collectExtraCharge(noteBill, note.id, note.totalAmount) { finish() }
+                                    }
+                                    .show()
+                            } else addToBalance()
                         }
                     }
                     is CreditNoteRepository.Result.ValidationError -> {
@@ -188,7 +217,7 @@ class DebitNoteActivity : BaseActivity() {
                     is CreditNoteRepository.Result.SaveError -> {
                         Toast.makeText(
                             this@DebitNoteActivity,
-                            "Failed to save: ${result.cause.message}",
+                            getString(R.string.note_save_failed, result.cause.message ?: ""),
                             Toast.LENGTH_LONG
                         ).show()
                         viewModel.clearResult()
@@ -203,40 +232,8 @@ class DebitNoteActivity : BaseActivity() {
      * write it to the Money Book. Closing the sheet means "not collected now" - nothing is recorded.
      */
     private fun collectExtraCharge(bill: Bill, noteId: Int, amount: Double, onDone: () -> Unit) {
-        if (amount <= 0.0) { onDone(); return }
-        val mode = com.example.easy_billing.util.MoneyMode
-        val defaultMode = com.example.easy_billing.util.PaymentMethodText.parts(bill.paymentMethod)
-            .firstOrNull { it in mode.COUNTER } ?: mode.CASH
-        com.example.easy_billing.util.PaymentLinesSheet.show(
-            activity = this,
-            title = getString(R.string.debit_extra_collect_title),
-            total = amount,
-            modes = mode.ALL,
-            initial = emptyList(),
-            defaultMode = defaultMode,
-            onConfirm = { lines ->
-                lifecycleScope.launch {
-                    kotlinx.coroutines.withContext(Dispatchers.IO) {
-                        val db = com.example.easy_billing.db.AppDatabase.getDatabase(this@DebitNoteActivity)
-                        com.example.easy_billing.repository.MoneyBook(db.moneyEntryDao()).recordLines(
-                            direction = com.example.easy_billing.util.MoneyDirection.IN,
-                            lines = lines,
-                            reason = com.example.easy_billing.util.MoneyReason.SALE_EXTRA,
-                            sourceType = com.example.easy_billing.util.MoneySource.DEBIT_NOTE,
-                            sourceId = noteId,
-                            parentType = com.example.easy_billing.util.MoneySource.BILL,
-                            parentId = bill.id,
-                            refText = bill.billNumber.trim()
-                        )
-                    }
-                    onDone()
-                }
-            },
-            onCancel = {
-                Toast.makeText(this, R.string.debit_extra_not_recorded, Toast.LENGTH_LONG).show()
-                onDone()
-            }
-        )
+        // Saves a "still to collect" note first, so closing the sheet never loses the extra charge.
+        com.example.easy_billing.util.SalesExtraPrompt.ask(this, bill.id, noteId, amount, onDone)
     }
 
     private fun bindBillHeader(bill: Bill) {

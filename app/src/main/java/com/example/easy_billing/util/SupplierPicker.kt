@@ -41,6 +41,7 @@ object SupplierPicker {
         onPicked: (Supplier) -> Unit
     ) {
         val dialog = BottomSheetDialog(activity)
+        dialog.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         val view = activity.layoutInflater.inflate(R.layout.dialog_supplier_picker, null)
 
         val etSearch = view.findViewById<EditText>(R.id.etSearchSupplier)

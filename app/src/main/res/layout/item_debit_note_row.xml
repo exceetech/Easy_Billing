@@ -18,13 +18,13 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <LinearLayout
+    <com.example.easy_billing.ui.glass.GlassClipLinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginVertical="5dp"
-        android:background="@drawable/bg_inv_value_card"
-        android:clipToOutline="true"
+        android:background="@drawable/bg_lg_card"
+        
         android:clipChildren="true">
 
         <View
@@ -54,7 +54,7 @@
                     android:src="@drawable/ic_lc_arrow_up_right"
                     android:tint="#8A6526"
                     android:background="@drawable/bg_credit_avatar"
-                    android:backgroundTint="#F3ECDD"
+                    android:backgroundTint="#EEF2F0"
                     android:contentDescription="@null" />
 
                 <LinearLayout
@@ -86,7 +86,7 @@
                             android:layout_height="wrap_content"
                             android:text="Product"
                             android:textSize="11sp"
-                            android:textColor="#9A8F79"
+                            android:textColor="#7C8782"
                             android:singleLine="true"
                             android:ellipsize="end"
                             android:maxWidth="140dp" />
@@ -98,7 +98,7 @@
                             android:layout_marginStart="5dp"
                             android:text="· Qty 0"
                             android:textSize="11sp"
-                            android:textColor="#9A8F79" />
+                            android:textColor="#7C8782" />
 
                         <TextView
                             android:id="@+id/tvNoteDate"
@@ -107,7 +107,7 @@
                             android:layout_marginStart="5dp"
                             android:text="· —"
                             android:textSize="11sp"
-                            android:textColor="#9A8F79" />
+                            android:textColor="#7C8782" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -136,7 +136,7 @@
                         android:layout_marginTop="1dp"
                         android:text="returned"
                         android:textSize="9.5sp"
-                        android:textColor="#A99E88" />
+                        android:textColor="#7C8782" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -159,7 +159,7 @@
                 android:textSize="10.5sp"
                 android:visibility="gone" />
         </LinearLayout>
-    </LinearLayout>
+    </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
     <!-- Kept so PurchaseDetailsActivity's findViewById(R.id.viewNoteDivider)
          call still works; always collapsed since cards are separated by

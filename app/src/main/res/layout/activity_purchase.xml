@@ -18,7 +18,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3ECDD"
+    android:background="@drawable/bg_lg_page"
     android:orientation="vertical"
     android:paddingBottom="16dp">
 
@@ -111,18 +111,19 @@
             android:paddingHorizontal="18dp">
 
             <!-- ─ INVOICE DETAILS (step 1, teal) ─ -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_addp_card">
+                
+                android:background="@drawable/bg_lg_card">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_customer_header"
+                    android:background="@drawable/bg_lg_hdr_green"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp">
                     <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -180,13 +181,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/purchase_invoice_number_label"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp">
                         <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                             <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_teal"/>
@@ -200,7 +201,7 @@
                             android:background="@null"
                             android:layout_marginStart="12dp"
                             android:hint="@string/purchase_invoice_number_hint"
-                            android:textColorHint="#A99E88"
+                            android:textColorHint="#929F97"
                             android:textColor="#1A1A18"
                             android:textSize="15sp"
                             android:inputType="text"
@@ -214,13 +215,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/purchase_invoice_date_label"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp"
                         android:clickable="true"
                         android:focusable="true">
@@ -238,7 +239,7 @@
                             app:drawableEndCompat="@drawable/ic_lc_chevron_down"
                             android:drawableTint="#B8895A"
                             android:hint="@string/invoice_hint_tap_to_select"
-                            android:textColorHint="#A99E88"
+                            android:textColorHint="#929F97"
                             android:textColor="#1A1A18"
                             android:textSize="15sp"
                             android:focusable="false"
@@ -248,14 +249,15 @@
                             android:singleLine="true"/>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- ─ SUPPLIER (step 2, champagne) ─ -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_addp_card"
+                
+                android:background="@drawable/bg_lg_card"
                 android:layout_marginTop="16dp">
 
                 <LinearLayout
@@ -263,7 +265,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_items_header"
+                    android:background="@drawable/bg_lg_hdr_amber"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp">
                     <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -321,13 +323,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/supplier_name"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp">
                         <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                             <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_blue"/>
@@ -341,7 +343,7 @@
                             android:background="@null"
                             android:layout_marginStart="12dp"
                             android:hint="@string/add_product_name_hint"
-                            android:textColorHint="#A99E88"
+                            android:textColorHint="#929F97"
                             android:textColor="#1A1A18"
                             android:textSize="15sp"
                             android:inputType="textCapWords"
@@ -363,13 +365,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/supplier_gstin"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp">
                         <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                             <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_purple"/>
@@ -383,7 +385,7 @@
                             android:background="@null"
                             android:layout_marginStart="12dp"
                             android:hint="@string/purchase_gstin_hint"
-                            android:textColorHint="#A99E88"
+                            android:textColorHint="#929F97"
                             android:textColor="#1A1A18"
                             android:textSize="15sp"
                             android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -399,13 +401,13 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/state"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:background="@drawable/bg_lg_field"
                         android:paddingHorizontal="12dp"
                         android:clickable="true"
                         android:focusable="true">
@@ -423,7 +425,7 @@
                             app:drawableEndCompat="@drawable/ic_lc_chevron_down"
                             android:drawableTint="#B8895A"
                             android:hint="@string/invoice_hint_tap_to_select"
-                            android:textColorHint="#A99E88"
+                            android:textColorHint="#929F97"
                             android:textColor="#1A1A18"
                             android:textSize="15sp"
                             android:inputType="none"
@@ -432,14 +434,15 @@
                             android:singleLine="true"/>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- ─ LINE ITEMS (step 3, teal) ─ -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_addp_card"
+                
+                android:background="@drawable/bg_lg_card"
                 android:layout_marginTop="16dp">
 
                 <LinearLayout
@@ -447,7 +450,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_customer_header"
+                    android:background="@drawable/bg_lg_hdr_green"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp">
                     <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -526,11 +529,11 @@
                                     android:layout_width="wrap_content" android:layout_height="wrap_content"
                                     android:layout_marginBottom="5dp"
                                     android:text="@string/xml_single_stock_qty_label"
-                                    android:textSize="11sp" android:textColor="#6E6A60"/>
+                                    android:textSize="11sp" android:textColor="#5B6660"/>
                                 <LinearLayout
                                     android:layout_width="match_parent" android:layout_height="50dp"
                                     android:orientation="horizontal" android:gravity="center_vertical"
-                                    android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp">
+                                    android:background="@drawable/bg_lg_field" android:paddingHorizontal="12dp">
                                     <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                                         <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_teal"/>
                                         <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_package" app:tint="#0F6E56" android:contentDescription="@null"/>
@@ -539,7 +542,7 @@
                                         android:id="@+id/etSingleQty"
                                         android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
                                         android:background="@null" android:layout_marginStart="12dp"
-                                        android:hint="0" android:textColorHint="#A99E88"
+                                        android:hint="0" android:textColorHint="#929F97"
                                         android:textColor="#1A1A18" android:textSize="15sp"
                                         android:inputType="numberDecimal" android:singleLine="true"/>
                                 </LinearLayout>
@@ -552,11 +555,11 @@
                                     android:layout_width="wrap_content" android:layout_height="wrap_content"
                                     android:layout_marginBottom="5dp"
                                     android:text="@string/xml_single_stock_gross_label"
-                                    android:textSize="11sp" android:textColor="#6E6A60"/>
+                                    android:textSize="11sp" android:textColor="#5B6660"/>
                                 <LinearLayout
                                     android:layout_width="match_parent" android:layout_height="50dp"
                                     android:orientation="horizontal" android:gravity="center_vertical"
-                                    android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp">
+                                    android:background="@drawable/bg_lg_field" android:paddingHorizontal="12dp">
                                     <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                                         <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_gold"/>
                                         <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_tag" app:tint="#8A6526" android:contentDescription="@null"/>
@@ -565,7 +568,7 @@
                                         android:id="@+id/etSingleGross"
                                         android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
                                         android:background="@null" android:layout_marginStart="12dp"
-                                        android:hint="0" android:textColorHint="#A99E88"
+                                        android:hint="0" android:textColorHint="#929F97"
                                         android:textColor="#1A1A18" android:textSize="15sp"
                                         android:inputType="numberDecimal" android:singleLine="true"/>
                                 </LinearLayout>
@@ -578,11 +581,11 @@
                             android:layout_marginTop="8dp"
                             android:layout_marginBottom="5dp"
                             android:text="@string/xml_single_stock_disc_label"
-                            android:textSize="11sp" android:textColor="#6E6A60"/>
+                            android:textSize="11sp" android:textColor="#5B6660"/>
                         <LinearLayout
                             android:layout_width="match_parent" android:layout_height="50dp"
                             android:orientation="horizontal" android:gravity="center_vertical"
-                            android:background="@drawable/bg_inv_field_light_grey" android:paddingHorizontal="12dp">
+                            android:background="@drawable/bg_lg_field" android:paddingHorizontal="12dp">
                             <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                                 <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_green"/>
                                 <ImageView android:layout_width="14dp" android:layout_height="14dp" android:layout_gravity="center" android:src="@drawable/ic_lc_percent" app:tint="#3B6D11" android:contentDescription="@null"/>
@@ -591,7 +594,7 @@
                                 android:id="@+id/etSingleDiscount"
                                 android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent"
                                 android:background="@null" android:layout_marginStart="12dp"
-                                android:hint="0" android:textColorHint="#A99E88"
+                                android:hint="0" android:textColorHint="#929F97"
                                 android:textColor="#1A1A18" android:textSize="15sp"
                                 android:inputType="numberDecimal" android:singleLine="true"/>
                         </LinearLayout>
@@ -605,13 +608,13 @@
                             android:paddingHorizontal="13dp" android:paddingVertical="10dp">
                             <TextView
                                 android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                                android:text="@string/xml_single_stock_taxable_label" android:textColor="#6E6A60" android:textSize="12.5sp"
+                                android:text="@string/xml_single_stock_taxable_label" android:textColor="#5B6660" android:textSize="12.5sp"
                                 android:fontFamily="@font/googlesans_medium"/>
                             <TextView
                                 android:id="@+id/tvSingleTaxable"
                                 android:layout_width="wrap_content" android:layout_height="wrap_content"
                                 android:text="0" android:gravity="end"
-                                android:textColor="#3A3733"
+                                android:textColor="#333A36"
                                 android:textSize="16sp"/>
                         </LinearLayout>
                         <TextView
@@ -619,7 +622,7 @@
                             android:layout_marginTop="3dp"
                             android:gravity="end"
                             android:text="@string/xml_single_stock_auto_calc_caption"
-                            android:textColor="#9A8F79" android:textSize="10sp"
+                            android:textColor="#7C8782" android:textSize="10sp"
                             android:textStyle="italic"/>
 
                         <!-- Invoice value — read-only, computed live -->
@@ -631,7 +634,7 @@
                             android:paddingHorizontal="13dp" android:paddingVertical="10dp">
                             <TextView
                                 android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                                android:text="@string/xml_single_stock_invoice_label" android:textColor="#3A3733" android:textSize="12.5sp"
+                                android:text="@string/xml_single_stock_invoice_label" android:textColor="#333A36" android:textSize="12.5sp"
                                 android:fontFamily="@font/googlesans_medium"/>
                             <TextView
                                 android:id="@+id/tvSingleInvoice"
@@ -646,7 +649,7 @@
                             android:layout_marginTop="3dp"
                             android:gravity="end"
                             android:text="@string/xml_single_stock_auto_calc_caption"
-                            android:textColor="#9A8F79" android:textSize="10sp"
+                            android:textColor="#7C8782" android:textSize="10sp"
                             android:textStyle="italic"/>
                     </LinearLayout>
 
@@ -688,7 +691,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="@string/purchase_empty_items_subtitle"
-                            android:textColor="#6E6A60"
+                            android:textColor="#5B6660"
                             android:textSize="12.5sp"
                             android:gravity="center"/>
                     </LinearLayout>
@@ -720,14 +723,15 @@
                         android:insetLeft="0dp"
                         android:insetRight="0dp"/>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- ─ IMPORTED GOODS (step 4, champagne, header switch) ─ -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_addp_card"
+                
+                android:background="@drawable/bg_lg_card"
                 android:layout_marginTop="16dp">
 
                 <LinearLayout
@@ -735,7 +739,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_items_header"
+                    android:background="@drawable/bg_lg_hdr_amber"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp">
                     <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -795,13 +799,13 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/purchase_port_code_label"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:background="@drawable/bg_lg_field"
                             android:paddingHorizontal="12dp">
                             <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                                 <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_green"/>
@@ -815,7 +819,7 @@
                                 android:background="@null"
                                 android:layout_marginStart="12dp"
                                 android:hint="@string/purchase_port_code_hint"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
                                 android:inputType="textCapCharacters"
@@ -830,13 +834,13 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/purchase_boe_number_label"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:background="@drawable/bg_lg_field"
                             android:paddingHorizontal="12dp">
                             <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                                 <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_blue"/>
@@ -850,7 +854,7 @@
                                 android:background="@null"
                                 android:layout_marginStart="12dp"
                                 android:hint="@string/purchase_boe_number_hint"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
                                 android:inputType="number"
@@ -865,13 +869,13 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/purchase_boe_date_label"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:background="@drawable/bg_lg_field"
                             android:paddingHorizontal="12dp"
                             android:clickable="true"
                             android:focusable="true">
@@ -889,7 +893,7 @@
                                 app:drawableEndCompat="@drawable/ic_lc_chevron_down"
                                 android:drawableTint="#B8895A"
                                 android:hint="@string/invoice_hint_tap_to_select"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
                                 android:focusable="false"
@@ -906,13 +910,13 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/purchase_boe_value_label"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:background="@drawable/bg_lg_field"
                             android:paddingHorizontal="12dp">
                             <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                                 <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_teal"/>
@@ -926,7 +930,7 @@
                                 android:background="@null"
                                 android:layout_marginStart="12dp"
                                 android:hint="@string/purchase_boe_value_hint"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
                                 android:inputType="numberDecimal"
@@ -940,13 +944,13 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/purchase_sez_gstin_label"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                         <FrameLayout
                             android:id="@+id/tilSezSupplierGstin"
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:visibility="gone"
-                            android:background="@drawable/bg_inv_field_light_grey">
+                            android:background="@drawable/bg_lg_field">
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
@@ -965,7 +969,7 @@
                                     android:background="@null"
                                     android:layout_marginStart="12dp"
                                     android:hint="@string/purchase_gstin_hint"
-                                    android:textColorHint="#A99E88"
+                                    android:textColorHint="#929F97"
                                     android:textColor="#1A1A18"
                                     android:textSize="15sp"
                                     android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -976,14 +980,15 @@
                         </FrameLayout>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- ─ GST COMPLIANCE (step 5, teal, collapsible) ─ -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_addp_card"
+                
+                android:background="@drawable/bg_lg_card"
                 android:layout_marginTop="16dp">
 
                 <LinearLayout
@@ -992,7 +997,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_customer_header"
+                    android:background="@drawable/bg_lg_hdr_green"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp"
                     android:clickable="true"
@@ -1061,13 +1066,13 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/purchase_place_of_supply_label"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:background="@drawable/bg_lg_field"
                             android:paddingHorizontal="12dp">
                             <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                                 <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_green"/>
@@ -1081,7 +1086,7 @@
                                 android:background="@null"
                                 android:layout_marginStart="12dp"
                                 android:hint="@string/add_product_auto_filled_hint"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
                                 android:inputType="none"
@@ -1096,7 +1101,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="12dp"
-                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:background="@drawable/bg_lg_field"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
                             android:paddingStart="14dp"
@@ -1117,7 +1122,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@string/invoice_reverse_charge_desc"
-                                    android:textColor="#8A8578"
+                                    android:textColor="#79897F"
                                     android:textSize="11sp"/>
                             </LinearLayout>
                             <com.google.android.material.materialswitch.MaterialSwitch
@@ -1134,13 +1139,13 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/purchase_invoice_type_label"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:background="@drawable/bg_lg_field"
                             android:paddingHorizontal="12dp"
                             android:clickable="true"
                             android:focusable="true">
@@ -1158,7 +1163,7 @@
                                 app:drawableEndCompat="@drawable/ic_lc_chevron_down"
                                 android:drawableTint="#B8895A"
                                 android:hint="@string/invoice_hint_tap_to_select"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
                                 android:inputType="none"
@@ -1172,7 +1177,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
                             android:text="@string/purchase_invoice_type_helper"
-                            android:textColor="#9A968C"
+                            android:textColor="#8D9992"
                             android:textSize="11.5sp"/>
 
                         <!-- Nested "More tax details" sub-collapse: Supply type, Cess
@@ -1196,13 +1201,13 @@
                                 android:text="@string/add_product_more_tax_details_label"
                                 android:textSize="12sp"
                                 android:fontFamily="@font/googlesans_medium"
-                                android:textColor="#6E6A60"/>
+                                android:textColor="#5B6660"/>
                             <ImageView
                                 android:id="@+id/ivGstrMoreTaxDetailsChevron"
                                 android:layout_width="16dp"
                                 android:layout_height="16dp"
                                 android:src="@drawable/ic_lc_chevron_down"
-                                app:tint="#6E6A60"
+                                app:tint="#5B6660"
                                 android:contentDescription="@null"/>
                         </LinearLayout>
 
@@ -1220,13 +1225,13 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/purchase_supply_type_label"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:background="@drawable/bg_lg_field"
                             android:paddingHorizontal="12dp"
                             android:clickable="true"
                             android:focusable="true">
@@ -1244,7 +1249,7 @@
                                 app:drawableEndCompat="@drawable/ic_lc_chevron_down"
                                 android:drawableTint="#B8895A"
                                 android:hint="@string/invoice_hint_tap_to_select"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
                                 android:inputType="none"
@@ -1260,13 +1265,13 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/purchase_cess_paid_label"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:background="@drawable/bg_inv_field_light_grey"
+                            android:background="@drawable/bg_lg_field"
                             android:paddingHorizontal="12dp">
                             <FrameLayout android:layout_width="26dp" android:layout_height="26dp">
                                 <View android:layout_width="26dp" android:layout_height="26dp" android:background="@drawable/bg_circle_soft_gold"/>
@@ -1280,7 +1285,7 @@
                                 android:background="@null"
                                 android:layout_marginStart="12dp"
                                 android:hint="@string/purchase_cess_paid_hint"
-                                android:textColorHint="#A99E88"
+                                android:textColorHint="#929F97"
                                 android:textColor="#1A1A18"
                                 android:textSize="15sp"
                                 android:inputType="numberDecimal"
@@ -1293,7 +1298,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
                             android:text="@string/purchase_itc_helper_text"
-                            android:textColor="#9A968C"
+                            android:textColor="#8D9992"
                             android:textSize="11.5sp"/>
 
                         <TextView
@@ -1303,12 +1308,12 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/purchase_itc_integrated_label"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                         <FrameLayout
                             android:id="@+id/tilAvailedItcIntegrated"
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
-                            android:background="@drawable/bg_inv_field_light_grey">
+                            android:background="@drawable/bg_lg_field">
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
@@ -1327,7 +1332,7 @@
                                     android:background="@null"
                                     android:layout_marginStart="12dp"
                                     android:hint="@string/purchase_itc_integrated_hint"
-                                    android:textColorHint="#A99E88"
+                                    android:textColorHint="#929F97"
                                     android:textColor="#1A1A18"
                                     android:textSize="15sp"
                                     android:inputType="numberDecimal"
@@ -1342,12 +1347,12 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/purchase_itc_central_label"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                         <FrameLayout
                             android:id="@+id/tilAvailedItcCentral"
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
-                            android:background="@drawable/bg_inv_field_light_grey">
+                            android:background="@drawable/bg_lg_field">
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
@@ -1366,7 +1371,7 @@
                                     android:background="@null"
                                     android:layout_marginStart="12dp"
                                     android:hint="@string/purchase_itc_central_hint"
-                                    android:textColorHint="#A99E88"
+                                    android:textColorHint="#929F97"
                                     android:textColor="#1A1A18"
                                     android:textSize="15sp"
                                     android:inputType="numberDecimal"
@@ -1381,12 +1386,12 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/purchase_itc_state_label"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                         <FrameLayout
                             android:id="@+id/tilAvailedItcState"
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
-                            android:background="@drawable/bg_inv_field_light_grey">
+                            android:background="@drawable/bg_lg_field">
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
@@ -1405,7 +1410,7 @@
                                     android:background="@null"
                                     android:layout_marginStart="12dp"
                                     android:hint="@string/purchase_itc_state_hint"
-                                    android:textColorHint="#A99E88"
+                                    android:textColorHint="#929F97"
                                     android:textColor="#1A1A18"
                                     android:textSize="15sp"
                                     android:inputType="numberDecimal"
@@ -1420,12 +1425,12 @@
                             android:layout_marginBottom="5dp"
                             android:text="@string/purchase_itc_cess_label"
                             android:textSize="11sp"
-                            android:textColor="#6E6A60"/>
+                            android:textColor="#5B6660"/>
                         <FrameLayout
                             android:id="@+id/tilAvailedItcCess"
                             android:layout_width="match_parent"
                             android:layout_height="50dp"
-                            android:background="@drawable/bg_inv_field_light_grey">
+                            android:background="@drawable/bg_lg_field">
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
@@ -1444,7 +1449,7 @@
                                     android:background="@null"
                                     android:layout_marginStart="12dp"
                                     android:hint="@string/purchase_itc_cess_hint"
-                                    android:textColorHint="#A99E88"
+                                    android:textColorHint="#929F97"
                                     android:textColor="#1A1A18"
                                     android:textSize="15sp"
                                     android:inputType="numberDecimal"
@@ -1455,14 +1460,15 @@
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- ─ PAYMENT OPTION (step 6, champagne) ─ -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_addp_card"
+                
+                android:background="@drawable/bg_lg_card"
                 android:layout_marginTop="16dp">
 
                 <LinearLayout
@@ -1470,7 +1476,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_items_header"
+                    android:background="@drawable/bg_lg_hdr_amber"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp">
                     <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -1539,7 +1545,7 @@
                         android:orientation="vertical">
                         <TextView
                             android:layout_width="wrap_content" android:layout_height="wrap_content"
-                            android:text="@string/purchase_paid_through" android:textColor="#9A8F79"
+                            android:text="@string/purchase_paid_through" android:textColor="#7C8782"
                             android:textSize="10sp" android:letterSpacing="0.06"
                             android:fontFamily="@font/googlesans_semibold"/>
                         <LinearLayout
@@ -1567,9 +1573,9 @@
                         android:layout_height="wrap_content"
                         app:cardCornerRadius="13dp"
                         app:cardElevation="0dp"
-                        app:cardBackgroundColor="#FBF7EC"
+                        app:cardBackgroundColor="#F7F9F8"
                         app:strokeWidth="1dp"
-                        app:strokeColor="#EAE2D1">
+                        app:strokeColor="#1F000000">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -1601,7 +1607,7 @@
                                     android:layout_marginStart="11dp">
                                     <TextView
                                         android:layout_width="wrap_content" android:layout_height="wrap_content"
-                                        android:text="@string/purchase_credit_account_label" android:textColor="#9A8F79"
+                                        android:text="@string/purchase_credit_account_label" android:textColor="#7C8782"
                                         android:textSize="10sp" android:letterSpacing="0.06"
                                         android:fontFamily="@font/googlesans_semibold"/>
                                     <TextView
@@ -1627,7 +1633,7 @@
 
                             <View
                                 android:layout_width="match_parent" android:layout_height="1dp"
-                                android:background="#F1EBDD" android:layout_marginVertical="10dp"/>
+                                android:background="#E3E8E4" android:layout_marginVertical="10dp"/>
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btnClearAccount"
@@ -1649,7 +1655,7 @@
                     </com.google.android.material.card.MaterialCardView>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- ─ TOTALS ─ : amber-accent bordered card, matching the
                  Business Customer card style in Invoice activity. -->
@@ -1657,7 +1663,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_inv_subcard_accent_amber"
+                android:background="@drawable/bg_lg_inv_subcard_accent_amber"
                 android:layout_marginTop="16dp"
                 android:padding="16dp">
 
@@ -1668,7 +1674,7 @@
                     android:gravity="center_vertical">
                     <TextView
                         android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                        android:text="@string/taxable_amount" android:textColor="#6E6A60" android:textSize="12sp"/>
+                        android:text="@string/taxable_amount" android:textColor="#5B6660" android:textSize="12sp"/>
                     <TextView
                         android:id="@+id/tvTaxableTotal"
                         android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -1677,7 +1683,7 @@
 
                 <View
                     android:layout_width="match_parent" android:layout_height="1dp"
-                    android:background="#EEE7D8" android:layout_marginVertical="10dp"/>
+                    android:background="#E3E8E4" android:layout_marginVertical="10dp"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -1727,7 +1733,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@drawable/bg_addp_footer_capsule"
+                android:background="@drawable/bg_lg_footer"
                 android:paddingStart="20dp"
                 android:paddingEnd="8dp"
                 android:paddingVertical="8dp"
@@ -1742,14 +1748,14 @@
                     android:textAllCaps="false"
                     android:textSize="13.5sp"
                     android:textStyle="bold"
-                    android:textColor="#8A8272"
+                    android:textColor="#76867C"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:background="@android:color/transparent"
                     android:stateListAnimator="@null"
                     app:rippleColor="#00000000"
                     app:icon="@drawable/ic_close"
-                    app:iconTint="#B0A895"
+                    app:iconTint="#9DA8A1"
                     app:iconSize="13dp"
                     app:iconGravity="textStart"
                     app:iconPadding="6dp"
@@ -1773,7 +1779,7 @@
                     android:fontFamily="@font/googlesans_semibold"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
-                    android:background="@drawable/bg_addp_save_pill_sheen"
+                    android:background="@drawable/bg_lg_cta"
                     android:stateListAnimator="@null"
                     app:rippleColor="#2E9C5B"
                     app:icon="@drawable/ic_check_badge_combo"

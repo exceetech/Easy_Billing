@@ -78,6 +78,8 @@ class InventoryActivity : BaseActivity() {
 
         setupToolbar(R.id.toolbar)
         supportActionBar?.title = " "
+        // Finish any supplier-return money steps left over if the app was closed in the middle of them.
+        com.example.easy_billing.util.InventoryReturnMoney.replayPending(this)
 
         db = AppDatabase.getDatabase(this)
 
@@ -286,7 +288,7 @@ class InventoryActivity : BaseActivity() {
             }
             else -> {
                 tvCaption?.text = getString(R.string.inventory_kpi_all_in_stock)
-                tvCaption?.setTextColor(android.graphics.Color.parseColor("#8A8272"))
+                tvCaption?.setTextColor(android.graphics.Color.parseColor("#76867C"))
             }
         }
     }
@@ -475,11 +477,11 @@ class InventoryActivity : BaseActivity() {
             intArrayOf(-android.R.attr.state_checked)
         )
         chip.chipStrokeColor = android.content.res.ColorStateList(
-            states, intArrayOf(accent, Color.parseColor("#E4DCC8"))
+            states, intArrayOf(accent, Color.parseColor("#D5DDD8"))
         )
         chip.setTextColor(
             android.content.res.ColorStateList(
-                states, intArrayOf(accent, Color.parseColor("#6E6A60"))
+                states, intArrayOf(accent, Color.parseColor("#5B6660"))
             )
         )
     }
@@ -563,8 +565,9 @@ class InventoryActivity : BaseActivity() {
     private fun showAddStockDialogManual(product: Product, currentStock: Double) {
 
         val view = layoutInflater.inflate(R.layout.dialog_add_stock_fullscreen, null)
-        val dialog = android.app.Dialog(this, R.style.PurchaseLineFullScreen)
+        val dialog = android.app.Dialog(this, R.style.OpeningBalanceFullScreen)
         dialog.setContentView(view)
+        com.example.easy_billing.util.KeyboardInsets.install(dialog.window)
         dialog.window?.setSoftInputMode(
             android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         )
@@ -673,8 +676,9 @@ class InventoryActivity : BaseActivity() {
     private fun showReduceStockDialogManual(product: Product, currentStock: Double) {
 
         val view = layoutInflater.inflate(R.layout.dialog_reduce_stock_manual_fullscreen, null)
-        val dialog = android.app.Dialog(this, R.style.PurchaseLineFullScreen)
+        val dialog = android.app.Dialog(this, R.style.OpeningBalanceFullScreen)
         dialog.setContentView(view)
+        com.example.easy_billing.util.KeyboardInsets.install(dialog.window)
         dialog.window?.setSoftInputMode(
             android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         )
@@ -841,8 +845,9 @@ class InventoryActivity : BaseActivity() {
         // MaterialCardView dialog. A plain themed Dialog rather than an
         // AlertDialog so the window is full-screen from creation.
         val view = layoutInflater.inflate(R.layout.dialog_reduce_stock_fullscreen, null)
-        val dialog = android.app.Dialog(this, R.style.PurchaseLineFullScreen)
+        val dialog = android.app.Dialog(this, R.style.OpeningBalanceFullScreen)
         dialog.setContentView(view)
+        com.example.easy_billing.util.KeyboardInsets.install(dialog.window)
         // Let the keyboard push the content up so the per-batch field
         // never sits behind the IME.
         dialog.window?.setSoftInputMode(
@@ -964,7 +969,7 @@ class InventoryActivity : BaseActivity() {
             scrapReasonChips.forEach { (tv, label) ->
                 val on = label == scrapReasonLabel
                 tv.setBackgroundResource(if (on) R.drawable.bg_scrap_chip_on else R.drawable.bg_scrap_chip_off)
-                tv.setTextColor(android.graphics.Color.parseColor(if (on) "#FFFFFF" else "#6E6A60"))
+                tv.setTextColor(android.graphics.Color.parseColor(if (on) "#FFFFFF" else "#5B6660"))
             }
         }
         scrapReasonChips.forEach { (tv, label) ->
@@ -1011,7 +1016,7 @@ class InventoryActivity : BaseActivity() {
                 tvAccount.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
             } else {
                 tvAccount.text = getString(R.string.inventory_no_account_selected)
-                tvAccount.setTextColor(android.graphics.Color.parseColor("#9A8F79"))
+                tvAccount.setTextColor(android.graphics.Color.parseColor("#7C8782"))
             }
         }
         cbAdjust.setOnCheckedChangeListener { _, isChecked ->
@@ -1201,13 +1206,14 @@ class InventoryActivity : BaseActivity() {
                 // Adjust the supplier's balance for a credit return — clamped,
                 // asking cash-vs-advance only on an overshoot. Skips itself for
                 // a cash return. Runs on the main thread (shows a dialog).
-                result?.creditAdjustment?.let { adj ->
+                // Money side: each purchase's credit part lowers the supplier balance, its paid part is a supplier refund.
+                result?.let { r ->
                     withContext(Dispatchers.Main) {
-                        CreditAdjustmentPrompt.handleAccountReturn(
+                        com.example.easy_billing.util.InventoryReturnMoney.run(
                             activity = this@InventoryActivity,
-                            accountId = adj.accountId,
-                            amount = adj.amount,
-                            documentLocalId = adj.documentId,
+                            postings = r.postings,
+                            isCredit = isCredit,
+                            creditAccountId = creditAccountId,
                             onDone = { }
                         )
                     }
@@ -1317,8 +1323,9 @@ class InventoryActivity : BaseActivity() {
     private fun showClearStockDialogManual(product: Product, currentStock: Double) {
 
         val view = layoutInflater.inflate(R.layout.dialog_clear_stock_manual_fullscreen, null)
-        val dialog = android.app.Dialog(this, R.style.PurchaseLineFullScreen)
+        val dialog = android.app.Dialog(this, R.style.OpeningBalanceFullScreen)
         dialog.setContentView(view)
+        com.example.easy_billing.util.KeyboardInsets.install(dialog.window)
         dialog.window?.setSoftInputMode(
             android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         )
@@ -1435,8 +1442,9 @@ class InventoryActivity : BaseActivity() {
 
     private fun showClearStockDialog(productId: Int) {
         val view = layoutInflater.inflate(R.layout.dialog_clear_stock_fullscreen, null)
-        val dialog = android.app.Dialog(this, R.style.PurchaseLineFullScreen)
+        val dialog = android.app.Dialog(this, R.style.OpeningBalanceFullScreen)
         dialog.setContentView(view)
+        com.example.easy_billing.util.KeyboardInsets.install(dialog.window)
         dialog.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         view.findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar).apply {
             setNavigationIcon(R.drawable.ic_back_arrow)
@@ -1474,7 +1482,7 @@ class InventoryActivity : BaseActivity() {
             scrapReasonChips.forEach { (tv, label) ->
                 val on = label == scrapReasonLabel
                 tv.setBackgroundResource(if (on) R.drawable.bg_scrap_chip_on else R.drawable.bg_scrap_chip_off)
-                tv.setTextColor(android.graphics.Color.parseColor(if (on) "#FFFFFF" else "#6E6A60"))
+                tv.setTextColor(android.graphics.Color.parseColor(if (on) "#FFFFFF" else "#5B6660"))
             }
         }
         scrapReasonChips.forEach { (tv, label) ->
@@ -1565,7 +1573,7 @@ class InventoryActivity : BaseActivity() {
                 tvAccount.setTextColor(android.graphics.Color.parseColor("#0F6E56"))
             } else {
                 tvAccount.text = getString(R.string.inventory_no_account_selected)
-                tvAccount.setTextColor(android.graphics.Color.parseColor("#9A8F79"))
+                tvAccount.setTextColor(android.graphics.Color.parseColor("#7C8782"))
             }
         }
         cbAdjust.setOnCheckedChangeListener { _, isChecked ->
@@ -1777,13 +1785,14 @@ class InventoryActivity : BaseActivity() {
                             SyncManager(this@InventoryActivity).syncInventory()
 
                             (result as? InventoryReductionRepository.ClearStockResult.Cleared)
-                                ?.creditAdjustment?.let { adj ->
+                                ?.takeIf { it.reason == InventoryReductionRepository.ClearReason.PURCHASE_RETURN }
+                                ?.let { cleared ->
                                     withContext(Dispatchers.Main) {
-                                        CreditAdjustmentPrompt.handleAccountReturn(
+                                        com.example.easy_billing.util.InventoryReturnMoney.run(
                                             activity = this@InventoryActivity,
-                                            accountId = adj.accountId,
-                                            amount = adj.amount,
-                                            documentLocalId = adj.documentId,
+                                            postings = cleared.postings,
+                                            isCredit = isCredit,
+                                            creditAccountId = creditAccountId,
                                             onDone = { }
                                         )
                                     }

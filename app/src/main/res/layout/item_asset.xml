@@ -79,7 +79,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
-                    android:textColor="#9A8F79"
+                    android:textColor="#7C8782"
                     android:textSize="10sp"
                     android:fontFamily="@font/googlesans_medium"
                     android:singleLine="true"
@@ -119,5 +119,5 @@
         android:layout_width="match_parent"
         android:layout_height="0.5dp"
         android:layout_marginStart="58dp"
-        android:background="#F1EBDD"/>
+        android:background="#E3E8E4"/>
 </LinearLayout>

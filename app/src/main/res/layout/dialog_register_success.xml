@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:paddingHorizontal="24dp"
     android:paddingTop="30dp"
     android:paddingBottom="22dp">
@@ -67,7 +67,7 @@
         android:layout_marginTop="10dp"
         android:gravity="center"
         android:text="@string/dialog_register_success_message"
-        android:textColor="#8A8272"
+        android:textColor="#76867C"
         android:textSize="12.5sp"
         android:lineSpacingExtra="3dp"/>
 
@@ -76,7 +76,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="20dp"
-        android:background="@drawable/bg_login_cta_green"
+        android:background="@drawable/bg_lg_cta_green_12"
         app:backgroundTint="@null"
         android:text="@string/dialog_register_success_continue_btn"
         android:textColor="#FFFFFF"

@@ -65,7 +65,7 @@ class Gstr2B2burAdapter(
         val (label, ink, tint) = when {
             blocked  -> Triple(ctx.getString(R.string.gstr2_itc_none), "#A32D2D", "#FCEBEB")
             isRcm    -> Triple(ctx.getString(R.string.gstr2_flag_rcm), "#854F0B", "#FAEEDA")
-            else     -> Triple(ctx.getString(R.string.gstr2_flag_no_rcm), "#5F5E5A", "#F1EFE8")
+            else     -> Triple(ctx.getString(R.string.gstr2_flag_no_rcm), "#5F5E5A", "#EAEFEC")
         }
         holder.tvBadge.visibility = View.VISIBLE
         holder.tvBadge.text = label
@@ -101,7 +101,7 @@ class Gstr2B2burAdapter(
                     "ITC ${money(holder.itemView.context, availed)}",
                     r.supplyType.ifBlank { null }
                 ).joinToString("  ·  ")
-                holder.tvExtra.setTextColor(Color.parseColor("#A89E88"))
+                holder.tvExtra.setTextColor(Color.parseColor("#7C8782"))
             }
         }
 
@@ -116,7 +116,7 @@ class Gstr2B2burAdapter(
             Color.parseColor(
                 when {
                     blocked        -> "#A32D2D"
-                    availed == 0.0 -> "#A89E88"
+                    availed == 0.0 -> "#7C8782"
                     else           -> "#0F6E56"
                 }
             )
@@ -127,9 +127,9 @@ class Gstr2B2burAdapter(
 
         val accent = when {
             blocked         -> "#A32D2D"
-            rcmLikelyMissed -> "#9A8F79"
+            rcmLikelyMissed -> "#7C8782"
             isRcm           -> "#854F0B"
-            else            -> "#9A8F79"
+            else            -> "#7C8782"
         }
         holder.vStripe.backgroundTintList =
             android.content.res.ColorStateList.valueOf(Color.parseColor(accent))

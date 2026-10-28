@@ -4,8 +4,16 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 
+/** One (account, transaction type) pair that exists in the ledger. */
+data class AccountTxnType(val accountId: Int, val type: String)
+
 @Dao
 interface CreditTransactionDao {
+
+    /** Every distinct transaction type per account, used to tell customer accounts from supplier accounts. */
+    @Query("SELECT DISTINCT accountId AS accountId, type AS type FROM credit_transactions WHERE shopId = :shopId")
+    suspend fun accountTypes(shopId: Int): List<AccountTxnType>
+
 
     // ================= INSERT =================
     @Insert
@@ -105,4 +113,8 @@ interface CreditTransactionDao {
         WHERE sourceDoc = :sourceDoc AND shopId = :shopId
     """)
     suspend fun countForDoc(sourceDoc: String, shopId: Int): Int
+
+    /** The ledger rows written for one document id (used to see whether its credit step already happened). */
+    @Query("SELECT * FROM credit_transactions WHERE sourceDoc = :sourceDoc AND shopId = :shopId")
+    suspend fun getForDoc(sourceDoc: String, shopId: Int): List<CreditTransaction>
 }

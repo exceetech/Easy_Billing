@@ -51,17 +51,21 @@ class BillHistoryActivity : BaseActivity() {
     private var searchRunnable: Runnable? = null
 
     private var allBills: List<BillResponse> = emptyList()
+    private var dueInfo: Map<Int, DueSummary> = emptyMap()
+    private var summaryJob: kotlinx.coroutines.Job? = null
 
     // Filter (date range / cancelled) and sort are independent dimensions —
     // both apply together, rather than one mutually-exclusive chip value.
-    private val filterKeys = listOf("ALL", "TODAY", "WEEK", "MONTH", "CANCELLED")
+    private val filterKeys = listOf("ALL", "TODAY", "WEEK", "MONTH", "CANCELLED", "DUES", "PENDING")
     private val filterLabels by lazy {
         listOf(
             getString(R.string.bill_history_filter_all_label),
             getString(R.string.bill_history_filter_today_label),
             getString(R.string.bill_history_filter_week_label),
             getString(R.string.bill_history_filter_month_label),
-            getString(R.string.bill_history_filter_cancelled_label)
+            getString(R.string.bill_history_filter_cancelled_label),
+            getString(R.string.bill_history_filter_dues_label),
+            getString(R.string.bill_history_filter_pending_label)
         )
     }
     private var activeFilter: String = "ALL"
@@ -139,7 +143,13 @@ class BillHistoryActivity : BaseActivity() {
 
         adapter = BillHistoryAdapter { bill ->
             val intent = Intent(this, BillDetailsActivity::class.java)
-            intent.putExtra("BILL_ID", bill.bill_id)
+            if (bill.local_id != null) {
+                // On this phone: open from phone data (works with no internet).
+                intent.putExtra("LOCAL_BILL_ID", bill.local_id)
+                intent.putExtra("BILL_NUMBER", bill.bill_number)
+            } else {
+                intent.putExtra("BILL_ID", bill.bill_id)
+            }
             startActivity(intent)
         }
 
@@ -168,11 +178,73 @@ class BillHistoryActivity : BaseActivity() {
             progressBills.visibility = android.view.View.VISIBLE
             layoutBillsEmpty.visibility = android.view.View.GONE
 
+            // Phone data first: every bill saved on this phone is listed even with no
+            // internet. The server list only adds bills this phone does not have.
+            var serverFailure: Exception? = null
             try {
-                val bills = RetrofitClient.api.getBills(token)
+                val db = com.example.easy_billing.db.AppDatabase.getDatabase(this@BillHistoryActivity)
 
-                // ✅ Sort latest first
-                val sorted = bills.sortedByDescending { it.created_at }
+                // Server list first, phone list second: a bill that syncs in between is then
+                // already numbered on the phone, so it matches by number and is not shown twice.
+                var serverAll: List<BillResponse> = emptyList()
+                if (isInternetAvailable()) {
+                    try {
+                        serverAll = RetrofitClient.api.getBills(token)
+                    } catch (e: Exception) {
+                        serverFailure = e
+                    }
+                }
+
+                val localRows = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    db.billDao().getAllBills()
+                }
+                // Open "money still due" notes, grouped by bill, for the row tags and the Dues filter.
+                // First make sure every cancelled bill that still holds received money has its refund note
+                // (repairs a bill cancelled before the note was saved); a bill with nothing to fix is untouched.
+                val dueRows = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    for (cb in localRows) {
+                        if (!cb.isCancelled) continue
+                        try { com.example.easy_billing.util.CancelMoney.ensureRefundNote(db, cb.id) } catch (_: Exception) { }
+                    }
+                    db.moneyEntryDao().openBillDues()
+                }
+                dueInfo = dueRows.groupBy { it.parentId }.mapValues { (_, rows) ->
+                    DueSummary(
+                        refund = rows.filter { it.direction == com.example.easy_billing.util.MoneyDirection.OUT }.sumOf { it.amount },
+                        extra = rows.filter { it.direction == com.example.easy_billing.util.MoneyDirection.IN }.sumOf { it.amount },
+                        late = rows.any {
+                            it.direction == com.example.easy_billing.util.MoneyDirection.OUT &&
+                                it.sourceType == com.example.easy_billing.util.MoneySource.LATE_PAYMENT
+                        }
+                    )
+                }
+                adapter.setDueInfo(dueInfo)
+                val localList = localRows.map { b ->
+                    BillResponse(
+                        bill_id = b.id,
+                        bill_number = b.billNumber,
+                        total_amount = b.total,
+                        gst = b.gst,
+                        discount = b.discount,
+                        payment_method = b.paymentMethod,
+                        created_at = b.date,
+                        invoice_type = b.customerType,
+                        customer_state_code = b.placeOfSupply.ifBlank { null },
+                        supply_type = b.supplyType,
+                        is_cancelled = b.isCancelled,
+                        payment_status = b.paymentStatus,
+                        local_id = b.id
+                    )
+                }
+                val localNumbers = localList.map { it.bill_number }.filter { it.isNotBlank() }.toHashSet()
+                val serverOnly = serverAll.filter { it.bill_number !in localNumbers }
+
+                // ✅ Sort latest first (server may write "T" between date and time)
+                val sorted = (localList + serverOnly)
+                    .sortedByDescending { it.created_at.replace('T', ' ').take(19) }
+
+                val failure = serverFailure
+                if (failure != null && sorted.isEmpty()) throw failure
 
                 allBills = sorted
                 adapter.submitList(sorted)
@@ -448,6 +520,15 @@ class BillHistoryActivity : BaseActivity() {
 
             "CANCELLED" -> source.filter { it.is_cancelled }
 
+            // Bills that still need a refund handed back or an extra charge collected.
+            "DUES" -> source.filter { val id = it.local_id; id != null && dueInfo.containsKey(id) }
+
+            // UPI money not received yet: the bills where "Mark as paid" or a payment is still waiting.
+            "PENDING" -> source.filter {
+                !it.is_cancelled && com.example.easy_billing.util.PaymentMethodText.hasUpi(it.payment_method) &&
+                    it.payment_status != "paid"
+            }
+
             else -> source
         }
 
@@ -469,42 +550,62 @@ class BillHistoryActivity : BaseActivity() {
             !it.is_cancelled && it.created_at.startsWith(today)
         }
 
-        val totalToday = todayBills.sumOf { it.total_amount }
-
-        // Same "on credit vs cash" split Purchase History shows for money
-        // going out — here it's money coming in, so the owner can see at a
-        // glance how much of today's sales are still owed to them.
-        val pm = com.example.easy_billing.util.PaymentMethodText
-        // Whole-credit bills are fully on credit; a part-credit bill ("CASH+CREDIT") only owes its credit part.
-        val creditToday = todayBills.filter { pm.hasCredit(it.payment_method) && !pm.isSplit(it.payment_method) }
-        val partCreditToday = todayBills.filter { pm.hasCredit(it.payment_method) && pm.isSplit(it.payment_method) }
-        val cashToday = todayBills.filter { !pm.hasCredit(it.payment_method) }
-
-        tvTodaySales.text = CurrencyHelper.format(this, totalToday)
+        tvTodaySales.text = CurrencyHelper.format(this, todayBills.sumOf { it.total_amount })
         tvBillsToday.text = todayBills.size.toString()
-        tvOnCreditToday.text = CurrencyHelper.format(this, creditToday.sumOf { it.total_amount })
-        tvCashToday.text = CurrencyHelper.format(this, cashToday.sumOf { it.total_amount } + partCreditToday.sumOf { it.total_amount })
 
-        if (partCreditToday.isNotEmpty()) {
-            // Split the part-credit bills exactly, from this phone's credit ledger.
-            lifecycleScope.launch {
-                val creditPart = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-                    val db = com.example.easy_billing.db.AppDatabase.getDatabase(this@BillHistoryActivity)
-                    val shop = getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", -1)
-                    var sum = 0.0
-                    for (b in partCreditToday) {
-                        val local = db.billDao().getByBillNumber(b.bill_number) ?: continue
-                        sum += db.creditTransactionDao().getByBill(local.id, shop)
-                            .filter { it.type == "ADD" }.sumOf { it.amount }
+        // "Received" = money actually kept from today's bills, straight from the Money Book:
+        // UPI only once it has arrived, credit never, and refunds already handed back taken off.
+        // "On credit" = what those bills still have as debt (returns, extra charges and the
+        // customer's payments counted), the same figure the bill's own "Still owed" banner shows.
+        summaryJob?.cancel()
+        summaryJob = lifecycleScope.launch {
+            val (sums, unknownSplits) = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                val db = com.example.easy_billing.db.AppDatabase.getDatabase(this@BillHistoryActivity)
+                val shop = getSharedPreferences("auth", MODE_PRIVATE).getInt("SHOP_ID", -1)
+                val money = com.example.easy_billing.repository.MoneyBook(db.moneyEntryDao())
+                val pm = com.example.easy_billing.util.PaymentMethodText
+                var receivedSum = 0.0
+                var creditSum = 0.0
+                var unknownSplits = 0
+                val creditBills = mutableListOf<com.example.easy_billing.db.Bill>()
+                for (b in todayBills) {
+                    val id = b.local_id
+                    var local: com.example.easy_billing.db.Bill? = null
+                    if (id != null) {
+                        local = try { db.billDao().getBillById(id) } catch (_: Exception) { null }
                     }
-                    sum
+                    if (local == null) {
+                        // Only on the server: no Money Book rows here, so go by the payment method.
+                        if (!pm.hasCredit(b.payment_method) && !(pm.hasUpi(b.payment_method) && b.payment_status != "paid")) {
+                            receivedSum += b.total_amount
+                        } else if (pm.hasCredit(b.payment_method) && !pm.isSplit(b.payment_method)) {
+                            creditSum += b.total_amount
+                        } else if (pm.isSplit(b.payment_method)) {
+                            // A split bill that is only on the server: how much of it was paid or is on credit is not known here.
+                            unknownSplits++
+                        }
+                        continue
+                    }
+                    if (db.moneyEntryDao().forParent(com.example.easy_billing.util.MoneySource.BILL, local.id).isEmpty()) {
+                        // Older bill with no Money Book rows: go by the payment method.
+                        if (!pm.hasCredit(local.paymentMethod) && !(pm.hasUpi(local.paymentMethod) && local.paymentStatus != "paid")) {
+                            receivedSum += local.total
+                        }
+                    } else {
+                        receivedSum += money.refundCeiling(
+                            com.example.easy_billing.util.MoneySource.BILL, local.id, com.example.easy_billing.util.MoneyDirection.IN
+                        )
+                    }
+                    if (pm.hasCredit(local.paymentMethod)) creditBills += local
                 }
-                val partTotal = partCreditToday.sumOf { it.total_amount }
-                tvOnCreditToday.text = CurrencyHelper.format(this@BillHistoryActivity,
-                    creditToday.sumOf { it.total_amount } + creditPart)
-                tvCashToday.text = CurrencyHelper.format(this@BillHistoryActivity,
-                    cashToday.sumOf { it.total_amount } + (partTotal - creditPart))
+                creditSum += com.example.easy_billing.util.BillCredit.owedForBills(db, creditBills, shop)
+                (receivedSum to creditSum) to unknownSplits
             }
+            val (received, credit) = sums
+            // A trailing "+" says "at least this much": some split bills are not on this phone, so their parts are not counted.
+            val more = if (unknownSplits > 0) "+" else ""
+            tvCashToday.text = CurrencyHelper.format(this@BillHistoryActivity, received) + more
+            tvOnCreditToday.text = CurrencyHelper.format(this@BillHistoryActivity, credit) + more
         }
     }
 }

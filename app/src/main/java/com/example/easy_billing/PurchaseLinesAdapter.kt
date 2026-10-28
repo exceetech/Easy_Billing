@@ -112,7 +112,7 @@ internal class PurchaseLinesAdapter(
             holder.tvTax.setTextColor(Color.parseColor("#0F6E56"))
         } else {
             holder.tvTax.text = holder.itemView.context.getString(R.string.invoice_no_tax)
-            holder.tvTax.setTextColor(Color.parseColor("#A99E88"))
+            holder.tvTax.setTextColor(Color.parseColor("#929F97"))
         }
 
         holder.vDivider.visibility =

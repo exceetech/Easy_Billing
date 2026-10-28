@@ -415,7 +415,7 @@ class RegisterActivity : BaseActivity() {
                 editText.setHintTextColor(android.graphics.Color.parseColor("#0F6E56"))
             } else {
                 icon.setColorFilter(android.graphics.Color.parseColor("#B8895A"))
-                editText.setHintTextColor(android.graphics.Color.parseColor("#A99E88"))
+                editText.setHintTextColor(android.graphics.Color.parseColor("#929F97"))
             }
         }
     }

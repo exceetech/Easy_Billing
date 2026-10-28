@@ -207,10 +207,10 @@ class ChangePasswordActivity : BaseActivity() {
             container.isActivated = hasFocus
             if (hasFocus) {
                 icon.setColorFilter(Color.parseColor("#0F6E56"))
-                editText.setHintTextColor(Color.parseColor("#A99E88"))
+                editText.setHintTextColor(Color.parseColor("#929F97"))
             } else {
                 icon.setColorFilter(Color.parseColor("#B8895A"))
-                editText.setHintTextColor(Color.parseColor("#A99E88"))
+                editText.setHintTextColor(Color.parseColor("#929F97"))
             }
         }
     }
@@ -246,7 +246,7 @@ class ChangePasswordActivity : BaseActivity() {
         if (password.any { it.isDigit() } && password.any { it.isLetter() }) score++
         if (password.any { !it.isLetterOrDigit() }) score++
 
-        val empty = Color.parseColor("#E3D9C4")
+        val empty = Color.parseColor("#D5DDD8")
         val (label, color) = when {
             password.isEmpty() -> "" to empty
             score <= 1 -> "Weak password" to Color.parseColor("#C2553A")

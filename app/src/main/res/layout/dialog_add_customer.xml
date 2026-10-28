@@ -21,7 +21,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="20dp"
     android:orientation="vertical"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:paddingHorizontal="22dp"
     android:paddingTop="26dp"
     android:paddingBottom="20dp">
@@ -86,7 +86,7 @@
         android:layout_marginTop="6dp"
         android:gravity="center"
         android:text="@string/invoice_customer_appear_note"
-        android:textColor="#8A8272"
+        android:textColor="#76867C"
         android:textSize="12sp"
         android:lineSpacingExtra="2dp" />
 
@@ -98,13 +98,13 @@
         android:layout_marginBottom="6dp"
         android:text="@string/invoice_label_name"
         android:textSize="12.5sp"
-        android:textColor="#9A968C"
+        android:textColor="#8D9992"
         android:fontFamily="@font/googlesans_regular" />
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@drawable/bg_glass_input">
+        android:background="@drawable/bg_lg_input">
         <ImageView
             android:layout_width="19dp"
             android:layout_height="19dp"
@@ -121,9 +121,9 @@
             android:paddingStart="44dp"
             android:paddingEnd="14dp"
             android:gravity="center_vertical"
-            android:hint="@string/invoice_hint_name_example"
+            android:hint="@string/acd_hint_name"
             android:textColor="#1A1A18"
-            android:textColorHint="#A99E88"
+            android:textColorHint="#929F97"
             android:textSize="14sp"
             android:inputType="textPersonName|textCapWords"
             android:singleLine="true"
@@ -139,13 +139,13 @@
         android:layout_marginBottom="6dp"
         android:text="@string/invoice_hint_phone_number"
         android:textSize="12.5sp"
-        android:textColor="#9A968C"
+        android:textColor="#8D9992"
         android:fontFamily="@font/googlesans_regular" />
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@drawable/bg_glass_input">
+        android:background="@drawable/bg_lg_input">
         <ImageView
             android:layout_width="19dp"
             android:layout_height="19dp"
@@ -162,9 +162,9 @@
             android:paddingStart="44dp"
             android:paddingEnd="14dp"
             android:gravity="center_vertical"
-            android:hint="@string/xml_add_customer_phone_hint"
+            android:hint="@string/acd_hint_phone"
             android:textColor="#1A1A18"
-            android:textColorHint="#A99E88"
+            android:textColorHint="#929F97"
             android:textSize="14sp"
             android:inputType="phone"
             android:singleLine="true"
@@ -196,7 +196,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
             android:text="@string/invoice_phone_reuse_note"
-            android:textColor="#9A8F79"
+            android:textColor="#7C8782"
             android:textSize="10.5sp"
             android:lineSpacingExtra="2dp" />
     </LinearLayout>
@@ -207,7 +207,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="20dp"
-        android:background="@drawable/bg_login_cta_green"
+        android:background="@drawable/bg_lg_cta"
         app:backgroundTint="@null"
         android:insetTop="0dp"
         android:insetBottom="0dp"

@@ -377,7 +377,7 @@ class StoreSettingsActivity : BaseActivity() {
         }
         if (selectedScheme.isEmpty()) {
             tvStoreScheme.text = getString(R.string.store_scheme_hint)
-            tvStoreScheme.setTextColor(android.graphics.Color.parseColor("#A99E88"))
+            tvStoreScheme.setTextColor(android.graphics.Color.parseColor("#929F97"))
         } else {
             tvStoreScheme.text = schemeLabel(selectedScheme)
             tvStoreScheme.setTextColor(android.graphics.Color.parseColor("#1A1A18"))

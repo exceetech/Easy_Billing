@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="btnLogout" type="id" />
+    <item name="keyboard_insets_installed" type="id" />
 </resources>

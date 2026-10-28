@@ -68,7 +68,7 @@
             <TextView
                 android:id="@+id/tvMeta"
                 android:text="2 × 480 · GST 5%"
-                android:textColor="#9A8F79"
+                android:textColor="#7C8782"
                 android:textSize="11sp"
                 android:maxLines="1"
                 android:ellipsize="end"
@@ -102,7 +102,7 @@
             <TextView
                 android:id="@+id/tvPriceOriginal"
                 android:text="0"
-                android:textColor="#B0A48C"
+                android:textColor="#7C8782"
                 android:textSize="11sp"
                 android:visibility="gone"
                 android:layout_width="wrap_content"
@@ -133,6 +133,6 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginStart="12dp"
-        android:background="#F1EBDD"/>
+        android:background="#E3E8E4"/>
 
 </LinearLayout>

@@ -9,14 +9,15 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingHorizontal="16dp"
-    android:background="#F4F0E6">
+    android:background="@android:color/transparent">
 
-    <LinearLayout
+    <com.example.easy_billing.ui.glass.GlassClipLinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginTop="14dp"
-        android:background="@drawable/bg_addp_card"
+        
+                android:background="@drawable/bg_lg_card"
         android:clipToPadding="false">
 
         <!-- Card header -->
@@ -25,7 +26,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="@drawable/bg_inv_customer_header"
+            android:background="@drawable/bg_lg_hdr_green"
             android:paddingHorizontal="16dp"
             android:paddingVertical="14dp">
             <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -86,7 +87,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/fragment_charts_rising"
                     android:textSize="10.5sp"
-                    android:textColor="#9A8F79"
+                    android:textColor="#7C8782"
                     android:layout_marginEnd="12dp"/>
                 <View
                     android:layout_width="8dp"
@@ -98,7 +99,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/fragment_charts_falling"
                     android:textSize="10.5sp"
-                    android:textColor="#9A8F79"/>
+                    android:textColor="#7C8782"/>
             </LinearLayout>
 
             <com.github.mikephil.charting.charts.LineChart
@@ -144,7 +145,7 @@
                 android:gravity="center_vertical"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_trend_total_box"
-                android:backgroundTint="#F3ECDD"
+                android:backgroundTint="#EEF2F0"
                 android:paddingHorizontal="14dp"
                 android:paddingVertical="12dp">
                 <TextView
@@ -168,5 +169,5 @@
                     android:ellipsize="end"/>
             </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
+    </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 </LinearLayout>

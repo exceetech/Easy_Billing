@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:overScrollMode="never"
+    android:scrollbars="none"
+    android:background="@drawable/bg_lg_page">
+
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_login_doodle">
+    >
 
     <!-- Toolbar (back affordance handled by BaseActivity) -->
     <com.google.android.material.appbar.MaterialToolbar
@@ -27,10 +35,10 @@
         android:layout_marginVertical="12dp"
         android:foreground="@drawable/bg_login_card_glass_sheen"
         app:cardCornerRadius="22dp"
-        app:cardElevation="10dp"
-        app:cardBackgroundColor="#F2FBF9F4"
-        app:strokeColor="#D8C3A0"
-        app:strokeWidth="1.5dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="#D6FFFFFF"
+        app:strokeColor="#F2FFFFFF"
+        app:strokeWidth="1dp"
         app:rippleColor="#00000000"
         app:layout_constraintWidth_max="660dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -107,7 +115,7 @@
                 android:layout_marginTop="7dp"
                 android:gravity="center"
                 android:text="@string/enter_6_digit_code_sent_to"
-                android:textColor="#8A8272"
+                android:textColor="#76867C"
                 android:textSize="12.5sp"
                 android:lineSpacingExtra="2dp"/>
 
@@ -273,7 +281,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/code_valid_5_minutes"
-                    android:textColor="#9A8F79"
+                    android:textColor="#7C8782"
                     android:textSize="12sp"
                     android:fontFamily="@font/googlesans_regular"/>
             </LinearLayout>
@@ -284,7 +292,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginTop="18dp"
-                android:background="@drawable/bg_login_cta_green"
+                android:background="@drawable/bg_lg_cta"
+                    android:outlineSpotShadowColor="#0F6E56"
+                    android:outlineAmbientShadowColor="#0F6E56"
+                    android:elevation="6dp"
                 app:backgroundTint="@null"
                 android:text="@string/verify_code"
                 android:textColor="#FFFFFF"
@@ -305,7 +316,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0.5dp"
                 android:layout_marginTop="16dp"
-                android:background="#EAE2D1"/>
+                android:background="#E3E8E4"/>
 
             <!-- Resend row -->
             <LinearLayout
@@ -318,7 +329,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/didnt_receive_it"
-                    android:textColor="#8A8272"
+                    android:textColor="#76867C"
                     android:textSize="12.5sp"/>
                 <TextView
                     android:id="@+id/tvResendOtp"
@@ -337,3 +348,5 @@
     </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

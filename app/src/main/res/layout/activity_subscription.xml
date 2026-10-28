@@ -2,7 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3ECDD">
+    android:background="@drawable/bg_lg_page">
 
     <LinearLayout
         android:orientation="vertical"
@@ -75,10 +75,11 @@
                  step-circle icon badge + fixed title/subtitle + a status
                  pill, and a body showing the real headline plus an
                  expiry chip. -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:id="@+id/cardStatus"
                 android:orientation="vertical"
-                android:background="@drawable/bg_inv_card_cream"
+                
+                android:background="@drawable/bg_lg_card"
                 android:layout_marginTop="16dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -87,7 +88,7 @@
                     android:id="@+id/statusHeader"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_customer_header"
+                    android:background="@drawable/bg_lg_hdr_green"
                     android:paddingHorizontal="15dp"
                     android:paddingVertical="14dp"
                     android:layout_width="match_parent"
@@ -191,7 +192,7 @@
 
                 </LinearLayout>
 
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- FREE TRIAL -->
             <!-- Hidden entirely once the shop has already used its trial —
@@ -205,7 +206,7 @@
                 android:id="@+id/cardTrial"
                 android:orientation="vertical"
                 android:layout_marginTop="14dp"
-                android:background="@drawable/bg_trial_card"
+                android:background="@drawable/bg_lg_trial_card"
                 android:layerType="software"
                 android:visibility="gone"
                 android:layout_width="match_parent"
@@ -224,7 +225,7 @@
                         android:layout_width="13dp"
                         android:layout_height="13dp"
                         android:src="@drawable/ic_lucide_sparkles"
-                        app:tint="#FCF3E5"
+                        app:tint="#EFF2F0"
                         android:contentDescription="@null"/>
 
                     <TextView
@@ -232,7 +233,7 @@
                         android:textSize="10sp"
                         android:letterSpacing="0.06"
                         android:fontFamily="@font/googlesans_semibold"
-                        android:textColor="#FCF3E5"
+                        android:textColor="#EFF2F0"
                         android:layout_marginStart="6dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
@@ -345,7 +346,7 @@
                         android:textStyle="bold"
                         android:fontFamily="@font/googlesans_semibold"
                         android:layout_marginTop="14dp"
-                        android:textColor="#FCF3E5"
+                        android:textColor="#EFF2F0"
                         android:includeFontPadding="false"
                         android:gravity="center"
                         android:insetLeft="0dp"
@@ -353,7 +354,8 @@
                         android:insetTop="0dp"
                         android:insetBottom="0dp"
                         android:stateListAnimator="@null"
-                        app:backgroundTint="#B8895A"
+                        android:background="@drawable/bg_lg_cta_gold_14"
+        app:backgroundTint="@null"
                         app:rippleColor="#8A6526"
                         app:cornerRadius="14dp"
                         android:layout_width="match_parent"
@@ -462,7 +464,7 @@
                 android:fontFamily="@font/googlesans_semibold"
                 android:enabled="false"
                 android:layout_marginTop="8dp"
-                android:textColor="#FCF3E5"
+                android:textColor="#EFF2F0"
                 android:includeFontPadding="false"
                 android:gravity="center"
                 android:insetLeft="0dp"
@@ -470,11 +472,12 @@
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 android:stateListAnimator="@null"
-                app:backgroundTint="#0F6E56"
+                android:background="@drawable/bg_lg_cta_green_14"
+        app:backgroundTint="@null"
                 app:rippleColor="#085041"
                 app:cornerRadius="14dp"
                 app:icon="@drawable/ic_lucide_check"
-                app:iconTint="#FCF3E5"
+                app:iconTint="#EFF2F0"
                 app:iconGravity="textStart"
                 app:iconPadding="6dp"
                 android:layout_width="match_parent"

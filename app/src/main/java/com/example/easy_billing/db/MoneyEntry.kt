@@ -55,6 +55,9 @@ data class MoneyEntry(
 /** Total per mode, for the default refund split. */
 data class ModeSum(val mode: String, val total: Double)
 
+/** Which way the money of one source document moved (IN / OUT). */
+data class SourceDirection(val sourceId: Int, val direction: String)
+
 @Dao
 interface MoneyEntryDao {
 
@@ -114,10 +117,17 @@ interface MoneyEntryDao {
     )
     suspend fun upiAmountForSource(sourceType: String, sourceId: Int): Double
 
+    /** Direction of each listed document's money rows (one answer per document). Used to word credit history. */
+    @Query(
+        "SELECT source_id AS sourceId, direction AS direction FROM money_entries " +
+            "WHERE source_type = :sourceType AND source_id IN (:ids) AND status != 'CANCELLED' GROUP BY source_id"
+    )
+    suspend fun directionsForSources(sourceType: String, ids: List<Int>): List<SourceDirection>
+
     /** The bill was cancelled before its pending (unpaid) money arrived: it will never be received. */
     @Query(
         "UPDATE money_entries SET status = 'CANCELLED', is_synced = 0 " +
-            "WHERE parent_type = :parentType AND parent_id = :parentId AND status = 'PENDING'"
+            "WHERE parent_type = :parentType AND parent_id = :parentId AND status = 'PENDING' AND reason NOT LIKE '%\\_DUE' ESCAPE '\\'"
     )
     suspend fun cancelPending(parentType: String, parentId: Int): Int
 
@@ -127,13 +137,78 @@ interface MoneyEntryDao {
 
     /** A UPI payment link was paid: the PENDING row becomes real money. */
     @Query(
-        "UPDATE money_entries SET status = 'RECEIVED', is_synced = 0 " +
-            "WHERE source_type = :sourceType AND source_id = :sourceId AND mode = :mode AND status = 'PENDING'"
+        "UPDATE money_entries SET status = 'RECEIVED', is_synced = 0, " +
+            "created_at = CASE WHEN :at > created_at THEN :at ELSE created_at END " +
+            "WHERE source_type = :sourceType AND source_id = :sourceId AND mode = :mode AND status = 'PENDING' " +
+            "AND reason NOT LIKE '%\\_DUE' ESCAPE '\\'"
     )
-    suspend fun markReceived(sourceType: String, sourceId: Int, mode: String): Int
+    suspend fun markReceived(sourceType: String, sourceId: Int, mode: String, at: Long): Int
 
-    @Query("SELECT COALESCE(SUM(amount), 0) FROM money_entries WHERE status = 'PENDING' AND direction = 'IN'")
+    @Query(
+        "SELECT COALESCE(SUM(amount), 0) FROM money_entries WHERE status = 'PENDING' AND direction = 'IN' " +
+            "AND reason NOT LIKE '%\\_DUE' ESCAPE '\\'"
+    )
     suspend fun pendingInTotal(): Double
+
+    /** Open "money still due" notes of one bill / purchase, oldest first. */
+    @Query(
+        "SELECT * FROM money_entries WHERE parent_type = :parentType AND parent_id = :parentId " +
+            "AND status = 'PENDING' AND reason LIKE '%\\_DUE' ESCAPE '\\' ORDER BY id"
+    )
+    suspend fun openDues(parentType: String, parentId: Int): List<MoneyEntry>
+
+    /** Every open "money still due" note on any bill (Bill history marks those bills and filters them). */
+    @Query(
+        "SELECT * FROM money_entries WHERE parent_type = 'BILL' " +
+            "AND status = 'PENDING' AND reason LIKE '%\\_DUE' ESCAPE '\\'"
+    )
+    suspend fun openBillDues(): List<MoneyEntry>
+
+    /** Money still waiting to arrive (for example UPI not yet paid), any date, oldest first. Read only. */
+    @Query(
+        "SELECT * FROM money_entries WHERE status = 'PENDING' " +
+            "AND reason NOT LIKE '%\\_DUE' ESCAPE '\\' ORDER BY created_at, id"
+    )
+    suspend fun allPendingMoney(): List<MoneyEntry>
+
+    /** Every open "money still due" note (to give or to receive), any date, oldest first. Read only. */
+    @Query(
+        "SELECT * FROM money_entries WHERE status = 'PENDING' " +
+            "AND reason LIKE '%\\_DUE' ESCAPE '\\' ORDER BY created_at, id"
+    )
+    suspend fun allOpenDues(): List<MoneyEntry>
+
+    /** A due note was settled (or turned out to be nothing): it is no longer wanted. */
+    @Query(
+        "UPDATE money_entries SET status = 'CANCELLED', is_synced = 0 " +
+            "WHERE source_type = :sourceType AND source_id = :sourceId AND reason IN (:dueReasons) AND status = 'PENDING'"
+    )
+    suspend fun closeDues(sourceType: String, sourceId: Int, dueReasons: List<String>): Int
+
+    /** A bill / purchase was cancelled: its uncollected extra charge / extra payment is moot, so those notes are closed. */
+    @Query(
+        "UPDATE money_entries SET status = 'CANCELLED', is_synced = 0 " +
+            "WHERE parent_type = :parentType AND parent_id = :parentId AND reason IN (:dueReasons) AND status = 'PENDING'"
+    )
+    suspend fun closeDuesForParent(parentType: String, parentId: Int, dueReasons: List<String>): Int
+
+    /** The UPI money of a bill that has not arrived yet (PENDING is not money, so its amount may still change). */
+    @Query(
+        "SELECT * FROM money_entries WHERE parent_type = 'BILL' AND parent_id = :billId AND mode = 'UPI' " +
+            "AND direction = 'IN' AND reason = 'SALE' AND status = 'PENDING' ORDER BY id"
+    )
+    suspend fun pendingUpiRows(billId: Int): List<MoneyEntry>
+
+    /** Lowers (or closes) a still-pending row, e.g. after goods were returned before the customer paid. */
+    @Query("UPDATE money_entries SET amount = :amount, status = :status, is_synced = 0 WHERE id = :id AND status = 'PENDING'")
+    suspend fun reducePending(id: Int, amount: Double, status: String): Int
+
+    /** RECEIVED UPI money of a bill's sale rows. */
+    @Query(
+        "SELECT COALESCE(SUM(amount), 0) FROM money_entries WHERE parent_type = 'BILL' AND parent_id = :billId " +
+            "AND mode = 'UPI' AND direction = 'IN' AND reason = 'SALE' AND status = 'RECEIVED'"
+    )
+    suspend fun receivedUpiForBill(billId: Int): Double
 
     /** Next free source id for a manual / opening row (those have no document of their own). */
     @Query("SELECT COALESCE(MAX(source_id), 0) + 1 FROM money_entries WHERE source_type = 'MANUAL'")

@@ -2,5 +2,5 @@
 <!-- Soft cream disc behind the empty-state bell. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
-    <solid android:color="#ECE5D6"/>
+    <solid android:color="#DDE5E0"/>
 </shape>

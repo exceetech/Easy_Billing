@@ -27,7 +27,7 @@ class DayPartBarChart @JvmOverloads constructor(
     private val density = resources.displayMetrics.density
     private val bandPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#A89C84")
+        color = Color.parseColor("#909C95")
         textAlign = Paint.Align.CENTER
         textSize = 6.5f * resources.displayMetrics.scaledDensity
     }

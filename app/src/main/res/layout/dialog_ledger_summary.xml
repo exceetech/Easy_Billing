@@ -23,7 +23,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="20dp"
     android:orientation="vertical"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:paddingHorizontal="22dp"
     android:paddingTop="24dp"
     android:paddingBottom="20dp">
@@ -89,7 +89,7 @@
         android:layout_marginTop="5dp"
         android:gravity="center"
         android:text=""
-        android:textColor="#9A8F79"
+        android:textColor="#7C8782"
         android:textSize="11.5sp" />
 
     <!-- ===================== RECONCILIATION ===================== -->
@@ -98,7 +98,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginTop="16dp"
-        android:background="@drawable/bg_credit_compare_card"
+        android:background="@drawable/bg_lg_field"
         android:paddingHorizontal="14dp"
         android:paddingVertical="13dp">
 
@@ -185,7 +185,7 @@
                 android:src="@drawable/ic_lucide_check"
                 app:tint="#8A6526"
                 android:background="@drawable/bg_credit_action_tile"
-                android:backgroundTint="#F3ECDD"
+                android:backgroundTint="#EEF2F0"
                 android:contentDescription="@null" />
             <LinearLayout
                 android:layout_width="0dp"
@@ -204,10 +204,57 @@
                     android:layout_height="wrap_content"
                     android:text="@string/dialog_ledger_summary_no_cash_moved"
                     android:textSize="10sp"
-                    android:textColor="#A99E88" />
+                    android:textColor="#7C8782" />
             </LinearLayout>
             <TextView
                 android:id="@+id/tvSumWrittenOff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="16sp"
+                android:textColor="#8A6526"
+                android:fontFamily="serif"
+                android:includeFontPadding="false" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rowSumPaidOut"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="4dp"
+            android:visibility="gone">
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:padding="6dp"
+                android:src="@drawable/ic_lc_arrow_up_right"
+                app:tint="#8A6526"
+                android:background="@drawable/bg_credit_action_tile"
+                android:backgroundTint="#EEF2F0"
+                android:contentDescription="@null" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="10dp">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/dialog_ledger_summary_paid_out"
+                    android:textSize="12.5sp"
+                    android:textColor="#1A1A18" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/dialog_ledger_summary_paid_out_sub"
+                    android:textSize="10sp"
+                    android:textColor="#7C8782" />
+            </LinearLayout>
+            <TextView
+                android:id="@+id/tvSumPaidOut"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
@@ -232,7 +279,7 @@
                 android:src="@drawable/ic_lc_arrow_up_right"
                 app:tint="#8A6526"
                 android:background="@drawable/bg_credit_action_tile"
-                android:backgroundTint="#F3ECDD"
+                android:backgroundTint="#EEF2F0"
                 android:contentDescription="@null" />
             <LinearLayout
                 android:layout_width="0dp"
@@ -251,7 +298,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/dialog_ledger_summary_handed_back"
                     android:textSize="10sp"
-                    android:textColor="#A99E88" />
+                    android:textColor="#7C8782" />
             </LinearLayout>
             <TextView
                 android:id="@+id/tvSumRefunded"
@@ -269,7 +316,7 @@
             android:layout_height="0.5dp"
             android:layout_marginTop="9dp"
             android:layout_marginBottom="8dp"
-            android:background="#EAE2D1" />
+            android:background="#E3E8E4" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -282,7 +329,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/dialog_ledger_summary_balance"
                 android:textSize="12.5sp"
-                android:textColor="#9A8F79" />
+                android:textColor="#7C8782" />
             <TextView
                 android:id="@+id/tvSumBalance"
                 android:layout_width="wrap_content"
@@ -302,7 +349,7 @@
             android:gravity="end"
             android:text="@string/dialog_ledger_summary_settled"
             android:textSize="10sp"
-            android:textColor="#A99E88" />
+            android:textColor="#7C8782" />
     </LinearLayout>
 
     <!-- ===================== AT A GLANCE ===================== -->
@@ -318,7 +365,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_imp_field"
+            android:background="@drawable/bg_lg_field"
             android:paddingHorizontal="11dp"
             android:paddingVertical="9dp">
             <TextView
@@ -338,7 +385,7 @@
                 android:layout_marginTop="1dp"
                 android:text="@string/dialog_ledger_summary_average_bill"
                 android:textSize="9.5sp"
-                android:textColor="#9A8F79" />
+                android:textColor="#7C8782" />
         </LinearLayout>
 
         <View android:layout_width="8dp" android:layout_height="1dp" />
@@ -348,7 +395,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/bg_imp_field"
+            android:background="@drawable/bg_lg_field"
             android:paddingHorizontal="11dp"
             android:paddingVertical="9dp">
             <TextView
@@ -368,7 +415,7 @@
                 android:layout_marginTop="1dp"
                 android:text="@string/dialog_ledger_summary_last_payment"
                 android:textSize="9.5sp"
-                android:textColor="#9A8F79" />
+                android:textColor="#7C8782" />
         </LinearLayout>
     </LinearLayout>
 

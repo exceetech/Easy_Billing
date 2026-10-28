@@ -26,7 +26,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4F0E6">
+    android:background="@drawable/bg_lg_page">
 
     <TextView
         android:id="@+id/tvUnlockStepChip"
@@ -135,7 +135,7 @@
         android:layout_marginHorizontal="36dp"
         android:text="Enter your 4-digit PIN to continue"
         android:textSize="13sp"
-        android:textColor="#8A8272"
+        android:textColor="#76867C"
         android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/titleRow"
         app:layout_constraintBottom_toTopOf="@id/tvUnlockError"
@@ -224,7 +224,7 @@
             android:layout_margin="6dp"
             android:padding="20dp"
             android:src="@drawable/ic_lucide_delete"
-            app:tint="#57534E"
+            app:tint="#4E5752"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"
@@ -267,7 +267,7 @@
             android:paddingVertical="7dp"
             android:text="@string/use_password_instead"
             android:textSize="13sp"
-            android:textColor="#8A8272"
+            android:textColor="#76867C"
             android:fontFamily="@font/googlesans_semibold"
             android:clickable="true"
             android:focusable="true"

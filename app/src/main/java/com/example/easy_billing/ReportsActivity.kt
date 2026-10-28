@@ -111,7 +111,7 @@ class ReportsActivity : BaseActivity() {
                     .getFont(this, R.font.googlesans_semibold)
                 indicator.setBackgroundColor(Color.parseColor("#0F6E56"))
             } else {
-                label.setTextColor(Color.parseColor("#8C8576"))
+                label.setTextColor(Color.parseColor("#7C8782"))
                 label.typeface = androidx.core.content.res.ResourcesCompat
                     .getFont(this, R.font.googlesans_medium)
                 indicator.setBackgroundColor(Color.TRANSPARENT)
@@ -217,8 +217,8 @@ class ReportsActivity : BaseActivity() {
             chip.setTextColor(accent)
             chip.setTypeface(null, Typeface.BOLD)
         } else {
-            chip.chipStrokeColor = ColorStateList.valueOf(Color.parseColor("#E4DCC8"))
-            chip.setTextColor(Color.parseColor("#6E6A60"))
+            chip.chipStrokeColor = ColorStateList.valueOf(Color.parseColor("#D5DDD8"))
+            chip.setTextColor(Color.parseColor("#5B6660"))
             chip.setTypeface(null, Typeface.NORMAL)
         }
     }
@@ -344,7 +344,25 @@ class ReportsActivity : BaseActivity() {
                 .distinct()
         } catch (ex: Exception) { emptyList() }
 
-        return com.example.easy_billing.util.ReportsPdfExtra(dayRows, byMonth, scrap, notSold)
+        // Money Book figures for the same period, same rules as the Money card on the Overview tab.
+        var mWithin: com.example.easy_billing.util.MoneyTotals? = null
+        var mBalance: com.example.easy_billing.util.MoneyTotals? = null
+        var mCaption = ""
+        var mPending = 0.0
+        try {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                val dao = com.example.easy_billing.db.AppDatabase.getDatabase(this@ReportsActivity).moneyEntryDao()
+                val (from, to) = com.example.easy_billing.util.MoneyReport.dayBounds(s, e)
+                mPending = dao.pendingInTotal()
+                mWithin = com.example.easy_billing.util.MoneyReport.totals(dao.sumsBetween(from, to, listOf("OPENING", "TRANSFER")))
+                mBalance = com.example.easy_billing.util.MoneyReport.totals(dao.sumsBetween(0L, to, emptyList()))
+                mCaption = if (to > com.example.easy_billing.util.appNow()) getString(R.string.money_balance_now)
+                else getString(R.string.money_balance_on,
+                    com.example.easy_billing.util.AppTime.formatter("dd MMM yyyy").format(java.util.Date(to - 1)))
+            }
+        } catch (ex: Exception) { mWithin = null; mBalance = null }
+
+        return com.example.easy_billing.util.ReportsPdfExtra(dayRows, byMonth, scrap, notSold, mWithin, mBalance, mCaption, mPending)
     }
 
     private fun shareReportPdf() {

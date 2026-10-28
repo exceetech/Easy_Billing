@@ -213,7 +213,7 @@ class PurchaseDetailsActivity : BaseActivity() {
 
         // Status pill.
         when {
-            p.isCancelled -> setPill(getString(R.string.purchase_history_filter_cancelled_label), "#8A8272", "#F1EBDD")
+            p.isCancelled -> setPill(getString(R.string.purchase_history_filter_cancelled_label), "#6B7C73", "#E3E8E4")
             p.isCredit    -> setPill(getString(R.string.purchase_history_tile_on_credit), "#A32D2D", "#FBEDED")
             else          -> setPill(getString(R.string.cash), "#0F6E56", "#E4F1EC")
         }
@@ -241,6 +241,7 @@ class PurchaseDetailsActivity : BaseActivity() {
             "${p.state.ifBlank { "—" }} (${if (sameState) getString(R.string.purchase_details_same_state) else getString(R.string.purchase_details_different_state)})"
 
         loadOwed(p)
+        refreshDueBanners()
     }
 
     private fun setPill(text: String, textHex: String, bgHex: String) {
@@ -253,6 +254,60 @@ class PurchaseDetailsActivity : BaseActivity() {
      *  wires "View ledger" to open the same transaction history screen
      *  Credit Accounts opens for this account — it used to be a dead label
      *  with no tap action at all. */
+    /** Shows the "supplier refund / payment not recorded yet" banners; tapping one records it. */
+    private fun refreshDueBanners() {
+        val id = purchaseId
+        val layoutRefund = findViewById<View>(R.id.layoutSupplierRefundDue)
+        val layoutPay = findViewById<View>(R.id.layoutSupplierPayDue)
+        if (id <= 0) { layoutRefund.visibility = View.GONE; layoutPay.visibility = View.GONE; return }
+        lifecycleScope.launch {
+            val (toReceive, toPay) = com.example.easy_billing.util.PurchaseMoneyPrompt.dueTotals(this@PurchaseDetailsActivity, id)
+            layoutRefund.visibility = if (toReceive > 0.0) View.VISIBLE else View.GONE
+            findViewById<TextView>(R.id.tvSupplierRefundDue).text = CurrencyHelper.format(this@PurchaseDetailsActivity, toReceive)
+            layoutPay.visibility = if (toPay > 0.0) View.VISIBLE else View.GONE
+            findViewById<TextView>(R.id.tvSupplierPayDue).text = CurrencyHelper.format(this@PurchaseDetailsActivity, toPay)
+            val settle = View.OnClickListener {
+                com.example.easy_billing.util.PurchaseMoneyPrompt.settleDue(this@PurchaseDetailsActivity, id) { refreshDueBanners() }
+            }
+            layoutRefund.setOnClickListener(settle)
+            layoutPay.setOnClickListener(settle)
+            bindPaymentSummary(id)
+        }
+    }
+
+    /** Display only: how this purchase was paid, refunds received, and notes still to record. */
+    private suspend fun bindPaymentSummary(id: Int) {
+        val tv = findViewById<TextView?>(R.id.tvPaymentSummary) ?: return
+        val p = viewModel.selectedPurchase.value
+        val info = com.example.easy_billing.util.PurchasePaymentInfo.loadOne(this, id)
+        val lines = mutableListOf<String>()
+        if (p != null && !p.isCancelled) {
+            when {
+                p.isCredit -> lines += getString(R.string.purchase_details_payment_credit)
+                info.tracked -> lines += getString(
+                    R.string.purchase_details_payment_paid,
+                    info.paidByMode.joinToString(" \u00B7 ") {
+                        "${com.example.easy_billing.util.BillPaymentText.modeLabel(this, it.mode)} ${CurrencyHelper.format(this, it.amount)}"
+                    }
+                )
+                else -> lines += getString(R.string.purchase_details_payment_untracked)
+            }
+        } else if (p != null && info.tracked) {
+            lines += getString(
+                R.string.purchase_details_payment_paid,
+                info.paidByMode.joinToString(" \u00B7 ") {
+                    "${com.example.easy_billing.util.BillPaymentText.modeLabel(this, it.mode)} ${CurrencyHelper.format(this, it.amount)}"
+                }
+            )
+        }
+        if (info.refunded > 0.004) lines += getString(R.string.purchase_details_payment_refunded, CurrencyHelper.format(this, info.refunded))
+        if (info.refundDue > 0.004) lines += getString(R.string.purchase_details_payment_refund_due, CurrencyHelper.format(this, info.refundDue))
+        if (info.payDue > 0.004) lines += getString(R.string.purchase_details_payment_pay_due, CurrencyHelper.format(this, info.payDue))
+        if (lines.isEmpty()) { tv.visibility = View.GONE; return }
+        tv.text = getString(R.string.purchase_details_payment_title) + "\n" + lines.joinToString("\n")
+        tv.visibility = View.VISIBLE
+    }
+
     private fun loadOwed(p: Purchase) {
         val accId = p.creditAccountId
         if (!p.isCredit || accId == null) {
@@ -468,7 +523,7 @@ class PurchaseDetailsActivity : BaseActivity() {
                 )
                 imageTintList = ColorStateList.valueOf(Color.parseColor(amtHex))
                 backgroundTintList = ColorStateList.valueOf(
-                    Color.parseColor(if (isReturn) "#F3ECDD" else "#E4F1EC")
+                    Color.parseColor(if (isReturn) "#FAEEDA" else "#E4F1EC")
                 )
             }
             card.findViewById<TextView>(R.id.tvReturnValue).apply {
@@ -614,7 +669,7 @@ class PurchaseDetailsActivity : BaseActivity() {
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = android.graphics.drawable.GradientDrawable().apply {
-                setColor(Color.WHITE); cornerRadius = dpi(16).toFloat(); setStroke(dpi(1), Color.parseColor("#EAE2D1"))
+                setColor(Color.WHITE); cornerRadius = dpi(16).toFloat(); setStroke(dpi(1), Color.parseColor("#1F000000"))
             }
             layoutParams = LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT)
                 .apply { topMargin = dpi(10) }
@@ -645,13 +700,13 @@ class PurchaseDetailsActivity : BaseActivity() {
                 1 -> getString(R.string.corr_inv_sub_one, billed)
                 else -> getString(R.string.corr_inv_sub_many, billed, lineNotes.size)
             }
-            textSize = 11f; setTextColor(Color.parseColor("#8A8272"))
+            textSize = 11f; setTextColor(Color.parseColor("#76867C"))
         })
         head.addView(mid)
         val right = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; gravity = android.view.Gravity.END }
         if (lineNotes.isNotEmpty()) right.addView(TextView(this).apply {
             text = CurrencyHelper.format(this@PurchaseDetailsActivity, item.invoiceValue)
-            textSize = 11f; setTextColor(Color.parseColor("#8A8272"))
+            textSize = 11f; setTextColor(Color.parseColor("#76867C"))
             paintFlags = paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
         })
         right.addView(TextView(this).apply {
@@ -661,7 +716,7 @@ class PurchaseDetailsActivity : BaseActivity() {
         })
         head.addView(right)
         val chev = TextView(this).apply {
-            text = "›"; textSize = 18f; setTextColor(Color.parseColor("#8A8272"))
+            text = "›"; textSize = 18f; setTextColor(Color.parseColor("#76867C"))
             setPadding(dpi(8), 0, 0, 0)
             visibility = if (lineNotes.isEmpty()) View.GONE else View.VISIBLE
         }
@@ -695,7 +750,7 @@ class PurchaseDetailsActivity : BaseActivity() {
                 }
                 col.addView(TextView(this).apply { text = label; textSize = 12f; typeface = semibold; setTextColor(Color.parseColor("#1A1A18")) })
                 col.addView(TextView(this).apply {
-                    text = n.noteNumber ?: getString(R.string.corr_inv_note); textSize = 10.5f; setTextColor(Color.parseColor("#8A8272"))
+                    text = n.noteNumber ?: getString(R.string.corr_inv_note); textSize = 10.5f; setTextColor(Color.parseColor("#76867C"))
                 })
                 row.addView(col)
                 row.addView(TextView(this).apply {
@@ -850,7 +905,7 @@ class PurchaseDetailsActivity : BaseActivity() {
                 kind = CreditAdjustmentRepository.Kind.PURCHASE_CANCEL,
                 amount = result.remainingValue,
                 documentLocalId = purchaseId,
-                onDone = { }
+                onDone = { refreshDueBanners() }
             )
         }
     }
@@ -860,7 +915,7 @@ class PurchaseDetailsActivity : BaseActivity() {
         // can't be returned or cancelled again.
         tvCancelledBanner.visibility = View.VISIBLE
         actionRow.visibility = View.GONE
-        setPill(getString(R.string.purchase_history_filter_cancelled_label), "#8A8272", "#F1EBDD")
+        setPill(getString(R.string.purchase_history_filter_cancelled_label), "#6B7C73", "#E3E8E4")
     }
 
     /** First letters of the first two words, uppercased — the row monogram. */

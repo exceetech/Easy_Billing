@@ -109,6 +109,7 @@ class SyncManager(private val context: Context) {
         runStep("syncGstInvoices") { syncGstInvoices() }             // push GST-aware invoice batch
         runStep("syncGstCancellations") { syncGstCancellations() }   // push pending GST invoice cancellations
         runStep("syncBillCancellations") { syncBillCancellations() } // push voided bills to the analytics table
+        runStep("syncManualPaid") { syncManualPaid() }               // tell the server about bills marked paid on the phone
         runStep("syncPurchaseCancellations") { syncPurchaseCancellations() } // push voided purchases
         runStep("syncStoreInfo") { syncStoreInfo() }                 // pull latest
         runStep("syncBillingSettings") { syncBillingSettings() }     // pull settings
@@ -2654,9 +2655,13 @@ class SyncManager(private val context: Context) {
                 // Payment tracking: a paid UPI bill's pending money becomes real money.
                 if (u.payment_status == "paid") {
                     billDao.getByBillNumber(u.bill_number)?.let { b ->
-                        db.moneyEntryDao().markReceived(
-                            com.example.easy_billing.util.MoneySource.BILL, b.id, com.example.easy_billing.util.MoneyMode.UPI
-                        )
+                        if (b.isCancelled) {
+                            // Paid after the bill was cancelled: record the money and a refund due.
+                            com.example.easy_billing.repository.LatePayment.handle(db, b)
+                        } else {
+                            // Also notes any overpayment (link made for a larger amount than is now owed).
+                            com.example.easy_billing.util.UpiReceipt.onLinkPaid(context, db, b)
+                        }
                     }
                 }
             }
@@ -2949,6 +2954,31 @@ class SyncManager(private val context: Context) {
      * then `cancel_synced` takes it out of the loop. The endpoint is
      * idempotent, so a lost response retrying next cycle is harmless.
      */
+    suspend fun syncManualPaid() {
+        val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
+            .getString("TOKEN", null) ?: return
+        val db = AppDatabase.getDatabase(context)
+        for (bill in db.billDao().getPaidPushPending()) {
+            // Not on the server yet: wait until the bill itself has synced and has a number.
+            if (!bill.isSynced || bill.billNumber.isBlank()) continue
+            try {
+                RetrofitClient.api.markBillPaid("Bearer $token", bill.billNumber)
+                db.billDao().clearPaidPush(bill.id)
+                Log.d(SYNC_TAG, "syncManualPaid: bill ${bill.id} told to server")
+            } catch (e: retrofit2.HttpException) {
+                if (e.code() == 409 || e.code() == 404) {
+                    // Cancelled on the server (the cancel/refund flow owns the money) or not there: stop retrying.
+                    db.billDao().clearPaidPush(bill.id)
+                    Log.w(SYNC_TAG, "syncManualPaid: bill ${bill.id} HTTP ${e.code()}; cleared")
+                } else {
+                    Log.e(SYNC_TAG, "syncManualPaid: HTTP ${e.code()} for bill ${bill.id}")
+                }
+            } catch (e: Exception) {
+                Log.e(SYNC_TAG, "syncManualPaid: failed for bill ${bill.id}", e)
+            }
+        }
+    }
+
     suspend fun syncBillCancellations() {
         val token = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
             .getString("TOKEN", null) ?: run {

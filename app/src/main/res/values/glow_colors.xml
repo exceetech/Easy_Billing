@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SINGLE SOURCE for the glass-theme glow colours (light). Change these six values
+    and every glass screen (bg_lg_page) and the light splash update together.
+    glow_a = top-left glow (emerald), glow_b = bottom-right glow (soft sky).
+    Each glow fades: glow_x (centre) -> glow_x_mid -> glow_x_end (transparent).
+-->
+<resources>
+    <color name="glow_a">#3A0F6E56</color>
+    <color name="glow_a_mid">#1D0F6E56</color>
+    <color name="glow_a_end">#000F6E56</color>
+    <color name="glow_b">#496EAFE1</color>
+    <color name="glow_b_mid">#246EAFE1</color>
+    <color name="glow_b_end">#006EAFE1</color>
+</resources>

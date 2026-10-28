@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Glass splash background: white (day) / deep green (night) base with an emerald glow (top left) and a champagne glow (bottom right). -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:type="linear" android:angle="270"
+                android:startColor="@color/splash_gradient_start"
+                android:centerColor="@color/splash_gradient_center"
+                android:endColor="@color/splash_gradient_end" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:type="radial" android:centerX="0.23" android:centerY="0.17" android:gradientRadius="72%p"
+                android:startColor="@color/splash_glow_emerald" android:centerColor="@color/splash_glow_emerald_mid" android:endColor="@color/splash_glow_emerald_end" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:type="radial" android:centerX="0.85" android:centerY="0.88" android:gradientRadius="75%p"
+                android:startColor="@color/splash_glow_gold" android:centerColor="@color/splash_glow_gold_mid" android:endColor="@color/splash_glow_gold_end" />
+        </shape>
+    </item>
+</layer-list>

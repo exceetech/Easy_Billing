@@ -7,7 +7,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:background="@drawable/bg_picker_sheet"
+    android:background="@drawable/bg_lg_sheet"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:focusableInTouchMode="true"
@@ -75,7 +75,7 @@
             android:id="@+id/tvProductPickerCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#9A8F79"
+            android:textColor="#7C8782"
             android:textSize="11sp"
             android:fontFamily="@font/googlesans_medium"/>
     </LinearLayout>
@@ -88,7 +88,7 @@
         android:gravity="center_vertical"
         android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="12dp"
-        android:background="@drawable/bg_glass_input"
+        android:background="@drawable/bg_lg_input"
         android:paddingHorizontal="13dp">
 
         <ImageView
@@ -107,7 +107,7 @@
             android:background="@null"
             android:hint="Search products"
             android:textColor="#1A1A18"
-            android:textColorHint="#A99E88"
+            android:textColorHint="#929F97"
             android:inputType="text"
             android:singleLine="true"
             android:textSize="13.5sp"/>

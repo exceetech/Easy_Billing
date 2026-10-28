@@ -27,7 +27,12 @@ data class ReportsPdfExtra(
     val dayRows: List<Triple<String, Int, Double>> = emptyList(),   // label, bills, sales
     val byMonth: Boolean = false,
     val scrap: List<ScrapRow> = emptyList(),
-    val notSold: List<String> = emptyList()
+    val notSold: List<String> = emptyList(),
+    // Money Book figures for the same period (null = section skipped)
+    val moneyWithin: MoneyTotals? = null,
+    val moneyBalance: MoneyTotals? = null,
+    val moneyBalanceCaption: String = "",
+    val moneyPendingUpi: Double = 0.0
 )
 
 /**
@@ -233,15 +238,16 @@ object ReportsPdfGenerator {
                 canvas.drawText(value, rx - paint.measureText(value), ly, paint)
             }
             val l1 = boxTop + 32f
-            kv(c1, c1r, l1, activity.getString(R.string.reports_pdf_revenue), money(overview.total_revenue))
+            // total_revenue is already net of returns: sales before returns = total_revenue + returns_total.
+            kv(c1, c1r, l1, activity.getString(R.string.reports_pdf_revenue), money(overview.total_revenue + overview.returns_total))
             kv(c1, c1r, l1 + lineH, activity.getString(R.string.reports_pdf_bills), overview.total_bills.toString())
             kv(c1, c1r, l1 + lineH * 2, activity.getString(R.string.reports_pdf_average), money(overview.average_bill))
             kv(c2, c2r, l1, activity.getString(R.string.reports_pdf_returns), "-" + money(overview.returns_total), lossColor)
             val cancelled = activity.getString(R.string.reports_pdf_cancelled) +
                 if (overview.cancelled_count > 0) " (${overview.cancelled_count})" else ""
-            kv(c2, c2r, l1 + lineH, cancelled, "-" + money(overview.cancelled_amount), lossColor)
-            val net = overview.total_revenue - overview.returns_total - overview.cancelled_amount
-            kv(c2, c2r, l1 + lineH * 2, activity.getString(R.string.reports_pdf_net), money(net), teal)
+            // Cancelled bills were never part of the sales figure, so they are shown for information, not subtracted.
+            kv(c2, c2r, l1 + lineH, cancelled, money(overview.cancelled_amount))
+            kv(c2, c2r, l1 + lineH * 2, activity.getString(R.string.reports_pdf_net), money(overview.total_revenue), teal)
             y = boxTop + boxH + 14f
 
             // Change versus the previous period, when there is something to compare with.
@@ -255,6 +261,42 @@ object ReportsPdfGenerator {
                 y += 12f
             }
             y += 14f
+        }
+
+        // ── Money box: what really came in and went out (from the Money Book), when available ──
+        extra.moneyWithin?.let { w ->
+            val b = extra.moneyBalance
+            val lineH = 15f
+            val pend = extra.moneyPendingUpi > 0.004
+            val rows = 3 + (if (b != null) 3 else 0) + (if (pend) 1 else 0)
+            val boxH = 28f + rows * lineH + 10f
+            ensureSpace(boxH + 14f)
+            val top = y
+            paint.style = Paint.Style.FILL
+            paint.color = champagne
+            canvas.drawRoundRect(margin, top, pageWidth - margin, top + boxH, 8f, 8f, paint)
+            val lx = margin + 12f; val rx = pageWidth - margin - 12f
+            paint.color = champagneLabel; paint.typeface = fontSemibold; paint.textSize = 8.5f
+            canvas.drawText(activity.getString(R.string.money_title).uppercase(), lx, top + 16f, paint)
+            fun line(i: Int, label: String, value: String, vc: Int = ink, labelColor: Int = ink) {
+                val ly = top + 32f + lineH * i
+                paint.typeface = fontRegular; paint.textSize = 10f; paint.color = labelColor
+                canvas.drawText(label, lx, ly, paint)
+                paint.typeface = fontMedium; paint.color = vc
+                canvas.drawText(value, rx - paint.measureText(value), ly, paint)
+            }
+            line(0, activity.getString(R.string.money_row_in) + "  (" + activity.getString(R.string.money_col_cash) + " " + money(w.inCash) +
+                " · " + activity.getString(R.string.money_col_bank) + " " + money(w.inBank) + ")", money(w.inTotal), teal)
+            line(1, activity.getString(R.string.money_row_out) + "  (" + activity.getString(R.string.money_col_cash) + " " + money(w.outCash) +
+                " · " + activity.getString(R.string.money_col_bank) + " " + money(w.outBank) + ")", money(w.outTotal), lossColor)
+            line(2, activity.getString(R.string.money_row_net), money(w.net), if (w.net < 0) lossColor else ink)
+            if (b != null) {
+                line(3, extra.moneyBalanceCaption, "", ink, muted)
+                line(4, activity.getString(R.string.money_pocket), money(b.cashNet), if (b.cashNet < 0) lossColor else ink)
+                line(5, activity.getString(R.string.money_bank), money(b.bankNet), if (b.bankNet < 0) lossColor else ink)
+            }
+            if (pend) line(rows - 1, activity.getString(R.string.money_pending_upi, money(extra.moneyPendingUpi)), "", ink, muted)
+            y = top + boxH + 14f
         }
 
         fun sectionTitle(t: String) {
@@ -346,7 +388,7 @@ object ReportsPdfGenerator {
                     activity.getString(R.string.reports_pdf_col_before),
                     activity.getString(R.string.reports_pdf_col_change)),
                 listOf(
-                    listOf(activity.getString(R.string.reports_pdf_revenue), money(overview.total_revenue),
+                    listOf(activity.getString(R.string.reports_pdf_net), money(overview.total_revenue),
                         money(overview.prev_revenue), chg(overview.total_revenue, overview.prev_revenue)),
                     listOf(activity.getString(R.string.reports_pdf_bills), overview.total_bills.toString(),
                         overview.prev_bills.toString(), chg(overview.total_bills.toDouble(), overview.prev_bills.toDouble())),

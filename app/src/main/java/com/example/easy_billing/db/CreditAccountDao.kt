@@ -66,7 +66,7 @@ interface CreditAccountDao {
      */
     @Query("""
         UPDATE credit_accounts
-        SET dueAmount = dueAmount + :delta
+        SET dueAmount = ROUND(dueAmount + :delta, 2)
         WHERE id = :id AND shopId = :shopId AND isActive = 1
     """)
     suspend fun addToDue(id: Int, delta: Double, shopId: Int)

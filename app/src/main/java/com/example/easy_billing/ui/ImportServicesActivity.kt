@@ -216,7 +216,7 @@ class ImportServicesActivity : BaseActivity() {
     // each status chip gets a stable color from this palette instead of
     // every selected chip looking identically teal.
     private val filterChipPalette = listOf(
-        "#0F6E56", "#B23A3A", "#8A6526", "#185FA5",
+        "#0F6E56", "#B23A3A", "#8A6526", "#0F6E56",
         "#534AB7", "#D85A30", "#3B6D11", "#993556"
     )
 
@@ -228,8 +228,8 @@ class ImportServicesActivity : BaseActivity() {
     private fun styleFilterChip(chip: TextView, selected: Boolean, label: String) {
         val d = resources.displayMetrics.density
         val accent = filterChipColor(label)
-        val strokeColor = if (selected) accent else android.graphics.Color.parseColor("#E4DCC8")
-        val textColor = if (selected) accent else android.graphics.Color.parseColor("#6E6A60")
+        val strokeColor = if (selected) accent else android.graphics.Color.parseColor("#D5DDD8")
+        val textColor = if (selected) accent else android.graphics.Color.parseColor("#5B6660")
 
         chip.background = android.graphics.drawable.GradientDrawable().apply {
             shape = android.graphics.drawable.GradientDrawable.RECTANGLE
@@ -279,7 +279,7 @@ class ImportServicesActivity : BaseActivity() {
             row.addView(TextView(this).apply {
                 text = label
                 textSize = 14f
-                setTextColor(Color.parseColor(if (isSel) "#185FA5" else "#1A1A18"))
+                setTextColor(Color.parseColor(if (isSel) "#0F6E56" else "#1A1A18"))
                 layoutParams = LinearLayout.LayoutParams(
                     0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f
                 )
@@ -287,7 +287,7 @@ class ImportServicesActivity : BaseActivity() {
             if (isSel) {
                 row.addView(ImageView(this).apply {
                     setImageResource(R.drawable.ic_lucide_check)
-                    setColorFilter(Color.parseColor("#185FA5"))
+                    setColorFilter(Color.parseColor("#0F6E56"))
                     layoutParams = LinearLayout.LayoutParams(dp(16), dp(16))
                 })
             }

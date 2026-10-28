@@ -340,9 +340,9 @@ class ProductAdapter(
                 stockEntry == null -> {
                     // Untracked / service item — neutral pill, no dot.
                     stockDot.visibility     = View.GONE
-                    pill.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#F1EFE8"))
+                    pill.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#EAEFEC"))
                     pillText.text           = context.getString(R.string.product_adapter_service_pill)
-                    pillText.setTextColor(Color.parseColor("#6B6B63"))
+                    pillText.setTextColor(Color.parseColor("#616D66"))
                     setClickListeners(product)
                 }
                 stockEntry <= 0 -> {
@@ -351,7 +351,7 @@ class ProductAdapter(
                     pill.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#FCEBEB"))
                     pillText.text           = context.getString(R.string.product_adapter_out_of_stock_pill)
                     pillText.setTextColor(Color.parseColor("#B91C1C"))
-                    addBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#C9C3B4"))
+                    addBtn.backgroundTintList = ColorStateList.valueOf(Color.parseColor("#C5CEC9"))
                     overlay.visibility  = View.VISIBLE
                     card.alpha          = 0.55f
                     card.isClickable    = false
@@ -392,7 +392,7 @@ class ProductAdapter(
                 card.strokeColor = Color.parseColor("#0F6E56")
                 card.strokeWidth = dpToPx(context, 2)
             } else {
-                card.strokeColor = Color.parseColor("#ECE7DA")
+                card.strokeColor = Color.parseColor("#1A000000")
                 card.strokeWidth = dpToPx(context, 1)
             }
 
@@ -545,7 +545,7 @@ class ProductAdapter(
             }
             when {
                 stockEntry == null -> {
-                    tagState(R.drawable.bg_list_tag_svc, context.getString(R.string.product_adapter_service_pill), "#6E6551")
+                    tagState(R.drawable.bg_list_tag_svc, context.getString(R.string.product_adapter_service_pill), "#5A655E")
                     setClickListeners(product)
                 }
                 stockEntry <= 0 -> {

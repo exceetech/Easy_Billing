@@ -175,7 +175,7 @@ class ProfitTrendFragment : Fragment(R.layout.fragment_profit_trend) {
         lineChart.axisLeft.isEnabled = false
         lineChart.xAxis.position = XAxis.XAxisPosition.BOTTOM
         lineChart.xAxis.setDrawGridLines(false)
-        lineChart.xAxis.textColor = Color.parseColor("#9A8F79")
+        lineChart.xAxis.textColor = Color.parseColor("#7C8782")
         lineChart.xAxis.textSize = 9.5f
         lineChart.xAxis.granularity = 1f
         lineChart.setNoDataText("")
@@ -331,6 +331,7 @@ class ProfitTrendFragment : Fragment(R.layout.fragment_profit_trend) {
 
     private fun showProductPickerDialog() {
         val dialog = com.google.android.material.bottomsheet.BottomSheetDialog(requireContext())
+        dialog.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         val view = layoutInflater.inflate(R.layout.dialog_product_picker, null)
 
         val etSearch = view.findViewById<android.widget.EditText>(R.id.etSearchProduct)

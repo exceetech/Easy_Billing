@@ -64,6 +64,36 @@ class MoneyBook(private val dao: MoneyEntryDao) {
     }
 
     /**
+     * Saves a "money still due" note (PENDING, mode CASH only because a mode is required; it is not money
+     * and is never counted). [dueReason] is one of [MoneyReason.DUE_REASONS]. Returns false when the same
+     * document already has this note. Call it BEFORE showing the sheet, so closing the sheet or killing the
+     * app can no longer lose the refund.
+     */
+    suspend fun openDue(
+        direction: String,
+        dueReason: String,
+        amount: Double,
+        sourceType: String,
+        sourceId: Int,
+        parentType: String,
+        parentId: Int,
+        partyName: String = "",
+        refText: String = ""
+    ): Boolean {
+        require(MoneyReason.isDue(dueReason)) { "Not a due reason: $dueReason" }
+        if (PaymentSplit.round2(amount) <= 0.0) return false
+        return record(
+            direction, MoneyMode.CASH, amount, dueReason, sourceType, sourceId,
+            parentType, parentId, partyName, refText, MoneyStatus.PENDING
+        )
+    }
+
+    /** Closes the due notes of one document (after it was settled, or when nothing is left to settle). */
+    suspend fun closeDues(sourceType: String, sourceId: Int, vararg dueReasons: String) {
+        dao.closeDues(sourceType, sourceId, dueReasons.toList())
+    }
+
+    /**
      * Writes one row per line. A CREDIT line is not money and is skipped. Lines of the same mode are
      * merged first. Returns how many rows were newly written.
      */
@@ -157,7 +187,28 @@ class MoneyBook(private val dao: MoneyEntryDao) {
         return written
     }
 
+    /**
+     * Goods were returned from a bill whose UPI money has not arrived yet: the customer now owes less, so the
+     * pending UPI amount shrinks by up to [cut] (a row that reaches zero is closed as CANCELLED). Pending is not
+     * money yet, so changing its amount does not break the append-only rule for real money.
+     * Returns how much was taken off (never more than the pending total).
+     */
+    suspend fun shrinkPendingUpi(billId: Int, cut: Double): Double {
+        var left = PaymentSplit.round2(cut)
+        if (left <= 0.0) return 0.0
+        var done = 0.0
+        for (row in dao.pendingUpiRows(billId)) {
+            if (left <= 0.0) break
+            val take = minOf(left, row.amount)
+            val remain = PaymentSplit.round2(row.amount - take)
+            val changed = if (remain <= 0.004) dao.reducePending(row.id, row.amount, MoneyStatus.CANCELLED)
+                          else dao.reducePending(row.id, remain, MoneyStatus.PENDING)
+            if (changed > 0) { left = PaymentSplit.round2(left - take); done = PaymentSplit.round2(done + take) }
+        }
+        return done
+    }
+
     /** A UPI payment link was paid: its PENDING row becomes RECEIVED. */
     suspend fun markReceived(sourceType: String, sourceId: Int, mode: String = MoneyMode.UPI): Boolean =
-        dao.markReceived(sourceType, sourceId, mode) > 0
+        dao.markReceived(sourceType, sourceId, mode, appNow()) > 0
 }

@@ -533,7 +533,7 @@ class AddProductActivity : BaseActivity() {
                 tvTag.text = row?.tag
                 val isShop = row?.tag == getString(R.string.add_product_tag_your_shop)
                 tvTag.setBackgroundResource(if (isShop) R.drawable.bg_search_tag_chip_shop else R.drawable.bg_search_tag_chip_neutral)
-                tvTag.setTextColor(android.graphics.Color.parseColor(if (isShop) "#0F6E56" else "#6E6A60"))
+                tvTag.setTextColor(android.graphics.Color.parseColor(if (isShop) "#0F6E56" else "#5B6660"))
             }
             return view
         }

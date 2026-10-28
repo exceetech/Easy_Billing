@@ -49,7 +49,64 @@ object CreditAdjustmentPrompt {
         amount: Double,
         documentLocalId: Int,
         onDone: () -> Unit
-    ) = handleSource(activity, Source.Purchase(purchaseId), kind, amount, documentLocalId, onDone)
+    ) {
+        // Written down first and struck off at the end, so an app killed in between can finish it later
+        // (see [replayPendingPurchases]). Inventory supplier returns keep their own list, so they are skipped here.
+        val shop = activity.getSharedPreferences("auth", android.content.Context.MODE_PRIVATE).getInt("SHOP_ID", -1)
+        val tracked = kind != Kind.PURCHASE_RETURN
+        if (tracked) PendingPurchaseAdjustments.remember(activity, shop, purchaseId, kind.name, amount, documentLocalId)
+        handleSource(activity, Source.Purchase(purchaseId), kind, amount, documentLocalId) {
+            if (tracked) PendingPurchaseAdjustments.forget(activity, shop, purchaseId, kind.name, documentLocalId)
+            onDone()
+        }
+    }
+
+    @Volatile private var replaying = false
+
+    /**
+     * Finishes purchase-document money steps that an earlier session never completed. Only a step with NOTHING written
+     * yet is run again (no ledger row and no refund / due note for that document); anything else was already under
+     * way and is covered by its own "still due" note. Call when a purchase screen opens; [onAllDone] runs at the end.
+     */
+    fun replayPendingPurchases(activity: AppCompatActivity, onAllDone: () -> Unit = {}) {
+        if (replaying) return
+        val shop = activity.getSharedPreferences("auth", android.content.Context.MODE_PRIVATE).getInt("SHOP_ID", -1)
+        val items = PendingPurchaseAdjustments.forShop(activity, shop)
+        if (items.isEmpty()) return
+        replaying = true
+        activity.lifecycleScope.launch {
+            fun finish() { replaying = false; onAllDone() }
+            fun next(i: Int) {
+                if (i >= items.size || activity.isFinishing) { finish(); return }
+                val item = items[i]
+                val kind = try { Kind.valueOf(item.kind) } catch (_: Exception) { null }
+                activity.lifecycleScope.launch {
+                    val started = kind == null || kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                        try {
+                            val db = com.example.easy_billing.db.AppDatabase.getDatabase(activity)
+                            val ledger = db.creditTransactionDao()
+                                .getForDoc(CreditAdjustmentRepository.docId(kind, item.doc), item.shopId).isNotEmpty()
+                            ledger || db.moneyEntryDao().forParent(MoneySource.PURCHASE, item.purchaseId).any { r ->
+                                r.sourceId == item.doc &&
+                                    r.sourceType in listOf(MoneySource.PURCHASE, MoneySource.PURCHASE_NOTE, MoneySource.PURCHASE_RETURN) &&
+                                    (r.reason in listOf(MoneyReason.PURCHASE_REFUND, MoneyReason.PURCHASE_REFUND_DUE, MoneyReason.PURCHASE_PAID_DUE) ||
+                                        (r.reason == MoneyReason.PURCHASE_PAID && r.sourceType == MoneySource.PURCHASE_NOTE))
+                            }
+                        } catch (_: Exception) { true }
+                    }
+                    if (started || kind == null) {
+                        PendingPurchaseAdjustments.forget(activity, item.shopId, item.purchaseId, item.kind, item.doc)
+                        next(i + 1)
+                    } else {
+                        PendingPurchaseAdjustments.countAttempt(activity, item)
+                        Toast.makeText(activity, R.string.purchase_adjust_resume, Toast.LENGTH_LONG).show()
+                        handlePurchase(activity, item.purchaseId, kind, item.amount, item.doc) { next(i + 1) }
+                    }
+                }
+            }
+            next(0)
+        }
+    }
 
     /**
      * Return booked straight against a supplier account (clear-stock / batch
@@ -73,9 +130,22 @@ object CreditAdjustmentPrompt {
         kind: Kind,
         amount: Double,
         documentLocalId: Int,
-        afterAll: () -> Unit
+        finishFlow: () -> Unit
     ) {
         activity.lifecycleScope.launch {
+            // A payment link is fixed at the amount it was made for. If goods come back before it is paid, the
+            // customer can still pay the old, larger amount: say so once, at the very end of the flow.
+            var oldLinkAmount = 0.0
+            val afterAll: () -> Unit = {
+                if (oldLinkAmount > 0.004 && !activity.isFinishing) {
+                    AlertDialog.Builder(activity)
+                        .setTitle(activity.getString(R.string.upi_link_old_title))
+                        .setMessage(activity.getString(R.string.upi_link_old_msg, money(activity, oldLinkAmount)))
+                        .setCancelable(false)
+                        .setPositiveButton(android.R.string.ok) { d, _ -> d.dismiss(); finishFlow() }
+                        .show()
+                } else finishFlow()
+            }
             // Payment tracking (sales side, return / cancel only): whatever part of the document is NOT
             // on the credit account is money the customer paid, so it is refunded. The refund question is
             // asked after the credit question, together with any "settle in cash" leftover.
@@ -92,11 +162,49 @@ object CreditAdjustmentPrompt {
                         .cancelPending(MoneySource.BILL, (source as Source.Bill).billId)
                 }
             }
+            // Cancelling voids the whole document, so an extra charge / extra payment that was still waiting to be
+            // collected / paid (a "due" note from a debit or credit note) is moot. Closed here, not left on a void bill.
+            if (kind == Kind.BILL_CANCEL && source is Source.Bill) {
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    com.example.easy_billing.db.AppDatabase.getDatabase(activity).moneyEntryDao()
+                        .closeDuesForParent(MoneySource.BILL, source.billId, listOf(MoneyReason.SALE_EXTRA_DUE))
+                }
+            }
+            if (kind == Kind.PURCHASE_CANCEL && source is Source.Purchase) {
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    com.example.easy_billing.db.AppDatabase.getDatabase(activity).moneyEntryDao()
+                        .closeDuesForParent(MoneySource.PURCHASE, source.purchaseId, listOf(MoneyReason.PURCHASE_PAID_DUE))
+                }
+            }
             // Read BEFORE the credit side is committed below.
             val creditShare = if (moneyBack)
                 CreditAdjustmentRepository.creditShareOf(activity, source, amount) else 0.0
             // A return booked straight on a supplier account has no paid part, only a possible cash leftover.
-            val paidPart = if (moneyBack && source !is Source.SupplierAccount) maxOf(0.0, amount - creditShare) else 0.0
+            var paidPart = if (moneyBack && source !is Source.SupplierAccount) maxOf(0.0, amount - creditShare) else 0.0
+            if (salesRefund && source is Source.Bill) {
+                val db = com.example.easy_billing.db.AppDatabase.getDatabase(activity)
+                val book = com.example.easy_billing.repository.MoneyBook(db.moneyEntryDao())
+                if (kind == Kind.BILL_CANCEL) {
+                    // A void bill gives back everything it still holds (including extra charges from debit
+                    // notes), not just its original total.
+                    paidPart = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                        book.refundCeiling(MoneySource.BILL, source.billId, MoneyDirection.IN)
+                    }
+                } else if (kind == Kind.SALE_RETURN) {
+                    // Goods came back before the customer paid by UPI: they owe less, so the pending UPI amount
+                    // shrinks first. Only what is left of the paid part is money to hand back.
+                    val shrunk = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                        book.shrinkPendingUpi(source.billId, paidPart)
+                    }
+                    paidPart = maxOf(0.0, paidPart - shrunk)
+                    if (shrunk > 0.004) {
+                        val billNo = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                            try { db.billDao().getBillById(source.billId).billNumber.trim() } catch (_: Exception) { "" }
+                        }
+                        oldLinkAmount = UpiLinkAmounts.recall(activity, billNo) ?: 0.0
+                    }
+                }
+            }
             android.util.Log.d("MoneyFlow", "adjust kind=$kind source=$source amount=$amount creditShare=$creditShare paidPart=$paidPart salesRefund=$salesRefund supplierRefund=$supplierRefund supplierPay=$supplierPay")
             val onDone: (cashExcess: Double) -> Unit = { cashExcess ->
                 if (salesRefund) {
@@ -163,21 +271,22 @@ object CreditAdjustmentPrompt {
         val party = plan.account.name
         val clearsLine =
             if (plan.reduce > 0.005)
-                "${money(activity, plan.reduce)} clears $party's remaining dues.\n"
+                activity.getString(R.string.credit_adjustment_clears_dues, money(activity, plan.reduce), party) + "\n"
             else
-                "$party has no dues left to clear.\n"
+                activity.getString(R.string.credit_adjustment_no_dues_left, party) + "\n"
 
         val msg = buildString {
             append(clearsLine)
-            append("Extra ${money(activity, plan.excess)} is left over.\n\n")
-            append("Settle the ${money(activity, plan.excess)} in cash, or keep it as an advance " +
-                "on $party's account?")
+            append(activity.getString(R.string.credit_adjustment_extra_left, money(activity, plan.excess)) + "\n\n")
+            append(activity.getString(R.string.credit_adjustment_settle_or_advance, money(activity, plan.excess), party))
         }
 
         AlertDialog.Builder(activity)
             .setTitle(activity.getString(R.string.credit_adjustment_extra_after_clearing_title))
             .setPositiveButton(activity.getString(R.string.credit_adjustment_settle_now_btn)) { d, _ ->
                 d.dismiss()
+                // Supplier returns from the Inventory page: note the "cash" answer so a closed app can still ask for the refund.
+                if (kind == Kind.PURCHASE_RETURN) CashExcessMemo.remember(activity, documentLocalId, plan.excess)
                 // Only the debt-clearing part touches the account; the excess
                 // is cash and is not recorded on the ledger.
                 // The excess is cash handed back to the customer: it goes to the refund sheet.
@@ -189,7 +298,9 @@ object CreditAdjustmentPrompt {
                 // advance by that much.
                 commitAndFinish(activity, source, kind, plan.reduce + plan.excess, documentLocalId) { onDone(0.0) }
             }
-            .setOnCancelListener { onDone(0.0) }
+            // An answer is required: backing out used to skip the ledger entry altogether, leaving the supplier /
+            // customer balance too high with nothing to show it was missed.
+            .setCancelable(false)
             .show()
     }
 
@@ -213,12 +324,12 @@ object CreditAdjustmentPrompt {
     private fun toast(activity: AppCompatActivity, kind: Kind, r: PostResult) {
         val text = when (r) {
             is PostResult.Ok ->
-                if (kind.raises) "Added ${money(activity, r.appliedAmount)} to balance"
-                else "Reduced balance by ${money(activity, r.appliedAmount)}"
-            PostResult.AlreadyPosted -> "Already applied to the account"
-            PostResult.Nothing -> "Recorded — no change to balance"
-            PostResult.NoShop -> "No shop selected. Sign in again."
-            PostResult.NotFound -> "Couldn't find the account"
+                if (kind.raises) activity.getString(R.string.credit_toast_added, money(activity, r.appliedAmount))
+                else activity.getString(R.string.credit_toast_reduced, money(activity, r.appliedAmount))
+            PostResult.AlreadyPosted -> activity.getString(R.string.credit_toast_already)
+            PostResult.Nothing -> activity.getString(R.string.credit_toast_nothing)
+            PostResult.NoShop -> activity.getString(R.string.credit_toast_no_shop)
+            PostResult.NotFound -> activity.getString(R.string.credit_toast_not_found)
         }
         Toast.makeText(activity, text, Toast.LENGTH_LONG).show()
     }

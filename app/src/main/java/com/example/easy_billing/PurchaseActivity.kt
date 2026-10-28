@@ -342,7 +342,8 @@ class PurchaseActivity : BaseActivity() {
         val sgstRate = product?.sgstPercentage ?: 0.0
         val igstRate = product?.igstPercentage ?: 0.0
         val totalRate = (cgstRate + sgstRate).takeIf { it > 0 } ?: igstRate
-        val invoiceValue = taxable + (taxable * totalRate / 100.0)
+        val cessPct = product?.cessRate ?: 0.0
+        val invoiceValue = taxable + (taxable * totalRate / 100.0) + (taxable * cessPct / 100.0)
         tvSingleInvoice.text = "%.2f".format(invoiceValue)
     }
 
@@ -702,7 +703,7 @@ class PurchaseActivity : BaseActivity() {
                 textContainer.addView(TextView(this).apply {
                     text = subtitleText
                     textSize = 11.5f
-                    setTextColor(android.graphics.Color.parseColor("#8A8272"))
+                    setTextColor(android.graphics.Color.parseColor("#76867C"))
                 })
             }
             row.addView(textContainer)
@@ -892,7 +893,10 @@ class PurchaseActivity : BaseActivity() {
                 val purchaseCgst = if (intra) totalRate / 2.0 else 0.0
                 val purchaseSgst = if (intra) totalRate / 2.0 else 0.0
                 val purchaseIgst = if (intra) 0.0 else totalRate
-                val invoiceValue = taxable + (taxable * totalRate / 100.0)
+                val cessPct = product?.cessRate ?: 0.0
+                val cessAmt = Math.round(taxable * cessPct / 100.0 * 100.0) / 100.0
+                val invoiceValue = taxable + (taxable * totalRate / 100.0) + cessAmt
+                val gstAmt = { r: Double -> Math.round(taxable * r / 100.0 * 100.0) / 100.0 }
                 val draft = PurchaseItemDraft(
                     productName = singleModeProductName ?: (product?.name ?: ""),
                     variant = singleModeProductVariant?.takeIf { it.isNotBlank() },
@@ -919,6 +923,12 @@ class PurchaseActivity : BaseActivity() {
                     officialUqc = product?.officialUqc,
                     hsnDescription = product?.hsnDescription,
                     cessRate = product?.cessRate ?: 0.0,
+                    cessPercentage = cessPct,
+                    cessAmount = cessAmt,
+                    availedItcCgst = gstAmt(purchaseCgst),
+                    availedItcSgst = gstAmt(purchaseSgst),
+                    availedItcIgst = gstAmt(purchaseIgst),
+                    availedItcCess = cessAmt,
                     supplyClassification = product?.supplyClassification ?: "TAXABLE",
                     category = product?.category ?: "",
                     reviewed = true
@@ -1279,7 +1289,7 @@ class PurchaseActivity : BaseActivity() {
                 })
                 addView(TextView(this@PurchaseActivity).apply {
                     text = getString(o.hint); textSize = 10.5f
-                    setTextColor(android.graphics.Color.parseColor("#8A8272"))
+                    setTextColor(android.graphics.Color.parseColor("#76867C"))
                 })
             })
             row.addView(View(this).apply {

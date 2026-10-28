@@ -109,7 +109,7 @@ abstract class Gstr2BaseAdapter<T>(
                 if (noteValue != 0.0) "note ${g2Money(h.itemView.context, noteValue)}" else null
             ).joinToString("  ·  ")
         }
-        h.tvExtra.setTextColor(Color.parseColor(if (blocked) "#A32D2D" else "#A89E88"))
+        h.tvExtra.setTextColor(Color.parseColor(if (blocked) "#A32D2D" else "#7C8782"))
 
         h.tvAmount.text = g2Money(h.itemView.context, sign * kotlin.math.abs(taxable))
         h.tvAmount.setTextColor(Color.parseColor(if (isCredit) "#A32D2D" else "#1A1A18"))
@@ -200,7 +200,7 @@ class Gstr2ExempAdapter(
         h.tvMeta.text = h.itemView.context.getString(R.string.gstr2_exemp_no_itc)
         h.tvAmount.text = g2Money(h.itemView.context, row.second)
         h.tvTax.text = h.itemView.context.getString(R.string.gstr2_exempt_label)
-        h.tvTax.setTextColor(Color.parseColor("#9A8F79"))
+        h.tvTax.setTextColor(Color.parseColor("#7C8782"))
         h.vStripe.backgroundTintList =
             android.content.res.ColorStateList.valueOf(Color.parseColor(paletteFor(position)))
     }

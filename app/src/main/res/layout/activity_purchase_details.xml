@@ -21,7 +21,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F3ECDD">
+    android:background="@drawable/bg_lg_page">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -99,7 +99,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/activity_purchase_details_inv"
-                android:textColor="#9A8F79"
+                android:textColor="#7C8782"
                 android:textSize="11.5sp" />
 
             <TextView
@@ -113,7 +113,7 @@
                 android:textSize="9.5sp"
                 android:textColor="#8A6526"
                 android:background="@drawable/bg_credit_avatar"
-                android:backgroundTint="#EFE6D5"
+                android:backgroundTint="#EAEEEC"
                 android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
@@ -143,25 +143,26 @@
                 android:gravity="center"
                 android:text="@string/xml_purchase_details_cancelled_note"
                 android:textSize="12sp"
-                android:textColor="#8A8272"
+                android:textColor="#76867C"
                 android:background="@drawable/bg_credit_tile_red"
-                android:backgroundTint="#F1EBDD"
+                android:backgroundTint="#E3E8E4"
                 android:visibility="gone" />
 
             <!-- ===================== CARD 1 · PURCHASE SUMMARY (teal, step 1) ===================== -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginHorizontal="16dp"
-                android:background="@drawable/bg_addp_card">
+                
+                android:background="@drawable/bg_lg_card">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_customer_header"
+                    android:background="@drawable/bg_lg_hdr_green"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp">
                     <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -209,7 +210,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/xml_purchase_details_invoice_total_label"
                         android:textSize="10sp"
-                        android:textColor="#9A8F79"
+                        android:textColor="#7C8782"
                         android:fontFamily="@font/googlesans_medium" />
 
                     <TextView
@@ -240,7 +241,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
                             android:background="@drawable/bg_credit_avatar"
-                            android:backgroundTint="#F6F0E4"
+                            android:backgroundTint="#EEF2F0"
                             android:paddingHorizontal="8dp"
                             android:paddingVertical="10dp">
                             <TextView
@@ -249,7 +250,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="0"
                                 android:textSize="14sp"
-                                android:textColor="#3A322A"
+                                android:textColor="#2F3531"
                                 android:fontFamily="serif"
                                 android:singleLine="true"
                                 android:ellipsize="end" />
@@ -259,7 +260,7 @@
                                 android:layout_marginTop="1dp"
                                 android:text="@string/gst_report_col_taxable"
                                 android:textSize="9.5sp"
-                                android:textColor="#9A8F79" />
+                                android:textColor="#7C8782" />
                         </LinearLayout>
 
                         <View android:layout_width="6dp" android:layout_height="1dp" />
@@ -331,14 +332,14 @@
                         android:layout_width="match_parent"
                         android:layout_height="0.5dp"
                         android:layout_marginTop="12dp"
-                        android:background="#E4DFD0" />
+                        android:background="#D5DDD8" />
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:paddingVertical="7dp">
                         <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                            android:text="@string/tax_breakdown" android:textSize="11.5sp" android:textColor="#9A8F79" />
+                            android:text="@string/tax_breakdown" android:textSize="11.5sp" android:textColor="#7C8782" />
                         <TextView android:id="@+id/tvTaxBreakdown" android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="—" android:textSize="11.5sp" android:textColor="#1A1A18"
                             android:fontFamily="@font/googlesans_semibold" android:gravity="end" />
@@ -352,14 +353,14 @@
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="0.5dp"
-                            android:background="#E4DFD0" />
+                            android:background="#D5DDD8" />
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:paddingVertical="7dp">
                             <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                                android:text="CESS" android:textSize="11.5sp" android:textColor="#9A8F79" />
+                                android:text="CESS" android:textSize="11.5sp" android:textColor="#7C8782" />
                             <TextView android:id="@+id/tvCessBreakdown" android:layout_width="wrap_content" android:layout_height="wrap_content"
                                 android:text="—" android:textSize="11.5sp" android:textColor="#1A1A18"
                                 android:fontFamily="@font/googlesans_semibold" android:gravity="end" />
@@ -369,14 +370,14 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="0.5dp"
-                        android:background="#E4DFD0" />
+                        android:background="#D5DDD8" />
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:paddingVertical="7dp">
                         <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                            android:text="@string/place_of_supply" android:textSize="11.5sp" android:textColor="#9A8F79" />
+                            android:text="@string/place_of_supply" android:textSize="11.5sp" android:textColor="#7C8782" />
                         <TextView android:id="@+id/tvPlaceOfSupply" android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="—" android:textSize="11.5sp" android:textColor="#1A1A18"
                             android:fontFamily="@font/googlesans_semibold" android:gravity="end" />
@@ -385,18 +386,29 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="0.5dp"
-                        android:background="#E4DFD0" />
+                        android:background="#D5DDD8" />
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:paddingVertical="7dp">
                         <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"
-                            android:text="@string/invoice_hint_supplier_gstin" android:textSize="11.5sp" android:textColor="#9A8F79" />
+                            android:text="@string/invoice_hint_supplier_gstin" android:textSize="11.5sp" android:textColor="#7C8782" />
                         <TextView android:id="@+id/tvSupplierGstin" android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:text="—" android:textSize="11.5sp" android:textColor="#1A1A18"
                             android:fontFamily="@font/googlesans_semibold" android:gravity="end" />
                     </LinearLayout>
+
+                    <!-- How this purchase was paid, refunds received and notes still due (display only). -->
+                    <TextView
+                        android:id="@+id/tvPaymentSummary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:textSize="12sp"
+                        android:lineSpacingExtra="3dp"
+                        android:textColor="#1A1A18"
+                        android:visibility="gone" />
 
                     <!-- Still owed (credit purchases only) — rounded red
                          banner, same as the design's owed-banner. -->
@@ -431,24 +443,89 @@
                             android:textStyle="bold"
                             android:textColor="#791F1F" android:fontFamily="serif" />
                     </LinearLayout>
+                    <!-- Money still due on this purchase (supplier refund / payment not recorded yet). -->
+                    <LinearLayout
+                        android:id="@+id/layoutSupplierRefundDue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="10dp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="11dp"
+                        android:background="@drawable/bg_lg_inv_subcard_accent_red"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:visibility="gone">
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="@string/due_banner_purchase_collect"
+                                android:textSize="12.5sp" android:textStyle="bold" android:textColor="#1A1A18" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/due_banner_action" android:textSize="10.5sp" android:textColor="#B23A3A" />
+                        </LinearLayout>
+                        <TextView android:id="@+id/tvSupplierRefundDue" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp" android:text="0" android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="#791F1F" android:fontFamily="serif" />
+                    </LinearLayout>
+                    <!-- Money still due on this purchase (supplier refund / payment not recorded yet). -->
+                    <LinearLayout
+                        android:id="@+id/layoutSupplierPayDue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginTop="10dp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="11dp"
+                        android:background="@drawable/bg_lg_inv_subcard_accent_red"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:visibility="gone">
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:text="@string/due_banner_purchase_give"
+                                android:textSize="12.5sp" android:textStyle="bold" android:textColor="#1A1A18" />
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:text="@string/due_banner_action" android:textSize="10.5sp" android:textColor="#B23A3A" />
+                        </LinearLayout>
+                        <TextView android:id="@+id/tvSupplierPayDue" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp" android:text="0" android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:textColor="#791F1F" android:fontFamily="serif" />
+                    </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- ===================== CARD 2 · ITEMS PURCHASED (gold, step 2) ===================== -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/bg_addp_card">
+                
+                android:background="@drawable/bg_lg_card">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_items_header"
+                    android:background="@drawable/bg_lg_hdr_amber"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp">
                     <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -491,7 +568,7 @@
                     android:orientation="vertical"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="8dp" />
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- ===================== CARD 3 · RETURNS & CORRECTIONS (green, step 3) =====================
                  The whole card (cardReturnsSection) is hidden together when
@@ -499,14 +576,15 @@
                  purchase never shows a half-visible card (step circle + hint
                  but no title and no body). Header is teal/green (same
                  treatment as Card 1) per user request, not champagne. -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:id="@+id/cardReturnsSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/bg_addp_card"
+                
+                android:background="@drawable/bg_lg_card"
                 android:visibility="gone">
 
                 <LinearLayout
@@ -514,7 +592,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_customer_header"
+                    android:background="@drawable/bg_lg_hdr_green"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp">
                     <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -573,7 +651,7 @@
                     android:layout_marginBottom="12dp"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="11dp"
-                    android:background="@drawable/bg_inv_subcard_accent_green"
+                    android:background="@drawable/bg_lg_inv_subcard_accent_green"
                     android:visibility="gone">
 
                     <FrameLayout
@@ -611,7 +689,7 @@
                             android:text=""
                             android:textSize="10.5sp"
                             android:fontFamily="serif"
-                            android:textColor="#8A8578" />
+                            android:textColor="#79897F" />
                     </LinearLayout>
 
                     <TextView
@@ -630,7 +708,7 @@
                         app:autoSizeMinTextSize="16sp"
                         app:autoSizeMaxTextSize="22sp" />
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
         </LinearLayout>
     </ScrollView>
@@ -671,7 +749,7 @@
                 android:gravity="center"
                 android:includeFontPadding="false"
                 app:backgroundTint="@null"
-                android:background="@drawable/bg_login_cta_green"
+                android:background="@drawable/bg_lg_cta_green_12"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 app:icon="@drawable/ic_lc_arrow_up_right"
@@ -742,7 +820,7 @@
                 app:iconPadding="6dp"
                 app:cornerRadius="14dp"
                 app:backgroundTint="@null"
-                android:background="@drawable/bg_cta_gold"
+                android:background="@drawable/bg_lg_cta_gold_14"
                 android:stateListAnimator="@null" />
 
             <com.google.android.material.button.MaterialButton

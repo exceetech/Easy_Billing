@@ -200,7 +200,10 @@ object InventoryManager {
             val product = productDao.getById(productId)
             val isPurchased = product?.isPurchased ?: true // default to true to be safe
 
-            val existing = inventoryDao.getInventory(productId)
+            // Include an inactive row: inventory.productId is UNIQUE, so a
+            // deactivated product's row must be reused (and re-activated by
+            // the update below), never "first stock" inserted again.
+            val existing = inventoryDao.getInventoryIncludingInactive(productId)
 
             // ── Hybrid batch-based inventory (v21) ──
             // Before touching the inventory row, seed a synthetic batch

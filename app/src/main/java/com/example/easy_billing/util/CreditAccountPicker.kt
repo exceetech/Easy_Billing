@@ -60,6 +60,7 @@ object CreditAccountPicker {
         }
 
         val dialog = BottomSheetDialog(activity)
+        dialog.window?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         var picked = false
         val view = activity.layoutInflater.inflate(R.layout.dialog_customer_picker, null)
 
@@ -80,12 +81,13 @@ object CreditAccountPicker {
             }
             var currentList = allAccounts.toMutableList()
 
-            val adapter = CreditAdapter(currentList) { account ->
+            val adapter = CreditAdapter(currentList, showStripe = false) { account ->
                 picked = true
                 dialog.dismiss()
                 onAccountSelected(account)
             }
             rvCustomers.adapter = adapter
+            adapter.sides = com.example.easy_billing.util.AccountSides.load(db, shopId)
             view.findViewById<android.widget.TextView>(R.id.tvAccountCount)?.text =
                 if (allAccounts.size == 1) "1 account" else "${allAccounts.size} accounts"
 

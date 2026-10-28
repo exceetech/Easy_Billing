@@ -44,7 +44,7 @@ class PurchaseReturnItemAdapter(
     // paired with its own pale monogram tile background.
     private data class RowAccent(val accent: Int, val tileBg: Int)
     private val rowAccents = listOf(
-        RowAccent(Color.parseColor("#8A6526"), Color.parseColor("#F3ECDD")),
+        RowAccent(Color.parseColor("#8A6526"), Color.parseColor("#FAEEDA")),
         RowAccent(Color.parseColor("#0F6E56"), Color.parseColor("#E4F0EC")),
         RowAccent(Color.parseColor("#B23A3A"), Color.parseColor("#F7E2E0")),
         RowAccent(Color.parseColor("#1D6FA5"), Color.parseColor("#E1EEF5")),

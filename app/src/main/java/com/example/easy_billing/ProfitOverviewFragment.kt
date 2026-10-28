@@ -109,19 +109,19 @@ class ProfitOverviewFragment : Fragment(R.layout.fragment_profit_overview) {
         fun showSales() {
             panelSales.visibility = android.view.View.VISIBLE
             panelTotal.visibility = android.view.View.GONE
-            tabSales.setBackgroundResource(R.drawable.bg_login_tab_active)
+            tabSales.setBackgroundResource(R.drawable.bg_lg_tab_active)
             tabSales.setTextColor(Color.parseColor("#FFFFFF"))
             tabTotal.setBackgroundResource(android.R.color.transparent)
-            tabTotal.setTextColor(Color.parseColor("#8C8576"))
+            tabTotal.setTextColor(Color.parseColor("#7C8782"))
         }
 
         fun showTotal() {
             panelTotal.visibility = android.view.View.VISIBLE
             panelSales.visibility = android.view.View.GONE
-            tabTotal.setBackgroundResource(R.drawable.bg_login_tab_active)
+            tabTotal.setBackgroundResource(R.drawable.bg_lg_tab_active)
             tabTotal.setTextColor(Color.parseColor("#FFFFFF"))
             tabSales.setBackgroundResource(android.R.color.transparent)
-            tabSales.setTextColor(Color.parseColor("#8C8576"))
+            tabSales.setTextColor(Color.parseColor("#7C8782"))
         }
 
         tabSales.setOnClickListener { showSales() }

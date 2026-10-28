@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4F0E6">
+    android:background="@drawable/bg_lg_page">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -88,7 +88,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_seg_selected"
+                    android:background="@drawable/bg_lg_seg_selected"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="8dp"
                     android:clickable="true"
@@ -99,7 +99,7 @@
                         android:layout_height="15dp"
                         android:layout_marginEnd="6dp"
                         android:src="@drawable/ic_si_edit"
-                        app:tint="#1A1A18"
+                        app:tint="#FFFFFF"
                         android:contentDescription="@string/edit"/>
 
                     <TextView
@@ -107,7 +107,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/edit"
-                        android:textColor="#1A1A18"
+                        android:textColor="#FFFFFF"
                         android:textSize="13sp"
                         android:fontFamily="@font/googlesans_semibold"
                         android:includeFontPadding="false"/>
@@ -115,11 +115,12 @@
             </LinearLayout>
 
             <!-- ===================== PREFERENCES ===================== -->
-            <LinearLayout android:id="@+id/cardPreferences"
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout android:id="@+id/cardPreferences"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_inv_card_cream"
+                
+                android:background="@drawable/bg_lg_card"
                 android:layout_marginTop="16dp">
 
                 <LinearLayout
@@ -127,7 +128,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_customer_header"
+                    android:background="@drawable/bg_lg_hdr_green"
                     android:paddingHorizontal="15dp"
                     android:paddingVertical="14dp">
                     <FrameLayout android:layout_width="38dp" android:layout_height="38dp">
@@ -165,14 +166,14 @@
                         android:layout_marginBottom="5dp"
                         android:text="@string/language"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                     <LinearLayout
                         android:id="@+id/rowLanguage"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:background="@drawable/bg_lg_field"
                         android:foreground="?attr/selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
@@ -197,7 +198,7 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:src="@drawable/ic_chevron_down"
-                            app:tint="#B0A48C"
+                            app:tint="#98A49D"
                             android:contentDescription="@null"/>
                     </LinearLayout>
 
@@ -210,14 +211,14 @@
                         android:id="@+id/tvCurrencyLabel"
                         android:text="@string/currency"
                         android:textSize="11sp"
-                        android:textColor="#6E6A60"/>
+                        android:textColor="#5B6660"/>
                     <LinearLayout
                         android:id="@+id/rowCurrency"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_light_grey"
+                        android:background="@drawable/bg_lg_field"
                         android:foreground="?attr/selectableItemBackground"
                         android:clickable="true"
                         android:focusable="true"
@@ -242,11 +243,11 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:src="@drawable/ic_chevron_down"
-                            app:tint="#B0A48C"
+                            app:tint="#98A49D"
                             android:contentDescription="@null"/>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- Restart note -->
             <LinearLayout
@@ -261,13 +262,13 @@
                     android:layout_marginTop="1dp"
                     android:layout_marginEnd="7dp"
                     android:src="@drawable/ic_info_circle"
-                    app:tint="#9A968C"
+                    app:tint="#8D9992"
                     android:contentDescription="@null"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/localization_restart_note"
-                    android:textColor="#9A8F79"
+                    android:textColor="#7C8782"
                     android:textSize="11sp"
                     android:lineSpacingExtra="1dp"/>
             </LinearLayout>
@@ -285,7 +286,7 @@
                 android:textSize="13.5sp"
                 android:fontFamily="@font/googlesans_semibold"
                 android:includeFontPadding="false"
-                android:background="@drawable/bg_login_cta_green"
+                android:background="@drawable/bg_lg_cta_green_12"
                 app:backgroundTint="@null"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"

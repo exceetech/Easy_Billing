@@ -91,7 +91,7 @@ class RankedRowAdapter : RecyclerView.Adapter<RankedRowAdapter.VH>() {
             1 -> medal(h.rank, "#F4F6F8", "#B3BCC4", "#98A2AA", "#FFFFFF", "#3F454A", d)
             2 -> medal(h.rank, "#F2CBA2", "#C07638", "#A5612A", "#F9E1C8", "#5C3210", d)
             else -> {
-                h.rank.background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(Color.parseColor("#F3ECDD")) }
+                h.rank.background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(Color.parseColor("#EEF2F0")) }
                 h.rank.setTextColor(Color.parseColor("#8A6526"))
             }
         }

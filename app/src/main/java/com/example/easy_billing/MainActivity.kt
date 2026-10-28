@@ -96,24 +96,25 @@ class MainActivity : BaseActivity() {
      */
     private suspend fun confirmDestructiveWorkspaceSwitch(pendingCount: Int): Boolean =
         suspendCancellableCoroutine { cont ->
+            val view = layoutInflater.inflate(R.layout.dialog_unsynced_warning, null)
+            view.findViewById<android.widget.TextView>(R.id.tvUnsyncedMessage).text =
+                "This device has $pendingCount unsynced record(s) from your " +
+                    "current workspace. Switching now will permanently delete " +
+                    "them from this device before they reach the server.\n\n" +
+                    "Go back and let them sync first, or continue anyway?"
             val dialog = AlertDialog.Builder(this)
-                .setTitle(R.string.unsynced_data_will_be_lost)
-                .setMessage(
-                    "This device has $pendingCount unsynced record(s) from your " +
-                        "current workspace. Switching now will permanently delete " +
-                        "them from this device before they reach the server.\n\n" +
-                        "Go back and let them sync first, or continue anyway?"
-                )
+                .setView(view)
                 .setCancelable(false)
-                .setPositiveButton(R.string.switch_anyway) { d, _ ->
-                    d.dismiss()
-                    if (cont.isActive) cont.resume(true) {}
-                }
-                .setNegativeButton(R.string.go_back) { d, _ ->
-                    d.dismiss()
-                    if (cont.isActive) cont.resume(false) {}
-                }
                 .create()
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+            view.findViewById<android.view.View>(R.id.btnSwitchAnyway).setOnClickListener {
+                dialog.dismiss()
+                if (cont.isActive) cont.resume(true) {}
+            }
+            view.findViewById<android.view.View>(R.id.btnGoBack).setOnClickListener {
+                dialog.dismiss()
+                if (cont.isActive) cont.resume(false) {}
+            }
             cont.invokeOnCancellation { dialog.dismiss() }
             dialog.show()
         }
@@ -726,7 +727,7 @@ class MainActivity : BaseActivity() {
                 editText.setHintTextColor(android.graphics.Color.parseColor("#0F6E56"))
             } else {
                 icon.setColorFilter(android.graphics.Color.parseColor("#B8895A"))
-                editText.setHintTextColor(android.graphics.Color.parseColor("#A99E88"))
+                editText.setHintTextColor(android.graphics.Color.parseColor("#929F97"))
             }
         }
     }

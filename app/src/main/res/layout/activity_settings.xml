@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3ECDD">
+    android:background="@drawable/bg_lg_page">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -69,18 +69,19 @@
                     android:includeFontPadding="false" />
             </LinearLayout>
 
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:background="@drawable/bg_inv_card_cream">
+                
+                android:background="@drawable/bg_lg_card">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_customer_header"
+                    android:background="@drawable/bg_lg_hdr_green"
                     android:paddingHorizontal="15dp"
                     android:paddingVertical="14dp">
 
@@ -133,7 +134,7 @@
                     <LinearLayout android:id="@+id/btnStoreSettings"
                         android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:orientation="horizontal" android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_contrast"
+                        android:background="@drawable/bg_lg_field"
                         android:foreground="?attr/selectableItemBackground"
                         android:clickable="true" android:focusable="true"
                         android:paddingHorizontal="12dp" android:paddingVertical="12dp">
@@ -152,7 +153,7 @@
                     <LinearLayout android:id="@+id/btnPaymentSetup"
                         android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:orientation="horizontal" android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_contrast"
+                        android:background="@drawable/bg_lg_field"
                         android:foreground="?attr/selectableItemBackground"
                         android:clickable="true" android:focusable="true"
                         android:layout_marginTop="8dp"
@@ -172,7 +173,7 @@
                     <LinearLayout android:id="@+id/btnInvoiceDesign"
                         android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:orientation="horizontal" android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_contrast"
+                        android:background="@drawable/bg_lg_field"
                         android:foreground="?attr/selectableItemBackground"
                         android:clickable="true" android:focusable="true"
                         android:layout_marginTop="8dp"
@@ -192,7 +193,7 @@
                     <LinearLayout android:id="@+id/btnDataManagement"
                         android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:orientation="horizontal" android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_contrast"
+                        android:background="@drawable/bg_lg_field"
                         android:foreground="?attr/selectableItemBackground"
                         android:clickable="true" android:focusable="true"
                         android:layout_marginTop="8dp"
@@ -212,7 +213,7 @@
                     <LinearLayout android:id="@+id/btnLocalization"
                         android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:orientation="horizontal" android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_contrast"
+                        android:background="@drawable/bg_lg_field"
                         android:foreground="?attr/selectableItemBackground"
                         android:clickable="true" android:focusable="true"
                         android:layout_marginTop="8dp"
@@ -232,7 +233,7 @@
                     <LinearLayout android:id="@+id/btnAdminTools"
                         android:layout_width="match_parent" android:layout_height="wrap_content"
                         android:orientation="horizontal" android:gravity="center_vertical"
-                        android:background="@drawable/bg_inv_field_contrast"
+                        android:background="@drawable/bg_lg_field"
                         android:foreground="?attr/selectableItemBackground"
                         android:clickable="true" android:focusable="true"
                         android:layout_marginTop="8dp"
@@ -251,7 +252,7 @@
                         <ImageView style="@style/SettingsChevron"/>
                     </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <TextView
                 android:id="@+id/tvVersion"
@@ -262,7 +263,7 @@
                 android:layout_marginTop="20dp"
                 android:gravity="center"
                 android:text="@string/activity_settings_expos"
-                android:textColor="#C9C3B4"
+                android:textColor="#9AA59F"
                 android:textSize="11sp"/>
         </LinearLayout>
     </ScrollView>

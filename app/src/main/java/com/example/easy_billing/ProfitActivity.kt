@@ -272,8 +272,8 @@ class ProfitActivity : AppCompatActivity() {
 
     private fun styleDateChip(chip: com.google.android.material.chip.Chip, selected: Boolean, label: String) {
         val accent = dateChipColor(label)
-        val strokeColor = if (selected) accent else Color.parseColor("#E4DCC8")
-        val textColor = if (selected) accent else Color.parseColor("#6E6A60")
+        val strokeColor = if (selected) accent else Color.parseColor("#D5DDD8")
+        val textColor = if (selected) accent else Color.parseColor("#5B6660")
         chip.chipStrokeColor = android.content.res.ColorStateList.valueOf(strokeColor)
         chip.setTextColor(textColor)
     }
@@ -328,7 +328,7 @@ class ProfitActivity : AppCompatActivity() {
         )
         tabs.forEachIndexed { i, (tv, indicator) ->
             val active = i == position
-            tv.setTextColor(Color.parseColor(if (active) "#1A1A18" else "#8C8576"))
+            tv.setTextColor(Color.parseColor(if (active) "#1A1A18" else "#7C8782"))
             tv.typeface = androidx.core.content.res.ResourcesCompat.getFont(
                 this, if (active) R.font.googlesans_semibold else R.font.googlesans_medium
             )

@@ -18,7 +18,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="20dp"
     android:orientation="vertical"
-    android:background="@drawable/bg_dialog_card"
+    android:background="@drawable/bg_lg_dialog"
     android:padding="18dp">
 
     <LinearLayout
@@ -79,7 +79,7 @@
         android:layout_height="0.5dp"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="14dp"
-        android:background="#E4DCC8" />
+        android:background="#E3E8E4" />
 
     <!-- Add stock — big solid green button, fires immediately on tap -->
     <LinearLayout
@@ -263,7 +263,7 @@
         android:text="@string/xml_inventory_stock_action_cancel"
         android:textAllCaps="false"
         android:textSize="13.5sp"
-        android:textColor="#5C5544"
+        android:textColor="#4B554F"
         android:fontFamily="@font/googlesans_semibold"
         android:includeFontPadding="false"
         android:stateListAnimator="@null"

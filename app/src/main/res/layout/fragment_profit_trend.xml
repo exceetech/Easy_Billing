@@ -11,7 +11,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3ECDD">
+    android:background="@android:color/transparent">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -34,12 +34,13 @@
                  instead, via the same /profit/trend endpoint with
                  product_id set. Sits above the existing per-product
                  leaderboard card, which is unchanged below it. -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginTop="14dp"
-                android:background="@drawable/bg_addp_card"
+                
+                android:background="@drawable/bg_lg_card"
                 android:clipToPadding="false">
 
                 <!-- Card header — teal strip + step-circle, same language
@@ -49,7 +50,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_inv_customer_header"
+                    android:background="@drawable/bg_lg_hdr_green"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp">
                     <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -142,7 +143,7 @@
                         android:gravity="center"
                         android:paddingVertical="24dp"
                         android:text="Nothing sold in this period yet"
-                        android:textColor="#9A8F79"
+                        android:textColor="#7C8782"
                         android:textSize="13sp"
                         android:visibility="gone"/>
 
@@ -190,7 +191,7 @@
                         app:iconGravity="textStart"
                         app:iconPadding="8dp"
                         app:backgroundTint="@android:color/white"
-                        app:strokeColor="#E4DCC8"
+                        app:strokeColor="#D5DDD8"
                         app:strokeWidth="1dp"
                         app:cornerRadius="12dp"
                         android:insetTop="0dp"
@@ -198,18 +199,19 @@
                         android:stateListAnimator="@null"
                         android:elevation="0dp"/>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
             <!-- Chart card: same card skeleton as the Profit-over-time
                  card above (teal header, then content), but in the
                  champagne family so the two cards are visually distinct
                  at a glance. -->
-            <LinearLayout
+            <com.example.easy_billing.ui.glass.GlassClipLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginTop="14dp"
-                android:background="@drawable/bg_addp_card"
+                
+                android:background="@drawable/bg_lg_card"
                 android:clipToPadding="false">
 
                 <LinearLayout
@@ -217,7 +219,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:background="@drawable/bg_status_header_amber"
+                    android:background="@drawable/bg_lg_hdr_amber"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="14dp">
                     <FrameLayout android:layout_width="28dp" android:layout_height="28dp">
@@ -257,7 +259,7 @@
                         android:layout_height="24dp"
                         android:padding="4dp"
                         android:src="@drawable/ic_info_circle"
-                        app:tint="#C7B899"
+                        app:tint="#ABB5AF"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/xml_profit_info_eyebrow"
                         android:clickable="true"
@@ -281,12 +283,12 @@
                             android:background="@drawable/bg_bar_fill" android:backgroundTint="#1D9E75"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginStart="4dp" android:layout_marginEnd="10dp"
-                            android:text="@string/xml_profit_chart_legend_profit" android:textSize="10.5sp" android:textColor="#6E6A60"/>
+                            android:text="@string/xml_profit_chart_legend_profit" android:textSize="10.5sp" android:textColor="#5B6660"/>
                         <View android:layout_width="8dp" android:layout_height="8dp"
                             android:background="@drawable/bg_bar_fill" android:backgroundTint="#E24B4A"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"
-                            android:text="@string/xml_profit_chart_legend_loss" android:textSize="10.5sp" android:textColor="#6E6A60"/>
+                            android:text="@string/xml_profit_chart_legend_loss" android:textSize="10.5sp" android:textColor="#5B6660"/>
                     </LinearLayout>
 
                     <androidx.recyclerview.widget.RecyclerView
@@ -303,11 +305,11 @@
                         android:gravity="center"
                         android:paddingVertical="24dp"
                         android:text="@string/xml_profit_chart_no_data"
-                        android:textColor="#9A8F79"
+                        android:textColor="#7C8782"
                         android:textSize="13sp"
                         android:visibility="gone"/>
                 </LinearLayout>
-            </LinearLayout>
+            </com.example.easy_billing.ui.glass.GlassClipLinearLayout>
 
         </LinearLayout>
     </ScrollView>

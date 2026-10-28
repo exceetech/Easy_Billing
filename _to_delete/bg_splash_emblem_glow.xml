@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Soft glow behind the splash emblem (champagne core fading through emerald). -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient android:type="radial" android:centerX="0.5" android:centerY="0.5" android:gradientRadius="48%p"
+        android:startColor="@color/splash_glow_emblem_gold"
+        android:centerColor="@color/splash_glow_emblem_emerald"
+        android:endColor="@color/splash_glow_emblem_emerald_end" />
+</shape>

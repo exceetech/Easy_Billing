@@ -282,9 +282,9 @@ class AiDashboardActivity : BaseActivity() {
      * so the whole card reads its health at a glance, not just the small ring. */
     private fun applyScoreBand(score: Int) {
         val (label, fillRes, inkRes, headerBgRes, ringBgRes) = when {
-            score >= 90 -> ScoreBandStyle(getString(R.string.ai_dashboard_band_optimum), R.color.band_green_bg, R.color.band_green_ink, R.drawable.bg_inv_customer_header, R.drawable.bg_step_circle_ring)
-            score >= 78 -> ScoreBandStyle(getString(R.string.ai_dashboard_band_healthy), R.color.band_green_bg, R.color.band_green_ink, R.drawable.bg_inv_customer_header, R.drawable.bg_step_circle_ring)
-            score >= 66 -> ScoreBandStyle(getString(R.string.ai_dashboard_band_fair), R.color.band_amber_bg, R.color.band_amber_ink, R.drawable.bg_status_header_amber, R.drawable.bg_step_circle_ring_status_amber)
+            score >= 90 -> ScoreBandStyle(getString(R.string.ai_dashboard_band_optimum), R.color.band_green_bg, R.color.band_green_ink, R.drawable.bg_lg_hdr_green, R.drawable.bg_step_circle_ring)
+            score >= 78 -> ScoreBandStyle(getString(R.string.ai_dashboard_band_healthy), R.color.band_green_bg, R.color.band_green_ink, R.drawable.bg_lg_hdr_green, R.drawable.bg_step_circle_ring)
+            score >= 66 -> ScoreBandStyle(getString(R.string.ai_dashboard_band_fair), R.color.band_amber_bg, R.color.band_amber_ink, R.drawable.bg_lg_hdr_amber, R.drawable.bg_step_circle_ring_status_amber)
             else -> ScoreBandStyle(getString(R.string.ai_dashboard_band_needs_work), R.color.band_red_bg, R.color.band_red_ink, R.drawable.bg_inv_danger_header, R.drawable.bg_step_circle_ring_red)
         }
         val fill = getColor(fillRes)

@@ -102,7 +102,7 @@ abstract class ImportBaseAdapter<T>(
                 "ITC ${impMoney(h.itemView.context, availed)}",
                 if (cess != 0.0) "cess ${impMoney(h.itemView.context, cess)}" else null
             ).joinToString("  ·  ")
-        h.tvExtra.setTextColor(Color.parseColor(if (blocked) "#A32D2D" else "#A89E88"))
+        h.tvExtra.setTextColor(Color.parseColor(if (blocked) "#A32D2D" else "#7C8782"))
 
         h.tvTax.text = if (blocked) "no credit" else "+${impMoney(h.itemView.context, availed)} ITC"
         h.tvTax.setTextColor(Color.parseColor(if (blocked) "#A32D2D" else "#0F6E56"))

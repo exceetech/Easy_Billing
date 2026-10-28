@@ -13,11 +13,11 @@
         android:layout_marginBottom="6dp"
 
 
-        app:cardCornerRadius="24dp"
-        app:cardElevation="10dp"
-        app:cardBackgroundColor="#FAFAFA"
-        app:strokeColor="#FFFFFF"
-        app:strokeWidth="2dp">
+        app:cardCornerRadius="18dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="#F7FFFFFF"
+        app:strokeColor="#1F000000"
+        app:strokeWidth="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"

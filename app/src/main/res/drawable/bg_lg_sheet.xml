@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Glass bottom sheet: near-opaque white, rounded top corners, soft sheen. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:topLeftRadius="22dp" android:topRightRadius="22dp"/>
+            <gradient android:type="linear" android:angle="270"
+                android:startColor="#FFFFFFFF" android:endColor="#FFF6F7F7"/>
+            <stroke android:width="1dp" android:color="#1F000000"/>
+        </shape>
+    </item>
+    <item android:top="1dp" android:left="1dp" android:right="1dp">
+        <shape android:shape="rectangle">
+            <corners android:topLeftRadius="22dp" android:topRightRadius="22dp"/>
+            <gradient android:type="linear" android:angle="315"
+                android:startColor="#99FFFFFF" android:centerColor="#1AFFFFFF" android:endColor="#00FFFFFF"/>
+        </shape>
+    </item>
+</layer-list>

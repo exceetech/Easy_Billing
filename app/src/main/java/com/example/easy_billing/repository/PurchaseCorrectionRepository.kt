@@ -340,7 +340,7 @@ object PurchaseCorrectionRepository {
                 }
 
                 // inventory row + log (direct: the engine already worked out stock and average)
-                val inv = inventoryDao.getInventory(pid)
+                val inv = inventoryDao.getInventoryIncludingInactive(pid)
                 val changed = inv == null ||
                     abs(inv.currentStock - corr.newStock) > 1e-9 || abs(inv.averageCost - corr.newAverage) > 1e-9
                 if (changed) {

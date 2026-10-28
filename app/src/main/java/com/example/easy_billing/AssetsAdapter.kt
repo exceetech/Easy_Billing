@@ -84,7 +84,7 @@ class AssetsAdapter : ListAdapter<AssetRow, AssetsAdapter.VH>(ASSET_DIFF_CALLBAC
             val full = "${item.name}   ·   $variant"
             val sp = SpannableString(full)
             val from = item.name.length
-            sp.setSpan(ForegroundColorSpan(Color.parseColor("#A99E88")), from, full.length, 0)
+            sp.setSpan(ForegroundColorSpan(Color.parseColor("#929F97")), from, full.length, 0)
             sp.setSpan(AbsoluteSizeSpan(12, true), from, full.length, 0)
             holder.tvName.text = sp
         } else {

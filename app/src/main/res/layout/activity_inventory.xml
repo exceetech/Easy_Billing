@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3ECDD">
+    android:background="@drawable/bg_lg_page">
 
     <!-- ===================== TOOLBAR ===================== -->
     <com.google.android.material.appbar.MaterialToolbar
@@ -82,7 +82,7 @@
         android:orientation="vertical"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="14dp"
-        android:background="@drawable/bg_inv_value_card"
+        android:background="@drawable/bg_lg_card"
         android:padding="16dp">
 
         <TextView
@@ -90,7 +90,7 @@
             android:layout_height="wrap_content"
             android:text="@string/inventory_total_stock_value_label"
             android:textSize="11sp"
-            android:textColor="#9A8F79" />
+            android:textColor="#7C8782" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -123,7 +123,7 @@
                 android:layout_marginBottom="4dp"
                 android:text="@string/inventory_kpi_all_in_stock"
                 android:textSize="11sp"
-                android:textColor="#8A8272" />
+                android:textColor="#76867C" />
         </LinearLayout>
 
         <LinearLayout
@@ -200,7 +200,7 @@
         android:layout_marginTop="8dp"
         android:text="@string/inventory_active_skus_placeholder"
         android:textSize="11sp"
-        android:textColor="#9A8F79"
+        android:textColor="#7C8782"
         android:fontFamily="@font/googlesans_medium" />
 
     <!-- ===================== SEARCH + FILTER + SORT (inline) ===================== -->
@@ -220,7 +220,7 @@
             android:layout_height="44dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:background="@drawable/bg_inv_stat_card"
+            android:background="@drawable/bg_lg_inv_subcard"
             android:paddingHorizontal="12dp">
 
             <ImageView
@@ -246,7 +246,7 @@
                 android:includeFontPadding="false"
                 android:textSize="12.5sp"
                 android:textColor="#1A1A18"
-                android:textColorHint="#9A8F79"
+                android:textColorHint="#7C8782"
                 android:minHeight="0dp" />
 
         </LinearLayout>
@@ -261,7 +261,7 @@
             android:layout_marginStart="8dp"
             android:clipChildren="false"
             android:clipToPadding="false"
-            android:background="@drawable/bg_inv_stat_card"
+            android:background="@drawable/bg_lg_inv_subcard"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground">
@@ -285,7 +285,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:text="@string/manage_products_filter_button_label"
-                    android:textColor="#6E6454"
+                    android:textColor="#5B6760"
                     android:fontFamily="@font/googlesans_medium"
                     android:textSize="12.5sp" />
             </LinearLayout>
@@ -316,7 +316,7 @@
             android:layout_width="wrap_content"
             android:layout_height="44dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/bg_inv_stat_card"
+            android:background="@drawable/bg_lg_inv_subcard"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground">
@@ -340,7 +340,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:text="@string/manage_products_sort_content_desc"
-                    android:textColor="#6E6454"
+                    android:textColor="#5B6760"
                     android:fontFamily="@font/googlesans_medium"
                     android:textSize="12.5sp" />
             </LinearLayout>
@@ -446,7 +446,7 @@
         android:layout_weight="1"
         android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="14dp"
-        android:background="@drawable/bg_inv_value_card">
+        android:background="@drawable/bg_lg_card">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvInventory"
@@ -482,7 +482,7 @@
                 <FrameLayout
                     android:layout_width="72dp"
                     android:layout_height="72dp"
-                    android:background="@drawable/bg_imp_empty_circle">
+                    android:background="@drawable/bg_circle_soft_grey">
                     <ImageView
                         android:layout_width="30dp"
                         android:layout_height="30dp"
@@ -527,7 +527,7 @@
                     android:gravity="center"
                     android:text="@string/inventory_no_products_body"
                     android:textSize="12.5sp"
-                    android:textColor="#8A8272"
+                    android:textColor="#76867C"
                     android:lineSpacingExtra="3dp" />
 
                 <View
@@ -535,7 +535,7 @@
                     android:layout_height="0.5dp"
                     android:layout_marginTop="20dp"
                     android:layout_marginBottom="16dp"
-                    android:background="#F1EBDD" />
+                    android:background="#E3E8E4" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -566,7 +566,7 @@
                             android:layout_marginTop="1dp"
                             android:text="@string/inventory_tip_add_body"
                             android:textSize="11sp"
-                            android:textColor="#9A8F79" />
+                            android:textColor="#7C8782" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -598,7 +598,7 @@
                             android:layout_marginTop="1dp"
                             android:text="@string/inventory_tip_search_body"
                             android:textSize="11sp"
-                            android:textColor="#9A8F79" />
+                            android:textColor="#7C8782" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>

@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Tactile numeric key, pressed state — the cream tile drops flush onto
-     the shadow strip beneath it, reading as the key being pushed in. -->
+<!-- Glass numeric key, pressed state: tile drops flush onto the strip and picks up a faint emerald tint. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:top="2dp">
         <shape android:shape="rectangle">
-            <solid android:color="#EAE2D1"/>
+            <solid android:color="#1F0B3B30"/>
             <corners android:radius="18dp"/>
         </shape>
     </item>
     <item android:top="2dp">
         <shape android:shape="rectangle">
-            <solid android:color="#F3EEE1"/>
-            <stroke android:width="1dp" android:color="#EAE2D1"/>
+            <solid android:color="#E6DDF3EC"/>
+            <stroke android:width="1dp" android:color="#F2FFFFFF"/>
             <corners android:radius="18dp"/>
         </shape>
     </item>

@@ -84,7 +84,7 @@ class GstReminderWorker(
         )
         val text = ctx.getString(textRes, dueText)
         val n = NotificationCompat.Builder(ctx, "gst_reminders")
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_stat_expos)
             .setContentTitle(ctx.getString(R.string.gst_reminder_title))
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))

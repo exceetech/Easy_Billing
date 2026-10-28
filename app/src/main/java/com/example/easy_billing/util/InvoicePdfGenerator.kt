@@ -42,6 +42,21 @@ object InvoicePdfGenerator {
      * [billItems]; Composition bills render a plain amount-only layout
      * with no tax columns or tax summary anywhere.
      */
+    /** Big diagonal "CANCELLED" stamp so a voided invoice can never pass as a valid one. */
+    private fun drawCancelledStamp(canvas: Canvas, width: Float, centerY: Float) {
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.parseColor("#B3261E")
+            alpha = 110
+            typeface = Typeface.DEFAULT_BOLD
+            textAlign = Paint.Align.CENTER
+            textSize = width * 0.16f
+        }
+        canvas.save()
+        canvas.rotate(-25f, width / 2f, centerY)
+        canvas.drawText("CANCELLED", width / 2f, centerY, paint)
+        canvas.restore()
+    }
+
     fun generatePdfFromBill(
         context: Context,
         bill: Bill,
@@ -460,6 +475,7 @@ object InvoicePdfGenerator {
 
         centerText(footerMessage ?: context.getString(R.string.invoice_pdf_footer_default), 14f, color = mutedColor80)
 
+        if (bill.isCancelled) drawCancelledStamp(canvas, pageWidth.toFloat(), minOf(pageHeight / 2f, 700f))
         document.finishPage(page)
 
         // ================= SAVE FILE =================
@@ -830,6 +846,7 @@ object InvoicePdfGenerator {
 
         fun ensureSpace(needed: Float) {
             if (y + needed > pageHeight - 170f) {
+                if (bill.isCancelled) drawCancelledStamp(page.canvas, pageWidth.toFloat(), pageHeight / 2f)
                 document.finishPage(page)
                 pageNumber += 1
                 page = document.startPage(PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create())
@@ -1009,6 +1026,7 @@ object InvoicePdfGenerator {
         val footer = footerMessage ?: context.getString(R.string.invoice_pdf_footer_default)
         canvas.drawText(footer, (pageWidth - paint.measureText(footer)) / 2f, y, paint)
 
+        if (bill.isCancelled) drawCancelledStamp(page.canvas, pageWidth.toFloat(), pageHeight / 2f)
         document.finishPage(page)
     }
 
