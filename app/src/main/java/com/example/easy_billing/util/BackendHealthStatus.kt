@@ -52,6 +52,17 @@ object BackendHealthStatus {
         _isReachable.value = reachable
     }
 
+    private val _maintenance = MutableStateFlow(false)
+
+    /** True while the server answers 503 "maintenance" (an operator turned on
+     *  maintenance mode). Lets the Dashboard banner say so instead of the
+     *  generic "can't reach our servers". Cleared by the next normal answer. */
+    val maintenance: StateFlow<Boolean> = _maintenance
+
+    fun reportMaintenance(active: Boolean) {
+        _maintenance.value = active
+    }
+
     private val checkMutex = Mutex()
     private var lastCheckedAt = 0L
     private const val MIN_CHECK_INTERVAL_MS = 20_000L

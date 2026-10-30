@@ -845,7 +845,7 @@
     <string name="plan_price">प्लान कीमत</string>
     <string name="plus_15_days_free">+15 दिन मुफ्त</string>
     <string name="secured_by_razorpay">Razorpay द्वारा सुरक्षित — कार्ड, UPI और नेटबैंकिंग</string>
-    <string name="service_charge_pct" formatted="false">सेवा शुल्क (2%)</string>
+    <string name="service_charge_pct" formatted="false">सेवा शुल्क</string>
     <string name="total_2">कुल</string>
     <string name="upgrade_credit_est">अपग्रेड क्रेडिट (अनुमानित)</string>
 
@@ -3910,4 +3910,27 @@
     <string name="creditnotes_debit_notes_1_s">डेबिट नोट · %1$s</string>
     <string name="main_this_device_has_1_s_unsynced_record_s_">इस डिवाइस पर आपके मौजूदा वर्कस्पेस के %1$s रिकॉर्ड अभी सिंक नहीं हुए हैं। अभी बदलने पर वे सर्वर तक पहुंचने से पहले इस डिवाइस से हमेशा के लिए मिट जाएंगे।\n\nवापस जाकर उन्हें पहले सिंक होने दें, या फिर भी आगे बढ़ें?</string>
     <string name="base_your_device_clock_is_off_by_about_1_s_">आपके डिवाइस की घड़ी लगभग %1$s मिनट गलत है।\n\nकृपया इसे ऑटोमैटिक / सही तारीख और समय पर सेट करें, फिर दोबारा कोशिश करें। समय सही होने तक बिलिंग रुकी रहेगी।</string>
+
+    <!-- Admin console: suspension, maintenance, forced update -->
+    <string name="account_suspended_title">खाता निलंबित</string>
+    <string name="account_suspended_default_message">यह खाता एडमिनिस्ट्रेटर द्वारा निलंबित कर दिया गया है। कृपया सपोर्ट से संपर्क करें।</string>
+    <string name="account_suspended_data_safe">आपका डेटा इस डिवाइस पर सुरक्षित है और खाता फिर से सक्रिय होने पर सिंक हो जाएगा।</string>
+    <string name="account_suspended_check_again">फिर से जाँचें</string>
+    <string name="account_suspended_sign_out">साइन आउट</string>
+    <string name="account_suspended_still">आपका खाता अभी भी निलंबित है।</string>
+    <string name="account_suspended_check_failed">सर्वर से संपर्क नहीं हो सका। अपना कनेक्शन जाँचें और फिर कोशिश करें।</string>
+    <string name="backend_maintenance_notice">हम निर्धारित रखरखाव कर रहे हैं। आपके बदलाव इस डिवाइस पर सहेजे गए हैं और बाद में अपने आप सिंक हो जाएँगे।</string>
+    <string name="force_update_title">अपडेट आवश्यक है</string>
+    <string name="force_update_default_message">ऐप का यह संस्करण अब समर्थित नहीं है। बिलिंग जारी रखने के लिए कृपया अपडेट करें।</string>
+    <string name="force_update_data_safe">आपका डेटा इस डिवाइस पर सुरक्षित है और अपडेट करने के बाद सिंक हो जाएगा।</string>
+    <string name="force_update_button">अभी अपडेट करें</string>
+    <string name="app_update_recommended_message">ऐप का नया संस्करण उपलब्ध है।</string>
+    <string name="app_update_action">अपडेट</string>
+    <string name="force_update_chip">नया संस्करण उपलब्ध है</string>
+    <string name="force_update_safe_title">आपका डेटा सुरक्षित है</string>
+    <string name="force_update_step_1">स्टोर खोलने के लिए अपडेट बटन दबाएँ</string>
+    <string name="force_update_step_2">अपडेट इंस्टॉल करें, फिर ExPOS दोबारा खोलें</string>
+    <string name="account_suspended_chip">व्यवस्थापक द्वारा रोका गया</string>
+    <string name="account_suspended_safe_title">कुछ भी नहीं खोया है</string>
+    <string name="account_suspended_signout_note">साइन आउट करने पर भी आपके बिल इसी डिवाइस पर रहते हैं</string>
 </resources>

@@ -80,6 +80,10 @@ object ApiErrorParser {
                     val detailObj = json.get("detail")
                     if (detailObj is String && detailObj.isNotBlank()) {
                         return detailObj
+                    } else if (detailObj is JSONObject) {
+                        // e.g. {"error": "ACCOUNT_SUSPENDED", "message": "..."}
+                        val msg = detailObj.optString("message")
+                        if (msg.isNotBlank()) return msg
                     } else if (detailObj is JSONArray) {
                         // FastAPI validation errors: [{"loc": ["body", "phone"], "msg": "..."}]
                         val firstItem = detailObj.optJSONObject(0)

@@ -203,6 +203,20 @@
             android:label="Workspace Updated"
             android:windowSoftInputMode="stateHidden"/>
 
+        <!-- ── Admin suspension ──────────────────────────────────────────── -->
+        <activity
+            android:name=".AccountSuspendedActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false"
+            android:label="Account suspended"
+            android:windowSoftInputMode="stateHidden"/>
+        <activity
+            android:name=".ForceUpdateActivity"
+            android:screenOrientation="unspecified"
+            android:exported="false"
+            android:label="Update required"
+            android:windowSoftInputMode="stateHidden"/>
+
         <!-- ── FileProvider for sharing exported GSTR-1 files ───────────── -->
         <provider
             android:name="androidx.core.content.FileProvider"

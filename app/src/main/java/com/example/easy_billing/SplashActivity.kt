@@ -3,11 +3,13 @@ package com.example.easy_billing
 import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
+import com.example.easy_billing.util.AppUpdatePolicy
 import com.example.easy_billing.util.SessionCheck
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Launcher activity — displays the brand splash screen with the center app logo
@@ -25,6 +27,17 @@ class SplashActivity : BaseActivity() {
 
         lifecycleScope.launch {
             val startTime = System.currentTimeMillis()
+
+            // Minimum-version gate (set in the admin console). Fails open: no answer in a few
+            // seconds means "no policy", so a bad connection never blocks billing.
+            val policy = withTimeoutOrNull(3500) {
+                withContext(Dispatchers.IO) { AppUpdatePolicy.fetch(this@SplashActivity) }
+            }
+            if (policy?.updateRequired == true) {
+                AppUpdatePolicy.showForceUpdate(this@SplashActivity, policy)
+                finish()
+                return@launch
+            }
 
             if (token.isNullOrEmpty()) {
                 val elapsed = System.currentTimeMillis() - startTime
@@ -57,6 +70,10 @@ class SplashActivity : BaseActivity() {
                     val intent = Intent(this@SplashActivity, WorkspaceChangedActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(intent)
+                    finish()
+                }
+                SessionCheck.Result.SUSPENDED -> {
+                    com.example.easy_billing.util.AccountSuspension.show(this@SplashActivity, force = true)
                     finish()
                 }
             }

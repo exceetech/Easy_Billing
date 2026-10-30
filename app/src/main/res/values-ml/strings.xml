@@ -845,7 +845,7 @@
     <string name="plan_price">പ്ലാൻ വില</string>
     <string name="plus_15_days_free">+15 ദിവസം സൗജന്യം</string>
     <string name="secured_by_razorpay">Razorpay ഉപയോഗിച്ച് സുരക്ഷിതം — കാർഡുകൾ, UPI, നെറ്റ്ബാങ്കിംഗ്</string>
-    <string name="service_charge_pct" formatted="false">സേവന നിരക്ക് (2%)</string>
+    <string name="service_charge_pct" formatted="false">സേവന നിരക്ക്</string>
     <string name="total_2">ആകെ</string>
     <string name="upgrade_credit_est">അപ്ഗ്രേഡ് ക്രെഡിറ്റ് (ഏകദേശം)</string>
 
@@ -3910,4 +3910,27 @@
     <string name="creditnotes_debit_notes_1_s">ഡെബിറ്റ് നോട്ടുകൾ · %1$s</string>
     <string name="main_this_device_has_1_s_unsynced_record_s_">ഈ ഉപകരണത്തിൽ നിങ്ങളുടെ നിലവിലെ വർക്ക്സ്പേസിലെ %1$s രേഖകൾ ഇതുവരെ സിങ്ക് ആയിട്ടില്ല. ഇപ്പോൾ മാറിയാൽ അവ സെർവറിൽ എത്തുന്നതിന് മുമ്പ് ഈ ഉപകരണത്തിൽ നിന്ന് ശാശ്വതമായി ഇല്ലാതാകും.\n\nതിരികെ പോയി ആദ്യം സിങ്ക് ആകാൻ അനുവദിക്കണോ, അതോ എന്തായാലും തുടരണോ?</string>
     <string name="base_your_device_clock_is_off_by_about_1_s_">നിങ്ങളുടെ ഉപകരണത്തിലെ ക്ലോക്ക് ഏകദേശം %1$s മിനിറ്റ് തെറ്റാണ്.\n\nദയവായി അത് ഓട്ടോമാറ്റിക് / ശരിയായ തീയതിയും സമയവും ആയി സജ്ജമാക്കി വീണ്ടും ശ്രമിക്കുക. സമയം ശരിയാകുന്നതുവരെ ബില്ലിംഗ് നിർത്തിവച്ചിരിക്കുന്നു.</string>
+
+    <!-- Admin console: suspension, maintenance, forced update -->
+    <string name="account_suspended_title">അക്കൗണ്ട് താൽക്കാലികമായി നിർത്തിവച്ചിരിക്കുന്നു</string>
+    <string name="account_suspended_default_message">ഈ അക്കൗണ്ട് അഡ്മിനിസ്ട്രേറ്റർ താൽക്കാലികമായി നിർത്തിവച്ചിരിക്കുന്നു. ദയവായി സപ്പോർട്ടുമായി ബന്ധപ്പെടുക.</string>
+    <string name="account_suspended_data_safe">നിങ്ങളുടെ ഡാറ്റ ഈ ഉപകരണത്തിൽ സുരക്ഷിതമാണ്; അക്കൗണ്ട് വീണ്ടും സജീവമാകുമ്പോൾ സിങ്ക് ആകും.</string>
+    <string name="account_suspended_check_again">വീണ്ടും പരിശോധിക്കുക</string>
+    <string name="account_suspended_sign_out">സൈൻ ഔട്ട്</string>
+    <string name="account_suspended_still">നിങ്ങളുടെ അക്കൗണ്ട് ഇപ്പോഴും താൽക്കാലികമായി നിർത്തിവച്ചിരിക്കുകയാണ്.</string>
+    <string name="account_suspended_check_failed">സെർവറുമായി ബന്ധപ്പെടാൻ കഴിഞ്ഞില്ല. കണക്ഷൻ പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക.</string>
+    <string name="backend_maintenance_notice">ഞങ്ങൾ ഷെഡ്യൂൾ ചെയ്ത അറ്റകുറ്റപ്പണി നടത്തുകയാണ്. നിങ്ങളുടെ മാറ്റങ്ങൾ ഈ ഉപകരണത്തിൽ സേവ് ചെയ്തിട്ടുണ്ട്, പിന്നീട് സ്വയമേവ സിങ്ക് ആകും.</string>
+    <string name="force_update_title">അപ്ഡേറ്റ് ആവശ്യമാണ്</string>
+    <string name="force_update_default_message">ആപ്പിന്റെ ഈ പതിപ്പിന് ഇനി പിന്തുണയില്ല. ബില്ലിംഗ് തുടരാൻ ദയവായി അപ്ഡേറ്റ് ചെയ്യുക.</string>
+    <string name="force_update_data_safe">നിങ്ങളുടെ ഡാറ്റ ഈ ഉപകരണത്തിൽ സുരക്ഷിതമാണ്; അപ്ഡേറ്റ് ചെയ്ത ശേഷം സിങ്ക് ആകും.</string>
+    <string name="force_update_button">ഇപ്പോൾ അപ്ഡേറ്റ് ചെയ്യുക</string>
+    <string name="app_update_recommended_message">ആപ്പിന്റെ പുതിയ പതിപ്പ് ലഭ്യമാണ്.</string>
+    <string name="app_update_action">അപ്ഡേറ്റ്</string>
+    <string name="force_update_chip">പുതിയ പതിപ്പ് ലഭ്യമാണ്</string>
+    <string name="force_update_safe_title">നിങ്ങളുടെ ഡാറ്റ സുരക്ഷിതമാണ്</string>
+    <string name="force_update_step_1">സ്റ്റോർ തുറക്കാൻ അപ്ഡേറ്റ് ബട്ടൺ അമർത്തുക</string>
+    <string name="force_update_step_2">അപ്ഡേറ്റ് ഇൻസ്റ്റാൾ ചെയ്ത് ExPOS വീണ്ടും തുറക്കുക</string>
+    <string name="account_suspended_chip">അഡ്മിനിസ്ട്രേറ്റർ താൽക്കാലികമായി നിർത്തി</string>
+    <string name="account_suspended_safe_title">ഒന്നും നഷ്ടപ്പെട്ടിട്ടില്ല</string>
+    <string name="account_suspended_signout_note">സൈൻ ഔട്ട് ചെയ്താലും നിങ്ങളുടെ ബില്ലുകൾ ഈ ഉപകരണത്തിൽ തന്നെ ഉണ്ടാകും</string>
 </resources>

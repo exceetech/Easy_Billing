@@ -845,7 +845,7 @@
     <string name="plan_price">திட்ட விலை</string>
     <string name="plus_15_days_free">+15 நாட்கள் இலவசம்</string>
     <string name="secured_by_razorpay">Razorpay மூலம் பாதுகாக்கப்பட்டது — கார்டுகள், UPI மற்றும் நெட்பேங்கிங்</string>
-    <string name="service_charge_pct" formatted="false">சேவைக் கட்டணம் (2%)</string>
+    <string name="service_charge_pct" formatted="false">சேவைக் கட்டணம்</string>
     <string name="total_2">மொத்தம்</string>
     <string name="upgrade_credit_est">அப்கிரேட் கிரெடிட் (தோராயம்)</string>
 
@@ -3910,4 +3910,27 @@
     <string name="scrap_freq_summary_period">இந்தக் காலத்தில் %1$d முறை, முந்தைய காலத்தில் %2$d முறை</string>
     <string name="scrap_freq_row_sub_period">இந்தக் காலத்தில் %1$d · முன்பு %2$d</string>
     <string name="scrap_recent_caption_period">இந்தக் காலத்தின், புதியது முதலில்</string>
+
+    <!-- Admin console: suspension, maintenance, forced update -->
+    <string name="account_suspended_title">கணக்கு இடைநிறுத்தப்பட்டது</string>
+    <string name="account_suspended_default_message">இந்தக் கணக்கு நிர்வாகியால் இடைநிறுத்தப்பட்டுள்ளது. தயவுசெய்து ஆதரவைத் தொடர்பு கொள்ளவும்.</string>
+    <string name="account_suspended_data_safe">உங்கள் தரவு இந்தச் சாதனத்தில் பாதுகாப்பாக உள்ளது; கணக்கு மீண்டும் செயலில் வந்ததும் ஒத்திசைக்கப்படும்.</string>
+    <string name="account_suspended_check_again">மீண்டும் சரிபார்</string>
+    <string name="account_suspended_sign_out">வெளியேறு</string>
+    <string name="account_suspended_still">உங்கள் கணக்கு இன்னும் இடைநிறுத்தப்பட்டுள்ளது.</string>
+    <string name="account_suspended_check_failed">சேவையகத்தை அடைய முடியவில்லை. இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.</string>
+    <string name="backend_maintenance_notice">நாங்கள் திட்டமிட்ட பராமரிப்பு செய்து வருகிறோம். உங்கள் மாற்றங்கள் இந்தச் சாதனத்தில் சேமிக்கப்பட்டுள்ளன; பின்னர் தானாக ஒத்திசைக்கப்படும்.</string>
+    <string name="force_update_title">புதுப்பிப்பு தேவை</string>
+    <string name="force_update_default_message">ஆப்பின் இந்தப் பதிப்புக்கு இனி ஆதரவு இல்லை. பில்லிங்கைத் தொடர தயவுசெய்து புதுப்பிக்கவும்.</string>
+    <string name="force_update_data_safe">உங்கள் தரவு இந்தச் சாதனத்தில் பாதுகாப்பாக உள்ளது; நீங்கள் புதுப்பித்த பிறகு ஒத்திசைக்கப்படும்.</string>
+    <string name="force_update_button">இப்போது புதுப்பி</string>
+    <string name="app_update_recommended_message">ஆப்பின் புதிய பதிப்பு கிடைக்கிறது.</string>
+    <string name="app_update_action">புதுப்பி</string>
+    <string name="force_update_chip">புதிய பதிப்பு கிடைக்கிறது</string>
+    <string name="force_update_safe_title">உங்கள் தரவு பாதுகாப்பாக உள்ளது</string>
+    <string name="force_update_step_1">ஸ்டோரைத் திறக்க புதுப்பி பொத்தானைத் தட்டவும்</string>
+    <string name="force_update_step_2">புதுப்பிப்பை நிறுவி, பின்னர் ExPOS-ஐ மீண்டும் திறக்கவும்</string>
+    <string name="account_suspended_chip">நிர்வாகியால் நிறுத்தி வைக்கப்பட்டது</string>
+    <string name="account_suspended_safe_title">எதுவும் இழக்கப்படவில்லை</string>
+    <string name="account_suspended_signout_note">வெளியேறினாலும் உங்கள் பில்கள் இந்த சாதனத்திலேயே இருக்கும்</string>
 </resources>

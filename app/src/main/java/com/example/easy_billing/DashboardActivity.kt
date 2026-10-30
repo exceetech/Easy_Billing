@@ -340,6 +340,9 @@ class DashboardActivity : BaseActivity() {
         // First-run nudge: ask once for the opening balance (skippable, never repeats after Skip).
         com.example.easy_billing.util.OpeningBalancePrompt.maybeShow(this)
 
+        // "A newer version is available" banner (dismissible; set in the admin console).
+        com.example.easy_billing.util.AppUpdatePolicy.maybeShowRecommendedBanner(this, findViewById(android.R.id.content))
+
         // LIVE / OFFLINE pills — paint now, then keep them reactive.
         updateLiveStatus()
         if (liveStatusCb == null) {
@@ -2158,8 +2161,9 @@ class DashboardActivity : BaseActivity() {
 
             } catch (e: retrofit2.HttpException) {
 
-                // 🔴 Backend blocked (403)
-                if (e.code() == 403) {
+                // 🔴 Backend blocked (403) — but a suspension has its own blocking
+                // screen (AccountStatusInterceptor), not the subscription dialog.
+                if (e.code() == 403 && !com.example.easy_billing.util.AccountSuspension.isSuspended(e)) {
                     showSubscriptionDialog()
                 }
 
@@ -3025,9 +3029,17 @@ class DashboardActivity : BaseActivity() {
         backendHealthObserverStarted = true
         lifecycleScope.launch {
             repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
-                com.example.easy_billing.util.BackendHealthStatus.isReachable.collect { reachable ->
+                kotlinx.coroutines.flow.combine(
+                    com.example.easy_billing.util.BackendHealthStatus.isReachable,
+                    com.example.easy_billing.util.BackendHealthStatus.maintenance
+                ) { reachable, maintenance -> reachable to maintenance }.collect { (reachable, maintenance) ->
+                    // Same banner for both; only the wording differs.
+                    findViewById<TextView>(R.id.tvBackendUnreachable)?.setText(
+                        if (maintenance) R.string.backend_maintenance_notice
+                        else R.string.activity_dashboard_xml_offline_notice
+                    )
                     findViewById<View>(R.id.bannerBackendUnreachable)?.visibility =
-                        if (reachable) View.GONE else View.VISIBLE
+                        if (reachable && !maintenance) View.GONE else View.VISIBLE
                 }
             }
         }

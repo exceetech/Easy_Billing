@@ -845,7 +845,7 @@
     <string name="plan_price">ప్లాన్ ధర</string>
     <string name="plus_15_days_free">+15 రోజులు ఉచితం</string>
     <string name="secured_by_razorpay">Razorpay ద్వారా సురక్షితం — కార్డులు, UPI మరియు నెట్</string>
-    <string name="service_charge_pct" formatted="false">సర్వీస్ ఛార్జ్ (2%)</string>
+    <string name="service_charge_pct" formatted="false">సర్వీస్ ఛార్జ్</string>
     <string name="total_2">మొత్తం</string>
     <string name="upgrade_credit_est">అప్</string>
 
@@ -3910,4 +3910,27 @@
     <string name="scrap_freq_summary_period">ఈ కాలంలో %1$d సార్లు, గత కాలంలో %2$d సార్లు</string>
     <string name="scrap_freq_row_sub_period">ఈ కాలంలో %1$d · ముందు %2$d ఉండేది</string>
     <string name="scrap_recent_caption_period">ఈ కాలంలోని, కొత్తది ముందు</string>
+
+    <!-- Admin console: suspension, maintenance, forced update -->
+    <string name="account_suspended_title">ఖాతా నిలిపివేయబడింది</string>
+    <string name="account_suspended_default_message">ఈ ఖాతాను నిర్వాహకులు నిలిపివేశారు. దయచేసి సపోర్ట్‌ను సంప్రదించండి.</string>
+    <string name="account_suspended_data_safe">మీ డేటా ఈ పరికరంలో సురక్షితంగా ఉంది; ఖాతా మళ్లీ యాక్టివ్ అయిన తర్వాత సింక్ అవుతుంది.</string>
+    <string name="account_suspended_check_again">మళ్లీ తనిఖీ చేయండి</string>
+    <string name="account_suspended_sign_out">సైన్ అవుట్</string>
+    <string name="account_suspended_still">మీ ఖాతా ఇంకా నిలిపివేయబడి ఉంది.</string>
+    <string name="account_suspended_check_failed">సర్వర్‌ను చేరుకోలేకపోయాము. మీ కనెక్షన్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.</string>
+    <string name="backend_maintenance_notice">మేము షెడ్యూల్ చేసిన నిర్వహణ చేస్తున్నాము. మీ మార్పులు ఈ పరికరంలో సేవ్ అయ్యాయి మరియు తర్వాత ఆటోమేటిక్‌గా సింక్ అవుతాయి.</string>
+    <string name="force_update_title">అప్‌డేట్ అవసరం</string>
+    <string name="force_update_default_message">యాప్ యొక్క ఈ వెర్షన్‌కు ఇకపై మద్దతు లేదు. బిల్లింగ్ కొనసాగించడానికి దయచేసి అప్‌డేట్ చేయండి.</string>
+    <string name="force_update_data_safe">మీ డేటా ఈ పరికరంలో సురక్షితంగా ఉంది; మీరు అప్‌డేట్ చేసిన తర్వాత సింక్ అవుతుంది.</string>
+    <string name="force_update_button">ఇప్పుడే అప్‌డేట్ చేయండి</string>
+    <string name="app_update_recommended_message">యాప్ యొక్క కొత్త వెర్షన్ అందుబాటులో ఉంది.</string>
+    <string name="app_update_action">అప్‌డేట్</string>
+    <string name="force_update_chip">కొత్త వెర్షన్ అందుబాటులో ఉంది</string>
+    <string name="force_update_safe_title">మీ డేటా సురక్షితంగా ఉంది</string>
+    <string name="force_update_step_1">స్టోర్ తెరవడానికి అప్‌డేట్ బటన్ నొక్కండి</string>
+    <string name="force_update_step_2">అప్‌డేట్ ఇన్‌స్టాల్ చేసి, ఆపై ExPOS మళ్లీ తెరవండి</string>
+    <string name="account_suspended_chip">నిర్వాహకుడు నిలిపివేశారు</string>
+    <string name="account_suspended_safe_title">ఏదీ పోలేదు</string>
+    <string name="account_suspended_signout_note">సైన్ అవుట్ చేసినా మీ బిల్లులు ఈ పరికరంలోనే ఉంటాయి</string>
 </resources>

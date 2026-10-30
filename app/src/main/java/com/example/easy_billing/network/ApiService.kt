@@ -391,14 +391,6 @@ interface ApiService {
     ): SubscriptionResponse
 
 
-    // ================= ADMIN =================
-
-    @POST("subscription/admin/activate")
-    suspend fun adminActivateSubscription(
-        @Query("shop_id") shopId: Int,
-        @Query("plan") plan: String
-    ): MessageResponse
-
     // ================= RAZORPAY SUBSCRIPTION PAYMENT =================
     // See app/services/razorpay_service.py and subscription_payment_routes.py
     // on the backend. Client never sends a price — the server always

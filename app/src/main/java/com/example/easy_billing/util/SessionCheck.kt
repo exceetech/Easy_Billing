@@ -19,7 +19,7 @@ import retrofit2.HttpException
  */
 object SessionCheck {
 
-    enum class Result { VALID, ONBOARDING_INCOMPLETE, INVALID_TOKEN, WORKSPACE_CHANGED }
+    enum class Result { VALID, ONBOARDING_INCOMPLETE, INVALID_TOKEN, WORKSPACE_CHANGED, SUSPENDED }
 
     suspend fun run(context: Context, token: String): Result {
         return try {
@@ -49,6 +49,15 @@ object SessionCheck {
             when (e.code()) {
                 401 -> Result.INVALID_TOKEN
                 409 -> Result.WORKSPACE_CHANGED
+                // An admin suspended this shop. Must be told apart from the
+                // generic 403 below so the user lands on the suspended screen
+                // (and keeps their data) instead of the cached Dashboard.
+                403 -> if (AccountSuspension.isSuspended(e)) {
+                    Result.SUSPENDED
+                } else {
+                    BackendHealthStatus.report(true)
+                    Result.VALID
+                }
                 else -> {
                     // Server responded — it's reachable, just errored (5xx etc.).
                     // Still let the user through to cached Dashboard; only the

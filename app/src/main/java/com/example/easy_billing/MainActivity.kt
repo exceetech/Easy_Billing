@@ -85,6 +85,10 @@ class MainActivity : BaseActivity() {
                     startActivity(intent)
                     finish()
                 }
+                com.example.easy_billing.util.SessionCheck.Result.SUSPENDED -> {
+                    com.example.easy_billing.util.AccountSuspension.show(this@MainActivity, force = true)
+                    finish()
+                }
             }
         }
     }

@@ -845,7 +845,7 @@
     <string name="plan_price">ಪ್ಲಾನ್ ಬೆಲೆ</string>
     <string name="plus_15_days_free">+15 ದಿನಗಳು ಉಚಿತ</string>
     <string name="secured_by_razorpay">Razorpay ಮೂಲಕ ಸುರಕ್ಷಿತ — ಕಾರ್ಡ್</string>
-    <string name="service_charge_pct" formatted="false">ಸೇವಾ ಶುಲ್ಕ (2%)</string>
+    <string name="service_charge_pct" formatted="false">ಸೇವಾ ಶುಲ್ಕ</string>
     <string name="total_2">ಒಟ್ಟು</string>
     <string name="upgrade_credit_est">ಅಪ್</string>
 
@@ -3910,4 +3910,27 @@
     <string name="creditnotes_debit_notes_1_s">ಡೆಬಿಟ್ ನೋಟ್‌ಗಳು · %1$s</string>
     <string name="main_this_device_has_1_s_unsynced_record_s_">ಈ ಸಾಧನದಲ್ಲಿ ನಿಮ್ಮ ಪ್ರಸ್ತುತ ವರ್ಕ್‌ಸ್ಪೇಸ್‌ನ %1$s ದಾಖಲೆಗಳು ಇನ್ನೂ ಸಿಂಕ್ ಆಗಿಲ್ಲ. ಈಗ ಬದಲಿಸಿದರೆ ಅವು ಸರ್ವರ್ ತಲುಪುವ ಮೊದಲೇ ಈ ಸಾಧನದಿಂದ ಶಾಶ್ವತವಾಗಿ ಅಳಿಸಲ್ಪಡುತ್ತವೆ.\n\nಹಿಂತಿರುಗಿ ಮೊದಲು ಸಿಂಕ್ ಆಗಲು ಬಿಡಿ, ಅಥವಾ ಹೇಗಾದರೂ ಮುಂದುವರಿಸುವುದೇ?</string>
     <string name="base_your_device_clock_is_off_by_about_1_s_">ನಿಮ್ಮ ಸಾಧನದ ಗಡಿಯಾರ ಸುಮಾರು %1$s ನಿಮಿಷ ತಪ್ಪಾಗಿದೆ.\n\nದಯವಿಟ್ಟು ಅದನ್ನು ಸ್ವಯಂಚಾಲಿತ / ಸರಿಯಾದ ದಿನಾಂಕ ಮತ್ತು ಸಮಯಕ್ಕೆ ಹೊಂದಿಸಿ, ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ. ಸಮಯ ಸರಿಯಾಗುವವರೆಗೆ ಬಿಲ್ಲಿಂಗ್ ನಿಲ್ಲಿಸಲಾಗಿದೆ.</string>
+
+    <!-- Admin console: suspension, maintenance, forced update -->
+    <string name="account_suspended_title">ಖಾತೆ ಅಮಾನತುಗೊಂಡಿದೆ</string>
+    <string name="account_suspended_default_message">ಈ ಖಾತೆಯನ್ನು ಆಡಳಿತಗಾರರು ಅಮಾನತುಗೊಳಿಸಿದ್ದಾರೆ. ದಯವಿಟ್ಟು ಸಹಾಯ ತಂಡವನ್ನು ಸಂಪರ್ಕಿಸಿ.</string>
+    <string name="account_suspended_data_safe">ನಿಮ್ಮ ಡೇಟಾ ಈ ಸಾಧನದಲ್ಲಿ ಸುರಕ್ಷಿತವಾಗಿದೆ ಮತ್ತು ಖಾತೆ ಮತ್ತೆ ಸಕ್ರಿಯವಾದಾಗ ಸಿಂಕ್ ಆಗುತ್ತದೆ.</string>
+    <string name="account_suspended_check_again">ಮತ್ತೆ ಪರಿಶೀಲಿಸಿ</string>
+    <string name="account_suspended_sign_out">ಸೈನ್ ಔಟ್</string>
+    <string name="account_suspended_still">ನಿಮ್ಮ ಖಾತೆ ಇನ್ನೂ ಅಮಾನತುಗೊಂಡಿದೆ.</string>
+    <string name="account_suspended_check_failed">ಸರ್ವರ್ ಅನ್ನು ತಲುಪಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ನಿಮ್ಮ ಸಂಪರ್ಕವನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.</string>
+    <string name="backend_maintenance_notice">ನಾವು ನಿಗದಿತ ನಿರ್ವಹಣೆ ನಡೆಸುತ್ತಿದ್ದೇವೆ. ನಿಮ್ಮ ಬದಲಾವಣೆಗಳು ಈ ಸಾಧನದಲ್ಲಿ ಉಳಿದಿವೆ ಮತ್ತು ನಂತರ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಸಿಂಕ್ ಆಗುತ್ತವೆ.</string>
+    <string name="force_update_title">ಅಪ್‌ಡೇಟ್ ಅಗತ್ಯವಿದೆ</string>
+    <string name="force_update_default_message">ಈ ಆ್ಯಪ್ ಆವೃತ್ತಿಗೆ ಇನ್ನು ಬೆಂಬಲವಿಲ್ಲ. ಬಿಲ್ಲಿಂಗ್ ಮುಂದುವರಿಸಲು ದಯವಿಟ್ಟು ಅಪ್‌ಡೇಟ್ ಮಾಡಿ.</string>
+    <string name="force_update_data_safe">ನಿಮ್ಮ ಡೇಟಾ ಈ ಸಾಧನದಲ್ಲಿ ಸುರಕ್ಷಿತವಾಗಿದೆ ಮತ್ತು ನೀವು ಅಪ್‌ಡೇಟ್ ಮಾಡಿದ ನಂತರ ಸಿಂಕ್ ಆಗುತ್ತದೆ.</string>
+    <string name="force_update_button">ಈಗ ಅಪ್‌ಡೇಟ್ ಮಾಡಿ</string>
+    <string name="app_update_recommended_message">ಆ್ಯಪ್‌ನ ಹೊಸ ಆವೃತ್ತಿ ಲಭ್ಯವಿದೆ.</string>
+    <string name="app_update_action">ಅಪ್‌ಡೇಟ್</string>
+    <string name="force_update_chip">ಹೊಸ ಆವೃತ್ತಿ ಲಭ್ಯವಿದೆ</string>
+    <string name="force_update_safe_title">ನಿಮ್ಮ ಡೇಟಾ ಸುರಕ್ಷಿತವಾಗಿದೆ</string>
+    <string name="force_update_step_1">ಸ್ಟೋರ್ ತೆರೆಯಲು ಅಪ್‌ಡೇಟ್ ಬಟನ್ ಒತ್ತಿ</string>
+    <string name="force_update_step_2">ಅಪ್‌ಡೇಟ್ ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಿ, ನಂತರ ExPOS ಮತ್ತೆ ತೆರೆಯಿರಿ</string>
+    <string name="account_suspended_chip">ನಿರ್ವಾಹಕರಿಂದ ತಡೆಹಿಡಿಯಲಾಗಿದೆ</string>
+    <string name="account_suspended_safe_title">ಏನೂ ಕಳೆದುಹೋಗಿಲ್ಲ</string>
+    <string name="account_suspended_signout_note">ಸೈನ್ ಔಟ್ ಮಾಡಿದರೂ ನಿಮ್ಮ ಬಿಲ್‌ಗಳು ಈ ಸಾಧನದಲ್ಲೇ ಉಳಿಯುತ್ತವೆ</string>
 </resources>

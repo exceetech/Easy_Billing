@@ -60,6 +60,14 @@ object BackendReachabilityChecker {
                 BackendHealthStatus.report(true)
                 return Status.OK
             } catch (e: retrofit2.HttpException) {
+                if (AccountSuspension.isSuspended(e)) {
+                    // The shop is suspended by an admin: the server answered and the
+                    // session is intact, it is just blocked. AccountStatusInterceptor
+                    // shows the suspended screen; logging out here would wrongly end
+                    // a temporary state, so report it as "alive".
+                    BackendHealthStatus.report(true)
+                    return Status.OK
+                }
                 if (e.code() == 401 || e.code() == 403) {
                     // Server responded — it's reachable, it just rejected us.
                     BackendHealthStatus.report(true)

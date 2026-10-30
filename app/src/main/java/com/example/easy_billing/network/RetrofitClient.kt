@@ -51,6 +51,7 @@ object RetrofitClient {
             .writeTimeout(20, TimeUnit.SECONDS)
             .addInterceptor(AuthInterceptor(appContext))
             .addInterceptor(WorkspaceInterceptor(appContext)) // 409 → WorkspaceChangedActivity
+            .addInterceptor(AccountStatusInterceptor(appContext)) // 403 suspended → AccountSuspendedActivity; 503 maintenance flag
             // Passive disk cache — OkHttp only stores/reuses a response here
             // if the server's own Cache-Control/Expires headers say it's
             // cacheable (standard HTTP semantics). Nothing changes for

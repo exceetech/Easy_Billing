@@ -1,0 +1,9 @@
+
+    <!-- activity_force_update / AppUpdatePolicy -->
+    <string name="force_update_icon_emoji">⬆️</string>
+    <string name="force_update_title">Update required</string>
+    <string name="force_update_default_message">This version of the app is no longer supported. Please update to keep billing.</string>
+    <string name="force_update_data_safe">Your data is safe on this device and will sync after you update.</string>
+    <string name="force_update_button">Update now</string>
+    <string name="app_update_recommended_message">A newer version of the app is available.</string>
+    <string name="app_update_action">Update</string>

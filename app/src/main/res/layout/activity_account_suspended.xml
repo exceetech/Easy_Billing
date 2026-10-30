@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Blocking screen shown while an administrator has suspended the shop.
+     Glass theme: white page with corner glows, gradient icon tile in a glass ring,
+     status pill, Marcellus title, "your data is safe" glass card, gradient buttons. -->
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:overScrollMode="never"
+    android:background="@drawable/bg_lg_page">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="26dp">
+
+        <!-- Wordmark -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ex"
+                android:textSize="17sp"
+                android:letterSpacing="0.06"
+                android:textColor="#1A1A18"
+                android:fontFamily="@font/marcellus"
+                tools:ignore="HardcodedText"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="POS"
+                android:textSize="17sp"
+                android:letterSpacing="0.06"
+                android:textColor="#0F6E56"
+                android:fontFamily="@font/marcellus"
+                tools:ignore="HardcodedText"/>
+        </LinearLayout>
+
+        <!-- Hero icon: ring, glass disc, gradient tile -->
+        <FrameLayout
+            android:layout_width="132dp"
+            android:layout_height="132dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="40dp">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_lg_ring_amber"/>
+            <View
+                android:layout_width="104dp"
+                android:layout_height="104dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_lg_halo"
+                android:elevation="3dp"
+                android:outlineSpotShadowColor="#BA7517"/>
+            <FrameLayout
+                android:layout_width="62dp"
+                android:layout_height="62dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_lg_icon_tile_amber"
+                android:elevation="8dp"
+                android:outlineSpotShadowColor="#BA7517"
+                android:outlineAmbientShadowColor="#BA7517">
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_lc_pause_fill"
+                    android:importantForAccessibility="no"/>
+            </FrameLayout>
+        </FrameLayout>
+
+        <!-- Status pill -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="22dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="6dp"
+            android:background="@drawable/bg_lg_chip_amber">
+            <View
+                android:layout_width="6dp"
+                android:layout_height="6dp"
+                android:background="@drawable/bg_lg_dot"
+                android:backgroundTint="#8A6526"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:text="@string/account_suspended_chip"
+                android:textAllCaps="true"
+                android:letterSpacing="0.08"
+                android:textSize="11sp"
+                android:textColor="#8A6526"
+                android:fontFamily="@font/googlesans_semibold"
+                android:includeFontPadding="false"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:text="@string/account_suspended_title"
+            android:textSize="28sp"
+            android:textColor="#1A1A18"
+            android:fontFamily="@font/marcellus"/>
+
+        <TextView
+            android:id="@+id/tvSuspendedMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:paddingHorizontal="6dp"
+            android:gravity="center"
+            android:text="@string/account_suspended_default_message"
+            android:textSize="14.5sp"
+            android:textColor="#5B6660"
+            android:lineSpacingExtra="4dp"
+            android:fontFamily="@font/googlesans_regular"/>
+
+        <!-- Your data is safe -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="horizontal"
+            android:padding="14dp"
+            android:background="@drawable/bg_lg_card">
+            <FrameLayout
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_lg_icon_box_green">
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_lc_shield_check"
+                    app:tint="#0F6E56"
+                    android:importantForAccessibility="no"/>
+            </FrameLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/account_suspended_safe_title"
+                    android:textSize="13.5sp"
+                    android:textColor="#1A1A18"
+                    android:fontFamily="@font/googlesans_semibold"/>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/account_suspended_data_safe"
+                    android:textSize="12.5sp"
+                    android:textColor="#5B6660"
+                    android:lineSpacingExtra="2dp"
+                    android:fontFamily="@font/googlesans_regular"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Pushes the buttons to the bottom on tall screens -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCheckAgain"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            android:layout_marginTop="24dp"
+            android:text="@string/account_suspended_check_again"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:fontFamily="@font/googlesans_semibold"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:background="@drawable/bg_lg_cta_green_16_state"
+            app:backgroundTint="@null"
+            app:icon="@drawable/ic_lc_refresh_cw"
+            app:iconTint="#FFFFFF"
+            app:iconSize="18dp"
+            app:iconGravity="textStart"
+            app:iconPadding="9dp"
+            android:stateListAnimator="@null"
+            android:elevation="6dp"
+            android:outlineSpotShadowColor="#0F6E56"
+            android:outlineAmbientShadowColor="#0F6E56"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSuspendedSignOut"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:text="@string/account_suspended_sign_out"
+            android:textAllCaps="false"
+            android:textSize="14.5sp"
+            android:textColor="#1A1A18"
+            android:fontFamily="@font/googlesans_semibold"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:background="@drawable/bg_lg_cta_outline"
+            app:backgroundTint="@null"
+            app:icon="@drawable/ic_lc_log_out"
+            app:iconTint="#5B6660"
+            app:iconSize="16dp"
+            app:iconGravity="textStart"
+            app:iconPadding="8dp"
+            android:stateListAnimator="@null"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:text="@string/account_suspended_signout_note"
+            android:textSize="11.5sp"
+            android:textColor="#7C8782"
+            android:fontFamily="@font/googlesans_regular"/>
+
+    </LinearLayout>
+</ScrollView>

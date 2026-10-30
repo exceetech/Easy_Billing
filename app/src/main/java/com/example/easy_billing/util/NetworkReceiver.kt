@@ -107,6 +107,10 @@ class NetworkReceiver(context: Context) {
                                 // 409 WORKSPACE_CHANGED: WorkspaceInterceptor already launched
                                 // WorkspaceChangedActivity. Don't forceLogout (race condition).
                                 e is retrofit2.HttpException && e.code() == 409 -> return@launch
+                                // 403 ACCOUNT_SUSPENDED: AccountStatusInterceptor already
+                                // opened the suspended screen. A suspension is temporary, so
+                                // this must NOT log the user out.
+                                AccountSuspension.isSuspended(e) -> return@launch
                                 // Genuine auth failure → log out.
                                 e is retrofit2.HttpException && (e.code() == 401 || e.code() == 403) ->
                                     forceLogout("Session expired")

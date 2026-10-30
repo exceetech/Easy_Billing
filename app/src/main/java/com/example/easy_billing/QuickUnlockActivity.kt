@@ -600,6 +600,14 @@ class QuickUnlockActivity : BaseActivity() {
                 // a full re-login AND a brand-new PIN setup for no real
                 // reason, the very opposite of "cleared only on device
                 // reset." Those cases just let the user retry from here.
+                // A suspended shop is NOT a rejection of the saved PIN: the suspension is
+                // temporary, so the PIN must survive it. AccountStatusInterceptor has
+                // already opened the suspended screen.
+                if (com.example.easy_billing.util.AccountSuspension.isSuspended(e)) {
+                    com.example.easy_billing.util.AccountSuspension.show(this@QuickUnlockActivity)
+                    return@launch
+                }
+
                 val httpCode = (e as? retrofit2.HttpException)?.code()
                 val isAuthRejection = httpCode == 401 || httpCode == 403 || httpCode == 409
 

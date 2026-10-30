@@ -978,7 +978,7 @@
     <string name="plan_price">Plan price</string>
     <string name="plus_15_days_free">+15 days free</string>
     <string name="secured_by_razorpay">Secured by Razorpay — cards, UPI and netbanking</string>
-    <string name="service_charge_pct" formatted="false">Service charge (2%)</string>
+    <string name="service_charge_pct" formatted="false">Service charge</string>
     <string name="total_2">Total</string>
     <string name="upgrade_credit_est">Upgrade credit (est.)</string>
 
@@ -2346,6 +2346,17 @@
     <string name="workspace_changed_icon_emoji">🔄</string>
     <string name="workspace_changed_reload_btn">Reload Workspace</string>
     <string name="workspace_changed_title">Workspace Updated</string>
+
+    <!-- activity_account_suspended -->
+    <string name="account_suspended_icon_emoji">⏸️</string>
+    <string name="account_suspended_title">Account suspended</string>
+    <string name="account_suspended_default_message">This account has been suspended by the administrator. Please contact support.</string>
+    <string name="account_suspended_data_safe">Your data is safe on this device and will sync once the account is active again.</string>
+    <string name="account_suspended_check_again">Check again</string>
+    <string name="account_suspended_sign_out">Sign out</string>
+    <string name="account_suspended_still">Your account is still suspended.</string>
+    <string name="account_suspended_check_failed">Could not reach the server. Check your connection and try again.</string>
+    <string name="backend_maintenance_notice">We are doing scheduled maintenance. Your changes are saved on this device and will sync automatically afterwards.</string>
 
     <!-- item_ai_insight_header -->
     <string name="xml_ai_insight_header_default">NEEDS ATTENTION</string>
@@ -3960,4 +3971,21 @@
     <string name="creditnotes_debit_notes_1_s">Debit notes · %1$s</string>
     <string name="main_this_device_has_1_s_unsynced_record_s_">This device has %1$s unsynced record(s) from your current workspace. Switching now will permanently delete them from this device before they reach the server.\n\nGo back and let them sync first, or continue anyway?</string>
     <string name="base_your_device_clock_is_off_by_about_1_s_">Your device clock is off by about %1$s minute(s).\n\nPlease set it to automatic / correct date &amp; time, then retry. Billing is paused until the time is correct.</string>
+
+    <!-- activity_force_update / AppUpdatePolicy -->
+    <string name="force_update_icon_emoji">⬆️</string>
+    <string name="force_update_title">Update required</string>
+    <string name="force_update_default_message">This version of the app is no longer supported. Please update to keep billing.</string>
+    <string name="force_update_data_safe">Your data is safe on this device and will sync after you update.</string>
+    <string name="force_update_button">Update now</string>
+    <string name="app_update_recommended_message">A newer version of the app is available.</string>
+    <string name="app_update_action">Update</string>
+
+    <string name="force_update_chip">New version available</string>
+    <string name="force_update_safe_title">Your data is safe</string>
+    <string name="force_update_step_1">Tap Update now to open the store</string>
+    <string name="force_update_step_2">Install the update, then open ExPOS again</string>
+    <string name="account_suspended_chip">Paused by administrator</string>
+    <string name="account_suspended_safe_title">Nothing is lost</string>
+    <string name="account_suspended_signout_note">Signing out keeps your bills on this device</string>
 </resources>
